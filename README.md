@@ -8,7 +8,7 @@ together has over 200 000 unique visitors per week.*
 
 ##### Resources 
 
-- Download at Wordpress
+- [Download at Wordpress](http://wordpress.org/extend/plugins/arlima/)
 - Getting started
 - User manual
 - Developer manual
@@ -20,4 +20,5 @@ Lorem te ipsum
 
 ## Credits
 
-Lorem te ipsum
+[@chredd](http://twitter.com/chredd) [@znoid](http://twitter.com/znoid) [@victor_jonsson](http://twitter.com/victor_jonsson)
+[@lefalque](http://twitter.com/lefalque)

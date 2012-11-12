@@ -6,7 +6,7 @@ staff an easy to use tool for customizing the front pages of their online magazi
 used on a daily basis at http://www.folkbladet.nu and http://www.vk.se, websites that 
 together has over 200 000 unique visitors per week.*
 
-==== Resources ====
+##### Resources 
 
 - Download at Wordpress
 - Getting started
@@ -14,10 +14,10 @@ together has over 200 000 unique visitors per week.*
 - Developer manual
 
 
-== Installation ==
+## Installation
 
 Lorem te ipsum
 
-== Credits ==
+## Credits
 
 Lorem te ipsum

@@ -1,0 +1,14 @@
+{
+    "name":        "Arlima",
+    "type":        "library",
+    "description": "Wordpress plugin - read more at https://github.com/victorjonsson/arlima",
+    "homepage":    "https://github.com/victorjonsson/arlima",
+    "license":     "GPL2 (http://www.gnu.org/licenses/gpl-2.0.html)",
+    "authors": [],
+    "require": {
+        "php": ">= 5.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    }
+}

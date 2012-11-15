@@ -94,6 +94,7 @@ class Arlima_List
             /*
                 The code within this if statement wont make much sense
                 since it only exists for backward compatibility reasons.
+                todo: remove when moving up to version 3.0
             */
 
             Arlima_Plugin::warnAboutUseOfDeprecatedFunction(
@@ -101,9 +102,16 @@ class Arlima_List
                 2.0,
                 'Arlima_ListFactory::loadList(ID, VERSION)'
             );
-            Arlima_ListFactory::addData($this, $exists, $id);
-            if ( $is_imported ) {
-                Arlima_ListFactory::addArticles($this, !$id);
+
+            $factory = new Arlima_ListFactory();
+            $list = $factory->loadList($exists, $id);
+            foreach($this as $key => $val) {
+                $set_func = 'set'.ucfirst($key);
+                $get_func = 'get'.ucfirst($key);
+                if( method_exists($this, $set_func) ) {
+                    $val = call_user_func(array($list, $get_func));
+                    call_user_func(array($this, $set_func), $val);
+                }
             }
 
         } else {

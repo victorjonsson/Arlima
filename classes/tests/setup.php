@@ -18,7 +18,7 @@
  */
 
 
-// Load error reporting
+// Noisy error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 

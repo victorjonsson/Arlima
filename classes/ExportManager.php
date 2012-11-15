@@ -76,8 +76,10 @@ class Arlima_ExportManager {
                 $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '400 Bad Request', $format);
             }
 
-            $list = Arlima_ListFactory::loadList($arlima_slug);
-            if(!$list->exists) {
+            $factory = new Arlima_ListFactory();
+            $list = $factory->loadListBySlug($arlima_slug);
+
+            if(!$list->exists()) {
                 $this->sendErrorToClient(self::ERROR_LIST_DOES_NOT_EXIST, '500 Internal Server Error', $format);
             }
             elseif(!$this->isAvailableForExport($list)) {
@@ -128,22 +130,23 @@ class Arlima_ExportManager {
 
     /**
      * @param Arlima_List $list
-     * @param string $format
+     * @param string $format Either 'json' or 'rss'
      * @return string
      */
-    private function convertList($list, $format) {
+    public function convertList($list, $format) {
 
         // Modify data exported
         $base_url = rtrim(home_url(), '/').'/';
-        foreach(array_keys($list->articles) as $key) {
-            $this->prepareArticleForExport($list->articles[$key], $base_url);
+        $articles = $list->getArticles();
+        foreach(array_keys($articles) as $key) {
+            $this->prepareArticleForExport($articles[$key], $base_url);
         }
 
         // RSS export
         if($format == self::FORMAT_RSS) {
             $base_url = get_bloginfo('url');
             $rss = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel>
-                <title><![CDATA['.$list->title.' ('.$list->slug.')]]></title>
+                <title><![CDATA['.$list->getTitle().' ('.$list->getSlug().')]]></title>
                 <description>RSS export feed for Arlima article list</description>
                 <link>'.$base_url.'</link>
                 <lastBuildDate>'.date('r').'</lastBuildDate>
@@ -153,7 +156,7 @@ class Arlima_ExportManager {
                 ';
 
             $list_last_mod_time = $list->lastModified();
-            foreach($list->articles as $article) {
+            foreach($articles as $article) {
                 $rss .= $this->articleToRSSItem($article, $list_last_mod_time);
                 if( !empty($article['children']) ) {
                     foreach($article['children'] as $child_article)
@@ -166,7 +169,7 @@ class Arlima_ExportManager {
 
         // JSON export
         else {
-            return json_encode( (array)$list );
+            return json_encode( $list->toArray() );
         }
     }
 

@@ -108,14 +108,96 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
 
     function testVersionManagement() {
 
-        $list = $this->createList();
+        $list = $this->createList('Test', 'testing', array(), 2);
         $article = Arlima_ListFactory::createArticleDataArray();
 
         self::$factory->saveNewListVersion($list, array( $article ), 99);
-
         $reloaded_list = self::$factory->loadList($list->id());
 
-        var_dump($reloaded_list);
+        $ver_id = $reloaded_list->getVersionAttribute('id');
+        $this->assertEquals(Arlima_List::STATUS_PUBLISHED, $reloaded_list->getStatus());
+        $this->assertEquals(99, $reloaded_list->getVersionAttribute('user_id'));
+        $this->assertTrue( is_numeric($ver_id) );
+
+        self::$factory->saveNewListVersion($list, array( $article, $article, $article ), 98);
+        $reloaded_list = self::$factory->loadList($list->id());
+
+        $this->assertEquals(2, count( $reloaded_list->getVersions() ));
+        $this->assertFalse( $reloaded_list->isPreview() );
+        $this->assertTrue( $reloaded_list->isLatestPublishedVersion() );
+        $this->assertEquals(98, (int)$reloaded_list->getVersionAttribute('user_id'));
+        $this->assertEquals(2, count($reloaded_list->getArticles())); // Limit was set to two
+
+        self::$factory->saveNewListVersion($list, array( $article, $article ), 97);
+
+        $old_version = self::$factory->loadList($list->id(), $ver_id);
+
+        $this->assertFalse( $old_version->isLatestPublishedVersion() );
+        $this->assertEquals($ver_id, $old_version->getVersionAttribute('id'));
+        $this->assertEquals(3, count($old_version->getVersions()));
+        $this->assertEquals(1, count($old_version->getArticles()));
+
+        self::$factory->removeOldVersions($old_version, 1);
+
+        $latest_version = self::$factory->loadList($list->id());
+        $this->assertTrue( $latest_version->getVersionAttribute('id') > $ver_id );
+        $this->assertEquals(1, count($latest_version->getVersions()));
+    }
+
+    function testVersionCleanUp() {
+        $list = $this->createList();
+        for($i=1; $i < 15; $i++) {
+            self::$factory->saveNewListVersion($list, array(), $i);
+        }
+
+        $latest_ver = self::$factory->loadList($list->id());
+        $this->assertEquals(14, $latest_ver->getVersionAttribute('user_id'));
+        $this->assertEquals(10, count($latest_ver->getVersions()));
+
+        $oldest_ver = self::$factory->loadListBySlug($list->getSlug(), array_slice($latest_ver->getVersions(), -1));
+        $this->assertEquals(5, $oldest_ver->getVersionAttribute('user_id'));
+    }
+
+    function testPreviewVersions() {
+
+        $list = $this->createList();
+        self::$factory->saveNewListVersion($list, array(), 5);
+        self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray() ), 9, true);
+
+        $latest_version = self::$factory->loadList($list->id());
+        $this->assertEquals(5, $latest_version->getVersionAttribute('user_id'));
+
+        $preview = self::$factory->loadLatestPreview($list->id());
+        $this->assertEquals(1, count($preview->getVersions()));
+        $this->assertTrue( $preview->isPreview() );
+        $this->assertEquals(1, count($preview->getArticles()));
+        $this->assertEquals(9, $preview->getVersionAttribute('user_id'));
+
+        self::$factory->saveNewListVersion($list, array(), 5);
+        $newest = self::$factory->loadList($list->id());
+
+        $this->assertEquals(2, count($newest->getVersions()));
+        $this->assertEquals(0, count(self::$factory->loadLatestPreview($list->id())->getArticles()) );
+    }
+
+    function testDeleteLists() {
+
+        $list = $this->createList();
+        $id = $list->id();
+
+        self::$factory->deleteList($list);
+
+        $this->assertFalse( self::$factory->loadList($id)->exists() );
+    }
+
+    function testDeprecatedFunctions() {
+
+        $list = $this->createList();
+
+        $this->assertEquals($list->id(), $list->id);
+        $this->assertEquals(true, $list->exists);
+        $this->assertEquals('test', $list->slug);
+        $this->assertEquals('Test list', $list->title);
 
     }
 }

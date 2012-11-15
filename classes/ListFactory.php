@@ -142,7 +142,7 @@ class Arlima_ListFactory {
 
         // remove cache
         $this->cache->delete('arlima_list_props_'.$list->id());
-        $this->cache->delete('arlima_list_article_data_'.$list->id());
+        $this->cache->delete('arlima_list_articles_data_'.$list->id());
     }
 
     /**
@@ -174,6 +174,7 @@ class Arlima_ListFactory {
                 );
 
         $this->executeSQLQuery('query', $sql);
+        $version_id = $this->wpdb->insert_id;
 
         // Save the articles of this verion of the list
         if( !empty($articles) ) {
@@ -198,7 +199,7 @@ class Arlima_ListFactory {
 
             $count = 0;
             foreach( $articles as $sort => $article ) {
-                $this->saveArticle($article, $sort, -1, $list, $count);
+                $this->saveArticle($version_id, $article, $sort, -1, $count);
                 $count++;
                 if( $count >= ( $list->getMaxlength()-1 ) )
                     break;
@@ -206,17 +207,17 @@ class Arlima_ListFactory {
         }
 
         if( !$preview )
-            $this->cache->delete('arlima_list_article_data_'.$list->id());
+            $this->cache->delete('arlima_list_articles_data_'.$list->id());
     }
 
     /**
+     * @param int $version_id
      * @param array $article
      * @param mixed $sort,
      * @param int $parent[optional=-1]
-     * @param Arlima_List $list
      * @param int $offset
      */
-    private function saveArticle( $article, $sort, $parent=-1, $list, $offset) {
+    private function saveArticle($version_id, $article, $sort, $parent=-1, $offset) {
 
         if( !is_array($article['options']) )
             $article['options'] = array();
@@ -234,7 +235,7 @@ class Arlima_ListFactory {
                     VALUES (%d, %d, %d, %d, %s, %s, %d, %d, %s, %s, %s, %s, %d)",
                     empty($article['created']) ? time():(int)$article['created'],
                     empty($article['publish_date']) ? time():(int)$article['publish_date'],
-                    (int)$list->getVersionAttribute('id'),
+                    $version_id,
                     (int)$article[ 'post_id' ],
                     stripslashes( $article[ 'title' ] ),
                     stripslashes( $article[ 'text' ] ),
@@ -251,7 +252,7 @@ class Arlima_ListFactory {
 
         if( !empty( $article[ 'children' ] ) && is_array( $article[ 'children' ]) ) {
             foreach( $article[ 'children' ] as $sort => $child ) {
-                $this->saveArticle($child, $sort, $offset, $list, false );
+                $this->saveArticle($version_id, $child, $sort, $offset, false );
             }
         }
     }
@@ -260,9 +261,9 @@ class Arlima_ListFactory {
      * Removes all preview versions created for this list and all old
      * published versions starting from $num_num_version_to_keep
      * @param Arlima_List $list
-     * @param int $num_version_to_keep
+     * @param int $num_versions_to_keep
      */
-    public function removeOldVersions($list, $num_version_to_keep=10)
+    public function removeOldVersions($list, $num_versions_to_keep=10)
     {
         $old_versions = array();
         if ( $list->getStatus() == Arlima_List::STATUS_PUBLISHED ) {
@@ -270,10 +271,11 @@ class Arlima_ListFactory {
             //fetch all versions older than the last 10
             $sql = $this->wpdb->prepare(
                         "SELECT alv_id FROM " . $this->wpdb->prefix . "arlima_articlelist_version
-                        WHERE alv_al_id = %d AND alv_status = 1
-                        ORDER BY alv_created DESC LIMIT %d, 10",
+                        WHERE alv_al_id = %d AND alv_status = %d
+                        ORDER BY alv_id DESC LIMIT %d, 10",
                         $list->id(),
-                        $num_version_to_keep
+                        Arlima_List::STATUS_PUBLISHED,
+                        $num_versions_to_keep
                     );
 
             $old_versions = $this->executeSQLQuery('get_col', $sql);
@@ -281,11 +283,11 @@ class Arlima_ListFactory {
 
         // fetch all old previews
         $sql = $this->wpdb->prepare(
-            "SELECT alv_id FROM " . $this->wpdb->prefix . "arlima_articlelist_version
+                    "SELECT alv_id FROM " . $this->wpdb->prefix . "arlima_articlelist_version
                     WHERE alv_al_id = %d AND alv_status = %d",
-            $list->id(),
-            Arlima_List::STATUS_PREVIEW
-        );
+                    $list->id(),
+                    Arlima_List::STATUS_PREVIEW
+                );
 
         $old_previews = $this->executeSQLQuery('get_col', $sql);
         $versions_to_remove = array_merge($old_versions, $old_previews);
@@ -295,13 +297,13 @@ class Arlima_ListFactory {
 
             // Remove articles belonging to versions that will be removed
             $this->executeSQLQuery(
-                'query',
-                sprintf(
-                    "DELETE FROM " . $this->wpdb->prefix . "arlima_articlelist_article
-                            WHERE ala_alv_id IN (%s)",
-                    implode(',', $old_versions)
-                )
-            );
+                    'query',
+                    sprintf(
+                        "DELETE FROM " . $this->wpdb->prefix . "arlima_articlelist_article
+                        WHERE ala_alv_id IN (%s)",
+                        implode(',', $versions_to_remove)
+                    )
+                );
 
             // Delete the versions
             $this->executeSQLQuery(
@@ -319,19 +321,13 @@ class Arlima_ListFactory {
 
     /**
      * @param $id
-     * @param bool $version
+     * @param bool|string|int $version
      * @return Arlima_List
      */
     public function loadList($id, $version=false) {
-        $list = $this->cache->get('arlima_list_props_'.$id);
-        if( !$list ) {
-            $list = $this->queryList($id);
-            if( !$list->exists() ) {
-                return $list;
-            }
-
-            $this->cache->set('arlima_list_props_'.$id, $list);
-        }
+        $list = $this->queryList($id);
+        if( !$list->exists() )
+            return $list;
 
         // Get latest version (using cache)
         if( !$version ) {
@@ -428,8 +424,8 @@ class Arlima_ListFactory {
             "SELECT alv_id FROM " . $this->wpdb->prefix . "arlima_articlelist_version
             WHERE alv_al_id = %d AND alv_status = %d
             ORDER BY alv_id DESC LIMIT 0,10",
-            Arlima_List::STATUS_PUBLISHED,
-            (int)$list_id
+            (int)$list_id,
+            Arlima_List::STATUS_PUBLISHED
         );
 
         return array(
@@ -445,24 +441,29 @@ class Arlima_ListFactory {
      */
     private function queryList($id)
     {
-        $sql = $this->wpdb->prepare(
-            "SELECT * FROM " . $this->wpdb->prefix . "arlima_articlelist WHERE al_id = %d",
-            (int)$id
-        );
+        $list = $this->cache->get('arlima_list_props_'.$id);
+        if( !$list ) {
+            $sql = $this->wpdb->prepare(
+                "SELECT * FROM " . $this->wpdb->prefix . "arlima_articlelist WHERE al_id = %d",
+                (int)$id
+            );
 
-        $list_data = $this->executeSQLQuery('get_row', $sql, 'al_');
+            $list_data = $this->executeSQLQuery('get_row', $sql, 'al_');
 
-        if ( empty($list_data) ) {
-            return new Arlima_List(false);
-        } else {
-            $list = new Arlima_List(true, $id);
-            $list->setCreated($list_data['created']);
-            $list->setTitle($list_data['title']);
-            $list->setSlug($list_data['slug']);
-            $list->setMaxlength($list_data['maxlength']);
-            $list->setOptions(unserialize($list_data['options']));
-            return $list;
+            if ( empty($list_data) ) {
+                $list = new Arlima_List(false);
+            } else {
+                $list = new Arlima_List(true, $id);
+                $list->setCreated($list_data['created']);
+                $list->setTitle($list_data['title']);
+                $list->setSlug($list_data['slug']);
+                $list->setMaxlength($list_data['maxlength']);
+                $list->setOptions(unserialize($list_data['options']));
+                $this->cache->set('arlima_list_props_'.$id, $list);
+            }
         }
+
+        return $list;
     }
 
     /**

@@ -346,7 +346,7 @@ class Arlima_List
             $element = substr($element, 0, $space_pos);
         }
 
-        if ( in_array($element, array('h1', 'h2', 'h3', 'h4', 'h5')) ) {
+        if ( in_array($element, array('h1', 'h2', 'h3', 'h4', 'h5', 'p', 'div', 'header')) ) {
             return $element;
         } else {
             return '';
@@ -368,7 +368,7 @@ class Arlima_List
      */
     function lastModified()
     {
-        return isset($this->version['created']) ? $this->version['created'] : $this->created;
+        return !empty($this->version['created']) ? $this->version['created'] : $this->created;
     }
 
     /**
@@ -407,7 +407,7 @@ class Arlima_List
     {
         return !$this->isPreview() &&
             isset($this->version['id']) &&
-            (empty($this->versions) || $this->versions[0] < $this->version['id']);
+            (empty($this->versions) || $this->versions[0] == $this->version['id']);
     }
 
     /**
@@ -465,6 +465,14 @@ class Arlima_List
         return $start_tag . $title_html . $end_tag;
     }
 
+    public function toArray() {
+        $arr = array();
+        foreach($this as $key => $val)
+            $arr[$key] = $val;
+
+        return $arr;
+    }
+
     /**
      * Magic method that makes it possible to request previously public
      * member variables (considered deprecated).
@@ -473,11 +481,14 @@ class Arlima_List
      */
     public function __get($arg)
     {
-        Arlima_Plugin::warnAboutUseOfDeprecatedFunction(
-            'Arlima_List::' . $arg,
-            2.5,
-            'This variable is no longer a public property'
-        );
+        if( !defined('ARLIMA_UNIT_TEST') || !ARLIMA_UNIT_TEST) {
+            Arlima_Plugin::warnAboutUseOfDeprecatedFunction(
+                'Arlima_List::' . $arg,
+                2.5,
+                'This variable is no longer a public property'
+            );
+        }
+
         $get_func = 'get' . ucfirst($arg);
         if ( method_exists($this, $get_func) ) {
             return call_user_func(array($this, $get_func));

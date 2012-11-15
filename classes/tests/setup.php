@@ -26,13 +26,13 @@ ini_set('display_errors', 'On');
 $_SERVER['DOCUMENT_ROOT'] = getcwd();
 $_SERVER['SERVER_PROTOCOL'] = '';
 $_SERVER['HTTP_HOST'] = '';
+define('ARLIMA_UNIT_TEST', true);
 
 // Load wp
 require_once __DIR__.'/../../../../../wp-load.php';
 
 // Load PHPUnit
 require_once __DIR__.'/../../vendor/autoload.php';
-
 
 // Setup arlima class loader if plugin not installed
 if( !class_exists('Arlima_Plugin')) {

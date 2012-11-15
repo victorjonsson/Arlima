@@ -2,6 +2,8 @@
 
 
 /**
+ * @package Arlima
+ * @since 2.5
  */
 class Arlima_EventBinder {
 

@@ -3,6 +3,9 @@
 /**
  * Class that makes it possible to use ArlimaAbstractListTemplateRenderer on ordinary
  * wordpress loops (while have_posts() => the_post() ...)
+ *
+ * @package Arlima
+ * @since 2.0
  */
 class Arlima_WPLoop extends Arlima_ListTemplateRenderer {
 

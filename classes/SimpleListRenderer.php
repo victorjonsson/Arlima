@@ -2,6 +2,9 @@
 
 /**
  * The most simple type of list renderer
+ *
+ * @package Arlima
+ * @since 2.0
  */
 class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager {
 

@@ -4,6 +4,9 @@
 /**
  * Class working as a container from where you can get or set
  * rules that modifies a search form using WP_Query
+ *
+ * @package Arlima
+ * @since 2.2
  */
 class Arlima_PostSearchModifier {
 

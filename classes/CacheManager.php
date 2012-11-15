@@ -3,6 +3,9 @@
 
 /**
  * Wrapper for wp_cache functions.
+ *
+ * @package Arlima
+ * @since 2.0
  */
 class Arlima_CacheManager {
 

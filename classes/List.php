@@ -2,6 +2,9 @@
 
 /**
  * Object representing an article list.
+ *
+ * @package Arlima
+ * @since 1.0
  */
 class Arlima_List
 {
@@ -456,7 +459,7 @@ class Arlima_List
 
     /**
      * Magic method that makes it possible to request previously public
-     * member variables.
+     * member variables (considered deprecated).
      * @param string $arg
      * @return string
      */

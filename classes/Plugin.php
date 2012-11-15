@@ -3,6 +3,8 @@
 
 /**
  * Utility class for the Arlima plugin.
+ * @package Arlima
+ * @since 1.0
  */
 class Arlima_Plugin {
 
@@ -684,7 +686,7 @@ class Arlima_Plugin {
 
         // Deprecated classes
         elseif( substr($class, 0, 6) == 'Arlima') {
-            require_once ARLIMA_PLUGIN_PATH.'/classes/deprecated.php';
+            require_once ARLIMA_PLUGIN_PATH . '/classes/deprecated.php';
         }
     }
 

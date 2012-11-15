@@ -2,6 +2,9 @@
 
 /**
  * Abstract class extended by classes responsible of rendering an Arlima article list
+ *
+ * @package Arlima
+ * @since 2.0
  */
 abstract class Arlima_AbstractListRenderingManager {
 

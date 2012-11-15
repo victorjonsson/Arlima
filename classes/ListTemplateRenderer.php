@@ -4,6 +4,9 @@
  * Class that can render an Arlima article list using jQueryTmpl. The class
  * uses templates available in the path given on construct, if template not
  * found it falls back on templates available in this plugin directory (arlima/templates)
+ *
+ * @package Arlima
+ * @since 2.0
  */
 class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
 

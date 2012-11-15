@@ -4,6 +4,9 @@
 /**
  * Class that can import lists in JSON-format from a remote server, and turn them
  * into Arlima_List objects.
+ *
+ * @package Arlima
+ * @since 2.0
  */
 class Arlima_ImportManager {
 

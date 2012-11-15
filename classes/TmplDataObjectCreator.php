@@ -3,6 +3,9 @@
 /**
  * Class with all the knowledge about how to convert a typical arlima
  * article array to a jquery tmpl array (the object which is available in the jquery templates)
+ *
+ * @package Arlima
+ * @since 2.0
  */
 class Arlima_TmplDataObjectCreator {
 

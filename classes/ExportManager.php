@@ -3,6 +3,9 @@
 
 /**
  * Class that is responsible of exporting Arlima lists related to wordpress pages.
+ *
+ * @package Arlima
+ * @since 2.0
  */
 class Arlima_ExportManager {
 

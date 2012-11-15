@@ -3,6 +3,9 @@
 /**
  * Class that has all wp ajax functions used by this plugin. Important that you don't use closures
  * or any other php features that isn't available in php 5.2 in this file
+ *
+ * @package Arlima
+ * @since 2.0
  */
 class Arlima_AdminAjaxManager {
 

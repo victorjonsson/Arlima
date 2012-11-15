@@ -2,6 +2,9 @@
 
 /**
  * Class with all the know how about template paths
+ *
+ * @package Arlima
+ * @since 2.0
  */
 class Arlima_TemplatePathResolver {
 

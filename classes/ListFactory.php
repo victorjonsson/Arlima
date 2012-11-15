@@ -6,6 +6,8 @@
  * the database communication is about getting data related to article lists.
  *
  * @todo: Remove deprecated functions when moving up to version 3.0
+ * @package Arlima
+ * @since 2.0
  *
  */
 class Arlima_ListFactory {
@@ -201,7 +203,7 @@ class Arlima_ListFactory {
 
         // Preview version or specific version (no cache)
         else {
-            list($version_data, $version_list) = $this->queryVersionData($id, 'preview');
+            list($version_data, $version_list) = $this->queryVersionData($id, $version);
             if( !empty($version_data) ) {
                 $list->setVersion($version_data);
                 $list->setVersions($version_list);
@@ -270,6 +272,7 @@ class Arlima_ListFactory {
 
     /**
      * @param int $id
+     * @throws Exception
      * @return Arlima_List
      */
     private function queryList($id)
@@ -279,7 +282,11 @@ class Arlima_ListFactory {
             (int)$id
         );
 
-        $list_data = self::removePrefix($this->wpdb->get_row($sql), 'al_');
+        $result = $this->wpdb->get_row($sql);
+        if( is_wp_error($result) )
+            throw new Exception( (string)$result );
+
+        $list_data = self::removePrefix($result, 'al_');
         if ( empty($list_data) ) {
             return new Arlima_List(false);
         } else {
@@ -750,7 +757,7 @@ class Arlima_ListFactory {
      * @throws Exception
      * @return Arlima_List
      */
-    public static function loadList($slug_or_id, $version=false) {
+    public static function loadList2($slug_or_id, $version=false) {
         if($version !== false && !is_numeric($version))
             throw new Exception('Only number of boolan false allowed as argument $version for Arlima_ListFactory::loadList(), use Arlima_ListFactory::load if wanting to load a preview version of a list');
 
@@ -1076,7 +1083,7 @@ class Arlima_ListFactory {
      * @param $slug
      * @return int|bool
      */
-    public static function getListId($slug) {
+    public static function getListId2($slug) {
         foreach(self::loadListSlugs() as $data) {
             if($data->slug == $slug)
                 return $data->id;
@@ -1091,20 +1098,18 @@ class Arlima_ListFactory {
      * example front page.
      * @static
      */
-    public static function install() {
-        /* @var wpdb $wpdb */
-        global $wpdb;
+    public function install() {
 
-        $table_name = $wpdb->prefix . "arlima_articlelist";
-        if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
-            self::createDatabaseTables($wpdb);
+        $table_name = $this->wpdb->prefix . "arlima_articlelist";
+        if($this->wpdb->get_var("show tables like '$table_name'") != $table_name) {
+            self::createDatabaseTables($this->wpdb);
             add_option("arlima_db_version", self::DB_VERSION);
         }
 
         $installed_ver = get_option( "arlima_db_version" );
 
         if( $installed_ver != self::DB_VERSION ) {
-            self::createDatabaseTables($wpdb);
+            self::createDatabaseTables($this->wpdb);
             update_option( "arlima_db_version", self::DB_VERSION );
         }
     }
@@ -1116,7 +1121,7 @@ class Arlima_ListFactory {
      * @static
      * @param wpdb $wpdb
      */
-    private static function createDatabaseTables(wpdb $wpdb) {
+    private static function createDatabaseTables($wpdb) {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
         $table_name = $wpdb->prefix . "arlima_articlelist";
@@ -1234,12 +1239,10 @@ class Arlima_ListFactory {
      * Removes the database tables created when plugin was installed
      * @static
      */
-    public static function uninstall() {
-        /* @var wpdb $wpdb */
-        global $wpdb;
-        $wpdb->query('DROP TABLE IF EXISTS '.$wpdb->prefix.'arlima_articlelist');
-        $wpdb->query('DROP TABLE IF EXISTS '.$wpdb->prefix.'arlima_articlelist_version');
-        $wpdb->query('DROP TABLE IF EXISTS '.$wpdb->prefix.'arlima_articlelist_article');
+    public function uninstall() {
+        $this->wpdb->query('DROP TABLE IF EXISTS '.$this->wpdb->prefix.'arlima_articlelist');
+        $this->wpdb->query('DROP TABLE IF EXISTS '.$this->wpdb->prefix.'arlima_articlelist_version');
+        $this->wpdb->query('DROP TABLE IF EXISTS '.$this->wpdb->prefix.'arlima_articlelist_article');
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for arlima
+ * PHPUnit setup
  * -------------------------
  *
  * Before running the unit tests you will have to do the following:
@@ -35,7 +35,7 @@ require_once __DIR__.'/../../../../../wp-load.php';
 require_once __DIR__.'/../../vendor/autoload.php';
 
 // Setup arlima class loader if plugin not installed
-if( !class_exists('Arlima_Plugin')) {
+if( !class_exists('Arlima_Plugin') ) {
     require_once __DIR__.'/../../constants.php';
     require_once __DIR__.'/../Plugin.php';
     spl_autoload_register('Arlima_Plugin::classLoader');

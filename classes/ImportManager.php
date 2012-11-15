@@ -2,7 +2,7 @@
 
 
 /**
- * Class that can import lists in JSON-format from a remote server, and turn them
+ * Class that can import lists in JSON or RSS format from a remote server, and turn them
  * into Arlima_List objects.
  *
  * @package Arlima
@@ -66,7 +66,7 @@ class Arlima_ImportManager {
             $response = $this->loadExternalURL($url);
             $list = $this->serverResponseToArlimaList($response, $url); // will validate the response for us
             $this->imported_lists[$url] = array(
-                'title' => $list->title,
+                'title' => $list->getTitle(),
                 'url' => $url
             );
 
@@ -128,7 +128,7 @@ class Arlima_ImportManager {
      * @throws Exception
      * @return Arlima_List
      */
-    private function serverResponseToArlimaList($response, $url) {
+    public function serverResponseToArlimaList($response, $url) {
 
         // Validate response
         if($response instanceof WP_Error) {
@@ -150,23 +150,21 @@ class Arlima_ImportManager {
         $list_data = $this->parseListData($response['body'], $response_type);
 
         // Populate the imported list
-        $list = new Arlima_List();
+        $list = new Arlima_List(true, $url, true);
+
         foreach($list_data as $prop => $val) {
-            if(property_exists($list, $prop)) {
+            $set_method = 'set'.ucfirst($prop);
+            if(method_exists($list, $set_method)) {
                 if($val instanceof stdClass)
                     $val = (array)$val;
 
-                $list->$prop = $val;
+                call_user_func(array($list, $set_method), $val);
             }
         }
 
         $base_url = str_replace(array('http://', 'www.'), '', $url);
         $base_url = substr($base_url, 0, strpos($base_url, '/'));
-
-        $list->is_imported = true;
-        $list->exists = true;
-        $list->id = $url;
-        $list->title = '['.$base_url.'] '.$list->title;
+        $list->setTitle( '['.$base_url.'] '.$list->getTitle() );
 
         return $list;
     }
@@ -198,7 +196,7 @@ class Arlima_ImportManager {
             if(!$xml) {
                 throw new Exception('Unable to parse xml'); // todo: display what error that was thrown internally
             }
-            if(empty($xml->channel) || empty($xml->channel->title) || empty($xml->channel->item)) {
+            if(empty($xml->channel) || empty($xml->channel->title)) {
                 throw new Exception('Not a valid rss format, could not find title nor items');
             }
 
@@ -208,7 +206,7 @@ class Arlima_ImportManager {
                 'slug' => sanitize_title((string)$xml->channel->title),
                 'articles' => array(),
                 'versions' => array(),
-                'version' => array('id'=>0, 'user_id'=>0, 'created' => self::rssPubDateToTime($pub_date))
+                'version' => array('id'=>0, 'user_id'=>0, 'created' => strtotime($pub_date))
             );
 
             if( !empty($xml->channel->item) ) {
@@ -263,7 +261,7 @@ class Arlima_ImportManager {
         $description = force_balance_tags('<p>'.trim($description).'</p>', true);
         $description = $description == '<p></p>' ? '<p>...</p>':str_replace(array('"', '”'), '&quot;', $description);
 
-        $post_date = self::rssPubDateToTime( (string)$item->pubDate );
+        $post_date = strtotime( (string)$item->pubDate );
 
         $art = Arlima_ListFactory::createArticleDataArray(array(
                         'url' => (string)$item->link,
@@ -275,20 +273,6 @@ class Arlima_ImportManager {
                     ));
 
         return $art;
-    }
-
-    /**
-     * @param string $pubDate
-     * @return int
-     */
-    private static function rssPubDateToTime($pubDate) {
-      /*  $parts = explode('+', $pubDate);
-        if(count($parts) == 2) {
-            $addition = intval(trim($parts[1]));
-            $pubDate = trim($parts[0]);
-        } */
-
-        return strtotime($pubDate);
     }
 
     /**

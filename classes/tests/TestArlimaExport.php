@@ -68,8 +68,9 @@ class TestArlimaExport extends PHPUnit_Framework_TestCase {
 
 }
 
-
-class Private_ArlimaPluginDummy {
-    function loadSettings() { return array(); }
-    function saveSettings() {}
+if( !class_exists('Private_ArlimaPluginDummy') ) {
+    class Private_ArlimaPluginDummy {
+        function loadSettings() { return array(); }
+        function saveSettings() {}
+    }
 }

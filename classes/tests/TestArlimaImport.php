@@ -3,6 +3,7 @@
 require_once __DIR__ .'/setup.php';
 
 /**
+ * @todo Test that articles gets imported as expected
  */
 class TestArlimaImport extends PHPUnit_Framework_TestCase {
 

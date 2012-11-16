@@ -38,9 +38,10 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager {
     /**
      * Note that no callbacks will be fired except display_post()
      * Render the list of articles
+     * @param bool $output
      * @return void
      */
-    function renderList() {
+    function renderList($output = true) {
         $article_counter = 0;
         $display_callback = $this->display_post_callback;
 

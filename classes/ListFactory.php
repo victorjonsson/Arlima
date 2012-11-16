@@ -835,19 +835,19 @@ class Arlima_ListFactory {
         );
 
         $data = array(
-                'children' => array(),
-                'id' => 0,
-                'image' => '',
-                'image_options' => array(),
-                'options' => $options,
-                'post_id' => 0,
-                'status' => 1,
-                'text' => '',
-                'title' => 'Unknown',
-                'title_fontsize' => 24,
-                'url' => '',
-                'created' => 0,
-                'publish_date' => 0
+            'children' => array(),
+            'id' => 0,
+            'image' => '',
+            'image_options' => array(),
+            'options' => $options,
+            'post_id' => 0,
+            'status' => 1,
+            'text' => '',
+            'title' => 'Unknown',
+            'title_fontsize' => 24,
+            'url' => '',
+            'created' => 0,
+            'publish_date' => 0
             );
 
         foreach($override as $key => $val) {

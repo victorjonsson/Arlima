@@ -56,22 +56,23 @@ class Arlima_ImportManager {
 
     /**
      * This function is used to register an external list as an imported list,
-     * if you only want to fetch content from an external list use Arlima_ImportManager::loadListContent()
+     * if you only want to fetch content from an external list use Arlima_ImportManager::loadList()
      * @param string $url
      * @param bool $refresh[optional=true]
-     * @return Arlima_List
+     * @throws Exception
+     * @return array containing 'title' and 'url'
      */
     function importList($url, $refresh=true) {
         if($refresh || empty($this->imported_lists[$url])) {
-            $response = $this->loadExternalURL($url);
-            $list = $this->serverResponseToArlimaList($response, $url); // will validate the response for us
-            $this->imported_lists[$url] = array(
-                'title' => $list->getTitle(),
-                'url' => $url
-            );
+            $list = $this->loadList($url);
+            $list_data = array(
+                        'title' => $list->getTitle(),
+                        'url' => $url
+                    );
 
+            $this->imported_lists[$url] = $list_data;
             $this->saveImportedLists();
-            return $list;
+            return $list_data;
         }
         else {
             return $this->imported_lists[$url];
@@ -84,7 +85,7 @@ class Arlima_ImportManager {
      */
     protected function loadExternalURL($url) {
         if (!class_exists('WP_Http'))
-            require_once ABSPATH . '/wp-includes/class-http.php';
+            require ABSPATH . '/wp-includes/class-http.php';
         $http = new WP_Http();
         $response = $http->get($url);
         return $response;
@@ -99,10 +100,18 @@ class Arlima_ImportManager {
     }
 
     /**
+     * @deprecated
+     * @see Arlima_ImportMAnager::loadList()
+     */
+    function loadListContent($url) {
+        return $this->loadList($url);
+    }
+
+    /**
      * @param string $url
      * @return Arlima_List
      */
-    function loadListContent($url) {
+    function loadList($url) {
         return $this->serverResponseToArlimaList($this->loadExternalURL($url), $url);
     }
 

@@ -1,0 +1,67 @@
+<?php
+
+require_once __DIR__ .'/setup.php';
+
+
+/**
+ * @todo: Write tests for images
+ * @todo: Write tests for streamers
+ */
+class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
+
+    function testCreator() {
+
+        $obj_creator = new Arlima_TemplateObjectCreator();
+
+        $obj_creator->setArticleBeginCallback(function() {
+                return 'begin';
+            });
+
+        $obj_creator->setArticleEndCallback(function() {
+                return 'end';
+            });
+
+        $obj_creator->setBeforeTitleHtml('<i>');
+        $obj_creator->setAfterTitleHtml('</i>');
+
+        $obj_creator->setContentCallback(function() {
+                return 'content';
+            });
+
+        $obj_creator->setImageCallback(function() {
+                return 'image';
+            });
+
+        $obj_creator->setRelatedCallback(function() {
+                return 'related';
+            });
+
+
+        $article = Arlima_ListFactory::createArticleDataArray(array('url'=>'http://google.se', 'title'=>'Howdy', 'id'=>99));
+
+        $template_obj = $obj_creator->create($article, true, false, false, array(), 1, 'hello');
+
+        $this->assertEquals(array(
+                "title"=> "Howdy",
+                "url"=>"http://google.se",
+                "html_title" => '<i class="fsize-24"><a href="http://google.se">Howdy</a></i>',
+                "html_text" => "content",
+                "publish_date" => 0,
+                "html_content" => "content"
+            ), $template_obj['article']);
+
+        $this->assertEquals('image', $template_obj['image']['html']);
+        $this->assertEquals('content', $template_obj['article']['html_content']);
+        $this->assertEquals('related', $template_obj['related']);
+        $this->assertEquals('begin', $template_obj['article_begin']);
+        $this->assertEquals('end', $template_obj['article_end']);
+    }
+
+    function testNotCrashingWithoutCallbacks() {
+        $obj_creator = new Arlima_TemplateObjectCreator();
+        $article = Arlima_ListFactory::createArticleDataArray();
+        $template_obj = $obj_creator->create($article, true, false, false, array(), 1, 'hello');
+
+        $this->assertEquals('<h2 class="fsize-24"><span>Unknown</span></h2>', $template_obj['article']['html_title']);
+    }
+}

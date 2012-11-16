@@ -1,6 +1,6 @@
 # PHPUnit tests for Arlima
 
-Running the test suite for Arlima requires PHP version >= 5.3. Some of these test cases will write to
+Running the test suite for Arlima requires PHP version >= 5.3.2. Some of these test cases will write to
 the database so you **should not run** them on production servers. None of the tests requires that the
 Arlima plugin is installed.
 

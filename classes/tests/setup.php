@@ -1,17 +1,6 @@
 <?php
 /**
  * PHPUnit setup
- * -------------------------
- *
- * Before running the unit tests you will have to do the following:
- *
- * 1. Install the library using composer
- *      - Install composer (http://getcomposer.org/)
- *      - Navigate to the plugin directory of Arlima (../wp-content/plugins/arlima)
- *      - $ composer install --dev
- *
- * 2. Rename config-example.php located in this directory to config.php and
- * change the constants in that file so they
  *
  * @since 2.5
  * @package Arlima

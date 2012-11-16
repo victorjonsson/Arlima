@@ -8,17 +8,17 @@
  * @package Arlima
  * @since 2.0
  */
-class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
-
+class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
+{
     /**
      * @var array
      */
     private $template_resolver = array();
 
     /**
-     * @var Arlima_TmplDataObjectCreator
+     * @var Arlima_TemplateObjectCreator
      */
-    private $tmpl_obj_creator;
+    private $template_obj_creator;
 
     /**
      * Current unix time
@@ -34,14 +34,15 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
     /**
      * @var jQueryTmpl
      */
-    protected  $jQueryTmpl_default = null;
+    protected $jQueryTmpl_default = null;
 
     /**
      * Class constructor
      * @param Arlima_List|stdClass $list
      * @param string $template_path - Optional path to directory where templates should exists (see readme.txt about how to add your own template paths from the theme)
      */
-    function __construct($list, $template_path = null) {
+    function __construct($list, $template_path = null)
+    {
         $this->now = time();
         $this->template_resolver = new Arlima_TemplatePathResolver($template_path);
         parent::__construct($list);
@@ -50,24 +51,28 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
     /**
      * Prepares the template object creator
      */
-    protected function setupObjectCreator() {
-        $this->tmpl_obj_creator = new Arlima_TmplDataObjectCreator();
-        if( !empty($this->list->options['before_title']) ) {
-            $this->tmpl_obj_creator->setBeforeTitleHtml($this->list->options['before_title']);
-            $this->tmpl_obj_creator->setAfterTitleHtml($this->list->options['after_title']);
+    protected function setupObjectCreator()
+    {
+        $this->template_obj_creator = new Arlima_TemplateObjectCreator();
+        $this->template_obj_creator->setList($this->getList());
+        if ( !empty($this->list->options['before_title']) ) {
+            $this->template_obj_creator->setBeforeTitleHtml($this->list->options['before_title']);
+            $this->template_obj_creator->setAfterTitleHtml($this->list->options['after_title']);
         }
-        $this->tmpl_obj_creator->setAddTitleFontSize( empty($this->list->options['ignore_fontsize']) );
-        $this->tmpl_obj_creator->setArticleEndCallback($this->article_end_callback);
-        $this->tmpl_obj_creator->setGetArticleImageCallback($this->get_article_image_callback);
-        $this->tmpl_obj_creator->setRelatedCallback($this->related_callback);
-        $this->tmpl_obj_creator->setTextCallback($this->text_callback);
+
+        $this->template_obj_creator->doAddTitleFontSize($this->list->getOption('ignore_fontsize') ? false : true);
+        $this->template_obj_creator->setArticleEndCallback($this->article_end_callback);
+        $this->template_obj_creator->setImageCallback($this->image_callback);
+        $this->template_obj_creator->setRelatedCallback($this->related_posts_callback);
+        $this->template_obj_creator->setContentCallback($this->content_callback);
     }
 
     /**
      * Do we have a list? Does the list have articles?
      * @return bool
      */
-    function havePosts() {
+    function havePosts()
+    {
         return $this->list->numArticles() > 0 && $this->list->numArticles() >= $this->getOffset();
     }
 
@@ -77,37 +82,44 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
      * template paths we will fall back on default templates (plugins/arlima/template/[name].tmpl)
      *
      * @param bool $output[optional=true]
-     * @return void
+     * @return string
      */
-    function renderList($output = true) {
+    function renderList($output = true)
+    {
 
         $article_counter = 0;
         $content = '';
 
         // Create template
         $jQueryTmpl_df = new jQueryTmpl_Data_Factory();
-        $this->jQueryTmpl_default = $this->loadTemplate($this->list->options['previewtemplate'], new jQueryTmpl_Factory(), new jQueryTmpl_Markup_Factory());
+        $this->jQueryTmpl_default = $this->loadTemplate(
+            $this->list->options['previewtemplate'],
+            new jQueryTmpl_Factory(),
+            new jQueryTmpl_Markup_Factory()
+        );
 
         // Setup tmpl object creator
         $this->setupObjectCreator();
 
-        $articles = array_slice($this->list->articles, $this->getOffset());
+        $articles = array_slice($this->list->getArticles(), $this->getOffset());
 
-        foreach($articles as $article_data) {
-            list($article_counter, $article_content) = $this->outputArticle($article_data, $jQueryTmpl_df, $article_counter);
-            if( $output ) {
+        foreach ($articles as $article_data) {
+            list($article_counter, $article_content) = $this->outputArticle(
+                $article_data,
+                $jQueryTmpl_df,
+                $article_counter
+            );
+            if ( $output ) {
 
                 echo $article_content;
 
-                // Maybe include something after article
-                $after_callback = $this->after_article_callback;
-                $after_callback($article_counter, $article_data);
-            }
-            else
+            } else {
                 $content .= $article_content;
+            }
 
-            if($article_counter == $this->getLimit())
+            if ( $article_counter == $this->getLimit() ) {
                 break;
+            }
         }
 
         // unset global post data
@@ -123,11 +135,12 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
      * @param int $article_counter
      * @return int
      */
-    protected function outputArticle($article_data, jQueryTmpl_Data_Factory $jQueryTmpl_df, $article_counter) {
+    protected function outputArticle($article_data, jQueryTmpl_Data_Factory $jQueryTmpl_df, $article_counter)
+    {
 
         // Sticky article
-        if( !empty($article_data['options']) && !empty($article_data['options']['sticky']) ) {
-            if( !$this->isInStickyInterval($article_data['options']['sticky_interval']) ) {
+        if ( !empty($article_data['options']) && !empty($article_data['options']['sticky']) ) {
+            if ( !$this->isInStickyInterval($article_data['options']['sticky_interval']) ) {
                 return array($article_counter, ''); // don't show this sticky right now
             }
         }
@@ -136,26 +149,37 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
         list($post, $article, $is_post, $is_empty) = $this->setup($article_data);
 
         // Future article
-        if( !empty($article_data['publish_date']) && $article_data['publish_date'] > $this->now) {
-            $future_callback = $this->future_post_callback;
-            $future_callback($post, $article, $this->getList());
-            return array($article_counter, '');
+        if ( !empty($article_data['publish_date']) && $article_data['publish_date'] > $this->now ) {
+            return array(
+                    $article_counter,
+                    call_user_func(
+                        $this->future_post_callback,
+                        $article_counter,
+                        $article,
+                        $post,
+                        $this->list
+                    )
+                );
         }
 
-        // Include something before article
-        $before_callback = $this->before_article_callback;
-        var_dump(is_callable('Arlima_EventBinder::beforeCallback'));
-        call_user_func($before_callback, $article_counter, $article, $is_post, $post);
-
-        $tmpl_data = $this->tmpl_obj_creator->create($article, true, $is_empty, $is_post, $post, $article_counter, $this->img_size_name, true);
+        $template_data = $this->template_obj_creator->create(
+                            $article,
+                            true,
+                            $is_empty,
+                            $is_post,
+                            $post,
+                            $article_counter,
+                            $this->img_size_name,
+                            true
+                        );
 
         // load sub articles if there's any
-        if( !empty( $article[ 'children' ] ) && is_array( $article[ 'children' ] ) ) {
-            $tmpl_data['sub_articles'] = $this->renderSubArticles($article[ 'children' ], $jQueryTmpl_df);
+        if ( !empty($article['children']) && is_array($article['children']) ) {
+            $template_data['sub_articles'] = $this->renderSubArticles($article['children'], $jQueryTmpl_df);
         }
 
         // output the article
-        $content = $this->generateTemplateOutput($article, $jQueryTmpl_df, $tmpl_data);
+        $content = $this->generateTemplateOutput($article, $jQueryTmpl_df, $template_data);
 
         return array($article_counter + 1, $content);
     }
@@ -163,16 +187,22 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
     /**
      * @param $article
      * @param jQueryTmpl_Data_Factory $jQueryTmpl_df
-     * @param $tmpl_data
+     * @param $template_data
      * @return string
      */
-    private function generateTemplateOutput($article, $jQueryTmpl_df, $tmpl_data) {
-        if( !empty($article['options']) && !empty($article['options']['template']) )
-            $tmpl_factory = $this->loadTemplate($article['options']['template'], new jQueryTmpl_Factory(), new jQueryTmpl_Markup_Factory());
-        else
-            $tmpl_factory = $this->jQueryTmpl_default;
+    private function generateTemplateOutput($article, $jQueryTmpl_df, $template_data)
+    {
+        if ( !empty($article['options']) && !empty($article['options']['template']) ) {
+            $template_factory = $this->loadTemplate(
+                $article['options']['template'],
+                new jQueryTmpl_Factory(),
+                new jQueryTmpl_Markup_Factory()
+            );
+        } else {
+            $template_factory = $this->jQueryTmpl_default;
+        }
 
-        return $tmpl_factory->tmpl('tpl', $jQueryTmpl_df->createFromArray($tmpl_data))->getHtml();
+        return $template_factory->tmpl('tpl', $jQueryTmpl_df->createFromArray($template_data))->getHtml();
     }
 
     /**
@@ -187,42 +217,44 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
      * @param string $sticky_interval
      * @return bool
      */
-    private function isInStickyInterval($sticky_interval) {
+    private function isInStickyInterval($sticky_interval)
+    {
         $interval_part = explode(':', $sticky_interval);
-        if(count($interval_part) == 2) {
+        if ( count($interval_part) == 2 ) {
 
             // Check day
-            if(trim($interval_part[0]) != '*') {
+            if ( trim($interval_part[0]) != '*' ) {
 
-                $current_day = strtolower(date('D', $this->now + (get_option( 'gmt_offset' ) * 3600 )));
+                $current_day = strtolower(date('D', $this->now + (get_option('gmt_offset') * 3600)));
                 $days = array();
-                foreach(explode(',', $interval_part[0]) as $day)
+                foreach (explode(',', $interval_part[0]) as $day) {
                     $days[] = strtolower(substr(trim($day), 0, 3));
+                }
 
-                if( !in_array($current_day, $days) ) {
+                if ( !in_array($current_day, $days) ) {
                     return false; // don't show article today
                 }
 
             }
 
             // Check hour
-            if(trim($interval_part[1]) != '*') {
+            if ( trim($interval_part[1]) != '*' ) {
 
-                $current_hour = (int)date('H', $this->now + (get_option( 'gmt_offset' ) * 3600 ));
+                $current_hour = (int)date('H', $this->now + (get_option('gmt_offset') * 3600));
                 $from_to = explode('-', $interval_part[1]);
-                if(count($from_to) == 2) {
+                if ( count($from_to) == 2 ) {
                     $from = (int)trim($from_to[0]);
                     $to = (int)trim($from_to[1]);
-                    if($current_hour < $from || $current_hour > $to) {
+                    if ( $current_hour < $from || $current_hour > $to ) {
                         return false; // don't show article this hour
                     }
-                }
-                else {
+                } else {
                     $hours = array();
-                    foreach(explode(',', $interval_part[1]) as $hour)
+                    foreach (explode(',', $interval_part[1]) as $hour) {
                         $hours[] = (int)trim($hour);
+                    }
 
-                    if( !in_array($current_hour, $hours) ) {
+                    if ( !in_array($current_hour, $hours) ) {
                         return false; // don't show article this hour
                     }
                 }
@@ -238,25 +270,35 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
      * @internal param \jQueryTmpl $jQueryTmpl
      * @return string
      */
-    private function renderSubArticles(array $articles, jQueryTmpl_Data_Factory $jQueryTmpl_df) {
+    private function renderSubArticles(array $articles, jQueryTmpl_Data_Factory $jQueryTmpl_df)
+    {
         $sub_articles = '';
         $count = 0;
         $children_count = sizeof($articles);
         $image_size = $children_count == 1 ? $this->img_size_name_sub_article_full : $this->img_size_name_sub_article;
 
-        foreach($articles as $article_data) {
+        foreach ($articles as $article_data) {
 
             list($post, $article, $is_post, $is_empty) = $this->setup($article_data);
 
-            if(is_object($post) && $post->post_status == 'future') {
+            if ( is_object($post) && $post->post_status == 'future' ) {
                 continue;
             }
 
-            $tmpl_data = $this->tmpl_obj_creator->create($article, true, $is_empty, $is_post, $post, -1, $image_size, false);
-            $tmpl_data['container']['attr'] = '';
-            $tmpl_data['container']['class'] = 'teaser small'.($children_count > 1 ? ' teaser-split' : '').($count%2 == 0 ? ' first' : ' last');
+            $template_data = $this->template_obj_creator->create(
+                $article,
+                true,
+                $is_empty,
+                $is_post,
+                $post,
+                -1,
+                $image_size,
+                false
+            );
+            $template_data['container']['attr'] = '';
+            $template_data['container']['class'] = 'teaser small' . ($children_count > 1 ? ' teaser-split' : '') . ($count % 2 == 0 ? ' first' : ' last');
 
-            $sub_articles .= $this->generateTemplateOutput($article, $jQueryTmpl_df, $tmpl_data);
+            $sub_articles .= $this->generateTemplateOutput($article, $jQueryTmpl_df, $template_data);
             $count++;
         }
 
@@ -264,59 +306,80 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager {
     }
 
     /**
-     * @param $tmpl_name
+     * @param $template_name
      * @param jQueryTmpl_Factory $jQueryTmpl_Factory
      * @param jQueryTmpl_Markup_Factory $jQueryTmpl_Markup_Factory
      * @return jQueryTmpl
      */
-    protected function loadTemplate($tmpl_name, jQueryTmpl_Factory $jQueryTmpl_Factory, jQueryTmpl_Markup_Factory $jQueryTmpl_Markup_Factory) {
-        if( isset($this->custom_templates[$tmpl_name]) )
-            return $this->custom_templates[$tmpl_name];
+    protected function loadTemplate(
+        $template_name,
+        jQueryTmpl_Factory $jQueryTmpl_Factory,
+        jQueryTmpl_Markup_Factory $jQueryTmpl_Markup_Factory
+    ) {
+        if ( isset($this->custom_templates[$template_name]) ) {
+            return $this->custom_templates[$template_name];
+        }
 
         $jQueryTmpl = $jQueryTmpl_Factory->create();
 
-        $tmpl_paths = $this->template_resolver->getPaths();
-        foreach($tmpl_paths as $tmpl_path) {
-            $tmpl_file = $tmpl_path .DIRECTORY_SEPARATOR.$tmpl_name.Arlima_TemplatePathResolver::TMPL_EXT;
-            if( file_exists($tmpl_file) ) {
-                $this->custom_templates[$tmpl_name] = $this->createTemplate($tmpl_file, $jQueryTmpl, $jQueryTmpl_Markup_Factory);
-                return $this->custom_templates[$tmpl_name];
+        $template_paths = $this->template_resolver->getPaths();
+        foreach ($template_paths as $template_path) {
+            $template_file = $template_path . DIRECTORY_SEPARATOR . $template_name . Arlima_TemplatePathResolver::TMPL_EXT;
+            if ( file_exists($template_file) ) {
+                $this->custom_templates[$template_name] = $this->createTemplate(
+                    $template_file,
+                    $jQueryTmpl,
+                    $jQueryTmpl_Markup_Factory
+                );
+                return $this->custom_templates[$template_name];
             }
         }
 
         // If we have come this far the template doesn't exist in any template path
-        trigger_error('Arlima tmpl file '. $tmpl_name .' is not present in any template path. Paths registered: '.join(',', $tmpl_paths), E_USER_WARNING);
-        $tmpl_fallback = $this->template_resolver->getDefaultTemplate();
-        $this->custom_templates['article'] = $this->createTemplate($tmpl_fallback, $jQueryTmpl, $jQueryTmpl_Markup_Factory);
+        $error_msg = 'Arlima tmpl file ' . $template_name . ' is not present in '.
+                    'any template path. Paths registered: ' . join(',',$template_paths);
+
+        trigger_error($error_msg, E_USER_WARNING);
+        
+        $template_fallback = $this->template_resolver->getDefaultTemplate();
+        $this->custom_templates['article'] = $this->createTemplate(
+                                                $template_fallback,
+                                                $jQueryTmpl,
+                                                $jQueryTmpl_Markup_Factory
+                                            );
 
         return $this->custom_templates['article'];
     }
 
     /**
-     * @param string $tmpl_file
+     * @param string $template_file
      * @param jQueryTmpl $jQueryTmpl
      * @param jQueryTmpl_Markup_Factory $jQueryTmpl_Markup_Factory
      * @return jQueryTmpl
      */
-    private function createTemplate($tmpl_file, $jQueryTmpl, $jQueryTmpl_Markup_Factory) {
-        $tmpl_content = file_get_contents($tmpl_file);
-        preg_match_all('(\{\{include [0-9a-z\/A-Z\-\_\.]*\}\})', $tmpl_content, $sub_parts);
-        if (!empty($sub_parts) && !empty($sub_parts[0])) {
+    private function createTemplate($template_file, $jQueryTmpl, $jQueryTmpl_Markup_Factory)
+    {
+        $template_content = file_get_contents($template_file);
+        preg_match_all('(\{\{include [0-9a-z\/A-Z\-\_\.]*\}\})', $template_content, $sub_parts);
+        if ( !empty($sub_parts) && !empty($sub_parts[0]) ) {
 
-            $tmpl_path = dirname($tmpl_file).'/';
+            $template_path = dirname($template_file) . '/';
             foreach ($sub_parts[0] as $tpl_part) {
                 $path = str_replace(array('{{include ', '}}'), '', $tpl_part);
-                $included_tmpl = $tmpl_path . $path;
-                if (file_exists($included_tmpl)) {
-                    $tmpl_content = str_replace($tpl_part, file_get_contents($included_tmpl), $tmpl_content);
-                }
-                else {
-                    $tmpl_content = str_replace($tpl_part, '# ERROR: ' . $included_tmpl . ' does not exist', $tmpl_content);
+                $included_tmpl = $template_path . $path;
+                if ( file_exists($included_tmpl) ) {
+                    $template_content = str_replace($tpl_part, file_get_contents($included_tmpl), $template_content);
+                } else {
+                    $template_content = str_replace(
+                        $tpl_part,
+                        '# ERROR: ' . $included_tmpl . ' does not exist',
+                        $template_content
+                    );
                 }
             }
         }
 
-        $jQueryTmpl->template('tpl', $jQueryTmpl_Markup_Factory->createFromString($tmpl_content));
+        $jQueryTmpl->template('tpl', $jQueryTmpl_Markup_Factory->createFromString($template_content));
         return $jQueryTmpl;
     }
 }

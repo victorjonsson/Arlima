@@ -6,7 +6,8 @@
  * @package Arlima
  * @since 2.0
  */
-class Arlima_TemplatePathResolver {
+class Arlima_TemplatePathResolver
+{
 
     const DEFAULT_TMPL = 'article';
     const TMPL_EXT = '.tmpl';
@@ -18,20 +19,28 @@ class Arlima_TemplatePathResolver {
 
     /**
      * @param array $paths - Optional
+     * @param bool $apply_path_filter - Optional, only for testing
      */
-    function __construct($paths = null) {
-        if($paths === null)
+    function __construct($paths = null, $apply_path_filter=true)
+    {
+        if ( $paths === null ) {
             $this->paths = array();
+        } else {
+            $this->paths = $paths;
+        }
 
-        $this->paths[] = ARLIMA_PLUGIN_PATH . DIRECTORY_SEPARATOR . 'templates' .DIRECTORY_SEPARATOR;
-        $this->paths = apply_filters('arlima_template_paths', $this->paths);
+        $this->paths[] = ARLIMA_PLUGIN_PATH . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
+
+        if( $apply_path_filter )
+            $this->paths = apply_filters('arlima_template_paths', $this->paths);
     }
 
     /**
      * Returns all registered template paths
      * @return array
      */
-    public function getPaths() {
+    public function getPaths()
+    {
         return $this->paths;
     }
 
@@ -39,18 +48,20 @@ class Arlima_TemplatePathResolver {
      * Returns all files having the extension .tmpl located in registered template paths
      * @return array
      */
-    public function getTemplateFiles() {
-        $tmpls = array();
-        foreach($this->getPaths() as $path) {
+    public function getTemplateFiles()
+    {
+        $templates = array();
+        foreach ($this->getPaths() as $path) {
             $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-            foreach( glob($path . '*' .self::TMPL_EXT) as $file ) {
+            foreach (glob($path . '*' . self::TMPL_EXT) as $file) {
                 $name = pathinfo($file, PATHINFO_FILENAME);
-                if( empty($tmpls[$name]) )
-                    $tmpls[$name] = $file;
+                if ( empty($templates[$name]) ) {
+                    $templates[$name] = $file;
+                }
             }
         }
 
-        return $tmpls;
+        return $templates;
     }
 
     /**
@@ -58,21 +69,31 @@ class Arlima_TemplatePathResolver {
      * @param string $tmpl_file
      * @return string
      */
-    public function fileToUrl($tmpl_file) {
+    public function fileToUrl($tmpl_file)
+    {
         $content_dir = sprintf('%swp-content%s', DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR);
-        $tmpl_url = WP_CONTENT_URL .'/'. current( array_splice(explode($content_dir, $tmpl_file), 1,1) );
-        if(DIRECTORY_SEPARATOR != '/') {
+        $tmpl_url = WP_CONTENT_URL . '/' . current(array_splice(explode($content_dir, $tmpl_file), 1, 1));
+        if ( DIRECTORY_SEPARATOR != '/' ) {
             $tmpl_url = str_replace(DIRECTORY_SEPARATOR, '/', $tmpl_url);
         }
 
         return $tmpl_url;
     }
 
-    public function getDefaultTemplate() {
-        return ARLIMA_PLUGIN_PATH . DIRECTORY_SEPARATOR .'templates' . DIRECTORY_SEPARATOR .self::DEFAULT_TMPL. self::TMPL_EXT;
+    /**
+     * @return string
+     */
+    public function getDefaultTemplate()
+    {
+        return ARLIMA_PLUGIN_PATH . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . self::DEFAULT_TMPL . self::TMPL_EXT;
     }
 
-    public static function isTemplateFile($path) {
+    /**
+     * @param string $path
+     * @return bool
+     */
+    public static function isTemplateFile($path)
+    {
         return file_exists($path) && substr($path, -1 * strlen(self::TMPL_EXT)) == self::TMPL_EXT;
     }
 }

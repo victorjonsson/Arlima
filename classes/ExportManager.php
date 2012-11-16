@@ -7,7 +7,8 @@
  * @package Arlima
  * @since 2.0
  */
-class Arlima_ExportManager {
+class Arlima_ExportManager
+{
 
     const FORMAT_RSS = 'rss';
     const FORMAT_JSON = 'json';
@@ -43,9 +44,10 @@ class Arlima_ExportManager {
     /**
      * @param Arlima_Plugin $arlima_plugin
      */
-    public function __construct($arlima_plugin) {
+    public function __construct($arlima_plugin)
+    {
         $settings = $arlima_plugin->loadSettings();
-        $this->available_export = !empty($settings['available_export']) ? $settings['available_export']:array();
+        $this->available_export = !empty($settings['available_export']) ? $settings['available_export'] : array();
         $this->arlima_plugin = $arlima_plugin;
     }
 
@@ -57,35 +59,35 @@ class Arlima_ExportManager {
      * @param string $format
      * @throws Exception
      */
-    public function export($page_slug, $format) {
+    public function export($page_slug, $format)
+    {
         $this->sendInitialHeaders($format);
 
-        if(!in_array($format, array(self::FORMAT_JSON, self::FORMAT_RSS))) {
+        if ( !in_array($format, array(self::FORMAT_JSON, self::FORMAT_RSS)) ) {
             $this->sendErrorToClient(self::ERROR_UNSUPPORTED_FORMAT, '400 Bad Request', self::DEFAULT_FORMAT);
         }
 
-        $page = !$page_slug ? get_page(get_option('page_on_front', 0)) : get_page_by_title(str_replace('-', ' ', $page_slug));
+        $page = !$page_slug ? get_page(get_option('page_on_front', 0)) : get_page_by_title(
+            str_replace('-', ' ', $page_slug)
+        );
 
-        if(!$page) {
+        if ( !$page ) {
             $this->sendErrorToClient(self::ERROR_PAGE_NOT_FOUND, '404 Page Not Found', $format);
-        }
-        else {
+        } else {
 
             $arlima_slug = get_post_meta($page->ID, 'arlima', true);
-            if(!$arlima_slug) {
+            if ( !$arlima_slug ) {
                 $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '400 Bad Request', $format);
             }
 
             $factory = new Arlima_ListFactory();
             $list = $factory->loadListBySlug($arlima_slug);
 
-            if(!$list->exists()) {
+            if ( !$list->exists() ) {
                 $this->sendErrorToClient(self::ERROR_LIST_DOES_NOT_EXIST, '500 Internal Server Error', $format);
-            }
-            elseif(!$this->isAvailableForExport($list)) {
+            } elseif ( !$this->isAvailableForExport($list) ) {
                 $this->sendErrorToClient(self::ERROR_LIST_BLOCKED_FROM_EXPORT, '403 Forbidden', $format);
-            }
-            else {
+            } else {
                 echo $this->convertList($list, $format);
             }
         }
@@ -96,9 +98,10 @@ class Arlima_ExportManager {
     /**
      * @param $format
      */
-    private function sendInitialHeaders($format) {
+    private function sendInitialHeaders($format)
+    {
         header_remove();
-        switch($format) {
+        switch ($format) {
             case self::FORMAT_RSS:
                 header('Content-Type: text/xml; charset=utf8');
                 break;
@@ -113,15 +116,16 @@ class Arlima_ExportManager {
      * @param string $http_status
      * @param string $format
      */
-    private function sendErrorToClient($error_code, $http_status, $format) {
-        header('HTTP/1.1 '.$http_status);
+    private function sendErrorToClient($error_code, $http_status, $format)
+    {
+        header('HTTP/1.1 ' . $http_status);
         $message = isset($this->error_messages[$error_code]) ? $this->error_messages[$error_code] : 'Unknown error';
-        switch($format) {
+        switch ($format) {
             case self::FORMAT_RSS:
-                echo '<error><message>'.$message.'</message><code>'.$error_code.'</code></error>';
+                echo '<error><message>' . $message . '</message><code>' . $error_code . '</code></error>';
                 break;
             default:
-                echo '{"error":"'.$message.'","code":'.$error_code.'}';
+                echo '{"error":"' . $message . '","code":' . $error_code . '}';
                 break;
         }
 
@@ -133,43 +137,43 @@ class Arlima_ExportManager {
      * @param string $format Either 'json' or 'rss'
      * @return string
      */
-    public function convertList($list, $format) {
+    public function convertList($list, $format)
+    {
 
         // Modify data exported
-        $base_url = rtrim(home_url(), '/').'/';
+        $base_url = rtrim(home_url(), '/') . '/';
         $articles = $list->getArticles();
-        foreach(array_keys($articles) as $key) {
+        foreach (array_keys($articles) as $key) {
             $this->prepareArticleForExport($articles[$key], $base_url);
         }
 
         // RSS export
-        if($format == self::FORMAT_RSS) {
+        if ( $format == self::FORMAT_RSS ) {
             $base_url = get_bloginfo('url');
             $rss = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel>
-                <title><![CDATA['.$list->getTitle().' ('.$list->getSlug().')]]></title>
+                <title><![CDATA[' . $list->getTitle() . ' (' . $list->getSlug() . ')]]></title>
                 <description>RSS export feed for Arlima article list</description>
-                <link>'.$base_url.'</link>
-                <lastBuildDate>'.date('r').'</lastBuildDate>
-                <pubDate>'.date('r', $list->lastModified()).'</pubDate>
+                <link>' . $base_url . '</link>
+                <lastBuildDate>' . date('r') . '</lastBuildDate>
+                <pubDate>' . date('r', $list->lastModified()) . '</pubDate>
                 <ttl>1</ttl>
-                <generator>Arlima v'.Arlima_Plugin::VERSION.' (wordpress plugin)</generator>
+                <generator>Arlima v' . Arlima_Plugin::VERSION . ' (wordpress plugin)</generator>
                 ';
 
             $list_last_mod_time = $list->lastModified();
-            foreach($articles as $article) {
+            foreach ($articles as $article) {
                 $rss .= $this->articleToRSSItem($article, $list_last_mod_time);
-                if( !empty($article['children']) ) {
-                    foreach($article['children'] as $child_article)
+                if ( !empty($article['children']) ) {
+                    foreach ($article['children'] as $child_article) {
                         $rss .= $this->articleToRSSItem($child_article, $list_last_mod_time);
+                    }
                 }
             }
 
-            return $rss.'</channel></rss>';
-        }
-
-        // JSON export
+            return $rss . '</channel></rss>';
+        } // JSON export
         else {
-            return json_encode( $list->toArray() );
+            return json_encode($list->toArray());
         }
     }
 
@@ -181,25 +185,27 @@ class Arlima_ExportManager {
      * @param string $base_url
      * @return array
      */
-    private function prepareArticleForExport(&$article_data, $base_url) {
-        if(substr($article_data['url'], 0, 7) != 'http://') {
-            $article_data['url'] = $base_url . ltrim($article_data['url'],'/');
+    private function prepareArticleForExport(&$article_data, $base_url)
+    {
+        if ( substr($article_data['url'], 0, 7) != 'http://' ) {
+            $article_data['url'] = $base_url . ltrim($article_data['url'], '/');
         }
 
         $article_data['external_post_id'] = 0;
-        if( !empty($article_data['post_id']) ) {
+        if ( !empty($article_data['post_id']) ) {
             $article_data['external_post_id'] = $article_data['post_id'];
             $article_data['post_id'] = 0;
         }
 
-        if( !empty($article_data['image_options']) ) {
-            $article_data['image_options']['external_attach_id'] = isset($article_data['image_options']['attach_id']) ? $article_data['image_options']['attach_id']:0;
+        if ( !empty($article_data['image_options']) ) {
+            $article_data['image_options']['external_attach_id'] = isset($article_data['image_options']['attach_id']) ? $article_data['image_options']['attach_id'] : 0;
             $article_data['image_options']['attach_id'] = 0;
         }
 
-        if( !empty($article_data['children']) ) {
-            foreach(array_keys($article_data['children']) as $key)
+        if ( !empty($article_data['children']) ) {
+            foreach (array_keys($article_data['children']) as $key) {
                 $this->prepareArticleForExport($article_data['children'][$key], $base_url);
+            }
         }
     }
 
@@ -208,42 +214,45 @@ class Arlima_ExportManager {
      * @param int $last_mod
      * @return string
      */
-    private function articleToRSSItem(array $article, $last_mod) {
+    private function articleToRSSItem(array $article, $last_mod)
+    {
         $img = '';
-        if(isset($article['image_options']) && !empty($article['image_options']['url']))
-            $img = '<enclosure url="'.$article['image_options']['url'].'" length="1" type="image/jpg"  />';
+        if ( isset($article['image_options']) && !empty($article['image_options']['url']) ) {
+            $img = '<enclosure url="' . $article['image_options']['url'] . '" length="1" type="image/jpg"  />';
+        }
 
         $guid = $article['url'];
         $post_id = intval($article['external_post_id']);
-        if($post_id) {
-            $guid = '/?p='.$post_id;
+        if ( $post_id ) {
+            $guid = '/?p=' . $post_id;
             $date = date('r', strtotime(get_post($post_id)->post_date_gmt));
-        }
-        else {
+        } else {
             $date = date('r', $last_mod);
         }
 
         return '<item>
-                    <title><![CDATA['.$article['title'].']]></title>
-                    <description><![CDATA['.strip_tags($article['text']).']]></description>
-                    <link>'.$article['url'].'</link>
-                    <guid isPermaLink="false">'.$guid.'</guid>
-                    <pubDate>'.$date.'</pubDate>
-                    '.$img.'
+                    <title><![CDATA[' . $article['title'] . ']]></title>
+                    <description><![CDATA[' . strip_tags($article['text']) . ']]></description>
+                    <link>' . $article['url'] . '</link>
+                    <guid isPermaLink="false">' . $guid . '</guid>
+                    <pubDate>' . $date . '</pubDate>
+                    ' . $img . '
                 </item>';
     }
 
     /**
      * @return array
      */
-    public function getListsAvailableForExport() {
+    public function getListsAvailableForExport()
+    {
         return $this->available_export;
     }
 
     /**
      * @param array $lists
      */
-    public function setListsAvailableForExport(array $lists) {
+    public function setListsAvailableForExport(array $lists)
+    {
         $this->available_export = $lists;
         $settings = $this->arlima_plugin->loadSettings();
         $settings['available_export'] = $lists;
@@ -254,7 +263,8 @@ class Arlima_ExportManager {
      * @param Arlima_List|int $list
      * @return bool
      */
-    public function isAvailableForExport($list) {
+    public function isAvailableForExport($list)
+    {
         $id = is_object($list) ? $list->id : $list;
         return in_array($id, $this->available_export);
     }

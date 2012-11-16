@@ -495,7 +495,7 @@ class Arlima_List
         } elseif ( method_exists($this, $arg) ) {
             return call_user_func(array($this, $arg));
         } elseif ( $arg == 'is_imported' ) {
-            // todo: implement
+            return $this->isImported();
         }
 
         return false;

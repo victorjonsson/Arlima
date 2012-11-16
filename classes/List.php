@@ -465,12 +465,33 @@ class Arlima_List
         return $start_tag . $title_html . $end_tag;
     }
 
-    public function toArray() {
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
         $arr = array();
         foreach($this as $key => $val)
             $arr[$key] = $val;
 
         return $arr;
+    }
+
+    /**
+     * Get an array with all wordpress pages that this list is related to
+     * @return array
+     */
+    function loadRelatedWordpressPages()
+    {
+        if( $this->exists() ) {
+            return get_pages(array(
+                    'meta_key' => '_arlima_list',
+                    'meta_value' => $this->id(),
+                    'hierarchical' => 0
+                ));
+        }
+
+        return array();
     }
 
     /**

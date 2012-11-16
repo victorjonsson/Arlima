@@ -13,7 +13,7 @@
  *      return '...';
  *  });
  *
- *  $list->renderList();
+ *  $renderer->renderList();
  *  </code>
  *
  * @package Arlima

@@ -904,5 +904,77 @@ class Arlima_ListFactory {
     /* * * * * * * * * * * * * * * * * DEPRECATED FUNCTIONS  * * * * * * * * * * * * * * * * * */
 
 
+    /**
+     * @deprecated
+     * @param Arlima_List $list
+     */
+    public static function addArticles( &$list )
+    {
+        $factory = new self();
+        $reloaded_list = $factory->loadList($list->id());
+        $list->setArticles( $reloaded_list->getArticles() );
+    }
 
+    /**
+     * @deprecated
+     * @param Arlima_List $list
+     * @param $id
+     * @param string $version
+     */
+    public static function addData(&$list, $id, $version = '')
+    {
+        $factory = new self();
+        $list = $factory->loadList($list->id(), $version === '' ? false : $version);
+    }
+
+    /**
+     * @deprecated
+     * @param mixed $slug_or_id
+     * @param string $version
+     * @return Arlima_List
+     */
+    public static function load($slug_or_id, $version='')
+    {
+        $factory = new self();
+        if( is_numeric($slug_or_id) ) {
+            return $factory->loadList($slug_or_id, $version === '' ? false:$version);
+        } else {
+            return $factory->loadListBySlug($slug_or_id, $version === '' ? false:$version);
+        }
+    }
+
+    /**
+     * @deprecated
+     * @param Arlima_List $list
+     * @param int $user_id
+     */
+    public static function saveNewVersion(&$list, $user_id)
+    {
+        $factory = new self();
+        $factory->saveNewListVersion($list, $list->getArticles(), $user_id);
+        $list = $factory->loadList($list->id()); // reload
+    }
+
+    /**
+     * @deprecated
+     * @param $list
+     */
+    public static function saveListProperties($list)
+    {
+        $factory = new self();
+        $factory->updateListProperties($list);
+    }
+
+    /**
+     * @deprecated
+     * @param $name
+     * @param $slug
+     * @param array $options
+     * @return Arlima_List
+     */
+    public static function create($name, $slug, $options = array())
+    {
+        $factory = new self();
+        return $factory->createList($name, $slug, $options);
+    }
 }

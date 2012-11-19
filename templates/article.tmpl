@@ -1,0 +1,48 @@
+<div id="${container.id}" class="${container.class} tmpl-article">
+<article>
+
+    {{if streamer}}
+        <div style="${streamer.style}" class="streamer ${streamer.type}">
+            <span>{{html streamer.content}}</span>
+        </div>
+    {{/if}}
+
+    {{html article_begin}}
+
+    {{include parts/top-image.tmpl}}
+
+    {{html article.html_title}}
+
+    {{html article.html_text}}
+
+    {{if related}}
+        <div class="teaser-related-posts">
+            <aside>
+                {{if related.single}}
+                    <h3>Reade more</h3>
+                {{else}}
+                    <h3>Related articles</h3>
+                {{/if}}
+                <ul>
+                    {{each related.posts}}
+                        <li>
+                            <a href="${this.url}" class="related">${this.post_title}</a>
+                            {{html this.html_comment_stats}}
+                        </li>
+                    {{/each}}
+                </ul>
+            </aside>
+        </div>
+    {{/if}}
+
+</article>
+
+{{if sub_articles}}
+    <div class="teaser-children">
+        {{html sub_articles}}
+    </div>
+{{/if}}
+
+</div>
+
+{{html article_end}}

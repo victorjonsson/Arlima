@@ -1,0 +1,13 @@
+{{if image}}
+    <a href="${article.url}" title="${article.title}">
+        {{if image.src}}
+            {{if is_child}}
+                <img src="{{html image.src}}" class="${image.image_class}" width="{{if image.image_size == 'full'}}240px{{/if}}{{if image.image_size == 'half'}}120px{{/if}}{{if image.image_size == 'third'}}79px{{/if}}{{if image.image_size == 'quarter'}}60px{{/if}}" />
+            {{else}}
+                <img src="{{html image.src}}" class="${image.image_class}" width="{{if image.image_size == 'full'}}480px{{/if}}{{if image.image_size == 'half'}}240px{{/if}}{{if image.image_size == 'third'}}158px{{/if}}{{if image.image_size == 'quarter'}}120px{{/if}}" />
+            {{/if}}
+        {{else}}
+            {{html image.html}}
+        {{/if}}
+    </a>
+{{/if}}

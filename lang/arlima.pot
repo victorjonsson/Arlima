@@ -1,0 +1,454 @@
+# Copyright (C) 2012 Arlima (article list manager)
+# This file is distributed under the same license as the Arlima (article list manager) package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Arlima (article list manager) 1.0.9\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/arlima\n"
+"POT-Creation-Date: 2012-06-27 11:47:02+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2012-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Victor Jonsson <kontakt@victorjonsson.se>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: arlima.php:39 arlima.php:225
+msgid "Article List Manager"
+msgstr "Arlima"
+
+#: arlima.php:39 arlima.php:40
+msgid "Article lists"
+msgstr "Artikellistor"
+
+#: arlima.php:40
+msgid "Manage lists"
+msgstr "Hantera listor"
+
+#: arlima.php:48
+msgid "Edit lists"
+msgstr "Redigera listor"
+
+#: arlima.php:51
+msgid "Help"
+msgstr "Dokumentation"
+
+#: arlima.php:118
+msgid "Here you will see the article list..."
+msgstr "Här kommer du att kunna se din artikellista."
+
+#: arlima.php:301
+msgid " saved since "
+msgstr " sparad sedan "
+
+#: arlima.php:301
+msgid " by "
+msgstr " av "
+
+#: arlima.php:359
+msgid "You have one, or more, unsaved article lists"
+msgstr "Du har en, eller flera, osparade listor"
+
+#: arlima.php:360
+msgid "It exists an older version of this article list"
+msgstr "Det finns en äldre version av den här listan"
+
+#: arlima.php:361
+msgid "Do you still want to save this version of the list?"
+msgstr "Vill du fortfarande spara listan?"
+
+#: arlima.php:362
+msgid "This article list has more than one extra-streamer"
+msgstr "Den här artikellistan har fler extra-plattor"
+
+#: arlima.php:363
+msgid "You have made changes to this list, do you want to remove it anyway?"
+msgstr "Du har gjort ändringar i den här artikellistan, vill du fortarande radera den?"
+
+#: arlima.php:364
+msgid "Do you want to remove \""
+msgstr "Vill du ta bort \""
+
+#: arlima.php:365
+msgid "\" from this article list?"
+msgstr "\" från listan?"
+
+#: arlima.php:366
+msgid "Choose image"
+msgstr "Välj bild"
+
+#: arlima.php:367
+msgid "No list is active!"
+msgstr "Ingen lista är aktiv"
+
+#: arlima.php:368
+msgid "This article has no related image"
+msgstr "Den här artikeln har inga relaterade bilder"
+
+#: arlima.php:369
+msgid "this article is not connected to any post"
+msgstr "Den här artikeln är inte kopplad till någon lista"
+
+#: arlima.php:1097
+msgid "Edit article list"
+msgstr "Redigera artikellista"
+
+#: page-arlima-example.php:29
+msgid ""
+"No list slug is defined. Please add custom field &quot;arlima&quot; to this "
+"page with the slug name of the list that you want to display"
+msgstr ""
+"Ingen lista är definerad. Du måste lägga till ett eget fält med namnet \"arlima\""
+"innehållandes namnet på den artikellista du vill visa på den här sidan."
+
+#: page-arlima-example.php:37
+msgid "It does not exist any arlima list with the slug"
+msgstr "Det finns ingen artikellista med namnet"
+
+#: page-arlima-example.php:124
+msgid "Please feed me some articles, I'm hungry"
+msgstr "Det saknas artiklar!"
+
+#: pages/edit.php:34 pages/main.php:208 pages/main.php:257
+msgid "Search"
+msgstr "Sök"
+
+#: pages/edit.php:48 pages/main.php:245
+msgid "Choose article list"
+msgstr "Välj artikellista"
+
+#: pages/edit.php:56 pages/main.php:77
+msgid "Browse"
+msgstr "Bläddra"
+
+#: pages/edit.php:59 pages/edit.php:67
+msgid "New list"
+msgstr "Ny lista"
+
+#: pages/edit.php:65
+msgid "Edit list"
+msgstr "Redigera lista"
+
+#: pages/edit.php:82 pages/main.php:137
+msgid "Title"
+msgstr "Rubrik"
+
+#: pages/edit.php:86
+msgid "Slug"
+msgstr "Namn"
+
+#: pages/edit.php:90
+msgid "Preview URL"
+msgstr "URL till förhandsgranskningssida"
+
+#: pages/edit.php:92
+msgid "eg. \"/\" or \"/home\""
+msgstr "tex. \"/\" eller \"/min-sida\""
+
+#: pages/edit.php:95
+msgid "Maximum number of articles"
+msgstr "Max antal artiklar"
+
+#: pages/edit.php:100
+msgid "Template"
+msgstr "Mall"
+
+#: pages/edit.php:105
+msgid "Pages to purge"
+msgstr "Sidor som ska övervakas för tömning cache-minnet"
+
+#: pages/edit.php:107
+msgid ""
+"Comma separated list of URL's where this list will be displayed (for caching "
+"control only)"
+msgstr ""
+"Kommaseparerad list med URL:er (avancerat)"
+
+#: pages/edit.php:110
+msgid "Title HTML-tags"
+msgstr "HTML-tagg för rubrik"
+
+#: pages/edit.php:112
+msgid "Before"
+msgstr "Före"
+
+#: pages/edit.php:113
+msgid "After"
+msgstr "Efter"
+
+#: pages/edit.php:114
+msgid "Default &lt;h2&gt;, &lt;/h2&gt;"
+msgstr "Blir automatiskt &lt;h2&gt;, &lt;/h2&gt; om inga värden anges"
+
+#: pages/edit.php:119
+msgid "Save"
+msgstr "Spara"
+
+#: pages/main.php:10
+msgid "Toggle article preview"
+msgstr "Dölj/visa förhandsgranskning av artikel"
+
+#: pages/main.php:11
+msgid "Publish list"
+msgstr "Publicera lista"
+
+#: pages/main.php:12
+msgid "Preview list"
+msgstr "Förhandsgranska lista"
+
+#: pages/main.php:19 pages/main.php:79
+msgid "Edit"
+msgstr "Redigera"
+
+#: pages/main.php:28
+msgid "Streamer"
+msgstr "Platta"
+
+#: pages/main.php:33
+msgid "Extra"
+msgstr "Extra"
+
+#: pages/main.php:34
+msgid "Custom"
+msgstr "Egen text"
+
+#: pages/main.php:35
+msgid "Image"
+msgstr "Bild"
+
+#: pages/main.php:47
+msgid "Choose streamer"
+msgstr "Välj platta"
+
+#: pages/main.php:73
+msgid "Drag image here"
+msgstr "Dra bilder hit!"
+
+#: pages/main.php:81
+msgid "Disconnect"
+msgstr "Frikoppla"
+
+#: pages/main.php:82
+msgid "Remove"
+msgstr "Radera"
+
+#: pages/main.php:105
+msgid "Full width"
+msgstr "Fullbredd"
+
+#: pages/main.php:106
+msgid "50% wide"
+msgstr "Halvspalt"
+
+#: pages/main.php:107
+msgid "33% wide"
+msgstr "Tredjedelsspalt"
+
+#: pages/main.php:108
+msgid "25% wide"
+msgstr "Fjärdedelsspalt"
+
+#: pages/main.php:111
+msgid "Align left"
+msgstr "Vänsterjusterad "
+
+#: pages/main.php:112
+msgid "Align center"
+msgstr "Centrerad"
+
+#: pages/main.php:113
+msgid "Align right"
+msgstr "Högerjusterad "
+
+#: pages/main.php:121
+msgid "Title entry word"
+msgstr "Rubrikingång"
+
+#: pages/main.php:126
+msgid "Style"
+msgstr "Anpassad rubrik"
+
+#: pages/main.php:160
+msgid "Link"
+msgstr "Länk"
+
+#: pages/main.php:166
+msgid "Hide related"
+msgstr "Dölj relaterade"
+
+#: pages/main.php:171
+msgid "Connected to article:"
+msgstr "Kopplad till artikel:"
+
+#: pages/main.php:171
+msgid "[change]"
+msgstr "[Byt]"
+
+#: pages/main.php:185
+msgid "Articles"
+msgstr "Artikelsök"
+
+#: pages/main.php:193
+msgid "All categories"
+msgstr "Alla kategorier"
+
+#: pages/main.php:200
+msgid "All authors"
+msgstr "Alla författare"
+
+#: pages/main.php:207
+msgid "Search word"
+msgstr "Sökord"
+
+#: pages/main.php:225
+msgid "Templates"
+msgstr "Mall"
+
+#: pages/main.php:253
+msgid "Add"
+msgstr "Lägg till"
+
+#: pages/main.php:274
+msgid "Save setup"
+msgstr "Spara upplägg"
+
+#: pages/main.php:276
+msgid "Update"
+msgstr "Uppdatera"
+
+#: pages/main.php:276
+msgid "Reload all lists"
+msgstr "Ladda alla listor på nytt"
+
+#. Plugin Name of the plugin/theme
+msgid "Arlima (article list manager)"
+msgstr "Arlima (article list manager)"
+
+#. pages/arlima.php
+msgid "Author"
+msgstr "Författare"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Teaser templates"
+msgstr "Artikelmallar"
+
+msgid "Last modified %s a go"
+msgstr "Ändrades för %s sedan"
+
+msgid "Export settings saved successfully"
+msgstr "Inställningar för export har sparats"
+
+msgid "Imported list successfully removed"
+msgstr "Den importade listan är nu raderad"
+
+msgid "Web Service"
+msgstr "Externa tjänster"
+
+msgid "Choose which article lists that should be available for export"
+msgstr "Välja vilka listor som ska vara tillgängliga för export"
+
+msgid "This list is not related to any page! Create a new page with a custom field named arlima having %s as value."
+msgstr "Den här listan är inte kopplad till någon sida! Skapa en sida med ett eget fält som du ger namnet arlima och värdet %s "
+
+msgid "URL"
+msgstr "Webbadress"
+
+msgid "You can export your lists in RSS format by adding ?format=rss to the URL."
+msgstr "Du kan även exportera listorna i RSS-format genom att lägga till ?format=rss på listans webbadress. "
+
+msgid "Import list"
+msgstr "Importera lista"
+
+msgid "Imported lists"
+msgstr "Importerade listor"
+
+msgid "Are you sure that you want to remove this list?"
+msgstr "Är du säker på att du vill radera denna lista? "
+
+msgid "List %s was successfully removed"
+msgstr "Listan %s har tagits bort"
+
+msgid "List %s was successfully created"
+msgstr "Listan %s har skapats"
+
+msgid "List %s was successfully updated"
+msgstr "Listan %s har uppdaterats"
+
+msgid "imported list"
+msgstr "importerad"
+
+msgid "This list have been removed!"
+msgstr "Den här listan har tagits bort"
+
+msgid "to save article list"
+msgstr "för att spara listan"
+
+msgid "This list has no unsaved changes"
+msgstr "Den här listan har inga ändringar att förhandsgranska"
+
+msgid "This list is missing a preview page"
+msgstr "Den här listan saknar en förhandsgranskningssida"
+
+msgid "This list has unsaved changes"
+msgstr "Den här listan har ändringar som inte är sparade"
+
+msgid "Drag images to this container"
+msgstr "Drag och släpp här"
+
+msgid "unpublished"
+msgstr "ej publicerad ännu"
+
+msgid "Previous"
+msgstr "Föregående"
+
+msgid "Next"
+msgstr "Nästa"
+
+msgid "Post needs to be published"
+msgstr "Inlägget måste vara publicerad"
+
+msgid "Are you sure you want to insert this post in the top of selected article list?"
+msgstr "Är du säker på att du vill lägga till artikeln i toppen av vald artikellista? "
+
+msgid "The post is inserted in article list"
+msgstr "Artikeln skickades till"
+
+msgid "Your login session seems to have expired, pls reload the page!"
+msgstr "Du verkar ha blivit utloggad och bör därför ladda om den här sidan."
+
+msgid "Sticky"
+msgstr "Låst"
+
+msgid "Interval"
+msgstr "Intervall"
+
+msgid "Toggle all"
+msgstr "Markera alla"
+
+msgid "Days"
+msgstr "Dagar"
+
+msgid "Hours"
+msgstr "Timmar"
+
+msgid "This article is locked by admin"
+msgstr "Artikeln är låst av admin"
+
+msgid "Only administrators can manage article locks"
+msgstr "Endast administratörer kan låsa artiklar"
+
+msgid "Admin lock"
+msgstr "Adminlås"
+
+msgid "Future post"
+msgstr "Tidsinställd artikel"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "Default template"
+msgstr "Standardmall"
+
+msgid "Default"
+msgstr "Standard"

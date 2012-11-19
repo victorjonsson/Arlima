@@ -1,0 +1,929 @@
+#arlima-container-area {
+    /*width: 635px;*/
+    height: 800px;
+    padding: 5px;
+    border: 1px solid #bbb;
+    background: #ddd;
+    position: relative;
+    margin-bottom: 5px;
+}
+
+#arlima-preview {
+    position: absolute;
+    border: 1px solid #cccccc;
+    border-right: none;
+    border-right: dashed 1px #2888B5;
+    display: none;
+    top: 60px;
+    padding: 0px;
+    /*min-height: 300px;*/
+    z-index: 50;
+    background: #fff;
+    right: 610px;
+}
+
+.ajax-loader {
+    display: none;
+}
+
+li.dragger {
+    list-style: none;
+}
+
+#setup-loader {
+    position: absolute;
+    top: 200px;
+    left: 50%;
+    margin-left: -50px;
+}
+
+.arlima-postbox {
+    background: #fff;
+    border: #dfdfdf solid 1px;
+    line-height: 1;
+    margin-bottom: 20px;
+    width: 600px;
+}
+
+.arlima-postbox .inside {
+    margin: 10px;
+}
+
+.arlima-postbox h3 {
+    cursor: default;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+    margin: 0;
+    padding: 7px 9px;
+    background: url("../../../../wp-admin/images/gray-grad.png") repeat-x scroll left top #DFDFDF;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+
+.arlima-postbox .handlediv {
+    float: right;
+    height: 26px;
+    width: 23px;
+}
+
+.arlima-postbox:hover .handlediv {
+    background: transparent url(../../../../wp-admin/images/menu-bits.gif) no-repeat scroll left -111px;
+}
+
+.arlima-postbox table table td {
+    border: none;
+}
+
+#arlima-toplinks {
+    line-height: 18px;
+}
+
+#arlima-toplinks a {
+    text-decoration: none;
+}
+
+#arlima-toplinks a img {
+    vertical-align: baseline;
+}
+
+#arlima-edit-article {
+
+}
+
+#arlima-article-image img:hover,
+#arlima-article-image em:hover {
+    cursor: pointer;
+    opacity: 0.75;
+}
+
+#arlima-article-image-options {
+    padding-bottom: 10px;
+}
+
+#arlima-article-image-container {
+    background: #F2F2F2;
+    padding: 10px 0px 10px 10px;
+    border: #DDD dashed 3px;
+}
+
+#arlima-article-image {
+    float: left;
+    width: 470px;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    font-weight: bold;
+    font-size: 40px;
+    color: #CCC;
+}
+
+#arlima-article-image.empty {
+    min-height: 60px;
+    text-align: center;
+}
+
+#arlima-article-image.empty.dragover {
+    border-color: #ccff55;
+}
+
+#arlima-article-image.empty.dragover p {
+    display: none;
+}
+
+#arlima-article-image img {
+    max-width: 100%;
+}
+
+#arlima-article-image img.alignright, #arlima-article-image img.aligncenter, #arlima-article-image img.alignleft {
+    float: none;
+}
+
+#arlima-article-image-links {
+    float: right;
+    padding-right: 10px;
+}
+
+#arlima-article-image-remove {
+    text-decoration: none;
+}
+
+#arlima-article-image-remove img {
+    vertical-align: middle;
+}
+
+#arlima-article-post_id {
+    display: none;
+}
+
+#arlima-article-post_id.error {
+    border-color: red;
+}
+
+#arlima-edit-article .arlima-title-fontsize-span {
+    display: inline;
+    border: 1px solid #ccc;
+    background: url("../../../../wp-admin/images/gray-grad.png") repeat-x scroll left top #DFDFDF;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.arlima-title-fontsize-span img {
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.remove {
+    cursor: pointer;
+}
+
+#arlima-edit-article #arlima-edit-article-remove {
+    float: right;
+    margin-left: 5px;
+}
+
+#arlima-article-image-alignment {
+    clear: both;
+    display: none;
+}
+
+#arlima-article-settings {
+    padding-bottom: 5px;
+    overflow: auto;
+}
+
+#arlima-article-settings input,
+#arlima-article-settings select {
+    margin-right: 8px;
+}
+
+#arlima-article-image-alignment label {
+    margin-right: 5px;
+}
+
+.arlima-list-container {
+    width: 300px;
+    border-radius: 0px;
+    border: 2px solid #bbb;
+    padding: 20px 0 34px 0;
+    margin-bottom: 20px;
+    background: #fff;
+    position: absolute !important;
+}
+
+.arlima-list-containers {
+    border: 2px solid rgba(0, 0, 0, 0.0);
+}
+
+.arlima-list-container.active {
+    border: 2px solid #bfdcf1;
+    background: #eef8ff;
+}
+
+.arlima-list-container.imported.active {
+    background: #FFF;
+}
+
+.arlima-list-container.unsaved {
+    background: #ffbaba;
+
+}
+
+.arlima-list-container.active.unsaved {
+    border: 2px solid #ff5b5b;
+}
+
+.arlima-list-container-remove {
+    float: right;
+    margin: 2px 5px 0 0;
+}
+
+.arlima-list-header {
+    color: #fff;
+    background: url("../../../../wp-admin/images/button-grad.png") repeat-x scroll left top #dfdfdf;
+    height: 20px;
+    width: inherit;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    line-height: 20px;
+    text-shadow: rgba(0, 0, 0, .4) 0 1px 0;
+}
+
+.arlima-list-container.imported .arlima-list-header {
+    background-image: none;
+    background-color: #444;
+    color: #EEE;
+}
+
+.arlima-list-header span {
+    margin: 0 5px;
+}
+
+.arlima-list-footer {
+    padding: 0;
+    height: 34px;
+    width: inherit;
+    position: absolute;
+    bottom: 0px;
+    overflow: hidden;
+}
+
+.arlima-list-footer .arlima-list-footer-buttons {
+    border-top: 1px solid #ececec;
+    padding-top: 3px;
+    margin: 2px 10px;
+}
+
+.last-mod {
+    font-size: 90%;
+    color: #777;
+}
+
+.arlima-list-footer .arlima-list-footer-buttons img {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.arlima-list-footer .arlima-list-footer-buttons a {
+    cursor: pointer;
+}
+
+.arlima-list-footer .arlima-refresh-list {
+    float: right;
+}
+
+.arlima-list-version {
+    display: inline-block;
+    float: right;
+    cursor: pointer;
+    position: relative;
+}
+
+.arlima-list-version-select {
+    display: none;
+}
+
+.arlima-list-version-info {
+    /*float: right;*/
+    font-size: 9px;
+    margin-right: 5px;
+
+}
+
+.arlima-list-scroller {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+}
+
+.arlima-list {
+    list-style: none;
+    min-height: 20px;
+    padding: 5px;
+    max-height: 300px;
+    margin-top: 0;
+}
+
+.arlima-list.unsaved {
+    background: #eaf2fa;
+}
+
+.arlima-list .listitem,
+.arlima-list .listitem.sticky:hover {
+    border: #dfdfdf solid 1px;
+    background: url("../../../../wp-admin/images/gray-grad.png") repeat-x scroll left top #DFDFDF;
+    padding: 0;
+    margin-bottom: 3px;
+    cursor: pointer;
+    word-wrap: break-word;
+    position: relative;
+    text-shadow: rgba(255, 255, 255, .4) 0 1px 0;
+}
+
+.imported .listitem {
+    background: none;
+}
+
+.arlima-list .listitem:hover {
+    background: #eeeeee;
+    border: 1px solid #dddddd;
+}
+
+.arlima-list .listitem div {
+    min-height: 18px;
+    padding: 3px 5px;
+}
+
+.listitem.future {
+    opacity: 0.75;
+    font-style: italic;
+}
+
+.listitem.sticky,
+.listitem.sticky:hover {
+    cursor: default !important;
+}
+
+.listitem .sticky-icon {
+    background-image: url(../images/lock-icon.png);
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding: 1px 0 0 19px;
+    font-weight: bold;
+    display: block;
+    float:left;
+}
+
+.imported .listitem.sticky{
+    border: #dfdfdf solid 1px;
+    background: #FFF;
+    font-weight: normal;
+}
+
+#future-notice {
+    font-size: 90%;
+    color: #777;
+    margin-left: 4px;
+    display: none;
+}
+
+#post-connection {
+    padding:8px 3px 0;
+}
+
+.arlima-listitem-remove {
+    float: right;
+    display: none;
+}
+
+.arlima-list .listitem div:hover .arlima-listitem-remove {
+    display: inline;
+}
+
+.arlima-list.imported .listitem div:hover .arlima-listitem-remove {
+    display: none;
+}
+
+.arlima-list .listitem.column-splitter {
+    background: url("../../../../wp-admin/images/fav.png") repeat-x scroll left top #666;
+    padding: 5px;
+}
+
+.arlima-list .listitem ul {
+    width: 90%;
+    background: #fff;
+    padding: 3px 2px 0 2px;
+    margin-top: 2px;
+    margin-left: 26px;
+    border: 1px solid #ccc;
+}
+
+.arlima-listitem-placeholder {
+    background: #E3FFDF;
+    height: 18px;
+    padding: 3px 5px;
+}
+
+.arlima-list .listitem.edited,
+.arlima-list .listitem.sticky.edited:hover {
+    background: #3f8fb4;
+    border: solid 1px #2379a1;
+    color: #fff;
+    text-shadow: rgba(0, 0, 0, .4) 0 1px 0;
+}
+
+.imported .arlima-list .listitem.edited {
+    background: #999;
+    border-color: #888;
+}
+
+.arlima-list .listitem.edited ul li {
+    color: #000;
+    text-shadow: none;
+}
+
+.arlima-list .listitem .handle {
+    margin-right: 8px;
+    cursor: move;
+}
+
+.arlima-list .listitem .remove {
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    display: none;
+}
+
+#arlima-post-search .search-modifications {
+    line-height: 250%;
+}
+
+.search-modifications input {
+    margin-right: 4px;
+}
+
+.arlima-editor-blocker {
+    background-color:rgba(255,255,255, .5);
+    position: absolute;
+    z-index: 998;
+}
+
+.block-msg {
+    font-size: 26px;
+    font-weight: bold;
+    padding: 12px;
+    font-style: italic;
+    border-radius: 12px;
+    background:#222;
+    color: #EEE;
+    box-shadow: 1px 1px 3px #ccc;
+    margin: 150px auto 0;
+    width: 400px;
+    text-align: center;
+}
+
+#arlima-article-functions {
+    padding: 10px 10px 0;
+    border-top: #DDD solid 1px;
+    margin-top: 22px;
+}
+
+
+
+/*  EDIT PAGE */
+
+#arlima-lists {
+    position: relative;
+    display: inline;
+}
+
+#arlima-lists ul {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    border: 1px solid #ccc;
+    z-index: 49;
+}
+
+#arlima-lists ul li {
+    list-style: none;
+    padding: 3px;
+
+}
+
+#arlima-lists ul li {
+    width: 140px;
+    margin: 0;
+    padding: 3px 5px;
+    display: none;
+    cursor: pointer;
+    background: #fff;
+}
+
+#arlima-lists ul li:hover {
+    background: #eee;
+}
+
+#col-left {
+    width: auto;
+}
+
+#col-right {
+    width: 620px;
+    margin: 0 0 0 10px;
+    position: relative;
+    overflow: visible;
+}
+
+#arlima-add-list-select optgroup {
+    background: #F2F2F2;
+    font-style: italic;
+}
+
+/* Fix some UI bugs */
+.ui-resizable-handle {
+    z-index: 45 !important;
+}
+
+#arlima-edit-article-title {
+    width: 400px;
+    font-size: 20px;
+    border: solid 1px #e5e5e5;
+    background: -webkit-gradient(linear, left top, left 10, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
+    background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 10px);
+}
+
+#add_main_image {
+    text-decoration: none;
+}
+
+.arlima-listitem-title .handle {
+    padding: 5px;
+}
+
+.arlima-streamer {
+    width: 95%;
+    border-bottom: solid 1px #eeeeee;
+    margin: 0 0 5px 0;
+}
+
+.arlima-streamer li {
+    line-height: 20px;
+}
+
+.arlima-button {
+    background: pink;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.arlima-button label {
+    display: inline-block;
+    padding: 2px 10px 2px 0;
+}
+
+.arlima-button input {
+    margin: 0 0 0 5px;
+}
+
+#arlima-edit-article-options-streamer-content,
+#sticky-interval {
+    border: none;
+    display: inline-block;
+    margin: 0 12px 0 -3px;
+
+}
+
+#sticky-interval input {
+    width: 80px;
+}
+
+.arlima-edit-article-options-streamer-choice {
+    display: inline-block;
+}
+
+.arlima-edit-article-options-streamer-choice input[name=options-streamer_content] {
+    width: 100px;
+}
+
+.sticky-interval-time {
+    max-width: 380px;
+    line-height: 200%;
+}
+
+.sticky-interval-time label {
+    padding-right: 10px;
+    white-space: nowrap;
+}
+
+span.arlima-streamer-indicator {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    padding: 0;
+    line-height: 0;
+    vertical-align: 1px;
+    margin-right: 5px;
+}
+
+#arlima-edit-article-url {
+    width: 350px;
+}
+
+.cupid-green {
+    background: #7fbf4d;
+    background: -moz-linear-gradient(top, #7fbf4d 0%, #63a62f 100%);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#7fbf4d), to(#63a62f));
+    border: 1px solid #63a62f !important;
+    border-bottom: 1px solid #5b992b !important;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    -moz-box-shadow: inset 0 1px 0 0 #96ca6d;
+    -webkit-box-shadow: inset 0 1px 0 0 #96ca6d;
+    box-shadow: inset 0 1px 0 0 #96ca6d;
+    color: #fff;
+    font-family: "Arial", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    line-height: 18px;
+    padding: 2px 0 2px 0;
+    text-align: center;
+    text-shadow: 0 -1px 0 #4c9021;
+}
+
+.cupid-green:hover {
+    background: #76b347;
+    background: -moz-linear-gradient(top, #76b347 0%, #5e9e2e 100%);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#76b347), to(#5e9e2e));
+    -moz-box-shadow: inset 0 1px 0 0 #8dbf67;
+    -webkit-box-shadow: inset 0 1px 0 0 #8dbf67;
+    box-shadow: inset 0 1px 0 0 #8dbf67;
+    cursor: pointer;
+}
+
+.cupid-green:active {
+    border: 1px solid #5b992b;
+    border-bottom: 1px solid #538c27;
+    -moz-box-shadow: inset 0 0 8px 4px #548c29, 0 1px 0 0 #eee;
+    -webkit-box-shadow: inset 0 0 8px 4px #548c29, 0 1px 0 0 #eee;
+    box-shadow: inset 0 0 8px 4px #548c29, 0 1px 0 0 #eee;
+}
+
+.cupid-green.checked {
+    background: #444444;
+    background: -moz-linear-gradient(top, #444444 0%, #222222 100%);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#444444), to(#222222));
+    border: 1px solid #222222 !important;
+    border-bottom: 1px solid #444444 !important;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    -moz-box-shadow: inset 0 1px 0 0 #666666;
+    -webkit-box-shadow: inset 0 1px 0 0 #666666;
+    box-shadow: inset 0 1px 0 0 #666666;
+    color: #fff;
+    font-family: "Arial", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    line-height: 18px;
+    padding: 2px 2px 2px 2px;
+    text-align: center;
+    text-shadow: 0 -1px 0 #000000;
+}
+
+.cupid-green.checked:hover {
+    background: #333333;
+    background: -moz-linear-gradient(top, #333333 0%, #111 100%);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#333333), to(#111));
+    -moz-box-shadow: inset 0 1px 0 0 #555555;
+    -webkit-box-shadow: inset 0 1px 0 0 #555555;
+    box-shadow: inset 0 1px 0 0 #555555;
+    cursor: pointer;
+}
+
+.cupid-blue {
+    background: #21759B;
+    background: -moz-linear-gradient(top, #21759B 0%, #1b607f 100%);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#21759B), to(#1b607f));
+    border: 1px solid #1b607f !important;
+    border-bottom: 1px solid #21759B !important;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    -moz-box-shadow: inset 0 1px 0 0 #2687b2;
+    -webkit-box-shadow: inset 0 1px 0 0 #2687b2;
+    box-shadow: inset 0 1px 0 0 #2687b2;
+    color: #fff;
+    font-family: "Arial", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    line-height: 18px;
+    padding: 2px 0 2px 0;
+    text-align: center;
+    text-shadow: 0 -1px 0 #333333;
+}
+
+.cupid-blue:hover {
+    background: #1e6b8d;
+    background: -moz-linear-gradient(top, #1e6b8d 0%, #1b607f 100%);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#1e6b8d), to(#1b607f));
+    -moz-box-shadow: inset 0 1px 0 0 #237aa2;
+    -webkit-box-shadow: inset 0 1px 0 0 #237aa2;
+    box-shadow: inset 0 1px 0 0 #237aa2;
+    cursor: pointer;
+}
+
+.cupid-orange {
+    width: 70px;
+    font-size: 11px;
+    background: #ffbc3c;
+    background: -moz-linear-gradient(top, #ffbc3c 0%, #ffb016 100%);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffbc3c), to(#ffb016));
+    border: 1px solid #ffbc3c !important;
+    border-bottom: 1px solid #ffb016 !important;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    -moz-box-shadow: inset 0 1px 0 0 #fccb6e;
+    -webkit-box-shadow: inset 0 1px 0 0 #fccb6e;
+    box-shadow: inset 0 1px 0 0 #fccb6e;
+    color: #fff;
+    font-family: "Arial", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    line-height: 18px;
+    padding: 2px 0 2px 0;
+    text-align: center;
+    text-shadow: 0 -1px 0px #eda51a;
+
+}
+
+.cupid-orange:hover {
+    background: #eda51a;
+    background: -moz-linear-gradient(top, #feba38 0%, #eda51a 100%);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#feba38), to(#eda51a));
+    -moz-box-shadow: inset 0 1px 0 0 #ffbe41;
+    -webkit-box-shadow: inset 0 1px 0 0 #ffbe41;
+    box-shadow: inset 0 1px 0 0 #ffbe41;
+    cursor: pointer;
+}
+
+/* CHRIS EDIT */
+#arlima-article-image img {
+    max-height: 250px;
+}
+
+#arlima-article-image-browse, #arlima-article-attachments-browse {
+    font-family: 'Arial';
+    font-size: 11px;
+    width: 70px;
+}
+
+.not_allowed {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.not_allowed > * {
+    cursor: not-allowed;
+}
+
+.file-progress {
+    color: #333 !important;
+    font-size: 12px;
+    text-align: center;
+}
+
+#arlima-article-attachments {
+    width: 500px;
+    max-height: 600px;
+    overflow: auto;
+}
+
+#arlima-article-attachments .arlima-article-attachment {
+    height: 150px;
+    width: 150px;
+    float: left;
+    margin: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+#arlima-article-image-scissors-popup {
+    width: 70px;
+}
+
+#arlima-article-image-remove {
+    color: #ff0000;
+}
+
+#arlima-article-image-remove img {
+    vertical-align: bottom;
+    margin: 0 3px 0 0;
+}
+
+.updated.settings-error.success {
+    margin-top: 16px;
+    background: #90ee90;
+    border-color: #008000;
+}
+
+.arlima-fancybox {
+    width: 600px;
+    height: 700px;
+    overflow: auto;
+    background: #f5f5f5;
+    padding: 10px;
+    border: solid 1px #DFDFDF;
+    border-radius: 3px 3px 3px 3px;
+}
+
+.arlima-fancybox #arlima-article-image {
+    float: none;
+}
+
+.arlima-fancybox #arlima-article-image img {
+    max-width: 400px;
+    max-height: 300px;
+}
+
+.arlima-fancybox #arlima-article-image-links {
+    float: none;
+    position: absolute;
+    right: 15px;
+    top: 0px;
+}
+
+.arlima-fancybox #arlima-article-image-scissors {
+    border-top: solid 1px #e5e5e5;
+    margin: 5px 0 0 0;
+    padding: 5px 0 0 0;
+}
+
+.widefat td {
+    vertical-align: middle;
+}
+
+#arlima-preview-templates {
+    display: none;
+}
+
+#arlima-preview-templates .hide {
+    display: none;
+}
+
+#arlima-save-active-list {
+    float: right;
+    padding: 0 0 0 20px;
+    background: url('../images/save-icon.png') no-repeat left 0px;
+}
+
+#arlima-preview-active-list {
+    float: right;
+    padding: 0 0 0 20px;
+    margin-right: 15px;
+    background: url('../images/preview-icon.png') no-repeat left 0px;
+}
+
+#arlima-toggle-preview {
+    padding: 0 0 0 18px;
+    background: url('../images/preview-icon.png') no-repeat left 0px;
+}
+
+#arlima-refresh-all-lists {
+    float: right;
+}
+
+/*
+ Arlima Web Service Page
+*/
+
+#export-list {
+    background: #F2F2F2;
+    border: #E2E2E2 solid 1px;
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border-radius: 10px;
+    max-width: 65%;
+}
+
+#export-list p {
+    padding: 8px 12px;
+    border-bottom: #E2E2E2 solid 1px;
+    border-top: #FFF solid 1px;
+    margin: 0;
+}
+
+#export-list p:first-child {
+    border-top: 0;
+}
+
+#export-list p input {
+    margin-right: 4px;
+}
+
+.gray-small {
+    font-size: 90%;
+    color: #777;
+}
+
+#export-list .gray-small {
+    display: block;
+}

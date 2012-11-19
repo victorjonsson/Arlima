@@ -1,0 +1,13 @@
+<div id="${container.id}" class="${container.class} tmpl-article giant" style="background-image: url({{html image.src}}{{html image.url}});">
+    <div class="tmpl-giant-content">
+        {{html article.html_title}}
+        {{html article.html_text}}
+        {{html article_end}}
+    </div>
+</div>
+
+{{if sub_articles}}
+    <div class="teaser-children">
+        {{html sub_articles}}
+    </div>
+{{/if}}

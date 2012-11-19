@@ -628,83 +628,35 @@ class Arlima_Plugin
         }
         add_filter('mce_css', 'tdav_css');
 
-
         wp_enqueue_script('jquery');
-
-        wp_register_script(
-            'jquery-ui',
-            'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js',
-            array('jquery')
-        );
-        wp_enqueue_script('jquery-ui');
-
-        wp_enqueue_script('media-upload');
-        wp_enqueue_script('thickbox');
-
-        wp_enqueue_script('qtip', ARLIMA_PLUGIN_URL . 'js/jquery/qtip/jquery.qtip.min.js', array('jquery'));
-        wp_enqueue_script(
-            'colourpicker',
-            ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/jquery.colourpicker.js',
-            array('jquery')
-        );
-
-        wp_register_script(
-            'fancybox',
-            ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox-1.3.4.pack.js',
-            'jquery',
-            null,
-            true
-        );
-        wp_enqueue_script('fancybox');
-
-        wp_enqueue_script(
-            'jquery-ui-nestedsortable',
-            ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.nestedSortable.js',
-            array('jquery'),
-            '1.2'
-        );
-        wp_enqueue_script('pluploadfull', ARLIMA_PLUGIN_URL . 'js/misc/plupload.full.js', array('jquery'));
-        wp_enqueue_script('jquery-tmpl', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.tmpl.min.js', array('jquery'));
-        wp_enqueue_script(
-            'arlima-jquery-plugins',
-            ARLIMA_PLUGIN_URL . 'js/arlima/arlima-jquery-plugins.js',
-            array('jquery'),
-            self::STATIC_VERSION
-        );
-        wp_enqueue_script(
-            'arlima-template-loader',
-            ARLIMA_PLUGIN_URL . 'js/arlima/template-loader.js',
-            array('jquery'),
-            self::STATIC_VERSION
-        );
-        wp_enqueue_script(
-            'arlima-js',
-            ARLIMA_PLUGIN_URL . 'js/arlima/arlima.js',
-            array('jquery'),
-            self::STATIC_VERSION
-        );
-        wp_enqueue_script(
-            'arlima-plupload-init',
-            ARLIMA_PLUGIN_URL . 'js/arlima/plupload-init.js',
-            array('jquery'),
-            self::STATIC_VERSION
-        );
-        wp_enqueue_script(
-            'arlima-main-js',
-            ARLIMA_PLUGIN_URL . 'js/page-main.js',
-            array('jquery'),
-            self::STATIC_VERSION
-        );
-
-        // Use the newest version of hotkeys (wordpress uses old beta)
         wp_deregister_script('jquery-hotkeys');
-        wp_register_script(
-            'jquery-hotkeys-new-version',
-            ARLIMA_PLUGIN_URL . 'js/jquery/jquery.hotkeys.js',
-            array(),
-            self::STATIC_VERSION
+        wp_deregister_script('jquery-ui');
+
+        // Add an almost astronomical amount of javascript
+        $javascripts = array(
+            'jquery-ui'         => 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js',
+            'media-upload'      => false,
+            'thickbox'          => false,
+            'qtip'              => ARLIMA_PLUGIN_URL . 'js/jquery/qtip/jquery.qtip.min.js',
+            'colourpicker'      => ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/jquery.colourpicker.js',
+            'fancybox'          => ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox-1.3.4.pack.js',
+            'ui-nestedsortable' => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.nestedSortable.js',
+            'pluploadfull'      => ARLIMA_PLUGIN_URL . 'js/misc/plupload.full.js',
+            'jquery-tmpl'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.tmpl.min.js',
+            'arlima-jquery'     => ARLIMA_PLUGIN_URL . 'js/arlima/arlima-jquery-plugins.js',
+            'arlima-tmpl'       => ARLIMA_PLUGIN_URL . 'js/arlima/template-loader.js',
+            'arlima-js'         => ARLIMA_PLUGIN_URL . 'js/arlima/arlima.js',
+            'arlima-plupload'   => ARLIMA_PLUGIN_URL . 'js/arlima/plupload-init.js',
+            'arlima-main-js'    => ARLIMA_PLUGIN_URL . 'js/page-main.js',
+            'new-hotkeys'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.hotkeys.js'
         );
-        wp_enqueue_script('jquery-hotkeys-new-version');
+
+        foreach($javascripts as $handle => $js) {
+            if( $js !== false ) {
+                wp_register_script($handle, $js, array('jquery'), self::STATIC_VERSION, false);
+            }
+            wp_enqueue_script($handle);
+        }
 
         wp_localize_script(
             'arlima-js',

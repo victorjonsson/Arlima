@@ -389,7 +389,7 @@ class Arlima_AdminAjaxManager
                 );
             }
 
-            $list = $this->factory->loadList($list_id);
+            $list = $this->factory->loadList($list_id, false, true);
             $articles = $list->getArticles();
             array_unshift($articles, $article);
 
@@ -430,7 +430,7 @@ class Arlima_AdminAjaxManager
         $this->factory->saveNewListVersion($list, $articles, get_current_user_id(), $preview);
 
         // Reload list to get latest version
-        $list = $this->factory->loadList($list_id);
+        $list = $this->factory->loadList($list_id, false, true);
 
         echo json_encode(
             array(
@@ -480,10 +480,10 @@ class Arlima_AdminAjaxManager
         check_ajax_referer('arlima-nonce');
 
         $list_id = isset($_POST['alid']) ? trim($_POST['alid']) : null;
-        $version = isset($_POST['version']) && is_numeric($_POST['version']) ? $_POST['version'] : false;
+        $version = isset($_POST['version']) && is_numeric($_POST['version']) ? (int)$_POST['version'] : false;
 
         if ( is_numeric($list_id) ) {
-            $list = $this->factory->loadList($list_id, $version);
+            $list = $this->factory->loadList($list_id, $version, true);
             $this->loadListWidgets($list);
         } // Probably url referring to an imported list
         elseif ( $list_id ) {
@@ -544,7 +544,7 @@ class Arlima_AdminAjaxManager
     <input type="hidden" name="arlima-list-id" id="arlima-list-id-<?php echo $list->id(); ?>" class="arlima-list-id"
            value="<?php echo $list->id(); ?>"/>
     <input type="hidden" name="arlima-list-previewpage" id="arlima-list-previewpage-<?php echo $list->id(); ?>"
-           class="arlima-list-previewpage" value="<?php echo $list->getOption('previewpage'); ?>"/>
+           class="arlima-list-previewpage" value="<?php echo $list->loadPreviewPageURL() ?>"/>
     <input type="hidden" name="arlima-version-id" id="arlima-version-id-<?php echo $list->id(); ?>"
            class="arlima-version-id" value="<?php echo $list->getVersionAttribute('id'); ?>"/>
     <input type="hidden" name="arlima-list-previewtemplate" id="arlima-list-previewtemplate-<?php echo $list->id(); ?>"

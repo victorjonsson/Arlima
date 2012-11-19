@@ -193,8 +193,7 @@ class Arlima_TemplateObjectCreator
             // Related posts
             if ( $load_related_articles ) {
                 if ( empty($article['options']['hiderelated']) && $this->related_callback !== false ) {
-                    $get_related = $this->related_callback;
-                    $obj['related'] = $get_related($article, $is_post);
+                    $obj['related'] = call_user_func($this->related_callback, $article_counter, $article, $post, $this->list);
                 }
             }
         }

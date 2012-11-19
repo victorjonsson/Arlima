@@ -78,7 +78,8 @@ class Arlima_Plugin
             array(
                 'offset' => 0,
                 'limit' => 0,
-                'width' => 468
+                'width' => 560,
+                'list' => null
             ),
             $atts
         );
@@ -89,7 +90,11 @@ class Arlima_Plugin
             return sprintf($error_html, 'Short code [arlima] is missing argument &quot;list&quot;');
         }
 
-        $list = $factory->loadList($atts['list']);
+        if( is_numeric($atts['list']) )
+            $list = $factory->loadList($atts['list']);
+        else
+            $list = $factory->loadListBySlug($atts['list']);
+
 
         if ( !$list->exists() ) {
             return sprintf(
@@ -392,7 +397,7 @@ class Arlima_Plugin
     {
         global $post;
         wp_nonce_field(__FILE__, 'arlima_nonce');
-        $default_data = array('list' => '', 'width' => 468, 'offset' => 0, 'limit' => 0);
+        $default_data = array('list' => '', 'width' => 560, 'offset' => 0, 'limit' => 0);
         $list_data = $default_data;
         if ( $post ) {
             $list_id = get_post_meta($post->ID, '_arlima_list', true);

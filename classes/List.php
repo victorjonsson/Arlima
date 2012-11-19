@@ -65,7 +65,7 @@ class Arlima_List
      * @var array
      */
     public $options = array(
-        'previewpage' => '/',
+        'previewpage' => '/', // Deprecated...
         'previewtemplate' => 'article',
         'pagestopurge' => '',
         'before_title' => '<h2>',
@@ -495,6 +495,21 @@ class Arlima_List
     }
 
     /**
+     * Get URL to where list can be previewed, will return false if this list
+     * isn't related to any page
+     * @return bool|string
+     */
+    function loadPreviewPageURL()
+    {
+        $page = current($this->loadRelatedWordpressPages());
+        if( $page ) {
+            return get_permalink($page);
+        }
+
+        return false;
+    }
+
+    /**
      * Magic method that makes it possible to request previously public
      * member variables (considered deprecated).
      * @param string $arg
@@ -530,6 +545,7 @@ class Arlima_List
 
     /**
      * @deprecated
+     * @see Arlima_List::isPreview()
      * @return bool
      */
     public function preview()

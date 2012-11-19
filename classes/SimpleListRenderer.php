@@ -59,7 +59,7 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
      */
     function havePosts()
     {
-        return $this->list->numArticles() > 0;
+        return $this->list->numArticles() > 0 && $this->list->numArticles() >= $this->getOffset();
     }
 
     /**
@@ -74,7 +74,7 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
         $article_counter = 0;
         foreach (array_slice($this->list->getArticles(), $this->getOffset()) as $article) {
             list($post, $article) = $this->setup($article);
-            if ( is_object($post) && $post->post_status == 'future' ) {
+            if ( !empty($article_data['publish_date']) && $article_data['publish_date'] > time() ) {
                 continue;
             }
 

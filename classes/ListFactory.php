@@ -128,8 +128,7 @@ class Arlima_ListFactory {
                 $versions[] = $data->alv_id;
             }
             $this->executeSQLQuery('query', sprintf(
-                        "DELETE FROM %sarlima_articlelist_article WHERE ala_alv_id in (%s)",
-                        $this->wpdb->prefix,
+                        "DELETE FROM ".$this->wpdb->prefix."arlima_articlelist_article WHERE ala_alv_id in (%s)",
                         implode(',', $versions)
                     ));
         }
@@ -201,7 +200,7 @@ class Arlima_ListFactory {
             foreach( $articles as $sort => $article ) {
                 $this->saveArticle($version_id, $article, $sort, -1, $count);
                 $count++;
-                if( $count >= ( $list->getMaxlength()-1 ) )
+                if( $count > ( $list->getMaxlength()-1 ) )
                     break;
             }
         }
@@ -320,11 +319,17 @@ class Arlima_ListFactory {
     }
 
     /**
+     * Future posts will always be included in the list if you're loading a specific version of
+     * the list. Otherwise you can use the argument $include_future_posts to control if the list
+     * should contain future posts as well. Setting $include_future_posts to true will how ever
+     * disable the caching of the article data
+     *
      * @param $id
-     * @param bool|string|int $version
+     * @param mixed $version - Omit this argument, or set it to false, if you want to load the latest published version of the list
+     * @param bool $include_future_posts
      * @return Arlima_List
      */
-    public function loadList($id, $version=false) {
+    public function loadList($id, $version=false, $include_future_posts=false) {
         $list = $this->queryList($id);
         if( !$list->exists() )
             return $list;
@@ -333,15 +338,18 @@ class Arlima_ListFactory {
         if( !$version ) {
 
             $article_data = $this->cache->get('arlima_list_articles_data_'.$id);
-            if( !$article_data ) {
+            if( !$article_data || $include_future_posts ) {
 
                 $article_data = array();
                 $version_data = $this->queryVersionData($id, false);
                 $article_data['version'] = $version_data[0];
                 $article_data['version_list'] = $version_data[1];
-                $article_data['articles'] = $this->queryListArticles(false, true);
+                if( !empty($article_data['version']) ) {
+                    $article_data['articles'] = $this->queryListArticles($article_data['version']['id'], $include_future_posts);
+                }
 
-                $this->cache->set('arlima_list_articles_data_'.$id, $article_data);
+                if( !$include_future_posts )
+                    $this->cache->set('arlima_list_articles_data_'.$id, $article_data);
             }
 
             if( !empty($article_data['version']) ) {
@@ -358,7 +366,7 @@ class Arlima_ListFactory {
             if( !empty($version_data) ) {
                 $list->setVersion($version_data);
                 $list->setVersions($version_list);
-                $list->setArticles( $this->queryListArticles($version_data['id'], false) );
+                $list->setArticles( $this->queryListArticles($version_data['id'], true) );
                 $list->setStatus( $version === 'preview' ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED);
             }
         }
@@ -496,10 +504,10 @@ class Arlima_ListFactory {
 
     /**
      * @param $version
-     * @param bool $exclude_future_posts
+     * @param bool $include_future_posts
      * @return array
      */
-    private function queryListArticles($version, $exclude_future_posts) {
+    private function queryListArticles($version, $include_future_posts) {
 
         $sql = "SELECT ala_id, ala_created, ala_publish_date, ala_post_id, ala_title, ala_text,
                         ala_title_fontsize, ala_url, ala_options, ala_image, ala_image_options, ala_parent, ala_sort
@@ -535,7 +543,7 @@ class Arlima_ListFactory {
         }
 
         // Remove future posts
-        if( $exclude_future_posts ) {
+        if( !$include_future_posts ) {
             foreach( $articles as $i => $article ) {
                 if( $article['publish_date'] && ( $article['publish_date'] > time() ) ) {
                     unset( $articles[$i] );

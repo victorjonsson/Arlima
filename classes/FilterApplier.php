@@ -18,15 +18,15 @@ class Arlima_FilterApplier
      */
     public static function bindFilters(&$renderer)
     {
-        $renderer->setFuturePostCallback('Arlima_EventBinder::futurePostCallback');
+        $renderer->setFuturePostCallback('Arlima_FilterApplier::futurePostCallback');
 
-        $renderer->setArticleBeginCallback('Arlima_EventBinder::articleBeginCallback');
+        $renderer->setArticleBeginCallback('Arlima_FilterApplier::articleBeginCallback');
 
-        $renderer->setImageCallback('Arlima_EventBinder::imageCallback');
-        $renderer->setContentCallback('Arlima_EventBinder::contentCallback');
-        $renderer->setRelatedPostsCallback('Arlima_EventBinder::relatedPostCallback');
+        $renderer->setImageCallback('Arlima_FilterApplier::imageCallback');
+        $renderer->setContentCallback('Arlima_FilterApplier::contentCallback');
+        $renderer->setRelatedPostsCallback('Arlima_FilterApplier::relatedPostsCallback');
 
-        $renderer->setArticleEndCallback('Arlima_EventBinder::articleEndCallback');
+        $renderer->setArticleEndCallback('Arlima_FilterApplier::articleEndCallback');
     }
 
     /**

@@ -1,0 +1,109 @@
+#!/usr/bin/node
+/**
+ * Build file for arlima
+ * --------------------------
+ * 1. Increases version number
+ * 2. Runs all unit tests
+ * 3. Copies all wordpress files to a new directory named "build-X.Y.Z", one step down in the file system
+ *
+ * Running this script requires that you install module "wrench"
+ *  npm install wrench --global
+ */
+
+
+var fs = require('fs'),
+    sys = require('sys'),
+    wrench = require('./node_modules/wrench'),
+    exec = require('child_process').exec,
+    mainScript = 'arlima.php',
+    newVersion = -1;
+
+/*
+ * Find out new version number
+ */
+var versionParts = fs.readFileSync(mainScript, 'utf-8').split('Version: ')[1].split('\n')[0].trim().split('.');
+if(versionParts.length < 3) {
+    // new version number is decided in code
+    newVersion = versionParts.join('.');
+}
+else {
+    // Increase the last number by one
+    var newSubVersion = parseInt(versionParts.splice(versionParts.length-1, 1)[0]) + 1;
+    newVersion = versionParts.join('.') + '.' + newSubVersion.toString();
+}
+
+console.log('Build version: '+newVersion);
+console.log('Running tests...');
+
+function buildFile(path, versionSplit) {
+    var codeParts = fs.readFileSync(path, 'utf-8').split(versionSplit);
+    var lastCodeParts = codeParts[1].split("\n");
+    var origCode = codeParts[0] + versionSplit+newVersion+ "\n" + lastCodeParts.slice(1, lastCodeParts.length).join("\n") + "";
+    fs.writeFileSync(path, origCode);
+}
+
+var finishedTests = 0;
+var testsFailed = false;
+var tests = [
+    'classes/tests/TestArlimaListFactory.php',
+    'classes/tests/TestArlimaExport.php',
+    'classes/tests/TestArlimaImport.php',
+    'classes/tests/TestTemplateObjectCreator.php',
+    'classes/tests/TestTemplatePathResolver.php',
+    'classes/tests/TestArlimaListRendering.php'
+];
+
+tests.every(function(file) {
+    exec('phpunit.phar '+file, function (error, stdout, stderr) {
+
+        if( testsFailed )
+            return;
+
+        if(stderr || error) {
+            console.log('*** FAILED :: '+file);
+            console.log(stdout);
+            console.log(error);
+            console.log(stderr);
+            testsFailed = true;
+            console.log('Build failed :(');
+        }
+        else {
+            console.log('- SUCCESS :: '+file);
+            finishedTests++;
+            if( finishedTests == tests.length ) {
+                console.log('Creating new plugin source');
+
+                buildFile('arlima.php', 'Version: ');
+                buildFile('readme.txt', 'Stable tag: ');
+
+                var buildDir = '../build-arlima-'+newVersion;
+
+                console.log(buildDir+ ' created');
+
+                wrench.copyDirSyncRecursive('../arlima/', buildDir);
+
+                // Remove files we don't wont to end up on wordpress repo
+
+                var remove = ['node_modules/', 'vendor/', 'composer.json', 'README.md',
+                            'build', '.gitignore', 'composer.lock', 'test.php'];
+
+                remove.every(function(file) {
+                    try {
+                        if( file.substr(-1) == '/') {
+                            wrench.rmdirSyncRecursive(buildDir+'/'+file);
+                        }
+                        else {
+                            fs.unlinkSync(buildDir+'/'+file);
+                        }
+                    } catch(e) {
+                        console.log(e);
+                    }
+                    return true;
+                });
+
+                console.log('# BUILD FINISHED :)');
+            }
+        }
+    });
+    return true;
+});

@@ -1,4 +1,5 @@
+test.php
+node_modules*
 idea*
 vendor*
 composer.lock
-classes/tests/config.php

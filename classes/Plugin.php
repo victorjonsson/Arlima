@@ -488,7 +488,7 @@ class Arlima_Plugin
             'edit_posts',
             'arlima',
             'Arlima_Plugin::loadAdminMainPage',
-            ARLIMA_PLUGIN_URL . '/images/skull-icon.png'
+            ARLIMA_PLUGIN_URL . '/images/arlima-icon.png'
         );
         add_submenu_page(
             'arlima',

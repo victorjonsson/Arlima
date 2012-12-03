@@ -231,16 +231,26 @@ function arlima_render_list($list, $width=468, $offset=0, $limit=0, $output = tr
         $renderer = new Arlima_ListTemplateRenderer($list);
     }
 
-    $renderer->setOffset( $offset );
-    $renderer->setLimit( $limit );
+    if( $renderer->getList()->exists() ) {
+        $msg = '<p>'.__('This list does not exist', 'arlima').'</p>';
+        if( $output )
+            echo $msg;
+        else
+            return $msg;
+    }
+    else {
 
-    if( $renderer->havePosts() ) {
+        $renderer->setOffset( $offset );
+        $renderer->setLimit( $limit );
 
-        // Add wordpress filters
-        Arlima_FilterApplier::setArticleWidth($width);
-        Arlima_FilterApplier::bindFilters($renderer);
+        if( $renderer->havePosts() ) {
 
-        return $renderer->renderList($output);
+            // Add wordpress filters
+            Arlima_FilterApplier::setArticleWidth($width);
+            Arlima_FilterApplier::bindFilters($renderer);
+
+            return $renderer->renderList($output);
+        }
     }
 
     return '';

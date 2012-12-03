@@ -22,51 +22,34 @@ Here you can see a [screencast with a quick demonstration of the plugin](http://
 = Requirements =
 
 - Wordpress version >= 3.0
-- PHP version >= 5.3
+- <strike>PHP version >= 5.3</strike> (Arlima is now compatible with PHP version 5.2)
 - Modern web browser, preferably Google Chrome. Arlima is tested successfully in the latest versions of Mozilla FF, Safari, Opera and
 Internet Explorer 9 (image upload does not work in internet explorer)
 
-= After installation =
+= Wiki =
 
-This plugin will automatically create a page named "Home" when installed. The page will have the template named "Article List Page".
-If your theme directory isn't writable by wordpress you will have to copy *page-arlima-example.php* from the Arlima plugin directory to
-the theme directory your self (rename the file to page-arlima.php).
-
-Navigate to "Article lists" -> "Manage lists" in the menu bar of wp-admin where you can edit the article list that was attached to the page "Home",
-created by the plugin on installation. If you want to use this page as front page you go to "Settings" -> "Reading" in wp-admin and choose the page
-named "Home" as a static front page.
-
-
-= Features =
-
-Here you can read about [the different features of Arlima and how to customize them](http://wordpress.org/extend/plugins/arlima/other_notes/).
-The features includes:
-
-- Creating new article lists
-- Custom CSS
-- Template hooks
-- Custom jQuery templates
-- Custom "streamers"
-- Using keyboard short cuts in Arlima list editor
-- Using Arlima jQuery templates in ordinary Wordpress loops
-- Advanced caching
-- Unlocking even more features by installing the plugins "Scissors Continued" and "Wordpress Related Posts"
+Now you can read [the Arlima wiki](https://github.com/victorjonsson/Arlima/wiki/) to get more information about how to use the plugin
 
 
 == Installation ==
 
 1. Install Arlima via the WordPress.org plugin directory.
-2. The page template "page-arlima.php" will be copied from the Arlima plugin directory to your theme on installation. If your theme directory isn't writeable
-by wordpress you will have to copy *page-arlima-example.php* to the theme directory your self (rename the file to page-arlima.php).
-3. That's it. You're ready to go! The installation will automatically create a page named "Home" with an attached Arlima list that you can use as front page.
+2. Go to "Article lists" -> "Edit lists" in wp-admin and create your first article list.
+3. Open up a page (or create it) in wp-admin. Down to the right you will see a container labeled "Arlima" where you choose
+the list that you created on step 2.
+4. Go to "Article lists" -> "Manager lists" and start stuffing your article list with interesting content.
 
 
 == Changelog ==
 
 = 2.5 =
-- Total remake of the theme implementation. The page template should no longer be used. It will work
-but is considered deprecated.
+- Total remake of the theme implementation. The page template should no longer be used. It will still work
+but is considered deprecated
+- The plugin is now compatible with PHP version 5.2
+- Now possible to insert article lists using a short code
+- Direct use of the list rendering class is now considered deprecated. Use [arlima filters](https://github.com/victorjonsson/Arlima/wiki/Template-filters) instead
 - Image upload with files having the extension .jpeg is now supported
+- Source code and documentation is now available on [github](https://github.com/victorjonsson/Arlima/)
 
 
 = 2.3.2 =
@@ -176,239 +159,3 @@ that you place on a suiteable spot in your article list and schedule the article
 == Screenshots ==
 
 1. Article list editor in wp-admin
-
-
-== Creating a new article list ==
-
-1. Go to "Article lists" -> "Edit lists" in the menu bar of wp-admin. Here you can create (and edit) your Arlima lists.
-2. Create a new page in wp-admin, choose *"Article List Page"* as template.
-3. Add a custom field named "arlima" to your page. The value of the field should be the slug name you entered for your list in the first step.
-4. Go to "Article lists" -> "Manage lists" in the menu bar of wp-admin. Here you manage the content in your lists (posts and what not)
-5. Visit the page you created and there you will see the beautiful list just waiting to get stuffed with interesting content.
-
-
-== Using keyboard short cuts ==
-
-The following short cuts is also available using the **CMD-key** instead of the Ctrl-key on Mac.
-
-- **Ctrl + s** - Saves the article list currently being edited (disabled when having focus on the tinyMCE editor).
-- **Ctrl + p** - Toggles the article preview for the currently edited article.
-- **Ctrl + l** - Saves a preview version of currently edited article list and opens a new window where preview can be seen.
-- Hold down **Ctrl-key** when starting to drag an article **to create a copy** of the article.
-
-
-== Custom CSS ==
-
-Copy the file */css/template.css* located in the Arlima plugin directory to your theme and do the changes you want in that file. Last
-but not least you add the following code to the file *functions.php* located in your theme directory:
-
-    add_filter('arlima_template_css', function( $default_stylesheet ) {
-        return get_stylesheet_directory_uri() . '/template.css';
-    });
-
-
-== Customized streamers ==
-The "Streamer" is what we call a line of text or an image that's positioned above the article image.
-
-= Adding your own background colors to text streamers =
-
-By default you get a wide variety of background colors to choose from. You can how ever add your own colors by using
-the filter &quot;arlima\_streamer\_colors&quot; in file *functions.php* located in the theme directory. Your code might look something like:
-
-    add_filter('arlima_streamer_colors', function($default_colors) {
-        $my_colors = array(
-                '007fc2', // blue
-                'b22e2a', // red
-                'E2E2E2', // gray
-                '894b94' // purple
-            );
-
-        return array_merge($default_colors, $my_colors);
-    });
-
-= Adding your own streamer images =
-
-You can use the filter &quot;arlima\_streamer\_images&quot; if you want to add your own streamer images. The code might look something like:
-
-    add_filter('arlima_streamer_images', function($default_streamers) {
-        $theme_url = get_stylesheet_directory_uri();
-        $my_streamers =  array(
-                    $theme_url . '/images/my-cool-streamer.png',
-                    $theme_url . '/images/another-cool-streamer.png'
-                );
-
-        return array_merge($default_streamers, $my_streamers);
-    });
-
-
-== Custom templates ==
-
-Arlima uses jQuery templates, both in back-end (when rendering the list on your front page) and front-end (when you preview your Arlima articles in wp-admin).
-Arlima comes with one default template (*templates/article.tmpl*). The template rendering class will search after the template file in your
-theme and if not found fall back on template files located in the Arlima template directory. Here's how you create your own templates:
-
-**1)** Copy the directory named *templates* in the Arlima plugin directory to your theme.
-
-**2)** Rename the file article.tmpl located in the copied template directory to something suitable, the file must have the extension *.tmpl*.
-The following variables will be present in the template file:
-
-    // Object containing some info describing the configuration
-    // of this particular article
-    container : {
-        id : 'id of this article'
-        class : 'class names that describes how this article is configured'
-    }
-
-    // Object containing article text content
-    article : {
-        title : 'The title of this article'
-        url : 'The URL of this article'
-        html_title : 'The title of this article as html',
-        html_text : 'The text content of this article'
-    }
-
-    // Object describing a streamer. This variable will be false if you
-    // haven't chosen a streamer for this article
-    streamer : {
-        type : 'the type of streamer you have selected (text|image|extra)',
-        style : 'inline css, will only be present if you have chosen a custom streamer',
-        content : 'the html content of the streamer'
-    }
-
-    // Object containing image data. This variable will be false if
-    // you haven't chosen an image for this article
-    image : {
-        html : 'HTML tag for this image, see the default template for instructions',
-        src : 'URL for this image', // only available when template is rendered with javascript in wp-admin
-        url : 'URL for this image', // only available when template is rendered with php
-        image_class :'Suggested class name for this image',
-        image_size : 'The name of the size of this image'
-    }
-
-    // Boolean telling us if this particular article is a child article
-    is_child : true|false
-
-    // Boolean telling us if this article is a child article and that it has siblings
-    is_child_split : true|false
-
-    // HTML string with possible child articles
-    sub_articles : '...'
-
-    // HTML content supposed to be added to the end of the article
-    article_end : '...'
-
-    // Object with related articles. This variable is false if not articles is related
-    related : {
-        // Boolean that is true if we only have one related article, will be
-        // false if we have several related articles
-        is_single : true|false,
-
-        // Array with related articles
-        posts : [
-            {
-                post_title : 'Title of the related article',
-                url : 'URL of the related article',
-                html_comment_stats : 'HTML string with information about the number of comments'
-            },
-            ....
-        ]
-    }
-
-**3)** Add the following code to the file *functions.php* located in your theme directory:
-
-    add_filter('arlima_template_paths', function($paths) {
-        array_unshift($paths, __DIR__.'/templates/');
-        return $paths;
-    });
-
-
-You can have several different templates, you select which template to use when you create the article list (wp-admin/ -> Article lists -> Edit).
-Here you can read more about jQuery TMPL:
-
-- [jQuery TMPL](http://api.jquery.com/jquery.tmpl/)
-- [jQuery TMPL PHP](https://github.com/xyu/jquery-tmpl-php)
-
-We have added a jQuery template function that makes it possible to include a template
-within another template, making it possible to reuse your template code.
-The function is called like *\{\{include parts/my-template-footer.tmpl\}\}*. You can read more about this in the default template
-that comes together with the Arlima plugin.
-
-
-== Article formats ==
-
-An article format is nothing other than a class name that will be added to the class attribute of the DIV element containing the article.
-Here's how the code could look like if you wanted to add your own formats:
-
-    // Format that will be possible to choose for all templates
-    arlima_register_format('my-format-class', 'My format label');
-
-    // Format that only will be possible to choose for the template giant.tmpl
-    arlima_register_format('my-other-format', 'My other format label', array('giant'));
-
-
-
-== Using Arlima in ordinary wordpress loops ==
-
-Copy the file *category-arlima-example.php* located in the Arlima plugin directory to your theme directory and rename the copied file to *category.php*
-if you want to use the same jQuery templates in the ordinary wordpress loop as you're using in your Arlima lists. *See code documentation for further instructions*
-
-
-== Advanced cache management ==
-
-Saving an Arlima list will invoke a [wordpress action](http://codex.wordpress.org/Function_Reference/add_action) named "arlima\_save\_list" with the *Arlima_List* object sent as argument to the callback function. Your
-cache expiring code might look something like:
-
-    add_action('arlima_save_list', function($list) {
-        foreach( explode(',', $list->options['pagestopurge']) as $page_url ) {
-            some_slick_cache_purger( sprintf('%s/%s/', home_url(), trim($page_url, '/')) );
-        }
-    });
-
-== Extending Arlima ==
-
-**Template callbacks** &ndash; Take a look at file *page-arlima-example.php* in the Arlima plugin directory. There you will see all the different functions you can hook
-into from your theme to customize the functionality of Arlima.
-
-**Related posts** &ndash; Install the plugin [Microkid's Related Posts for Wordpress](http://wordpress.org/extend/plugins/microkids-related-posts/) to unlock features that makes
-it possible to display posts that is related to each other.
-
-**Image management** &ndash; If you install the plugin [Scissors Continued](http://wordpress.org/extend/plugins/scissors-continued/) you will get the possibility to
-modify images (crop, resize and a bunch of other cool features) in Arlima admin.
-
-Here you can see a [screencast showing Arlima working together with Scissors Continued and Wordpress Related Posts](http://www.screenr.com/E048)
-
-== Modifying the post search in the article editor ==
-
-You can modify the functionality of the post search in Arlima admin. This is an example code that makes it possible to choose
-whether or not to display posts written by the author Johnny when searching for posts in Arlima admin.
-
-    add_action('arlima_post_search', function() {
-        Arlima_modify_post_search(
-            function() {
-                ?>
-                Exclude posts written by John
-                <input type="checkbox" name="exclude_johnny" value="1" />
-                <?php
-            },
-            function($args, $posted_data) {
-                if( isset($posted_data['exclude_johnny']) ) {
-                    $args['author'] = '-'.get_user_by( 'login', 'johnny' )->ID;
-                }
-
-                return $args;
-            }
-        );
-    });
-
-
-== Roadmap ==
-
-- Front-end editing. Make it possible to edit titles, text and images in front end
-- Article box size, being able to edit the width of an article in arlima admin
-- Article slide
-
-== Websites using this plugin ==
-
-- [http://www.vk.se/](http://www.vk.se/)
-- [http://www.folkbladet.nu/](http://www.folkbladet.nu/)
-- [http://www.sportnu.se/](http://www.sportnu.se/)

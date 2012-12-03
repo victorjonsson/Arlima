@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, frontpage, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 2.5.21
+Stable tag: 2.5.25
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -66,6 +66,7 @@ by wordpress you will have to copy *page-arlima-example.php* to the theme direct
 = 2.5 =
 - Total remake of the theme implementation. The page template should no longer be used. It will work
 but is considered deprecated.
+- Image upload with files having the extension .jpeg is now supported
 
 
 = 2.3.2 =

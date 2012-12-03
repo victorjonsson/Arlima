@@ -416,7 +416,7 @@ class Arlima_Plugin
                 <tr>
                     <td><strong>List:</strong></td>
                     <td>
-                        <select name="arlima_list">
+                        <select name="arlima_list" id="arlima-lists">
                             <option value="">- - No list - -</option>
                             <?php foreach ($factory->loadListSlugs() as $arlima_list): ?>
                                 <option value="<?php echo $arlima_list->id; ?>"<?php
@@ -427,6 +427,7 @@ class Arlima_Plugin
                                 ?>><?php echo $arlima_list->title; ?></option>
                             <?php endforeach; ?>
                         </select>
+                        <a href="" style="display: none" target="_blank" id="arlima-edit">[edit]</a>
                     </td>
                 </tr>
                 <tr class="arlima-opt">

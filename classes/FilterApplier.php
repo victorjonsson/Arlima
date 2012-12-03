@@ -3,7 +3,7 @@
 
 /**
  * Applies wordpress filters on callback functions invoked
- * when rendering a Arlim list
+ * when rendering a Arlima list
  *
  * @package Arlima
  * @since 2.5
@@ -66,9 +66,12 @@ class Arlima_FilterApplier
      * @param $post
      * @param $list
      * @param bool $img_size
+     * @param bool $img_url
      * @return array
      */
-    private static function filter($filter, $article_counter, $article, $post, $list, $img_size=false)
+    private static function filter($filter, $article_counter, $article,
+                            $post, $list, $img_size=false, $source_url = false,
+                            $resized_url=false, $width=false)
     {
         $data = array(
             'article' => $article,
@@ -79,7 +82,9 @@ class Arlima_FilterApplier
         );
         if($img_size) {
             $data['size_name'] = $img_size;
-            $data['width'] = self::$width;
+            $data['width'] = $width;
+            $data['resized'] = $resized_url;
+            $data['source'] = $source_url;
         }
 
         return apply_filters($filter, $data);
@@ -108,72 +113,79 @@ class Arlima_FilterApplier
      */
     public static function imageCallback($article_counter, $article, $post, $list, $img_size)
     {
+        $filtered = array('content'=>'');
+        $has_img = !empty($article['image_options']) && !empty($article['image_options']['attach_id']);
+        $has_giant_tmpl = !empty($article['options']['template']) && $article['options']['template'] == 'giant';
+        $is_child_article = !empty($article['parent']) && $article['parent'] != -1;
 
-        $filtered = self::filter('arlima_article_image', $article_counter, $article, $post, $list, $img_size);
+        if ( $has_img && !$has_giant_tmpl ) {
 
-        // Fallback for images
-        if ( empty($filtered['content']) ) {
+            $attach_meta = wp_get_attachment_metadata($article['image_options']['attach_id']);
+            if ( !$attach_meta ) {
+                return false;
+            }
 
-            $has_img = !empty($article['image_options']) && !empty($article['image_options']['attach_id']);
-            $has_giant_tmpl = !empty($article['options']['template']) && $article['options']['template'] == 'giant';
+            $article_width = $is_child_article ? round(self::$width / 2) : self::$width;
 
-            if ( $has_img && !$has_giant_tmpl ) {
+            switch ($article['image_options']['size']) {
+                case 'half':
+                    $width = round($article_width * 0.5);
+                    $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
+                    break;
+                case 'third':
+                    $width = round($article_width * 0.33);
+                    $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
+                    break;
+                case 'quarter':
+                    $width = round($article_width * 0.25);
+                    $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
+                    break;
+                default:
+                    $size = array(
+                        $article_width,
+                        round($attach_meta['height'] * ($article_width / $attach_meta['width']))
+                    );
+                    break;
+            }
 
-                $attach_meta = wp_get_attachment_metadata($article['image_options']['attach_id']);
-                if ( !$attach_meta ) {
-                    return false;
-                }
+            $img_class = $article['image_options']['size'] . ' ' . $article['image_options']['alignment'];
+            $img_alt = htmlspecialchars($article['title']);
+            $attach_url = wp_get_attachment_url($article['image_options']['attach_id']);
+            $resized_img = image_resize(
+                WP_CONTENT_DIR . '/uploads/' . $attach_meta['file'],
+                $size[0],
+                null,
+                false,
+                null,
+                null,
+                98
+            );
+            if ( !is_wp_error($resized_img) ) {
+                $img_url = dirname($attach_url) . '/' . basename($resized_img);
+            } else {
+                $img_url = $attach_url;
+            }
 
-                $article_width = empty($article['parent']) || $article['parent'] == -1 ? self::$width : round(
-                    self::$width * 0.5
-                );
-
-                switch ($article['image_options']['size']) {
-                    case 'half':
-                        $width = round($article_width * 0.5);
-                        $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
-                        break;
-                    case 'third':
-                        $width = round($article_width * 0.33);
-                        $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
-                        break;
-                    case 'quarter':
-                        $width = round($article_width * 0.25);
-                        $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
-                        break;
-                    default:
-                        $size = array(
-                            $article_width,
-                            round($attach_meta['height'] * ($article_width / $attach_meta['width']))
+            $filtered = self::filter(
+                            'arlima_article_end',
+                            $article_counter,
+                            $article,
+                            $post,
+                            $list,
+                            $img_size,
+                            $attach_url,
+                            $img_url,
+                            $article_width
                         );
-                        break;
-                }
 
-                $img_class = $article['image_options']['size'] . ' ' . $article['image_options']['alignment'];
-                $img_alt = htmlspecialchars($article['title']);
-                $attach_url = wp_get_attachment_url($article['image_options']['attach_id']);
-                $resized_img = image_resize(
-                    WP_CONTENT_DIR . '/uploads/' . $attach_meta['file'],
-                    $size[0],
-                    null,
-                    false,
-                    null,
-                    null,
-                    98
-                );
-                if ( !is_wp_error($resized_img) ) {
-                    $img_url = dirname($attach_url) . '/' . basename($resized_img);
-                } else {
-                    $img_url = $attach_url;
-                }
-
+            if( empty($filtered['content']) ) {
                 $filtered['content'] = sprintf(
-                    '<img src="%s" width="%s" alt="%s" class="%s" />',
-                    $img_url,
-                    $size[0],
-                    $img_alt,
-                    $img_class
-                );
+                                    '<img src="%s" width="%s" alt="%s" class="%s" />',
+                                    $filtered['resized'],
+                                    $size[0],
+                                    $img_alt,
+                                    $img_class
+                                );
             }
         }
 

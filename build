@@ -72,37 +72,50 @@ tests.every(function(file) {
             console.log('- SUCCESS :: '+file);
             finishedTests++;
             if( finishedTests == tests.length ) {
-                console.log('Creating new plugin source');
+                console.log('Translating pot-files');
 
-                buildFile('arlima.php', 'Version: ');
-                buildFile('readme.txt', 'Stable tag: ');
+                exec('msgfmt -o lang/arlima-sv_SE.mo lang/arlima.pot', function (error, stdout, stderr) {
+                    if( error || stderr) {
+                        console.log('*** FAILED :: translation (msgfmt)');
+                        console.log(stdout);
+                        console.log(error);
+                        console.log(stderr);
+                    }
+                    else {
+                        
+                        console.log('Creating new plugin source');
 
-                var buildDir = '../build-arlima-'+newVersion;
+                        buildFile('arlima.php', 'Version: ');
+                        buildFile('readme.txt', 'Stable tag: ');
 
-                console.log(buildDir+ ' created');
+                        var buildDir = '../build-arlima-'+newVersion;
 
-                wrench.copyDirSyncRecursive('../arlima/', buildDir);
+                        console.log(buildDir+ ' created');
 
-                // Remove files we don't wont to end up on wordpress repo
+                        wrench.copyDirSyncRecursive('../arlima/', buildDir);
 
-                var remove = ['node_modules/', 'vendor/', 'composer.json', 'README.md',
+                        // Remove files we don't wont to end up on wordpress repo
+
+                        var remove = ['node_modules/', 'vendor/', 'composer.json', 'README.md',
                             'build', '.gitignore', 'composer.lock', 'test.php'];
 
-                remove.every(function(file) {
-                    try {
-                        if( file.substr(-1) == '/') {
-                            wrench.rmdirSyncRecursive(buildDir+'/'+file);
-                        }
-                        else {
-                            fs.unlinkSync(buildDir+'/'+file);
-                        }
-                    } catch(e) {
-                        console.log(e);
-                    }
-                    return true;
-                });
+                        remove.every(function(file) {
+                            try {
+                                if( file.substr(-1) == '/') {
+                                    wrench.rmdirSyncRecursive(buildDir+'/'+file);
+                                }
+                                else {
+                                    fs.unlinkSync(buildDir+'/'+file);
+                                }
+                            } catch(e) {
+                                console.log(e);
+                            }
+                            return true;
+                        });
 
-                console.log('# BUILD FINISHED :)');
+                        console.log('# BUILD FINISHED :)');
+                    }
+                });
             }
         }
     });

@@ -164,12 +164,12 @@ $available_lists = $factory->loadListSlugs();
 
                                 <div style="background: #F4F4F4; padding: 2px 8px 8px; color: #777; margin-top: 12px">
                                     <p>
-                                        <strong>Related pages:</strong>
+                                        <strong><?php _e('Related pages', 'arlima') ?>:</strong>
                                     </p>
                                     <?php
                                         $pages = $list->loadRelatedWordpressPages();
                                         if( empty($pages) ):?>
-                                            <em>This page is not yet related to any page</em>
+                                            <em><?php _e('This list is not yet related to any page', 'arlima') ?></em>
                                        <?php else: ?>
                                             <?php foreach($pages as $p): ?>
                                                 <a href="<?php echo get_permalink($p->ID) ?>" target="_blank">

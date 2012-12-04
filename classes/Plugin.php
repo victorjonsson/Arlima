@@ -412,41 +412,49 @@ class Arlima_Plugin
             }
         }
         $factory = new Arlima_ListFactory();
-
+        $lists = $factory->loadListSlugs();
         ?>
         <div id="arlima-list-settings">
-            <table cellpadding="5">
-                <tr>
-                    <td><strong>List:</strong></td>
-                    <td>
-                        <select name="arlima_list" id="arlima-lists">
-                            <option value="">- - No list - -</option>
-                            <?php foreach ($factory->loadListSlugs() as $arlima_list): ?>
-                                <option value="<?php echo $arlima_list->id; ?>"<?php
-                                // may be either slug or id
-                                if ( in_array($list_data['list'], (array)$arlima_list) ){
-                                    echo ' selected="selected"';
-                                }
-                                ?>><?php echo $arlima_list->title; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <a href="" style="display: none" target="_blank" id="arlima-edit">[edit]</a>
-                    </td>
-                </tr>
-                <tr class="arlima-opt">
-                    <td><strong>Width:</strong></td>
-                    <td><input type="number" name="arlima_width" value="<?php echo $list_data['width'] ?>" style="width:50px"/> px
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>Offset:</strong></td>
-                    <td><input type="number" name="arlima_offset" value="<?php echo $list_data['offset'] ?>" style="width:50px"/></td>
-                </tr>
-                <tr>
-                    <td><strong>Limit:</strong></td>
-                    <td><input type="number" name="arlima_limit" value="<?php echo $list_data['limit'] ?>" style="width:50px"/></td>
-                </tr>
-            </table>
+            <?php if( empty($lists) ): ?>
+                <p>
+                    <a href="admin.php?page=arlima-editpage" target="_blank">
+                        <?php _e('Create your first article lists', 'arlima') ?>
+                    </a>
+                </p>
+            <?php else: ?>
+                <table cellpadding="5">
+                    <tr>
+                        <td><strong>List:</strong></td>
+                        <td>
+                            <select name="arlima_list" id="arlima-lists">
+                                <option value="">- - <?php _e('No list', 'arlima') ?> - -</option>
+                                <?php foreach ($lists as $arlima_list): ?>
+                                    <option value="<?php echo $arlima_list->id; ?>"<?php
+                                    // may be either slug or id
+                                    if ( in_array($list_data['list'], (array)$arlima_list) ){
+                                        echo ' selected="selected"';
+                                    }
+                                    ?>><?php echo $arlima_list->title; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <a href="" style="display: none" target="_blank" id="arlima-edit">[edit]</a>
+                        </td>
+                    </tr>
+                    <tr class="arlima-opt">
+                        <td><strong>Width:</strong></td>
+                        <td><input type="number" name="arlima_width" value="<?php echo $list_data['width'] ?>" style="width:50px"/> px
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Offset:</strong></td>
+                        <td><input type="number" name="arlima_offset" value="<?php echo $list_data['offset'] ?>" style="width:50px"/></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Limit:</strong></td>
+                        <td><input type="number" name="arlima_limit" value="<?php echo $list_data['limit'] ?>" style="width:50px"/></td>
+                    </tr>
+                </table>
+            <?php endif; ?>
         </div>
         <?php
     }

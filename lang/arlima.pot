@@ -455,3 +455,15 @@ msgstr "Standard"
 
 msgid "This list does not exist"
 msgstr "Den här listan existerar inte"
+
+msgid "No list"
+msgstr "Ingen lista"
+
+msgid "Create your first article lists"
+msgstr "Skapa din första lista"
+
+msgid "This list is not yet related to any page"
+msgstr "Den här listan är inte kopplad någon sida"
+
+msgid "Related pages"
+msgstr "Relaterade sidor"

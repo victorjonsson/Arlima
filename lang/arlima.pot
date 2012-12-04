@@ -452,3 +452,6 @@ msgstr "Standardmall"
 
 msgid "Default"
 msgstr "Standard"
+
+msgid "This list does not exist"
+msgstr "Den här listan existerar inte"

@@ -10,8 +10,23 @@
  */
 class Arlima_FilterApplier
 {
+    /**
+     * @var string
+     */
+    private static $filter_suffix='';
 
+    /**
+     * @var int
+     */
     private static $width = 468;
+
+    /**
+     * @param string $s
+     */
+    public static function setFilterSuffix($s)
+    {
+        self::$filter_suffix = $s;
+    }
 
     /**
      * @param Arlima_AbstractListRenderingManager $renderer
@@ -55,7 +70,6 @@ class Arlima_FilterApplier
     public static function articleBeginCallback($article_counter, &$article, $post, $list)
     {
         $filtered = self::filter('arlima_article_begin', $article_counter, $article, $post, $list);
-        $article = $filtered['article'];
         return $filtered['content'];
     }
 
@@ -86,6 +100,9 @@ class Arlima_FilterApplier
             $data['resized'] = $resized_url;
             $data['source'] = $source_url;
         }
+
+        if( !empty(self::$filter_suffix) )
+            $filter .= '-'.self::$filter_suffix;
 
         return apply_filters($filter, $data);
     }

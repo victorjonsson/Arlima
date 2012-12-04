@@ -60,50 +60,53 @@ class Arlima_Plugin
             $list = $factory->loadList($list_id, $version);
             if ( $list->exists() ) {
                 $list_data = get_post_meta($post->ID, '_arlima_list_data', true);
-                arlima_render_list($list, $list_data['width'], $list_data['offset'], $list_data['limit']);
+                arlima_render_list($list, $list_data);
             }
         }
     }
 
     /**
      * Short code for arlima
-     * @param array $atts
+     * @param array $attr
      * @return string
      */
-    public function arlimaListShortCode($atts)
+    public function arlimaListShortCode($attr)
     {
         $factory = new Arlima_ListFactory();
 
-        $atts = shortcode_atts(
+        $attr = shortcode_atts(
             array(
                 'offset' => 0,
                 'limit' => 0,
                 'width' => 560,
-                'list' => null
+                'list' => null,
+                'filter_suffix' => ''
             ),
-            $atts
+            $attr
         );
+
+        $attr['echo'] = false;
 
         $error_html = '<div><p style="background:red; color:white; font-weight: bold">%s</p></div>';
 
-        if ( empty($atts['list']) ) {
+        if ( empty($attr['list']) ) {
             return sprintf($error_html, 'Short code [arlima] is missing argument &quot;list&quot;');
         }
 
-        if( is_numeric($atts['list']) )
-            $list = $factory->loadList($atts['list']);
+        if( is_numeric($attr['list']) )
+            $list = $factory->loadList($attr['list']);
         else
-            $list = $factory->loadListBySlug($atts['list']);
+            $list = $factory->loadListBySlug($attr['list']);
 
 
         if ( !$list->exists() ) {
             return sprintf(
                 $error_html,
-                'Short code [arlima] is referring to a list that does not exist (' . $atts['list'] . ')'
+                'Short code [arlima] is referring to a list that does not exist (' . $attr['list'] . ')'
             );
         }
 
-        return arlima_render_list($list, $atts['width'], $atts['offset'], $atts['limit'], $atts['limit'], false);
+        return arlima_render_list($list, $attr);
     }
 
     /**

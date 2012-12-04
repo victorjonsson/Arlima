@@ -208,13 +208,18 @@ function arlima_deregister_format($format_class, $templates=array()) {
 
 /**
  * @param Arlima_List|Arlima_AbstractListRenderingManager|int|string $list
- * @param int $width
- * @param int $offset
- * @param int $limit
- * @param bool $output[optional=true]
+ * @param array $args
  * @return string|void
  */
-function arlima_render_list($list, $width=468, $offset=0, $limit=0, $output = true) {
+function arlima_render_list($list, $args=array()) {
+
+    $args = array_merge(array(
+                'width' => 530,
+                'offset' => 0,
+                'limit' => 0,
+                'echo' => true,
+                'filter_suffix' => ''
+            ), $args);
 
     $factory = new Arlima_ListFactory();
 
@@ -233,23 +238,28 @@ function arlima_render_list($list, $width=468, $offset=0, $limit=0, $output = tr
 
     if( $renderer->getList()->exists() ) {
         $msg = '<p>'.__('This list does not exist', 'arlima').'</p>';
-        if( $output )
+        if( $args['output'] )
             echo $msg;
         else
             return $msg;
     }
     else {
 
-        $renderer->setOffset( $offset );
-        $renderer->setLimit( $limit );
+        $renderer->setOffset( $args['offset'] );
+        $renderer->setLimit( $args['limit'] );
 
         if( $renderer->havePosts() ) {
 
             // Add wordpress filters
-            Arlima_FilterApplier::setArticleWidth($width);
+            if( !empty($args['filter_suffix']) )
+                Arlima_FilterApplier::setFilterSuffix($args['filter_suffix']);
+
+            Arlima_FilterApplier::setArticleWidth($args['width']);
             Arlima_FilterApplier::bindFilters($renderer);
 
-            return $renderer->renderList($output);
+            Arlima_FilterApplier::setFilterSuffix('');
+
+            return $renderer->renderList($args['output']);
         }
     }
 

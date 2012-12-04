@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: http://www.vk.se/dev
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page. (Notice! this plugins requires PHP version >= 5.3)
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.5.25
+Version: 2.4.25
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -255,11 +255,12 @@ function arlima_render_list($list, $args=array()) {
                 Arlima_FilterApplier::setFilterSuffix($args['filter_suffix']);
 
             Arlima_FilterApplier::setArticleWidth($args['width']);
-            Arlima_FilterApplier::bindFilters($renderer);
+            Arlima_FilterApplier::applyFilters($renderer);
 
+            $content = $renderer->renderList($args['output']);
             Arlima_FilterApplier::setFilterSuffix('');
 
-            return $renderer->renderList($args['output']);
+            return $content;
         }
     }
 

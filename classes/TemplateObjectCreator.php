@@ -181,6 +181,8 @@ class Arlima_TemplateObjectCreator
 
         if ( !$is_empty ) {
 
+            $this->generateImageData($article, $img_size, $article_counter, $obj, $img_opt_size, $post);
+
             // Text content
             if( $this->content_callback !== false ) {
                 $obj['article']['html_content'] = call_user_func($this->content_callback, $article_counter, $article, $post, $this->list);
@@ -188,7 +190,6 @@ class Arlima_TemplateObjectCreator
             }
 
             $this->generateStreamerData($has_streamer, $obj, $article);
-            $this->generateImageData($article, $img_size, $article_counter, $obj, $img_opt_size, $post);
 
             // Related posts
             if ( $load_related_articles ) {

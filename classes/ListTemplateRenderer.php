@@ -44,7 +44,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     function __construct($list, $template_path = null)
     {
         $this->now = time();
-        $this->template_resolver = new Arlima_TemplatePathResolver($template_path);
+        $this->template_resolver = new Arlima_TemplatePathResolver(array($template_path));
         parent::__construct($list);
     }
 
@@ -60,6 +60,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             $this->template_obj_creator->setAfterTitleHtml($this->list->options['after_title']);
         }
 
+        $this->template_obj_creator->setArticleBeginCallback($this->article_begin_callback);
         $this->template_obj_creator->doAddTitleFontSize($this->list->getOption('ignore_fontsize') ? false : true);
         $this->template_obj_creator->setArticleEndCallback($this->article_end_callback);
         $this->template_obj_creator->setImageCallback($this->image_callback);

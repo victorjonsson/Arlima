@@ -11,3 +11,6 @@ Arlima plugin is installed.
 3. Install the dev dependencies `$ composer install --dev`
 
 4. Now you can run the tests!
+
+*This test suite is a work in progress. We're currently having a long way to go before having a
+descent code coverage*

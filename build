@@ -45,12 +45,13 @@ function buildFile(path, versionSplit) {
 var finishedTests = 0;
 var testsFailed = false;
 var tests = [
-    'classes/tests/TestArlimaListFactory.php',
+    'classes/tests/TestActions.php',
     'classes/tests/TestArlimaExport.php',
     'classes/tests/TestArlimaImport.php',
+    'classes/tests/TestArlimaListFactory.php',
+    'classes/tests/TestArlimaListRendering.php',
     'classes/tests/TestTemplateObjectCreator.php',
-    'classes/tests/TestTemplatePathResolver.php',
-    'classes/tests/TestArlimaListRendering.php'
+    'classes/tests/TestTemplatePathResolver.php'
 ];
 
 tests.every(function(file) {

@@ -4,7 +4,8 @@
  * --------------------------
  * 1. Increases version number
  * 2. Runs all unit tests
- * 3. Copies all wordpress files to a new directory named "build-X.Y.Z", one step down in the file system
+ * 3. Translates pot-files
+ * 4. Copies all wordpress files to a new directory named "build-X.Y.Z", one step down in the file system
  *
  * Running this script requires that you install module "wrench"
  *  npm install wrench --global
@@ -82,7 +83,7 @@ tests.every(function(file) {
                         console.log(stderr);
                     }
                     else {
-                        
+
                         console.log('Creating new plugin source');
 
                         buildFile('arlima.php', 'Version: ');

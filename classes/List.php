@@ -65,8 +65,9 @@ class Arlima_List
      * @var array
      */
     public $options = array(
-        'previewpage' => '/', // Deprecated...
-        'previewtemplate' => 'article',
+        // 'previewpage' => '/', // Deprecated...
+        //  'previewtemplate' => 'article', Depre
+        'template' => 'article',
         'pagestopurge' => '',
         'before_title' => '<h2>',
         'after_title' => '</h2>'
@@ -199,6 +200,15 @@ class Arlima_List
      */
     public function getOption($name)
     {
+        if( $name == 'template' ) {
+            // Backward compatibility. todo: Remove when moving up to version 3.0
+            if( isset($this->options['previewtemplate']) )
+                return $this->options['previewtemplate'];
+            elseif(isset($this->options['template']))
+                return $this->options['template'];
+            else
+                return null;
+        }
         return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 

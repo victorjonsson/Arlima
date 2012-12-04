@@ -18,7 +18,7 @@ class Arlima_ListFactory {
      * @var array
      */
     private $options = array(
-            'previewtemplate' => 'article',
+            'template' => 'article',
             'before_title' => '<h2>',
             'after_title' => '</h2>',
             'pagestopurge' => ''
@@ -797,8 +797,7 @@ class Arlima_ListFactory {
      */
     protected static function sanitizeListOptions($options) {
         $default_options = array(
-            'previewpage' => '/',
-            'previewtemplate' => 'article',
+            'template' => 'article',
             'before_title' => '<h2>',
             'after_title' => '</h2>',
             'pagestopurge' => ''

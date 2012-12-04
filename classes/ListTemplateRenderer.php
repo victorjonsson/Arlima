@@ -94,7 +94,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         // Create template
         $jQueryTmpl_df = new jQueryTmpl_Data_Factory();
         $this->jQueryTmpl_default = $this->loadTemplate(
-            $this->list->options['previewtemplate'],
+            $this->list->getOption('template'),
             new jQueryTmpl_Factory(),
             new jQueryTmpl_Markup_Factory()
         );

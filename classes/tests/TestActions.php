@@ -77,9 +77,25 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
     function testSomeFilters() {
         $list = $this->createList(1);
-        $list->setOption('previewtemplate', 'some-template');
+        $list->setOption('template', 'some-template');
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+
+        add_action('arlima_article_begin', function($data) {
+            $data['content'] = 'BEGIN';
+            return $data;
+        });
+
+        add_action('arlima_article_end', function($data) {
+            $data['content'] = 'END';
+            return $data;
+        });
+
+        add_action('arlima_article_content', function($data) {
+            $data['content'] = 'CONTENT';
+            return $data;
+        });
+
         $content = arlima_render_list($renderer, array('echo'=>false));
-        var_dump($content);
+        $this->assertEquals('hello BEGIN CONTENT END', $content);
     }
 }

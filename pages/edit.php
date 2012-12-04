@@ -128,13 +128,13 @@ $available_lists = $factory->loadListSlugs();
 									<span class="description"></span></td>
 								</tr>
 								<tr valign="top">
-									<th scope="row"><label for="previewtemplate"><?php _e('Default template', 'arlima'); ?></label></th>
+									<th scope="row"><label for="article-template"><?php _e('Default template', 'arlima'); ?></label></th>
 									<td>
-                                        <select name="options[previewtemplate]" id="previewtemplate">
+                                        <select name="options[template]" id="article-template">
                                             <?php
                                             $tmpl = new Arlima_TemplatePathResolver();
                                             foreach($tmpl->getTemplateFiles() as $name => $file) {
-                                                $selected = $name == $list->options['previewtemplate'] ? ' selected="selected"':'';
+                                                $selected = $name == $list->getOption('template') ? ' selected="selected"':'';
                                                 echo sprintf('<option value="%s"%s>%s</option>', $name, $selected, $name);
                                             }
                                             ?>

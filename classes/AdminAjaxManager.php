@@ -547,8 +547,8 @@ class Arlima_AdminAjaxManager
            class="arlima-list-previewpage" value="<?php echo $list->loadPreviewPageURL() ?>"/>
     <input type="hidden" name="arlima-version-id" id="arlima-version-id-<?php echo $list->id(); ?>"
            class="arlima-version-id" value="<?php echo $list->getVersionAttribute('id'); ?>"/>
-    <input type="hidden" name="arlima-list-previewtemplate" id="arlima-list-previewtemplate-<?php echo $list->id(); ?>"
-           class="arlima-list-previewtemplate" value="<?php echo $list->getOption('previewtemplate'); ?>"/>
+    <input type="hidden" name="arlima-list-template" id="arlima-list-previewtemplate-<?php echo $list->id(); ?>"
+           class="arlima-list-previewtemplate" value="<?php echo $list->getOption('template'); ?>"/>
     <?php
         $html = ob_get_contents();
         ob_end_clean();

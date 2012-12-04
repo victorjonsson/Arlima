@@ -22,7 +22,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
     function __construct($tmpl_path = null, $tmpl = Arlima_TemplatePathResolver::DEFAULT_TMPL)
     {
         $list = new Arlima_List();
-        $list->setOption('previewtemplate', $tmpl);
+        $list->setOption('template', $tmpl);
 
         parent::__construct($list, $tmpl_path);
 
@@ -63,7 +63,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
         // Create template
         $jQueryTmpl_df = new jQueryTmpl_Data_Factory();
         $this->jQueryTmpl_default = $this->loadTemplate(
-            $this->list->options['previewtemplate'],
+            $this->list->getOption('template'),
             new jQueryTmpl_Factory(),
             new jQueryTmpl_Markup_Factory()
         );

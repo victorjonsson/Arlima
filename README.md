@@ -6,12 +6,6 @@ staff an easy to use tool for customizing the front pages of their online magazi
 used on a daily basis at http://www.folkbladet.nu and http://www.vk.se, websites that 
 together has over 200 000 unique visitors per week.*
 
-#### Resources
-
-- [Download at Wordpress](http://wordpress.org/extend/plugins/arlima/)
-- [User manual](https://github.com/victorjonsson/Arlima/wiki)
-- [Developer manual](https://github.com/victorjonsson/Arlima/wiki)
-
 
 ## Getting started
 

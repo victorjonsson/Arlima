@@ -51,7 +51,7 @@ the list that you created on step 2.
 - [FAQ](Arlima/wiki/FAQ)
 
 
-#### Some websites using this plugin
+## Some websites using this plugin
 
 - http://www.sportnu.se/
 - http://www.vk.se/
@@ -67,5 +67,5 @@ the list that you created on step 2.
 - [**Craig Michael Thompson**, jquery.qtip](http://craigsworks.com/)
 - [**Janis Skarnelis**, fancybox](http://fancybox.net)
 - [**Tzury Bar Yochay**, jquery.hotkeys](http://github.com/tzuryby/)
+- [**Moxiecode**, tinyMCE](http://www.tinymce.com/)
 - [jQuery](http://jquery.com)
-- [tinyMCE](http://www.tinymce.com/)

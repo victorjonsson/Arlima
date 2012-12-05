@@ -9,7 +9,7 @@ together has over 200 000 unique visitors per week.*
 
 ## Getting started
 
-1. Install Arlima via the WordPress.org plugin directory.
+1. Install Arlima via the [WordPress.org plugin directory](http://wordpress.org/extend/plugins/arlima/).
 2. Go to "Article lists" -> "Edit lists" in wp-admin and create your first article list.
 3. Open up a page (or create it) in wp-admin. Down to the right you will see a container labeled "Arlima" where you choose
 the list that you created on step 2.
@@ -58,3 +58,14 @@ the list that you created on step 2.
 - http://www.folkbladet.nu/
 - http://hajfi.se/
 - http://victorjonsson.se/
+
+
+## Credits
+
+- [**Manuele J Sarfatti**, jquery.ui.nestedSortable](http://mjsarfatti.com/)
+- [**Xiao Yu**, jquery-tmpl-php](https://twitter.com/HypertextRanch)
+- [**Craig Michael Thompson**, jquery.qtip](http://craigsworks.com/)
+- [**Janis Skarnelis**, fancybox](http://fancybox.net)
+- [**Tzury Bar Yochay**, jquery.hotkeys](http://github.com/tzuryby/)
+- [jQuery](http://jquery.com)
+- [tinyMCE](http://www.tinymce.com/)

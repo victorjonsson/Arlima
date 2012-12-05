@@ -26,29 +26,29 @@ the list that you created on step 2.
 
 #### User manual
 
-- [Publishing article lists](wiki/Publishing-article-lists)
-- [Interface walkthrough](wiki/Interface-walkthrough)
-- [Keyboard shortcuts in the list manager](wiki/Keyboard-shortcuts)
+- [Publishing article lists](Arlima/wiki/Publishing-article-lists)
+- [Interface walkthrough](Arlima/wiki/Interface-walkthrough)
+- [Keyboard shortcuts in the list manager](Arlima/wiki/Keyboard-shortcuts)
 - Importing article lists from remote websites
 - Importing RSS-feeds
 
 #### Developer manual
 
-- [Custom CSS](wiki/Custom-css)
-- [Creating a custom page template](wiki/Writing-a-custom-page-template)
-- [Filters and actions](wiki/Filters-and-actions)
-- [Programmatically insert article lists in your template](wiki/Programmatically-insert-lists)
-- [Creating custom jQuery templates](wiki/Custom-jQuery-templates)
-- [Customized streamers](wiki/Custom-streamers)
-- [Article formats](wiki/Custom-formats)
-- [Cache management](wiki/Cache-management)
-- [How to modify the post search](wiki/Modified-search)
+- [Custom CSS](Arlima/wiki/Custom-css)
+- [Creating a custom page template](Arlima/wiki/Writing-a-custom-page-template)
+- [Filters and actions](Arlima/wiki/Filters-and-actions)
+- [Programmatically insert article lists in your template](Arlima/wiki/Programmatically-insert-lists)
+- [Creating custom jQuery templates](Arlima/wiki/Custom-jQuery-templates)
+- [Customized streamers](Arlima/wiki/Custom-streamers)
+- [Article formats](Arlima/wiki/Custom-formats)
+- [Cache management](Arlima/wiki/Cache-management)
+- [How to modify the post search](Arlima/wiki/Modified-search)
 
 
 #### Misc
 
-- [Using other plugins together with Arlima](wiki/Extending-arlima)
-- [FAQ](wiki/FAQ)
+- [Using other plugins together with Arlima](Arlima/wiki/Extending-arlima)
+- [FAQ](Arlima/wiki/FAQ)
 
 
 #### Some websites using this plugin

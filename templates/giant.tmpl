@@ -1,5 +1,10 @@
-<div id="${container.id}" class="${container.class} tmpl-article giant" style="background-image: url({{html image.src}}{{html image.url}});">
-    <div class="tmpl-giant-content">
+<div id="${container.id}" class="${container.class} tmpl-article giant" style="position: relative; height:auto; min-height:0">
+    {{if image.src}}
+        <img src="{{html image.src}}" />
+    {{else}}
+        <img src="{{html image.url}}" />
+    {{/if}}
+    <div class="tmpl-giant-content" style="position: absolute; bottom: 20px; left: 20px">
         {{html article.html_title}}
         {{html article.html_text}}
         {{html article_end}}

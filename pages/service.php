@@ -10,6 +10,7 @@ $arlima_plugin = new Arlima_Plugin();
 $export_manager = new Arlima_ExportManager($arlima_plugin);
 $import_manager = new Arlima_ImportManager($arlima_plugin);
 $factory = new Arlima_ListFactory();
+$connector = new Arlima_ListConnector();
 
 // Form posted
 if( count($_POST) > 0 ) {
@@ -41,7 +42,8 @@ foreach($lists as &$list_data) {
         // Monkey patch the list object
         $list_data->approved = true;
         $list_data->export_page = false;
-        $pages = $factory->loadList($list_data->id)->loadRelatedWordpressPages();
+        $connector->setList($factory->loadList($list_data->id));
+        $pages = $connector->loadRelatedPages();
 
         if(!empty($pages)) { // monkey patch from which page list can be exported
             $list_data->export_page = rtrim(get_permalink($pages[0]->ID),'/') .'/'.Arlima_Plugin::EXPORT_FEED_NAME.'/';

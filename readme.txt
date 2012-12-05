@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, frontpage, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 2.4.30
+Stable tag: 2.4.31
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,10 +44,10 @@ the list that you created on step 2.
 
 = 2.5 =
 - Total remake of the theme implementation. The page template should no longer be used. It will still work
-but is considered deprecated
-- The plugin is now compatible with PHP version 5.2
-- Now possible to insert article lists using a short code
-- Direct use of the list rendering class is now considered deprecated. Use [arlima filters](https://github.com/victorjonsson/Arlima/wiki/Template-filters) instead
+but is considered deprecated.
+- The plugin is now compatible with PHP version 5.2.
+- Now possible to insert article lists using a short code.
+- Direct use of the list rendering class is now considered deprecated. Use [arlima filters](https://github.com/victorjonsson/Arlima/wiki/Template-filters) instead.
 - Image upload with files having the extension .jpeg is now supported
 - Source code and documentation is now available on [github](https://github.com/victorjonsson/Arlima/)
 
@@ -154,6 +154,10 @@ that you place on a suiteable spot in your article list and schedule the article
 
 = 1.0.5 =
 - First stable release.
+
+== Other notes ==
+
+All documentation has moved to a user manual and developer manual that you can can read in [the Arlima wiki](https://github.com/victorjonsson/Arlima/wiki/)
 
 
 == Screenshots ==

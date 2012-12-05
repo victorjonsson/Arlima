@@ -506,50 +506,60 @@ class Arlima_AdminAjaxManager
      */
     private function loadListWidgets($list)
     {
-
         ob_start();
-        ?>
-    <div class="arlima-list-header">
-        <span>
-            <a href="#" class="arlima-list-container-remove">
-                <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
-            </a>
-            <?php echo $list->getTitle(); ?>
-        </span>
-    </div>
-    <div class="arlima-list-scroller">
-        <ul class="arlima-list" id="arlima-list-<?php echo $list->id(); ?>"></ul>
-    </div>
-    <div class="arlima-list-footer">
-        <div class="arlima-list-footer-buttons">
-            <a class="arlima-preview-list" id="arlima-preview-list-<?php echo $list->id(); ?>" title="Granska">
-                <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/preview-icon.png'; ?>"/>
-            </a>
-            <a class="arlima-save-list" id="arlima-save-list-<?php echo $list->id(); ?>" title="Publicera"
-               style="display:none;">
-                <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/save-icon.png'; ?>"/>
-                <a class="arlima-refresh-list" id="arlima-refresh-list-<?php echo $list->id(); ?>" alt="Uppdatera"
-                   title="Uppdatera">
-                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/reload-icon-16.png'; ?>"/>
-                </a>
-                <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/ajax-loader-trans.gif'; ?>" class="ajax-loader"/>
-            </a>
 
-            <div class="arlima-list-version"><span class="arlima-list-version-select"><select
-                    class="arlima-list-version-ddl" name="list-version"></select></span><span
-                    class="arlima-list-version-info tooltip"></span></div>
+        $connector = new Arlima_ListConnector($list);
+        $preview_page = current($connector->loadRelatedPages());
+        if( $preview_page ) {
+            $preview_url = get_permalink($preview_page->ID);
+            $relation = $connector->getRelationData($preview_page->ID);
+            $preview_page_width = $relation['attr']['width'];
+        }
+
+        ?>
+        <div class="arlima-list-header">
+            <span>
+                <a href="#" class="arlima-list-container-remove">
+                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
+                </a>
+                <?php echo $list->getTitle(); ?>
+            </span>
         </div>
-        <!-- .arlima-list-footer-buttons -->
-    </div><!-- .arlima-list-footer -->
-    <input type="hidden" name="arlima-list-id" id="arlima-list-id-<?php echo $list->id(); ?>" class="arlima-list-id"
-           value="<?php echo $list->id(); ?>"/>
-    <input type="hidden" name="arlima-list-previewpage" id="arlima-list-previewpage-<?php echo $list->id(); ?>"
-           class="arlima-list-previewpage" value="<?php echo $list->loadPreviewPageURL() ?>"/>
-    <input type="hidden" name="arlima-version-id" id="arlima-version-id-<?php echo $list->id(); ?>"
-           class="arlima-version-id" value="<?php echo $list->getVersionAttribute('id'); ?>"/>
-    <input type="hidden" name="arlima-list-template" id="arlima-list-previewtemplate-<?php echo $list->id(); ?>"
-           class="arlima-list-previewtemplate" value="<?php echo $list->getOption('template'); ?>"/>
-    <?php
+        <div class="arlima-list-scroller">
+            <ul class="arlima-list" id="arlima-list-<?php echo $list->id(); ?>"></ul>
+        </div>
+        <div class="arlima-list-footer">
+            <div class="arlima-list-footer-buttons">
+                <a class="arlima-preview-list" id="arlima-preview-list-<?php echo $list->id(); ?>" title="Granska">
+                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/preview-icon.png'; ?>"/>
+                </a>
+                <a class="arlima-save-list" id="arlima-save-list-<?php echo $list->id(); ?>" title="Publicera"
+                   style="display:none;">
+                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/save-icon.png'; ?>"/>
+                    <a class="arlima-refresh-list" id="arlima-refresh-list-<?php echo $list->id(); ?>" alt="Uppdatera"
+                       title="Uppdatera">
+                        <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/reload-icon-16.png'; ?>"/>
+                    </a>
+                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/ajax-loader-trans.gif'; ?>" class="ajax-loader"/>
+                </a>
+
+                <div class="arlima-list-version"><span class="arlima-list-version-select"><select
+                        class="arlima-list-version-ddl" name="list-version"></select></span><span
+                        class="arlima-list-version-info tooltip"></span></div>
+            </div>
+            <!-- .arlima-list-footer-buttons -->
+        </div><!-- .arlima-list-footer -->
+        <input type="hidden" name="arlima-list-id" id="arlima-list-id-<?php echo $list->id(); ?>" class="arlima-list-id"
+               value="<?php echo $list->id(); ?>"/>
+        <input type="hidden" name="arlima-list-previewpage" id="arlima-list-previewpage-<?php echo $list->id(); ?>"
+               class="arlima-list-previewpage" value="<?php echo $preview_url ?>"/>
+        <input type="hidden" name="arlima-list-previewpage" id="arlima-list-previewpage-<?php echo $list->id(); ?>"
+               class="arlima-list-previewpage-width" value="<?php echo $preview_page_width ?>"/>
+        <input type="hidden" name="arlima-version-id" id="arlima-version-id-<?php echo $list->id(); ?>"
+               class="arlima-version-id" value="<?php echo $list->getVersionAttribute('id'); ?>"/>
+        <input type="hidden" name="arlima-list-template" id="arlima-list-previewtemplate-<?php echo $list->id(); ?>"
+               class="arlima-list-previewtemplate" value="<?php echo $list->getOption('template'); ?>"/>
+        <?php
         $html = ob_get_contents();
         ob_end_clean();
         $data = array(

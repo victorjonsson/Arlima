@@ -488,38 +488,6 @@ class Arlima_List
     }
 
     /**
-     * Get an array with all wordpress pages that this list is related to
-     * @return array
-     */
-    function loadRelatedWordpressPages()
-    {
-        if( $this->exists() ) {
-            return get_pages(array(
-                    'meta_key' => '_arlima_list',
-                    'meta_value' => $this->id(),
-                    'hierarchical' => 0
-                ));
-        }
-
-        return array();
-    }
-
-    /**
-     * Get URL to where list can be previewed, will return false if this list
-     * isn't related to any page
-     * @return bool|string
-     */
-    function loadPreviewPageURL()
-    {
-        $page = current($this->loadRelatedWordpressPages());
-        if( $page ) {
-            return get_permalink($page);
-        }
-
-        return false;
-    }
-
-    /**
      * Magic method that makes it possible to request previously public
      * member variables (considered deprecated).
      * @param string $arg

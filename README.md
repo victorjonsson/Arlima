@@ -26,3 +26,41 @@ the list that you created on step 2.
 
 [@chredd](http://twitter.com/chredd) [@znoid](http://twitter.com/znoid) [@victor_jonsson](http://twitter.com/victor_jonsson)
 [@lefalque](http://twitter.com/lefalque)
+
+
+## Wiki
+
+#### User manual
+
+- [Publishing article lists](wiki/Publishing-article-lists)
+- [Interface walkthrough](wiki/Interface-walkthrough)
+- [Keyboard shortcuts in the list manager](wiki/Keyboard-shortcuts)
+- Importing article lists from remote websites
+- Importing RSS-feeds
+
+#### Developer manual
+
+- [Custom CSS](wiki/Custom-css)
+- [Creating a custom page template](wiki/Writing-a-custom-page-template)
+- [Filters and actions](wiki/Filters-and-actions)
+- [Programmatically insert article lists in your template](wiki/Programmatically-insert-lists)
+- [Creating custom jQuery templates](wiki/Custom-jQuery-templates)
+- [Customized streamers](wiki/Custom-streamers)
+- [Article formats](wiki/Custom-formats)
+- [Cache management](wiki/Cache-management)
+- [How to modify the post search](wiki/Modified-search)
+
+
+#### Misc
+
+- [Using other plugins together with Arlima](wiki/Extending-arlima)
+- [FAQ](wiki/FAQ)
+
+
+#### Some websites using this plugin
+
+- http://www.sportnu.se/
+- http://www.vk.se/
+- http://www.folkbladet.nu/
+- http://hajfi.se/
+- http://victorjonsson.se/

@@ -15,7 +15,6 @@ if( $list_id ) {
     $list = new Arlima_List(); // We use an empty list as preset
 }
 
-
 if( count($_POST) > 0 ) {
 
     // Update
@@ -44,6 +43,8 @@ elseif($list->exists() && isset($_GET['remove_list'])) {
 }
 
 $available_lists = $factory->loadListSlugs();
+$connector = new Arlima_ListConnector($list);
+
 ?>
     <div id="col-container">
 		<div id="col-right">
@@ -167,7 +168,7 @@ $available_lists = $factory->loadListSlugs();
                                         <strong><?php _e('Related pages', 'arlima') ?>:</strong>
                                     </p>
                                     <?php
-                                        $pages = $list->loadRelatedWordpressPages();
+                                        $pages = $connector->loadRelatedPages();
                                         if( empty($pages) ):?>
                                             <em><?php _e('This list is not yet related to any page', 'arlima') ?></em>
                                        <?php else: ?>

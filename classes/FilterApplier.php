@@ -80,7 +80,10 @@ class Arlima_FilterApplier
      * @param $post
      * @param $list
      * @param bool $img_size
-     * @param bool $img_url
+     * @param bool $source_url
+     * @param bool $resized_url
+     * @param bool $width
+     * @internal param bool $img_url
      * @return array
      */
     private static function filter($filter, $article_counter, &$article,
@@ -191,7 +194,7 @@ class Arlima_FilterApplier
                             $article_width
                         );
         }
-        else {
+        elseif(!$has_giant_tmpl) {
             // Callback for empty image
             $filtered = self::filter(
                 'arlima_article_image',

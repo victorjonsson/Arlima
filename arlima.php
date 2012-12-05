@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Arlima (article list manager)
-Plugin URI: http://www.vk.se/dev
-Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page. (Notice! this plugins requires PHP version >= 5.3)
+Plugin URI: https://github.com/victorjonsson/Arlima
+Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.4.30
+Version: 2.4.31
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -52,20 +52,6 @@ else {
 */
 
 
-/**
- * Returns a readable string of the version data
- * @deprecated
- * @see Arlima_List::getVersionInfo
- * @param array $version
- * @return string
- */
-function arlima_get_version_info( $version ) {
-    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_get_version_info()', 2.0, 'Arlima_List::getVersionInfo()');
-    if( isset($version[ 'id' ]))
-        return $version[ 'id' ];
-	else
-		return '';
-}
 
 /**
  * Replaces the entry-word span (tinymce plugin) with a link
@@ -78,28 +64,6 @@ function arlima_link_entrywords( $content, $url ) {
     return preg_replace($pattern, '<a href="'.$url.'" class="teaser-entryword">$3</a>' , $content);
 }
 
-/**
- * Function that displays a link to wp-admin where
- * given arlima list can be edited
- * @param Arlima_List $list
- * @param string $message
- * @return void
- */
-function arlima_edit_link($list, $message=null) {
-    if( !$list->isPreview() && is_user_logged_in() && current_user_can('edit_posts') ) {
-        if($message === null) {
-            Arlima_Plugin::loadTextDomain();
-            $message = __('Edit article list', 'arlima').' &quot;'.$list->getTitle().'&quot;';
-        }
-        ?>
-        <div class="arlima-edit-list admin-tool">
-            <a href="<?php echo admin_url('admin.php?page=arlima&open_list='.$list->id()) ?>" target="_arlima">
-                <?php echo $message ?>
-            </a>
-        </div>
-        <?php
-    }
-}
 
 /**
  * @param string $type - Deprecated
@@ -145,36 +109,15 @@ function arlima_modify_post_search($form_callback, $query_callback, $deprecated=
  * Tells whether or not current request is requesting an arlima preview
  * @return bool
  */
-function arlima_is_requesting_preview() {
-    return isset( $_GET[Arlima_List::QUERY_ARG_PREVIEW] ) && !is_admin() && is_user_logged_in();
-}
-
-/**
- * Tells whether or not a preview of the list with given slug is requested
- * @param $list_id
- * @return bool
- */
-function arlima_requesting_preview($list_id) {
-    return arlima_is_requesting_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $list_id;
-}
-
-/**
- * @deprecated
- * @return string
- */
-function arlima_preview_url() {
-    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_preview_url', 2.4, 'Function is removed');
-}
-
-/**
- * @param $list_id
- * @param $url
- * @param bool $entity_encode
- * @return string
- */
-function arlima_get_preview_url($list_id, $url, $entity_encode = false) {
-    $new_url = $url . (strpos($url, '?') === false ? '?':'&') . Arlima_List::QUERY_ARG_PREVIEW . '='. $list_id;
-    return $entity_encode ? htmlentities($new_url) : $new_url;
+function is_arlima_preview() {
+    static $is_arlima_preview;
+    if( $is_arlima_preview === null ) {
+        $is_arlima_preview =  isset( $_GET[Arlima_List::QUERY_ARG_PREVIEW] ) &&
+                                has_arlima_list() &&
+                                get_the_arlima_list()->id() == $_GET[Arlima_List::QUERY_ARG_PREVIEW] &&
+                                is_user_logged_in();
+    }
+    return $is_arlima_preview;
 }
 
 /**
@@ -206,7 +149,76 @@ function arlima_deregister_format($format_class, $templates=array()) {
     Arlima_ArticleFormat::remove($format_class, $templates);
 }
 
+
 /**
+ * Function that displays a link to wp-admin where
+ * given arlima list can be edited
+ * @param Arlima_List|bool $list
+ * @param string|bool $message
+ * @return void
+ */
+function arlima_edit_link($list=false, $message=false) {
+    if( !($list instanceof Arlima_List) ) {
+        $list = get_the_arlima_list();
+        if( false === $list ) {
+            trigger_error('Trying to get edit link for list that does not exist', E_USER_WARNING);
+            return;
+        }
+    }
+
+    if( is_user_logged_in() && current_user_can('edit_posts') ) {
+        if( !$message ) {
+            Arlima_Plugin::loadTextDomain();
+            $message = __('Edit article list', 'arlima').' &quot;'.$list->getTitle().'&quot;';
+        }
+        ?>
+        <div class="arlima-edit-list admin-tool">
+            <a href="<?php echo admin_url('admin.php?page=arlima&open_list='.$list->id()) ?>" target="_arlima">
+                <?php echo $message ?>
+            </a>
+        </div>
+        <?php
+    }
+}
+
+/**
+ * Template function that tells whether or not we're currently on page
+ * that has a related article list
+ * @return bool
+ */
+function has_arlima_list() {
+    return get_the_arlima_list() !== false;
+}
+
+/**
+ * Get arlima list of currently visited page
+ * @return Arlima_List|bool
+ */
+function get_the_arlima_list() {
+    static $the_current_arlima_list;
+    if( $the_current_arlima_list === null ) {
+        $the_current_arlima_list = false;
+        if( is_page() ) {
+            global $post;
+            $connector = new Arlima_ListConnector();
+            $relation = $connector->getRelationData($post->ID);
+            if( $relation !== false ) {
+                $list_factory = new Arlima_ListFactory();
+                $relation = $connector->getRelationData($post->ID);
+                $is_requesting_preview = is_arlima_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $relation['id'];
+                $version = $is_requesting_preview ? 'preview' : '';
+                $list = $list_factory->loadList($relation['id'], $version, $is_requesting_preview);
+                if( $list->exists() ) {
+                    $the_current_arlima_list = $list;
+                }
+            }
+        }
+    }
+    return $the_current_arlima_list;
+}
+
+/**
+ * Render an article list
  * @param Arlima_List|Arlima_AbstractListRenderingManager|int|string $list
  * @param array $args
  * @return string|void
@@ -214,7 +226,7 @@ function arlima_deregister_format($format_class, $templates=array()) {
 function arlima_render_list($list, $args=array()) {
 
     $args = array_merge(array(
-                'width' => 530,
+                'width' => 560,
                 'offset' => 0,
                 'limit' => 0,
                 'echo' => true,
@@ -236,9 +248,9 @@ function arlima_render_list($list, $args=array()) {
         $renderer = new Arlima_ListTemplateRenderer($list);
     }
 
-    if( $renderer->getList()->exists() ) {
+    if( !$renderer->getList()->exists() ) {
         $msg = '<p>'.__('This list does not exist', 'arlima').'</p>';
-        if( $args['output'] )
+        if( $args['echo'] )
             echo $msg;
         else
             return $msg;
@@ -257,7 +269,7 @@ function arlima_render_list($list, $args=array()) {
             Arlima_FilterApplier::setArticleWidth($args['width']);
             Arlima_FilterApplier::applyFilters($renderer);
 
-            $content = $renderer->renderList($args['output']);
+            $content = $renderer->renderList($args['echo']);
             Arlima_FilterApplier::setFilterSuffix('');
 
             return $content;
@@ -265,4 +277,46 @@ function arlima_render_list($list, $args=array()) {
     }
 
     return '';
+}
+
+
+
+
+/* * * * * * * * * * * * DEPRECATED FUNCTIONS * * * * * * * * * * * * * */
+
+
+
+/**
+ * Returns a readable string of the version data
+ * @deprecated
+ * @see Arlima_List::getVersionInfo
+ * @param array $version
+ * @return string
+ */
+function arlima_get_version_info( $version ) {
+    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_get_version_info()', 2.0, 'Arlima_List::getVersionInfo()');
+    if( isset($version[ 'id' ]))
+        return $version[ 'id' ];
+    else
+        return '';
+}
+
+/**
+ * Tells whether or not a preview of the list with given slug is requested
+ * @deprecated
+ * @param $list_id
+ * @return bool
+ */
+function arlima_requesting_preview($list_id) {
+    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_requesting_preview()', 2.5, 'Function is removed');
+    return is_arlima_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $list_id;
+}
+
+
+/**
+ * @deprecated
+ * @return string
+ */
+function arlima_preview_url() {
+    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_preview_url()', 2.4, 'Function is removed');
 }

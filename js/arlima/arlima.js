@@ -501,6 +501,16 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
             // TODO: this function gets called twice when previewing an article!!
 
             _buildPreviewTeaser($('#arlima-preview'), article, false);
+
+            var previewPageWidth = $('.arlima-list-previewpage-width', Manager.getFocusedList().jQuery).val();
+            if( previewPageWidth ) {
+                console.log('has width');
+                ArticleEditor._$preview.children().eq(0).css('width', previewPageWidth+'px');
+            }
+            else {
+                console.log('has no width');
+            }
+
         },
 
         /**
@@ -752,7 +762,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
                 }
 
                 // Post connection and link
-                if( tmpl.indexOf('${article.url}') > -1 ) {
+                if( tmpl.indexOf('${article.url}') > -1 || tmpl.indexOf('{html article.html_title}') > -1 ) {
                     $('#arlima-article-wp-connection').show();
                 }
                 else {

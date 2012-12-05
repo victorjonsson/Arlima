@@ -21,6 +21,11 @@
     margin-bottom: 10px;
 }
 
+.tmpl-article:first-child {
+    padding-top: 0px;
+}
+
+
 
 /* * * * * * * * * * * * * *
  TMPL typography
@@ -142,6 +147,17 @@ body.mceContentBody .teaser-entryword {
     margin-bottom: 0;
 }
 
+.tmpl-article img.third {
+    max-width: 33%;
+}
+
+.tmpl-article img.half {
+    max-width: 50%;
+}
+
+.tmpl-article img.quarter {
+    max-width: 25%;
+}
 
 /* * * * * * * * * * *
  TMPL child articles
@@ -251,14 +267,20 @@ Link in the front page that opens
 current list in wp-admin
 * * * * * * * * * * * * * * * * */
 .arlima-edit-list {
-    padding: 6px;
-    background: #F7F7F7;
     border:2px dotted #E2E2E2;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    padding: 2px 2px 2px 26px;
+    font-size: 14px;
+    background: url(../images/arlima-icon.png) no-repeat left center #FFF;
+    background-position: 6px 50%;
 }
 
 .arlima-edit-list > * {
     margin:0;
     padding: 0;
+    line-height: normal;
+    color: #666;
 }
 
 

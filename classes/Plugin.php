@@ -52,16 +52,11 @@ class Arlima_Plugin
      */
     function displayArlimaList()
     {
-        global $post;
-        $list_id = get_post_meta($post->ID, '_arlima_list', true);
-        if ( $list_id ) {
-            $version = arlima_requesting_preview($list_id) ? 'preview' : '';
-            $factory = new Arlima_ListFactory();
-            $list = $factory->loadList($list_id, $version);
-            if ( $list->exists() ) {
-                $list_data = get_post_meta($post->ID, '_arlima_list_data', true);
-                arlima_render_list($list, $list_data);
-            }
+        if( has_arlima_list() ) {
+            global $post;
+            $connector = new Arlima_ListConnector();
+            $relation = $connector->getRelationData($post->ID);
+            arlima_render_list(get_the_arlima_list(), $relation['attr']);
         }
     }
 
@@ -418,13 +413,13 @@ class Arlima_Plugin
             <?php if( empty($lists) ): ?>
                 <p>
                     <a href="admin.php?page=arlima-editpage" target="_blank">
-                        <?php _e('Create your first article lists', 'arlima') ?>
+                        <?php _e('Create your first article list', 'arlima') ?>
                     </a>
                 </p>
             <?php else: ?>
                 <table cellpadding="5">
                     <tr>
-                        <td><strong>List:</strong></td>
+                        <td><strong><?php _e('List', 'arlima') ?>:</strong></td>
                         <td>
                             <select name="arlima_list" id="arlima-lists">
                                 <option value="">- - <?php _e('No list', 'arlima') ?> - -</option>
@@ -437,7 +432,7 @@ class Arlima_Plugin
                                     ?>><?php echo $arlima_list->title; ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <a href="" style="display: none" target="_blank" id="arlima-edit">[edit]</a>
+                            <a href="" style="display: none" target="_blank" id="arlima-edit">[<?php _e('edit', 'arlima') ?>]</a>
                         </td>
                     </tr>
                     <tr class="arlima-opt">
@@ -466,20 +461,20 @@ class Arlima_Plugin
         if ( !defined('DOING_AUTOSAVE') || !DOING_AUTOSAVE ) {
 
             if ( isset($_POST['arlima_nonce']) && wp_verify_nonce($_POST['arlima_nonce'], __FILE__) ) {
+
+                $connector = new Arlima_ListConnector();
+
                 if ( empty($_POST['arlima_list']) ) {
-                    delete_post_meta($post_id, '_arlima_list');
-                    delete_post_meta($post_id, '_arlima_list_data');
+                    $connector->removeRelation($post_id);
                 } else {
-                    update_post_meta($post_id, '_arlima_list', $_POST['arlima_list']);
-                    update_post_meta(
-                        $post_id,
-                        '_arlima_list_data',
-                        array(
+
+                    $list_factory = new Arlima_ListFactory();
+                    $connector->setList($list_factory->loadList($_POST['arlima_list']));
+                    $connector->relate($post_id, array(
                             'width' => (int)$_POST['arlima_width'],
                             'offset' => (int)$_POST['arlima_offset'],
                             'limit' => (int)$_POST['arlima_limit']
-                        )
-                    );
+                        ));
                 }
             } else {
                 Arlima_ListFactory::updateArlimaArticleData(get_post($post_id));

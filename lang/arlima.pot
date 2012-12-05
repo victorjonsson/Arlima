@@ -459,7 +459,7 @@ msgstr "Den här listan existerar inte"
 msgid "No list"
 msgstr "Ingen lista"
 
-msgid "Create your first article lists"
+msgid "Create your first article list"
 msgstr "Skapa din första lista"
 
 msgid "This list is not yet related to any page"

@@ -110,7 +110,9 @@ class Arlima_ExportManager
      */
     private function sendInitialHeaders($format)
     {
-        header_remove();
+        if( function_exists('header_remove') ) {
+            header_remove();
+        }
         switch ($format) {
             case self::FORMAT_RSS:
                 header('Content-Type: text/xml; charset=utf8');

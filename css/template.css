@@ -206,7 +206,7 @@ a.teaser-entryword:hover {
 }
 
 .teaser-children .tmpl-article.teaser-split.last {
-    margin-left: 10%;
+    float: right;
 }
 
 
@@ -242,22 +242,37 @@ TMPL related posts
 Giant template
 * * * * * * * * * * * * * * * * */
 .tmpl-article.giant {
-    height: 320px;
-    background-size: 100% auto;
-    background-repeat: no-repeat;
-    position: relative;
     border-bottom: 0;
     margin-top: 10px;
+    position: relative;
+    height:auto;
+    min-height:0;
+    padding:0;
+    overflow: hidden;
+    line-height: 0;
 }
 
 .tmpl-giant-content {
     position: absolute;
-    bottom: 0;
-    margin: 10px;
+    bottom: 20px;
+    left: 20px;
+    margin: 0;
     background: rgba(255, 255, 255, .9);
     padding: 10px;
 }
 
+.tmpl-article.giant img {
+    margin: 0;
+}
+
+/* @MQ: smaller screen */
+@media screen and (max-width: 590px) {
+    .tmpl-giant-content {
+        left: 0;
+        bottom: 0;
+        width: 100%;
+    }
+}
 
 /* Inverted giant */
 
@@ -457,3 +472,22 @@ current list in wp-admin
 .tmpl-article .fsize-98 { font-size: 98px; }
 .tmpl-article .fsize-99 { font-size: 99px; }
 .tmpl-article .fsize-100 { font-size: 100px; }
+
+/* @MQ: smaller screen */
+@media screen and (max-width: 590px) {
+    .tmpl-article h1,
+    .tmpl-article h2,
+    .tmpl-article h3,
+    .tmpl-article h4,
+    .tmpl-article h5 {
+        font-size: 16px !important;
+        line-height: normal !important;
+    }
+
+    .tmpl-article.format-serif h4,
+    .tmpl-article.format-serif h3,
+    .tmpl-article.format-serif h2,
+    .tmpl-article.format-serif h1 {
+        font-size: 20px !important;
+    }
+}

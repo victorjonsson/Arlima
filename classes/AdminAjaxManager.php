@@ -203,12 +203,12 @@ class Arlima_AdminAjaxManager
     private function initAjaxRequest($send_json=true)
     {
         if( $send_json ) {
-        #    header('Content-Type: application/json');
+            header('Content-Type: application/json');
         }
 
         if( !check_ajax_referer('arlima-nonce') ) {
             die(json_encode(array('error' => 'incorrect nonce')));
-        } elseif( !is_user_logged_in()  && false == true) {
+        } elseif( !is_user_logged_in() ) {
             die(json_encode(array('error' => 'not logged in')));
         }
     }
@@ -233,7 +233,7 @@ class Arlima_AdminAjaxManager
             foreach ($_FILES as $file => $array) {
 
                 if ( $_FILES[$file]['error'] !== UPLOAD_ERR_OK ) {
-                    return 'upload error: ' . $_FILES[$file]['error'];
+                    die(json_encode(array('error' => 'upload error: ' . $_FILES[$file]['error'])));
                 }
                 if ( is_numeric($post_id) ) {
                     $attach_id = media_handle_upload($file, $post_id);
@@ -286,7 +286,7 @@ class Arlima_AdminAjaxManager
                 // Check for download errors
                 if ( is_wp_error( $tmp ) ) {
                     @unlink( $file_array[ 'tmp_name' ] );
-                    die( json_encode( array( 'error' => $tmp->error_message() ) ) );
+                    die( json_encode( array( 'error' => $tmp->get_error_messages() ) ) );
                 }
 
                 $attach_id = media_handle_sideload( $file_array, 0 );
@@ -664,6 +664,7 @@ class Arlima_AdminAjaxManager
             $post->url = get_permalink($post->ID);
             $post->publish_date = strtotime($post->post_date_gmt);
             echo json_encode((array)$post);
+            die;
         }
 
         die(json_encode(array()));

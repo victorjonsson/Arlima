@@ -120,7 +120,19 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          * @param {Function} callback - Optional
          */
         plupload : function(url, postId, callback) {
-            this._ajax('arlima_upload', { imgurl : url, postid: postId }, callback);
+            var extension = url.substr(url.lastIndexOf('.')+1).toLowerCase();
+            var queryBegin = extension.indexOf('?');
+            if(queryBegin > -1) {
+                extension = extension.substr(0, queryBegin);
+            }
+            if($.inArray(extension, ['jpg', 'jpeg', 'png', 'gif']) == -1) {
+                log('Trying to upload something that\'s not considered to be an image', 'error');
+                if(typeof callback == 'function') {
+                    callback(false);
+                }
+            } else {
+                this._ajax('arlima_upload', { imgurl : url, postid: postId }, callback);
+            }
         },
 
         /**
@@ -171,7 +183,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         alert(ArlimaJS.lang.loggedOut);
                         json = false;
                     }
-                    else if(json.error !== undefined) {
+                    else if(json.error) {
                         alert(json.error);
                         json = false;
                     }
@@ -180,7 +192,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         callback(json);
                     }
                 },
-                error : function(err) {
+                error : function(err, xhr) {
                     if(err.status == 0) {
                         log('The request is refused by browser, most probably because '+
                             'of fast reloading of the page before ajax call was completed', 'warn');
@@ -197,8 +209,9 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         if(json && typeof json.error != 'undefined')
                             mess = json.error;
                     }
-                    alert(mess);
-                    log(mess, 'error');
+                    alert("ERROR:\n------------\n"+mess);
+                    log(err, 'error');
+                    log(xhr, 'error');
                     if(typeof callback == 'function')
                         callback(false);
                 }

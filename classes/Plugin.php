@@ -708,7 +708,7 @@ class Arlima_Plugin
                     'listRemoved' => __('This list have been removed!', 'arlima'),
                     'savePreview' => __('to save article list', 'arlima'),
                     'isSaved' => __('This list has no unsaved changes', 'arlima'),
-                    'missingPreviewPage' => __('This list is missing a preview page', 'arlima'),
+                    'missingPreviewPage' => __('This list is not yet related to any page', 'arlima'),
                     'hasUnsavedChanges' => __('This list has unsaved changes', 'arlima'),
                     'dragAndDrop' => __('Drag images to this container', 'arlima'),
                     'sticky' => __('Sticky', 'arlima'),

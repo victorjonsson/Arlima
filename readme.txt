@@ -50,6 +50,7 @@ but is considered deprecated.
 - Direct use of the list rendering class is now considered deprecated. Use [arlima filters](https://github.com/victorjonsson/Arlima/wiki/Template-filters) instead.
 - Image upload with files having the extension .jpeg is now supported
 - Improved drag and drop image uploads
+- Improved responsiveness in the default CSS
 - Source code and documentation is now available on [github](https://github.com/victorjonsson/Arlima/)
 
 

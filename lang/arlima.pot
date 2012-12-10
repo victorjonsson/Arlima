@@ -199,6 +199,9 @@ msgstr "Förhandsgranska lista"
 msgid "Edit"
 msgstr "Redigera"
 
+msgid "edit"
+msgstr "redigera"
+
 #: pages/main.php:28
 msgid "Streamer"
 msgstr "Platta"
@@ -463,7 +466,7 @@ msgid "Create your first article list"
 msgstr "Skapa din första lista"
 
 msgid "This list is not yet related to any page"
-msgstr "Den här listan är inte kopplad någon sida"
+msgstr "Den här listan är inte kopplad till någon sida"
 
 msgid "Related pages"
 msgstr "Relaterade sidor"

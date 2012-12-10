@@ -28,7 +28,7 @@ jQuery(document).ready(function($) {
 
     $('#arlima-lists').change(function() {
         if( this.value ) {
-            $arlimaEditLink.attr('href', 'admin.php?page=arlima&open='+this.value);
+            $arlimaEditLink.attr('href', 'admin.php?page=arlima&open_list='+this.value);
             $arlimaEditLink.show();
         } else {
             $arlimaEditLink.hide();

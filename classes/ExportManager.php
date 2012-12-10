@@ -67,7 +67,8 @@ class Arlima_ExportManager
             $this->sendErrorToClient(self::ERROR_UNSUPPORTED_FORMAT, '400 Bad Request', self::DEFAULT_FORMAT);
         }
 
-        $page = !$page_slug ? get_page(get_option('page_on_front', 0)) : get_page_by_title(
+        $front = get_option('page_on_front', 0);
+        $page = !$page_slug ? get_page($front) : get_page_by_title(
             str_replace('-', ' ', $page_slug)
         );
 
@@ -75,13 +76,22 @@ class Arlima_ExportManager
             $this->sendErrorToClient(self::ERROR_PAGE_NOT_FOUND, '404 Page Not Found', $format);
         } else {
 
-            $arlima_slug = get_post_meta($page->ID, 'arlima', true);
-            if ( !$arlima_slug ) {
-                $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '400 Bad Request', $format);
-            }
-
             $factory = new Arlima_ListFactory();
-            $list = $factory->loadListBySlug($arlima_slug);
+            $connector = new Arlima_ListConnector();
+            $relation = $connector->getRelationData($page->ID);
+            $list = false;
+            if ( empty($relation) ) {
+                $arlima_slug = get_post_meta($page->ID, 'arlima', true);
+                if( empty($arlima_slug) ) {
+                    $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '400 Bad Request', $format);
+                    die;
+                }
+                else {
+                    $list = $factory->loadListBySlug($arlima_slug);
+                }
+            } else {
+                $list = $factory->loadList($relation['id'], false, true);
+            }
 
             if ( !$list->exists() ) {
                 $this->sendErrorToClient(self::ERROR_LIST_DOES_NOT_EXIST, '500 Internal Server Error', $format);
@@ -265,7 +275,7 @@ class Arlima_ExportManager
      */
     public function isAvailableForExport($list)
     {
-        $id = is_object($list) ? $list->id : $list;
+        $id = is_object($list) ? $list->id() : $list;
         return in_array($id, $this->available_export);
     }
 }

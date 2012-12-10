@@ -50,14 +50,16 @@ class Arlima_Plugin
 
     /**
      */
-    function displayArlimaList()
+    function displayArlimaList($c)
     {
         if( has_arlima_list() ) {
             global $post;
             $connector = new Arlima_ListConnector();
             $relation = $connector->getRelationData($post->ID);
             arlima_render_list(get_arlima_list(), $relation['attr']);
+            return '';
         }
+        return $c;
     }
 
     /**
@@ -274,24 +276,35 @@ class Arlima_Plugin
                 );
 
                 // Include arlima template to get width
+                $list_width = false;
                 $page_template = get_stylesheet_directory() . '/page-arlima.php';
                 if ( file_exists($page_template) ) {
-                    include_once $page_template;
+                    $page_content = explode('TMPL_ARTICLE_WIDTH', file_get_contents($page_template));
+                    if( count($page_content) > 1 ) {
+                        $definition = explode(';', $page_content[1]);
+                        $list_width = (int)preg_replace('([^0-9]*)', '', current($definition));
+                    }
                 }
+
+                if( !$list_width )
+                    $list_width = 468;
+
+                $connector = new Arlima_ListConnector();
+                $factory = new Arlima_ListFactory();
+                $list_attr = array(
+                        'width' => $list_width,
+                        'offset' => 0,
+                        'limit' => 0
+                    );
 
                 foreach ($pages as $page) {
                     $arlima_slug = get_post_meta($page->ID, 'arlima', true);
                     if ( $arlima_slug ) {
-                        update_post_meta($page->ID, '_arlima_list', $arlima_slug);
-                        update_post_meta(
-                            $page->ID,
-                            '_arlima_list_data',
-                            array(
-                                'width' => defined('TMPL_ARTICLE_WIDTH') ? TMPL_ARTICLE_WIDTH : 468,
-                                'offset' => 0,
-                                'limit' => -1
-                            )
-                        );
+                        $list = $factory->loadListBySlug($arlima_slug);
+                        if( $list->exists() ) {
+                            $connector->setList($list);
+                            $connector->relate($page->ID, $list_attr);
+                        }
                     }
                 }
             }

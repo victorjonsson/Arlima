@@ -690,6 +690,7 @@ class Arlima_ListFactory {
     public static function databaseUpdates($version) {
         /* @var wpdb $wpdb */
         global $wpdb;
+        $wpdb->suppress_errors(true);
         if($version < 2.2) {
             $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article ADD ala_publish_date bigint(11) NOT NULL DEFAULT \'0\'');
             $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article ADD INDEX `postpublishdate` (ala_publish_date)');

@@ -94,7 +94,7 @@ class Arlima_ExportManager
             }
 
             if ( !$list->exists() ) {
-                $this->sendErrorToClient(self::ERROR_LIST_DOES_NOT_EXIST, '500 Internal Server Error', $format);
+                $this->sendErrorToClient(self::ERROR_LIST_DOES_NOT_EXIST, '404 Content not found', $format);
             } elseif ( !$this->isAvailableForExport($list) ) {
                 $this->sendErrorToClient(self::ERROR_LIST_BLOCKED_FROM_EXPORT, '403 Forbidden', $format);
             } else {

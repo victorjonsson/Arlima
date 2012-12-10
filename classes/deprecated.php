@@ -11,13 +11,13 @@ class ArlimaWPLoop extends Arlima_WPLoop
 {
     /**
      * @deprecated
-     * @param null $tmpl_path
-     * @param null|string $tmpl
+     * @param null $template_path
+     * @param null|string $template
      */
-    function __construct($tmpl_path = null, $tmpl = Arlima_TemplatePathResolver::DEFAULT_TMPL)
+    function __construct($template_path = null, $template = Arlima_TemplatePathResolver::DEFAULT_TMPL)
     {
         Arlima_Plugin::warnAboutUseOfDeprecatedFunction('ArlimaWPLoop::__construct', 2.0, 'Arlima_WPLoop::__construct');
-        parent::__construct($tmpl_path, $tmpl);
+        parent::__construct($template_path, $template);
     }
 }
 

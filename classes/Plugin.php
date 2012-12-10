@@ -10,7 +10,7 @@ class Arlima_Plugin
 {
     const VERSION = 2.5;
     const EXPORT_FEED_NAME = 'arlima-export';
-    const STATIC_VERSION = '15.312';
+    const STATIC_VERSION = '15.9122';
 
     private static $is_scissors_installed = null;
     private static $is_wp_related_post_installed = null;
@@ -41,7 +41,7 @@ class Arlima_Plugin
      */
     function themeInitHook()
     {
-        $this->addTemplateCSS();
+        add_action('wp_print_styles', array($this, 'addTemplateCSS'));
         add_shortcode('arlima', array($this, 'arlimaListShortCode'));
         if ( is_page() ) {
             add_action('the_content', array($this, 'displayArlimaList'));
@@ -56,7 +56,7 @@ class Arlima_Plugin
             global $post;
             $connector = new Arlima_ListConnector();
             $relation = $connector->getRelationData($post->ID);
-            arlima_render_list(get_the_arlima_list(), $relation['attr']);
+            arlima_render_list(get_arlima_list(), $relation['attr']);
         }
     }
 
@@ -644,7 +644,7 @@ class Arlima_Plugin
             'jquery-ui'         => 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js',
             'media-upload'      => false,
             'thickbox'          => false,
-            'qtip'              => ARLIMA_PLUGIN_URL . 'js/jquery/qtip/jquery.qtip.min.js',
+            'qtip'              => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.qtip.min.js',
             'colourpicker'      => ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/jquery.colourpicker.js',
             'fancybox'          => ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox-1.3.4.pack.js',
             'ui-nestedsortable' => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.nestedSortable.js',
@@ -755,7 +755,6 @@ class Arlima_Plugin
             'jquery_ui_css',
             'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css'
         );
-        wp_enqueue_style('qtip_css', ARLIMA_PLUGIN_URL . 'js/jquery/qtip/jquery.qtip.css');
         wp_enqueue_style('colourpicker_css', ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/colourpicker.css');
         wp_enqueue_style('fancy_css', ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox-1.3.4.css');
     }

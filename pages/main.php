@@ -95,9 +95,7 @@ $factory = new Arlima_ListFactory();
 
 
                                 <div id="arlima-article-image-container">
-                                    <div id="arlima-article-image" class="empty">
-                                        <p><?php _e('Drag image here', 'arlima') ?></p>
-                                    </div>
+                                    <div id="arlima-article-image" class="empty tooltip-left" title="<?php _e('Drag images to this container', 'arlima') ?>"></div>
                                     <div id="arlima-article-image-links">
                                         <ul>
                                             <li><button id="arlima-article-image-browse" class="cupid-blue"><?php _e('Browse', 'arlima') ?></button></li>

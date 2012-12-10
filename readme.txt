@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, frontpage, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 2.4.31
+Stable tag: 2.4.32
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,7 @@ but is considered deprecated.
 - Now possible to insert article lists using a short code.
 - Direct use of the list rendering class is now considered deprecated. Use [arlima filters](https://github.com/victorjonsson/Arlima/wiki/Template-filters) instead.
 - Image upload with files having the extension .jpeg is now supported
+- Improved drag and drop image uploads
 - Source code and documentation is now available on [github](https://github.com/victorjonsson/Arlima/)
 
 

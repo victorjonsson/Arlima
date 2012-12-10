@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.4.31
+Version: 2.4.32
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -113,8 +113,8 @@ function is_arlima_preview() {
     static $is_arlima_preview;
     if( $is_arlima_preview === null ) {
         $is_arlima_preview =  isset( $_GET[Arlima_List::QUERY_ARG_PREVIEW] ) &&
-                                has_arlima_list() &&
-                                get_the_arlima_list()->id() == $_GET[Arlima_List::QUERY_ARG_PREVIEW] &&
+                               // has_arlima_list() &&
+                               // get_arlima_list()->id() == $_GET[Arlima_List::QUERY_ARG_PREVIEW] &&
                                 is_user_logged_in();
     }
     return $is_arlima_preview;
@@ -159,7 +159,7 @@ function arlima_deregister_format($format_class, $templates=array()) {
  */
 function arlima_edit_link($list=false, $message=false) {
     if( !($list instanceof Arlima_List) ) {
-        $list = get_the_arlima_list();
+        $list = get_arlima_list();
         if( false === $list ) {
             trigger_error('Trying to get edit link for list that does not exist', E_USER_WARNING);
             return;
@@ -187,14 +187,14 @@ function arlima_edit_link($list=false, $message=false) {
  * @return bool
  */
 function has_arlima_list() {
-    return get_the_arlima_list() !== false;
+    return get_arlima_list() !== false;
 }
 
 /**
  * Get arlima list of currently visited page
  * @return Arlima_List|bool
  */
-function get_the_arlima_list() {
+function get_arlima_list() {
     static $the_current_arlima_list;
     if( $the_current_arlima_list === null ) {
         $the_current_arlima_list = false;
@@ -312,6 +312,12 @@ function arlima_requesting_preview($list_id) {
     return is_arlima_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $list_id;
 }
 
+/**
+ * @deprecated
+ */
+function arlima_is_requesting_preview() {
+    return !empty($_GET[Arlima_List::QUERY_ARG_PREVIEW]) && is_user_logged_in();
+}
 
 /**
  * @deprecated

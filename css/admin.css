@@ -86,14 +86,38 @@ li.dragger {
     vertical-align: baseline;
 }
 
-#arlima-edit-article {
-
+#arlima-article-image {
+    cursor: pointer;
+    float: left;
+    width: 450px;
+    overflow: hidden;
+    margin: 0;
+    font-weight: bold;
+    font-size: 40px;
+    color: #CCC;
+    line-height: 0;
+    padding: 9px;
+    border: 1px solid #F2F2F2;
 }
 
-#arlima-article-image img:hover,
-#arlima-article-image em:hover {
+#arlima-article-image.empty {
+    background: url(../images/image-large-faded.png) no-repeat center center;
+    min-height: 160px;
+}
+
+
+#arlima-article-image img {
     cursor: pointer;
-    opacity: 0.75;
+}
+
+#arlima-article-image:hover,
+.dragover {
+    background-color: #dfffe1 !important;
+    border-color: #90ee90 !important;
+}
+
+.arlima-fancybox #arlima-article-image {
+    float: none;
 }
 
 #arlima-article-image-options {
@@ -106,29 +130,6 @@ li.dragger {
     border: #DDD dashed 3px;
 }
 
-#arlima-article-image {
-    float: left;
-    width: 470px;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    font-weight: bold;
-    font-size: 40px;
-    color: #CCC;
-}
-
-#arlima-article-image.empty {
-    min-height: 60px;
-    text-align: center;
-}
-
-#arlima-article-image.empty.dragover {
-    border-color: #ccff55;
-}
-
-#arlima-article-image.empty.dragover p {
-    display: none;
-}
 
 #arlima-article-image img {
     max-width: 100%;
@@ -832,10 +833,6 @@ span.arlima-streamer-indicator {
     padding: 10px;
     border: solid 1px #DFDFDF;
     border-radius: 3px 3px 3px 3px;
-}
-
-.arlima-fancybox #arlima-article-image {
-    float: none;
 }
 
 .arlima-fancybox #arlima-article-image img {

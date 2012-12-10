@@ -5,16 +5,17 @@
 
 /* Article teaser */
 .tmpl-article {
-    padding:20px 12px;
+    padding:20px 0;
     margin:0 auto;
     cursor: default;
     overflow: auto;
     border-bottom: #DDD solid 1px;
 }
 
-/* wp-admin only (none responsive) */
-#arlima-preview .tmpl-article {
-    width: 480px;
+.tmpl-article article {
+    margin: 0;
+    padding: 0;
+    border:0;
 }
 
 .tmpl-article:last-child {
@@ -22,7 +23,24 @@
 }
 
 .tmpl-article:first-child {
-    padding-top: 0px;
+    padding-top: 0;
+}
+
+/* wp-admin only (none responsive). In case the list is related to
+ a page the width set on the list in wp-admin will be add to style
+ attribute by the list manager */
+#arlima-preview .tmpl-article,
+#arlima-preview .tmpl-article:first-child,
+#arlima-preview .tmpl-article:last-child {
+    width: 480px;
+    margin:0;
+    padding:0;
+    border-bottom: 0;
+}
+
+#arlima-preview {
+    background: #FFF;
+    padding: 12px;
 }
 
 
@@ -35,7 +53,7 @@
 .tmpl-article,
 body.mceContentBody {
     font-family: Tahoma, Arial, sans-serif;
-    font-size: 10pt;
+    font-size: 10.5pt;
     color:#444;
 }
 
@@ -54,7 +72,7 @@ body.mceContentBody a {
     font-family: Verdana, Arial, sans-serif;
     padding: 0 0 8px;
     margin: 0;
-    line-height: 1em;
+    line-height: 110%;
     clear: none;
     color: #000;
     font-weight: bold;
@@ -68,10 +86,11 @@ body.mceContentBody a {
     font-family: "Times New Roman", Times, serif;
     font-weight: normal;
     letter-spacing: -1px;
+    line-height: 100%;
 }
 
 .arlima-pre-title {
-    color: #FF0000;
+    color: #de3c0e;
     text-transform: uppercase;
 }
 
@@ -79,16 +98,19 @@ body.mceContentBody a {
 a.teaser-entryword,
 body.mceContentBody .teaser-entryword {
     background: url(../images/arrow-right.gif) no-repeat left center;
-    color: blue;
     font-weight: bold;
     padding-left: 7px;
+    text-decoration: none;
+}
+
+a.teaser-entryword:hover {
     text-decoration: underline;
 }
 
 .tmpl-article p {
     padding: 0;
     margin:0;
-    line-height: 120%;
+    line-height: 140%;
 }
 
 /* * * * * * * * *
@@ -127,6 +149,10 @@ body.mceContentBody .teaser-entryword {
 * TMPL image
 * * * * * * * * * * * * * * * */
 .tmpl-article img {
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+    box-shadow: none;
     max-width: 100%;
     margin: 0 0 5px;
     padding: 0;
@@ -190,17 +216,12 @@ TMPL related posts
 .teaser-related-posts {
     margin:16px 8px 8px;
     border:#F2F2F2 solid 1px;
-    border-radius: 20px;
-    -webkit-border-radius: 20px;
-    -moz-border-radius: 20px;
-    -o-border-radius: 20px;
-    -ms-border-radius: 20px;
     overflow: hidden;
 }
 
 .teaser-related-posts h3 {
     background: #F2F2F2;
-    padding: 8px 20px;
+    padding: 8px 10px;
     margin:0;
 }
 
@@ -295,10 +316,15 @@ current list in wp-admin
 }
 
 
-/* * * * * * * * * * * * * * * * *
- Some workarounds to make the CSS
- work properly in theme twentyeleven
-* * * * * * * * * * * * * * * * */
+
+
+/* * * * * * * * * * * *
+ - Fixes for theme 2012 2011
+ This is only needed when using page-arlima.php that's no
+ longer shipped with the plugin.
+ @todo: Remove when moving to version 3.0
+* * * * * * * * * * * */
+
 .arlima-content #content {
     margin: 0 34% 0 7.6%;
     width: 58.4%;
@@ -309,10 +335,6 @@ current list in wp-admin
     margin:0 -26.4% 0 0;
 }
 
-
-/* * * * * * * * * * * *
- Fixes for theme 2012
-* * * * * * * * * * * */
 #page.site .arlima-content #content {
     margin:0;
     width: 70%;
@@ -334,104 +356,104 @@ current list in wp-admin
 /*
  Font sizes
 */
-.fsize-0 { font-size: 0px; }
-.fsize-1 { font-size: 1px; }
-.fsize-2 { font-size: 2px; }
-.fsize-3 { font-size: 3px; }
-.fsize-4 { font-size: 4px; }
-.fsize-5 { font-size: 5px; }
-.fsize-6 { font-size: 6px; }
-.fsize-7 { font-size: 7px; }
-.fsize-8 { font-size: 8px; }
-.fsize-9 { font-size: 9px; }
-.fsize-10 { font-size: 10px; }
-.fsize-11 { font-size: 11px; }
-.fsize-12 { font-size: 12px; }
-.fsize-13 { font-size: 13px; }
-.fsize-14 { font-size: 14px; }
-.fsize-15 { font-size: 15px; }
-.fsize-16 { font-size: 16px; }
-.fsize-17 { font-size: 17px; }
-.fsize-18 { font-size: 18px; }
-.fsize-19 { font-size: 19px; }
-.fsize-20 { font-size: 20px; }
-.fsize-21 { font-size: 21px; }
-.fsize-22 { font-size: 22px; }
-.fsize-23 { font-size: 23px; }
-.fsize-24 { font-size: 24px; }
-.fsize-25 { font-size: 25px; }
-.fsize-26 { font-size: 26px; }
-.fsize-27 { font-size: 27px; }
-.fsize-28 { font-size: 28px; }
-.fsize-29 { font-size: 29px; }
-.fsize-30 { font-size: 30px; }
-.fsize-31 { font-size: 31px; }
-.fsize-32 { font-size: 32px; }
-.fsize-33 { font-size: 33px; }
-.fsize-34 { font-size: 34px; }
-.fsize-35 { font-size: 35px; }
-.fsize-36 { font-size: 36px; }
-.fsize-37 { font-size: 37px; }
-.fsize-38 { font-size: 38px; }
-.fsize-39 { font-size: 39px; }
-.fsize-40 { font-size: 40px; }
-.fsize-41 { font-size: 41px; }
-.fsize-42 { font-size: 42px; }
-.fsize-43 { font-size: 43px; }
-.fsize-44 { font-size: 44px; }
-.fsize-45 { font-size: 45px; }
-.fsize-46 { font-size: 46px; }
-.fsize-47 { font-size: 47px; }
-.fsize-48 { font-size: 48px; }
-.fsize-49 { font-size: 49px; }
-.fsize-50 { font-size: 50px; }
-.fsize-51 { font-size: 51px; }
-.fsize-52 { font-size: 52px; }
-.fsize-53 { font-size: 53px; }
-.fsize-54 { font-size: 54px; }
-.fsize-55 { font-size: 55px; }
-.fsize-56 { font-size: 56px; }
-.fsize-57 { font-size: 57px; }
-.fsize-58 { font-size: 58px; }
-.fsize-59 { font-size: 59px; }
-.fsize-60 { font-size: 60px; }
-.fsize-61 { font-size: 61px; }
-.fsize-62 { font-size: 62px; }
-.fsize-63 { font-size: 63px; }
-.fsize-64 { font-size: 64px; }
-.fsize-65 { font-size: 65px; }
-.fsize-66 { font-size: 66px; }
-.fsize-67 { font-size: 67px; }
-.fsize-68 { font-size: 68px; }
-.fsize-69 { font-size: 69px; }
-.fsize-70 { font-size: 70px; }
-.fsize-71 { font-size: 71px; }
-.fsize-72 { font-size: 72px; }
-.fsize-73 { font-size: 73px; }
-.fsize-74 { font-size: 74px; }
-.fsize-75 { font-size: 75px; }
-.fsize-76 { font-size: 76px; }
-.fsize-77 { font-size: 77px; }
-.fsize-78 { font-size: 78px; }
-.fsize-79 { font-size: 79px; }
-.fsize-80 { font-size: 80px; }
-.fsize-81 { font-size: 81px; }
-.fsize-82 { font-size: 82px; }
-.fsize-83 { font-size: 83px; }
-.fsize-84 { font-size: 84px; }
-.fsize-85 { font-size: 85px; }
-.fsize-86 { font-size: 86px; }
-.fsize-87 { font-size: 87px; }
-.fsize-88 { font-size: 88px; }
-.fsize-89 { font-size: 89px; }
-.fsize-90 { font-size: 90px; }
-.fsize-91 { font-size: 91px; }
-.fsize-92 { font-size: 92px; }
-.fsize-93 { font-size: 93px; }
-.fsize-94 { font-size: 94px; }
-.fsize-95 { font-size: 95px; }
-.fsize-96 { font-size: 96px; }
-.fsize-97 { font-size: 97px; }
-.fsize-98 { font-size: 98px; }
-.fsize-99 { font-size: 99px; }
-.fsize-100 { font-size: 100px; }
+.tmpl-article .fsize-0 { font-size: 0px; }
+.tmpl-article .fsize-1 { font-size: 1px; }
+.tmpl-article .fsize-2 { font-size: 2px; }
+.tmpl-article .fsize-3 { font-size: 3px; }
+.tmpl-article .fsize-4 { font-size: 4px; }
+.tmpl-article .fsize-5 { font-size: 5px; }
+.tmpl-article .fsize-6 { font-size: 6px; }
+.tmpl-article .fsize-7 { font-size: 7px; }
+.tmpl-article .fsize-8 { font-size: 8px; }
+.tmpl-article .fsize-9 { font-size: 9px; }
+.tmpl-article .fsize-10 { font-size: 10px; }
+.tmpl-article .fsize-11 { font-size: 11px; }
+.tmpl-article .fsize-12 { font-size: 12px; }
+.tmpl-article .fsize-13 { font-size: 13px; }
+.tmpl-article .fsize-14 { font-size: 14px; }
+.tmpl-article .fsize-15 { font-size: 15px; }
+.tmpl-article .fsize-16 { font-size: 16px; }
+.tmpl-article .fsize-17 { font-size: 17px; }
+.tmpl-article .fsize-18 { font-size: 18px; }
+.tmpl-article .fsize-19 { font-size: 19px; }
+.tmpl-article .fsize-20 { font-size: 20px; }
+.tmpl-article .fsize-21 { font-size: 21px; }
+.tmpl-article .fsize-22 { font-size: 22px; }
+.tmpl-article .fsize-23 { font-size: 23px; }
+.tmpl-article .fsize-24 { font-size: 24px; }
+.tmpl-article .fsize-25 { font-size: 25px; }
+.tmpl-article .fsize-26 { font-size: 26px; }
+.tmpl-article .fsize-27 { font-size: 27px; }
+.tmpl-article .fsize-28 { font-size: 28px; }
+.tmpl-article .fsize-29 { font-size: 29px; }
+.tmpl-article .fsize-30 { font-size: 30px; }
+.tmpl-article .fsize-31 { font-size: 31px; }
+.tmpl-article .fsize-32 { font-size: 32px; }
+.tmpl-article .fsize-33 { font-size: 33px; }
+.tmpl-article .fsize-34 { font-size: 34px; }
+.tmpl-article .fsize-35 { font-size: 35px; }
+.tmpl-article .fsize-36 { font-size: 36px; }
+.tmpl-article .fsize-37 { font-size: 37px; }
+.tmpl-article .fsize-38 { font-size: 38px; }
+.tmpl-article .fsize-39 { font-size: 39px; }
+.tmpl-article .fsize-40 { font-size: 40px; }
+.tmpl-article .fsize-41 { font-size: 41px; }
+.tmpl-article .fsize-42 { font-size: 42px; }
+.tmpl-article .fsize-43 { font-size: 43px; }
+.tmpl-article .fsize-44 { font-size: 44px; }
+.tmpl-article .fsize-45 { font-size: 45px; }
+.tmpl-article .fsize-46 { font-size: 46px; }
+.tmpl-article .fsize-47 { font-size: 47px; }
+.tmpl-article .fsize-48 { font-size: 48px; }
+.tmpl-article .fsize-49 { font-size: 49px; }
+.tmpl-article .fsize-50 { font-size: 50px; }
+.tmpl-article .fsize-51 { font-size: 51px; }
+.tmpl-article .fsize-52 { font-size: 52px; }
+.tmpl-article .fsize-53 { font-size: 53px; }
+.tmpl-article .fsize-54 { font-size: 54px; }
+.tmpl-article .fsize-55 { font-size: 55px; }
+.tmpl-article .fsize-56 { font-size: 56px; }
+.tmpl-article .fsize-57 { font-size: 57px; }
+.tmpl-article .fsize-58 { font-size: 58px; }
+.tmpl-article .fsize-59 { font-size: 59px; }
+.tmpl-article .fsize-60 { font-size: 60px; }
+.tmpl-article .fsize-61 { font-size: 61px; }
+.tmpl-article .fsize-62 { font-size: 62px; }
+.tmpl-article .fsize-63 { font-size: 63px; }
+.tmpl-article .fsize-64 { font-size: 64px; }
+.tmpl-article .fsize-65 { font-size: 65px; }
+.tmpl-article .fsize-66 { font-size: 66px; }
+.tmpl-article .fsize-67 { font-size: 67px; }
+.tmpl-article .fsize-68 { font-size: 68px; }
+.tmpl-article .fsize-69 { font-size: 69px; }
+.tmpl-article .fsize-70 { font-size: 70px; }
+.tmpl-article .fsize-71 { font-size: 71px; }
+.tmpl-article .fsize-72 { font-size: 72px; }
+.tmpl-article .fsize-73 { font-size: 73px; }
+.tmpl-article .fsize-74 { font-size: 74px; }
+.tmpl-article .fsize-75 { font-size: 75px; }
+.tmpl-article .fsize-76 { font-size: 76px; }
+.tmpl-article .fsize-77 { font-size: 77px; }
+.tmpl-article .fsize-78 { font-size: 78px; }
+.tmpl-article .fsize-79 { font-size: 79px; }
+.tmpl-article .fsize-80 { font-size: 80px; }
+.tmpl-article .fsize-81 { font-size: 81px; }
+.tmpl-article .fsize-82 { font-size: 82px; }
+.tmpl-article .fsize-83 { font-size: 83px; }
+.tmpl-article .fsize-84 { font-size: 84px; }
+.tmpl-article .fsize-85 { font-size: 85px; }
+.tmpl-article .fsize-86 { font-size: 86px; }
+.tmpl-article .fsize-87 { font-size: 87px; }
+.tmpl-article .fsize-88 { font-size: 88px; }
+.tmpl-article .fsize-89 { font-size: 89px; }
+.tmpl-article .fsize-90 { font-size: 90px; }
+.tmpl-article .fsize-91 { font-size: 91px; }
+.tmpl-article .fsize-92 { font-size: 92px; }
+.tmpl-article .fsize-93 { font-size: 93px; }
+.tmpl-article .fsize-94 { font-size: 94px; }
+.tmpl-article .fsize-95 { font-size: 95px; }
+.tmpl-article .fsize-96 { font-size: 96px; }
+.tmpl-article .fsize-97 { font-size: 97px; }
+.tmpl-article .fsize-98 { font-size: 98px; }
+.tmpl-article .fsize-99 { font-size: 99px; }
+.tmpl-article .fsize-100 { font-size: 100px; }

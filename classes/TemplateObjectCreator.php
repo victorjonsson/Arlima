@@ -185,8 +185,8 @@ class Arlima_TemplateObjectCreator
 
             // Text content
             if( $this->content_callback !== false ) {
-                $obj['article']['html_content'] = call_user_func($this->content_callback, $article_counter, $article, $post, $this->list);
-                $obj['article']['html_text'] = $obj['article']['html_content']; // deprecated
+                $obj['article']['html_content'] = call_user_func($this->content_callback, $article, !empty($post), $post, $article_counter, $this->list);
+                $obj['article']['html_text'] = $obj['article']['html_content']; // deprecated todo: remove on v 3.0
             }
 
             $this->generateStreamerData($has_streamer, $obj, $article);
@@ -218,7 +218,7 @@ class Arlima_TemplateObjectCreator
     protected function generateImageData($article, $img_size, $article_counter, &$data, $img_opt_size, $post)
     {
         if( $this->image_callback !== false) {
-            $img = call_user_func($this->image_callback, $article_counter, $article, $post, $this->list, $img_size);
+            $img = call_user_func($this->image_callback, $article, $article_counter, $post, $this->list, $img_size);
             if ( $img || !empty($article['image_options']['url']) ) {
 
                 if ( empty($article['image_options']['url']) ) {

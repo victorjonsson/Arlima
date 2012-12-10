@@ -1,13 +1,17 @@
 /**
  * This file contains everything that happens when the page for the article
  * list editor gets loaded
+ *
+ * @todo Fix all insufficient use of jQuery
  */
 jQuery(function($) {
 
     // Initiate Arlima and plupload
     Arlima.Manager.init('#arlima-container-area');
     Arlima.ArticleEditor.init();
-    initPlUopload();
+    //initPlUopload();
+    ArlimaUploader.init();
+
 
     // Load custom templates
     Arlima.Manager.loadCustomTemplates();
@@ -31,7 +35,16 @@ jQuery(function($) {
             my: 'left top',
             at: 'center right'
         },
-        style: { classes: 'ui-tooltip-tipsy ui-tooltip-blue'}
+        style: Arlima.qtipStyle
+    });
+    $('[title].tooltip-left').qtip({
+        position: {
+            corner: {
+                tooltip: 'bottomLeft',
+                target: 'topLeft'
+            }
+        },
+        style: Arlima.qtipStyle
     });
 
     // initiate fancy boxes

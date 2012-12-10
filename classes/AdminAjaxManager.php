@@ -57,7 +57,8 @@ class Arlima_AdminAjaxManager
      */
     function importList()
     {
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest(false);
+
         $import_manager = new Arlima_ImportManager($this->arlima_plugin);
         try {
             $list = $import_manager->importList($_POST['url']);
@@ -74,8 +75,7 @@ class Arlima_AdminAjaxManager
     function duplicateImage()
     {
 
-        //make sure the user came from this file
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest();
 
         if ( !function_exists('wp_generate_attachment_metadata') ) {
             require_once(ABSPATH . "wp-admin" . '/includes/image.php');
@@ -87,7 +87,10 @@ class Arlima_AdminAjaxManager
         if ( $attachment_id ) {
 
             $url = wp_get_attachment_url($attachment_id);
-            ;
+
+            if( !$url )
+                die;
+
             $tmp = download_url($url);
             $file_array = array(
                 'name' => basename($url),
@@ -195,13 +198,27 @@ class Arlima_AdminAjaxManager
     }
 
     /**
+     * Check logged in and correct nonce
+     */
+    private function initAjaxRequest($send_json=true)
+    {
+        if( $send_json ) {
+        #    header('Content-Type: application/json');
+        }
+
+        if( !check_ajax_referer('arlima-nonce') ) {
+            die(json_encode(array('error' => 'incorrect nonce')));
+        } elseif( !is_user_logged_in()  && false == true) {
+            die(json_encode(array('error' => 'not logged in')));
+        }
+    }
+
+    /**
      * Upload an image
      */
     function upload()
     {
-
-        //make sure the user came from this file
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest();
 
         if ( !function_exists('wp_generate_attachment_metadata') ) {
             require_once(ABSPATH . "wp-admin" . '/includes/image.php');
@@ -258,28 +275,28 @@ class Arlima_AdminAjaxManager
                 $attach_id = $attachments[0]->ID;
 
             } else {
-
-                $url = $_POST['imgurl'];
-                $tmp = download_url($url);
+                $url = $_POST[ 'imgurl' ];
+                $tmp = download_url( $url );
                 $file_array = array(
-                    'name' => basename($url),
+                    'name' => basename( $url ),
                     'tmp_name' => $tmp
                 );
 
                 /* @var WP_Error|string $tmp */
                 // Check for download errors
-                if ( is_wp_error($tmp) ) {
-                    @unlink($file_array['tmp_name']);
-                    die(json_encode(array('error' => $tmp->get_error_message())));
+                if ( is_wp_error( $tmp ) ) {
+                    @unlink( $file_array[ 'tmp_name' ] );
+                    die( json_encode( array( 'error' => $tmp->error_message() ) ) );
                 }
 
-                $attach_id = media_handle_sideload($file_array, 0);
+                $attach_id = media_handle_sideload( $file_array, 0 );
 
                 // Check for handle sideload errors.
-                if ( is_wp_error($attach_id) ) {
-                    @unlink($file_array['tmp_name']);
-                    die(json_encode(array('error' => $attach_id->error_message())));
+                if ( is_wp_error( $attach_id ) ) {
+                    @unlink( $file_array['tmp_name'] );
+                    die( json_encode( array( 'error' => $attach_id->error_message() ) ) );
                 }
+
             }
         } else {
             die(json_encode(array('error' => 'no file')));
@@ -300,17 +317,16 @@ class Arlima_AdminAjaxManager
      */
     function getListSetup()
     {
+        $this->initAjaxRequest();
+
         global $current_user;
         get_currentuserinfo();
 
-        //make sure the user came from this file
-        check_ajax_referer('arlima-nonce');
-
         $setup = get_user_meta($current_user->ID, 'arlima-list-setup', true);
-        if ( $setup ) {
-            echo json_encode($setup);
+        if ( !$setup ) {
+            $setup = array();
         }
-        die();
+        die(json_encode($setup));
     }
 
     /**
@@ -318,11 +334,10 @@ class Arlima_AdminAjaxManager
      */
     function saveListSetup()
     {
+        $this->initAjaxRequest();
+
         global $current_user;
         get_currentuserinfo();
-
-        //make sure the user came from this file
-        check_ajax_referer('arlima-nonce');
 
         $lists = isset($_POST['lists']) ? $_POST['lists'] : null;
 
@@ -331,7 +346,8 @@ class Arlima_AdminAjaxManager
         } else {
             delete_user_meta($current_user->ID, 'arlima-list-setup');
         }
-        die();
+
+        die(json_encode(array()));
     }
 
     /**
@@ -339,11 +355,10 @@ class Arlima_AdminAjaxManager
      */
     function prependArticle()
     {
+        $this->initAjaxRequest();
+
         global $current_user, $post;
         get_currentuserinfo();
-
-        //make sure the user came from this file
-        check_ajax_referer('arlima-nonce');
 
         $list_id = isset($_POST['alid']) ? intval($_POST['alid']) : false;
         $post_id = isset($_POST['postid']) ? intval($_POST['postid']) : false;
@@ -395,7 +410,7 @@ class Arlima_AdminAjaxManager
 
             $this->saveAndOutputNewListVersion($list, $articles);
         }
-        die();
+        die(json_encode(array()));
     }
 
     /**
@@ -403,7 +418,8 @@ class Arlima_AdminAjaxManager
      */
     function saveList()
     {
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest();
+
         $list_id = isset($_POST['alid']) ? intval($_POST['alid']) : false;
 
         if ( $list_id ) {
@@ -411,7 +427,7 @@ class Arlima_AdminAjaxManager
             $this->saveAndOutputNewListVersion($list_id, $articles, isset($_POST['preview']));
         }
 
-        die();
+        die;
     }
 
     /**
@@ -449,7 +465,7 @@ class Arlima_AdminAjaxManager
      */
     function checkForLaterVersion()
     {
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest();
 
         $list_id = isset($_POST['alid']) ? (int)$_POST['alid'] : false;
         $version = isset($_POST['version']) ? (int)$_POST['version'] : false;
@@ -477,7 +493,7 @@ class Arlima_AdminAjaxManager
     function addListWidget()
     {
 
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest();
 
         $list_id = isset($_POST['alid']) ? trim($_POST['alid']) : null;
         $version = isset($_POST['version']) && is_numeric($_POST['version']) ? (int)$_POST['version'] : false;
@@ -485,8 +501,8 @@ class Arlima_AdminAjaxManager
         if ( is_numeric($list_id) ) {
             $list = $this->factory->loadList($list_id, $version, true);
             $this->loadListWidgets($list);
-        } // Probably url referring to an imported list
-        elseif ( $list_id ) {
+        } elseif ( $list_id ) {
+            // Probably url referring to an imported list
             try {
                 $import_manager = new Arlima_ImportManager($this->arlima_plugin);
                 $list = $import_manager->loadList($list_id);
@@ -510,6 +526,9 @@ class Arlima_AdminAjaxManager
 
         $connector = new Arlima_ListConnector($list);
         $preview_page = current($connector->loadRelatedPages());
+        $preview_url = '';
+        $preview_page_width = '';
+
         if( $preview_page ) {
             $preview_url = get_permalink($preview_page->ID);
             $relation = $connector->getRelationData($preview_page->ID);
@@ -636,9 +655,7 @@ class Arlima_AdminAjaxManager
      */
     function getPost()
     {
-
-        //make sure the user came from this file
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest();
 
         $post_id = intval($_POST['postid']);
         $post = get_post($post_id);
@@ -649,7 +666,7 @@ class Arlima_AdminAjaxManager
             echo json_encode((array)$post);
         }
 
-        die();
+        die(json_encode(array()));
     }
 
     /**
@@ -657,8 +674,7 @@ class Arlima_AdminAjaxManager
      */
     function getAttachedImages()
     {
-
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest();
 
         $post_id = intval($_POST['postid']);
 
@@ -690,8 +706,7 @@ class Arlima_AdminAjaxManager
 
     function getScissors()
     {
-
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest();
 
         $attachment_id = $_POST['attachment_id'];
 
@@ -705,7 +720,7 @@ class Arlima_AdminAjaxManager
                 echo $scissors_output;
             }
         }
-        die();
+        die(json_encode(array()));
     }
 
     /**
@@ -713,9 +728,7 @@ class Arlima_AdminAjaxManager
      */
     function queryPosts()
     {
-
-        //make sure the user came from this file
-        check_ajax_referer('arlima-nonce');
+        $this->initAjaxRequest();
 
         $catid = !empty($_POST['catid']) ? $_POST['catid'] : false;
         $search = !empty($_POST['search']) ? $_POST['search'] : false;

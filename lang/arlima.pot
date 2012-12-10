@@ -220,8 +220,8 @@ msgid "Choose streamer"
 msgstr "Välj platta"
 
 #: pages/main.php:73
-msgid "Drag image here"
-msgstr "Dra bilder hit!"
+msgid "Drag images to here"
+msgstr "Dra bilder hit"
 
 #: pages/main.php:81
 msgid "Disconnect"

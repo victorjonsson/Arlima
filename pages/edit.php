@@ -15,6 +15,8 @@ if( $list_id ) {
     $list = new Arlima_List(); // We use an empty list as preset
 }
 
+$connector = new Arlima_ListConnector($list);
+
 if( count($_POST) > 0 ) {
 
     // Update
@@ -38,13 +40,13 @@ if( count($_POST) > 0 ) {
 // Delete
 elseif($list->exists() && isset($_GET['remove_list'])) {
     $factory->deleteList($list);
+    $connector->removeAllRelations();
     $message = sprintf(__('List %s was successfully removed', 'arlima'), '&quot;'.$list->getTitle().'&quot;');
     $list = new Arlima_List();
+    $connector->setList($list);
 }
 
 $available_lists = $factory->loadListSlugs();
-$connector = new Arlima_ListConnector($list);
-
 ?>
     <div id="col-container">
 		<div id="col-right">

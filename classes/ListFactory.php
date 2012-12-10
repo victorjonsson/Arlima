@@ -218,9 +218,9 @@ class Arlima_ListFactory {
      */
     private function saveArticle($version_id, $article, $sort, $parent=-1, $offset) {
 
-        if( !is_array($article['options']) )
+        if( empty($article['options']) || !is_array($article['options']) )
             $article['options'] = array();
-        if( !is_array($article['image_options']) )
+        if( empty($article['image_options']) || !is_array($article['image_options']) )
             $article['image_options'] = array();
 
         $options = serialize( self::cleanArticleOptions($article[ 'options' ]) );

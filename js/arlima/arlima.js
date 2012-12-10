@@ -1,6 +1,7 @@
 /**
  * Arlima admin library
  *
+ * @todo: Look over all insufficient use of jQuery
  * @todo: make compressed version of this file
  * @todo: maybe move each class to its own file and write unit test
  *
@@ -21,7 +22,7 @@
  *  - Always add function and variable comments according to JSDoc (http://en.wikipedia.org/wiki/JSDoc)
  *
  */
-var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
+var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
     'use strict';
 
@@ -168,9 +169,14 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
                 success : function(json) {
                     if(json == -1) {
                         alert(ArlimaJS.lang.loggedOut);
-                        callback(false);
+                        json = false;
                     }
-                    else if(typeof callback == 'function') {
+                    else if(json.error !== undefined) {
+                        alert(json.error);
+                        json = false;
+                    }
+
+                    if(typeof callback == 'function') {
                         callback(json);
                     }
                 },
@@ -204,6 +210,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
 
     /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
      * Manages the article form and teaser preview
+     * @todo Look over image management, insufficient use of jQuery
      * @property {Object}
      */
     var ArticleEditor = {
@@ -224,14 +231,19 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
         _$preview : null,
 
         /**
-         * @property {ArlimaList|Boolean}
+         * @property {ArlimaList}
          */
         currentlyEditedList : false,
 
         /**
-         * @property {jQuery|Boolean}
+         * @property {jQuery}
          */
         $item : false,
+
+        /**
+         * @property {jQuery}
+         */
+        _$imgContainer : false,
 
         /**
          * @property {Boolean}
@@ -249,6 +261,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
         init : function() {
             this._$preview = $('#arlima-preview');
             this._$form = $('#arlima-edit-article-form');
+            this._$imgContainer = $('#arlima-article-image');
             this._$blocker = $('<div></div>');
             this._$blocker
                 .css({
@@ -504,13 +517,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
 
             var previewPageWidth = $('.arlima-list-previewpage-width', Manager.getFocusedList().jQuery).val();
             if( previewPageWidth ) {
-                console.log('has width');
                 ArticleEditor._$preview.children().eq(0).css('width', previewPageWidth+'px');
             }
-            else {
-                console.log('has no width');
-            }
-
         },
 
         /**
@@ -577,12 +585,14 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
                 });
             }
 
+            // Font size
             var article = this.$item.data('article');
             if(!article.title_fontsize)
                 article.title_fontsize = 24;
+
+            // Post connection
             if(article.post_id == 0)
                 article.post_id = null;
-
             if(article.post_id) {
                 $('#tinyMCE-add_media', this._$form).attr('href', 'media-upload.php?post_id=' + article.post_id + '&type=image&TB_iframe=1&send=true');
                 $('#arlima-article-connected-post', this._$form).html('<a href="post.php?post=' + article.post_id + '&action=edit" target="_blank">' + article.post_id + '</a>');
@@ -682,7 +692,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
                 this.toggleEditorBlocker(true);
                 if(article.image_options.url) {
                     // It takes some time before image is loaded
-                    $('#arlima-article-image img').one('load', function() {
+                    ArticleEditor._$imgContainer.find('img').one('load', function() {
                         setTimeout(function() {
                             self.toggleEditorBlocker(true);
                         }, 100);
@@ -784,7 +794,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
 
             if(args) {
                 if(args.html)
-                    $('#arlima-article-image').html( unescape( args.html ) ).removeClass('empty');
+                    this._$imgContainer.html( unescape( args.html ) ).removeClass('empty');
                 if(args.alignment)
                     $alignment.filter('[value=' + args.alignment +  ']').prop('checked', true);
                 if(args.size)
@@ -816,7 +826,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
                 $disconnect.hide();
             }
 
-            var $img = $('#arlima-article-image img');
+            var $img = this._$imgContainer.find('img');
             var imgOptions = {};
             if( $img.length > 0 ) {
                 $img.removeAttr('width');
@@ -834,7 +844,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
                     $('#arlima-article-image-scissors-popup').parent('li').hide();
             } else {
                 $imgOptionsElemnt.hide();
-                $('#arlima-article-image').html('<p><em>'+ArlimaJS.lang.dragAndDrop+'</em></p>').addClass('empty');
+                $('#arlima-article-image').addClass('empty');
                 $('#arlima-article-image-links .hide-if-no-image').hide();
             }
 
@@ -862,7 +872,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
          * @param {Boolean} updateArticle - Optional, defaults to true
          */
         removeArticleImage : function(updateArticle) {
-            $('#arlima-article-image').html('<p><em>'+ArlimaJS.lang.dragAndDrop+'</em></p>').addClass('empty');
+            $('#arlima-article-image').html('').addClass('empty');
             $('#arlima-article-image-options')
                     .data('image_options', {})
                     .hide()
@@ -992,7 +1002,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
             $('#arlima-article-connected-post').html('');
             $('#arlima-article-connected-post-change').show();
             $('#arlima-article-post_id').hide();
-            $('#arlima-edit-article-options-streamer-content').hide(0);
+            $('#arlima-edit-article-options-streamer-content').hide();
         }
     };
 
@@ -1797,9 +1807,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
                         at: 'center left',
                         viewport: jQuery(window)
                     },
-                    style: {
-                        classes: 'ui-tooltip-shadow ui-tooltip-light ui-tooltip-480'
-                    }
+                    style: qtipStyle
                 });
 
             var $versionDropDown = this.jQuery.find('.arlima-list-version-ddl');
@@ -2321,12 +2329,30 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader) {
         return ts && (ts*1000) > new Date().getTime();
     }
 
+    /**
+     * The style we use for our tooltips
+     * @type {Object}
+     */
+    var qtipStyle = {
+        name: 'dark',
+        tip:true,
+        padding : '1px 3px',
+        fontSize: 11,
+        background : '#111',
+        border: {
+            width: 2,
+            radius: 5,
+            color: '#111'
+        }
+    };
+
     // Make our objects and classes available in global scope
     return {
         Backend : Backend,
         ArticleEditor : ArticleEditor,
         Manager : Manager,
-        List : ArlimaList
+        List : ArlimaList,
+        qtipStyle : qtipStyle
     };
 
-})(jQuery, ArlimaJS, ArlimaTemplateLoader);
+})(jQuery, ArlimaJS, ArlimaTemplateLoader, window);

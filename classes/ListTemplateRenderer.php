@@ -155,10 +155,10 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                     $article_counter,
                     call_user_func(
                         $this->future_post_callback,
-                        $article_counter,
-                        $article,
                         $post,
-                        $this->list
+                        $article,
+                        $this->list,
+                        $article_counter
                     )
                 );
         }

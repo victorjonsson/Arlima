@@ -1,8 +1,9 @@
 <?php
 
-
 /**
  * Class with the know how about how lists gets related to wordpress posts/pages
+ *
+ * @package Arlima
  * @since 2.5
  */
 class Arlima_ListConnector {
@@ -55,7 +56,7 @@ class Arlima_ListConnector {
     public function removeAllRelations()
     {
         foreach($this->loadRelatedPages() as $p) {
-            $this->removeRelation($p);
+            $this->removeRelation($p->ID);
         }
     }
 

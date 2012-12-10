@@ -23,7 +23,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
             $article_collection[] = Arlima_ListFactory::createArticleDataArray(array('title' => 'article'.$i));
         }
 
-        $list = new Arlima_List(false, 99);
+        $list = new Arlima_List(true, 99);
         $list->setArticles( $article_collection );
         return $list;
     }

@@ -131,7 +131,7 @@ class Arlima_FilterApplier
      * @param $img_size
      * @return string
      */
-    public static function imageCallback($article_counter, $article, $post, $list, $img_size)
+    public static function imageCallback($article, $article_counter, $post, $list, $img_size)
     {
         $filtered = array('content'=>'');
         $img_alt = '';
@@ -176,6 +176,7 @@ class Arlima_FilterApplier
                 null,
                 98
             );
+
             if ( !is_wp_error($resized_img) ) {
                 $img_url = dirname($attach_url) . '/' . basename($resized_img);
             } else {
@@ -229,7 +230,7 @@ class Arlima_FilterApplier
      * @param $list
      * @return string
      */
-    public static function futurePostCallback($article_counter, $article, $post, $list)
+    public static function futurePostCallback($post, $article, $list, $article_counter)
     {
         $filtered = self::filter('arlima_future_post', $article_counter, $article, $post, $list);
 
@@ -242,13 +243,14 @@ class Arlima_FilterApplier
     }
 
     /**
-     * @param $article_counter
      * @param $article
+     * @param $deprecated
      * @param $post
+     * @param $article_counter
      * @param $list
      * @return string
      */
-    public static function contentCallback($article_counter, $article, $post, $list)
+    public static function contentCallback($article, $deprecated, $post, $article_counter, $list)
     {
         $filtered = self::filter('arlima_article_content', $article_counter, $article, $post, $list);
 

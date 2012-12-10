@@ -33,11 +33,17 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
             $GLOBALS['title'] = '';
             $GLOBALS['count'] = 0;
 
-            $hook = $class == 'Arlima_SimpleListRenderer' ? 'setDisplayPostCallback':'setContentCallback';
-            $renderer->$hook(function($article_counter, $art, $post, $list) {
-                    $GLOBALS['title'] = $art['title'];
+            if( $class == 'Arlima_SimpleListRenderer') {
+                $renderer->setDisplayPostCallback(function($article_counter, $article, $post, $list) {
+                    $GLOBALS['title'] = $article['title'];
                     $GLOBALS['count'] = $article_counter;
                 });
+            } else {
+                $renderer->setContentCallback(function($article, $deprecated, $post, $article_counter) {
+                        $GLOBALS['title'] = $article['title'];
+                        $GLOBALS['count'] = $article_counter;
+                    });
+            }
 
 
             $renderer->renderList(false);

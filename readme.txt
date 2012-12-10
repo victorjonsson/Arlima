@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, frontpage, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 2.4.32
+Stable tag: 2.4.36
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,7 +17,7 @@ for customizing the front pages of their online magazines. It's used on a daily 
 websites that together has over 200 000 unique visitors per week.*
 
 Here you can see a [screencast with a quick demonstration of the plugin](http://www.screenr.com/vB48). Here's
-[another screencast](http://www.screenr.com/E048) where you can see how Arlima works together with the plugins "Scissors Continued" and "Wordpress Related Posts".
+[another screencast](http://www.screenr.com/E048) where you can see how Arlima works together with the plugins "Scissors Continued" and "Microkid's Related Posts".
 
 = Requirements =
 

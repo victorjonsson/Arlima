@@ -15,7 +15,7 @@ together has over 200 000 unique visitors per week.*
 the list that you created on step 2.
 4. Go to "Article lists" -> "Manage lists" and start stuffing your article list with interesting content.
 
-*Tip! Install the plugins WP Related Posts and Scissors Continued to get even more functionality out of Arlima*
+*Tip! Install the plugins Microkid's Related Posts and Scissors Continued to get even more functionality out of Arlima*
 
 ## Authors
 

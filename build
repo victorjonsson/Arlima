@@ -98,7 +98,7 @@ tests.every(function(file) {
                         // Remove files we don't wont to end up on wordpress repo
 
                         var remove = ['node_modules/', 'vendor/', 'composer.json', 'README.md',
-                            'build', '.gitignore', 'composer.lock', 'test.php'];
+                            'build', '.gitignore', 'composer.lock', 'test.php', '.git/'];
 
                         remove.every(function(file) {
                             try {

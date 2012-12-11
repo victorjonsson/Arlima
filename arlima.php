@@ -82,7 +82,11 @@ function arlima_related_posts( $type = 'deprecated', $post_id = false) {
             $data = array('single' => count($related_posts) == 1, 'posts'=>array());
             foreach ( $related_posts as $related ) {
                 $related->url = get_permalink ( $related->ID );
-                $related->html_comment_stats = get_comment_count($post_id);
+                $related->html_comment_stats = 0;
+                $stats = wp_count_comments($post_id);
+                if( is_object($stats) && property_exists($stats, 'approved') )
+                    $related->html_comment_stats = $stats->approved;
+
                 $data['posts'][] = $related;
             }
         }

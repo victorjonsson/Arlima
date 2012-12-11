@@ -27,7 +27,11 @@
                     {{each related.posts}}
                         <li>
                             <a href="${this.url}" class="related">${this.post_title}</a>
-                            {{html this.html_comment_stats}}
+                            {{if this.html_comment_stats}}
+                                <span title="Number of comments" class="num-comments">
+                                    {{html this.html_comment_stats}}
+                                </span>
+                            {{/if}}
                         </li>
                     {{/each}}
                 </ul>

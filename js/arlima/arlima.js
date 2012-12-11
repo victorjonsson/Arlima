@@ -259,6 +259,16 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         _$imgContainer : false,
 
         /**
+         * @property {jQuery}
+         */
+        _$futureNotice : false,
+
+        /**
+         * @property {jQuery}
+         */
+        _$sticky : false,
+
+        /**
          * @property {Boolean}
          */
         _isSlidingForm : false,
@@ -275,6 +285,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             this._$preview = $('#arlima-preview');
             this._$form = $('#arlima-edit-article-form');
             this._$imgContainer = $('#arlima-article-image');
+            this._$futureNotice = $('#future-notice');
+            this._$sticky = $('#sticky-interval');
             this._$blocker = $('<div></div>');
             this._$blocker
                 .css({
@@ -326,10 +338,10 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             ArlimaList.applyItemPresentation(this.$item);
 
             if( isFutureDate(articleData.publish_date) ) {
-                $('#future-notice').show();
+                this._$futureNotice.show();
             }
             else {
-                $('#future-notice').hide();
+                this._$futureNotice.hide();
             }
 
             if(articleData.options && articleData.options.sticky) {
@@ -342,13 +354,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             this.updatePreview();
 
             if(articleData.options && articleData.options.sticky) {
-                $('#sticky-interval').show();
-                var $interval = $('#sticky-interval').find('input');
+                this._$sticky.show();
+                var $interval = this._$sticky.find('input');
                 if($.trim($interval.val()) == '')
                     $interval.val('*:*');
             }
             else {
-                $('#sticky-interval').hide();
+                this._$sticky.hide();
             }
 
             Manager.triggerEvent('articleUpdate');
@@ -526,7 +538,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             }
             // TODO: this function gets called twice when previewing an article!!
 
-            _buildPreviewTeaser($('#arlima-preview'), article, false);
+            _buildPreviewTeaser(this._$preview, article, false);
 
             var previewPageWidth = $('.arlima-list-previewpage-width', Manager.getFocusedList().jQuery).val();
             if( previewPageWidth ) {

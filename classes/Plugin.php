@@ -10,7 +10,7 @@ class Arlima_Plugin
 {
     const VERSION = 2.5;
     const EXPORT_FEED_NAME = 'arlima-export';
-    const STATIC_VERSION = '15.9122';
+    const STATIC_VERSION = '16.0';
 
     private static $is_scissors_installed = null;
     private static $is_wp_related_post_installed = null;

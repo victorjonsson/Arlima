@@ -237,6 +237,17 @@ TMPL related posts
     text-decoration: none;
 }
 
+.teaser-related-posts .num-comments {
+    padding: 0 2px;
+    margin-left: 2px;
+    background: #F2F2F2;
+    font-weight: bold;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    -o-border-radius: 20px;
+    -ms-border-radius: 20px;
+    border-radius: 20px;
+}
 
 /* * * * * * * * * * * * * * * * *
 Giant template

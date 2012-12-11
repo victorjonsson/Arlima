@@ -2181,7 +2181,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             var $newItem = $(this).find('.'+itemClass + ':first');
 							_copyArticleData($newItem, $draggedItem);
                             var articleData = $newItem.data('article');
-                            //$newItem.data('article', articleData);
                             $newItem.removeClass( itemClass );
 
                             // Update item title and ad timestamp if article comes from search or is a template
@@ -2312,7 +2311,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * @param {jQuery} $item
      */
     ArlimaList.uploadExternalImage = function(url, $item) {
+
+        ArticleEditor._$imgContainer.addClass('ajax-loader-icon');
+
         Backend.plupload(url, '', function(json) {
+
+            ArticleEditor._$imgContainer.removeClass('ajax-loader-icon');
+
             if(json) {
                 if($item[0] == ArticleEditor.$item[0]) {
                     ArticleEditor.updateArticleImage({ html : json.html, size : 'full', attach_id : json.attach_id });

@@ -110,10 +110,9 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                 $jQueryTmpl_df,
                 $article_counter
             );
+
             if ( $output ) {
-
                 echo $article_content;
-
             } else {
                 $content .= $article_content;
             }

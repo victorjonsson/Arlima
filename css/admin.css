@@ -26,6 +26,14 @@
     display: none;
 }
 
+.ajax-loader-icon {
+    background: url(../images/ajax-loader-100.gif) no-repeat center center;
+}
+
+.ajax-loader-icon img {
+    opacity: 0.5 !important;
+}
+
 li.dragger {
     list-style: none;
 }

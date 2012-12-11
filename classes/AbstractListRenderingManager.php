@@ -279,8 +279,8 @@ abstract class Arlima_AbstractListRenderingManager
      */
     public function setLimit($limit)
     {
-        $this->limit = $limit;
-        if ( $this->limit === false ) {
+        $this->limit = (int)$limit;
+        if ( !$this->limit ) {
             $this->limit = -1;
         }
     }
@@ -299,9 +299,6 @@ abstract class Arlima_AbstractListRenderingManager
     public function setOffset($offset)
     {
         $this->offset = (int)$offset;
-        if ( $this->offset === false ) {
-            $this->offset = 0;
-        }
     }
 
     /**

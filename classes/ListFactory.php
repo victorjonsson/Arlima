@@ -142,6 +142,7 @@ class Arlima_ListFactory {
         // remove cache
         $this->cache->delete('arlima_list_props_'.$list->id());
         $this->cache->delete('arlima_list_articles_data_'.$list->id());
+        $this->cache->delete('arlima_list_slugs');
     }
 
     /**

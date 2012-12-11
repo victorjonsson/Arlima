@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, frontpage, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 2.5
+Stable tag: 2.5.1
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,22 +22,22 @@ Here you can see a [screencast with a quick demonstration of the plugin](http://
 = Requirements =
 
 - Wordpress version >= 3.0
-- <strike>PHP version >= 5.3</strike> (Arlima is now compatible with PHP version 5.2)
+- PHP version >= 5.2
 - Modern web browser, preferably Google Chrome. Arlima is tested successfully in the latest versions of Mozilla FF, Safari, Opera and
 Internet Explorer 9 (image upload does not work in internet explorer)
 
 = Wiki =
 
-Now you can read [the Arlima wiki](https://github.com/victorjonsson/Arlima/wiki/) to get more information about how to use the plugin
+Now you can read [the Arlima wiki](https://github.com/victorjonsson/Arlima/wiki/) to get more information about how to use this plugin
 
 
 == Installation ==
 
 1. Install Arlima via the WordPress.org plugin directory.
 2. Go to "Article lists" -> "Edit lists" in wp-admin and create your first article list.
-3. Open up a page (or create it) in wp-admin. Down to the right you will see a container labeled "Arlima" where you choose
+3. Open up a page (or create it) in wp-admin. Down to the right you will see a meta box labeled "Arlima" where you choose
 the list that you created on step 2.
-4. Go to "Article lists" -> "Manager lists" and start stuffing your article list with interesting content.
+4. Go to "Article lists" -> "Manage lists" and start stuffing your article list with interesting content.
 
 
 == Changelog ==

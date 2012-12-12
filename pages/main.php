@@ -180,8 +180,19 @@ $factory = new Arlima_ListFactory();
                                     <table>
                                         <tr>
                                             <td>
-                                                <label for="arlima-edit-article-url"><?php _e('Link', 'arlima') ?>: </label>
-                                                <input id="arlima-edit-article-url" name="url" value="" style="" />
+                                                <span id="post-connection">
+                                                    <?php _e('Post') ?>:
+                                                    <span id="arlima-article-connected-post"></span>
+                                                    <a href="#" id="arlima-article-connected-post-change">
+                                                        <?php _e('[change]', 'arlima') ?>
+                                                    </a>
+                                                    <input type="text" name="post_id" id="arlima-article-post_id" size="7"/>
+                                                    <em id="future-notice">(<?php _e('Future post', 'arlima') ?>)</em>
+                                                </span>
+                                                <span id="arlima-article-link">
+                                                    <?php _e('Link', 'arlima') ?>:
+                                                    <input id="arlima-edit-article-url" name="url" value="" style="width: 290px" />
+                                                </span>
                                             </td>
                                             <?php if( Arlima_Plugin::isWPRelatedPostsInstalled() ): ?>
                                             <td>
@@ -191,11 +202,6 @@ $factory = new Arlima_ListFactory();
                                             <?php endif; ?>
                                         </tr>
                                     </table>
-                                    <div id="post-connection">
-                                        <?php _e('Connected to article:', 'arlima') ?> <span id="arlima-article-connected-post"></span> <a href="#" id="arlima-article-connected-post-change"> <?php _e('[change]', 'arlima') ?></a>
-                                        <input type="text" name="post_id" id="arlima-article-post_id" size="7"/>
-                                        <em id="future-notice">(<?php _e('Future post', 'arlima') ?>)</em>
-                                    </div>
                                 </div>
                                 <div id="arlima-article-functions">
 
@@ -254,7 +260,7 @@ $factory = new Arlima_ListFactory();
                 <div class="handlediv"><br /></div><h3><span><?php _e('Articles', 'arlima') ?></span></h3>
                 <div class="inside">
                     <div class="tablenav">
-                        <div class="alignleft actions">
+                        <div class="alignleft">
                             <form method="post" action="" id="arlima-post-search">
                                 <?php
                                     $args = array(
@@ -310,8 +316,7 @@ $factory = new Arlima_ListFactory();
     <div id="col-left" style="position:relative;">
         <div class="col-wrap">
             <div class="tablenav">
-                <div class="alignright actions">
-
+                <div class="alignright">
                     <div style="display:inline;">
                         <select name="arlima-add-list-select" id="arlima-add-list-select">
                             <option value=""><?php _e('Choose article list', 'arlima') ?></option>
@@ -336,7 +341,7 @@ $factory = new Arlima_ListFactory();
                     </div>
 
                     <div id="arlima-lists">
-                        <input type="text" name="arlima-search-lists" id="arlima-search-lists"/> <?php _e('Search', 'arlima') ?>
+                        <input type="text" name="arlima-search-lists" id="arlima-search-lists" placeholder="<?php _e('Search', 'arlima') ?>..."/>
                         <ul>
                             <?php
                             foreach($available_lits as $list_data) { ?>
@@ -354,7 +359,10 @@ $factory = new Arlima_ListFactory();
             <div>
                 <input id="arlima-save-setup-btn" class="button-secondary action" type="button" name="arlima-save-setup-btn" value="<?php _e('Save setup', 'arlima') ?>" />
                 <img src="<?php echo ARLIMA_PLUGIN_URL .'/images/ajax-loader-trans.gif'; ?>" id="save-setup-loader" class="ajax-loader" />
-                 <a class="arlima-refresh-all-lists" id="arlima-refresh-all-lists" title="<?php _e('Update', 'arlima') ?>"><?php _e('Reload all lists', 'arlima') ?><img src="<?php echo ARLIMA_PLUGIN_URL .'/images/reload-icon-16.png'; ?>"  /> </a>
+                <a href="#" class="arlima-refresh-all-lists" id="arlima-refresh-all-lists" title="<?php _e('Update', 'arlima') ?>">
+                    <?php _e('Reload all lists', 'arlima') ?>
+                    <img src="<?php echo ARLIMA_PLUGIN_URL .'/images/reload-icon-16.png'; ?>"  />
+                </a>
             </div>
         </div><!-- .col-wrap -->
     </div><!-- #col-left -->

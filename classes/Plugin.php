@@ -10,7 +10,7 @@ class Arlima_Plugin
 {
     const VERSION = 2.5;
     const EXPORT_FEED_NAME = 'arlima-export';
-    const STATIC_VERSION = '16.0';
+    const STATIC_VERSION = '16.22';
 
     private static $is_scissors_installed = null;
     private static $is_wp_related_post_installed = null;
@@ -50,16 +50,16 @@ class Arlima_Plugin
 
     /**
      */
-    function displayArlimaList($c)
+    function displayArlimaList($content)
     {
         if( has_arlima_list() ) {
             global $post;
             $connector = new Arlima_ListConnector();
             $relation = $connector->getRelationData($post->ID);
             arlima_render_list(get_arlima_list(), $relation['attr']);
-            return '';
+            $content = '';
         }
-        return $c;
+        return $content;
     }
 
     /**
@@ -168,6 +168,9 @@ class Arlima_Plugin
         // Add some formats
         arlima_register_format('format-inverted', 'Inverted', array('giant'));
         arlima_register_format('format-serif', 'Serif');
+
+        // Image version filters
+        Arlima_ImageVersionManager::registerFilters();
     }
 
     /**
@@ -649,12 +652,14 @@ class Arlima_Plugin
         add_filter('mce_css', 'tdav_css');
 
         wp_enqueue_script('jquery');
+        wp_enqueue_script('jquery-ui');
+        wp_enqueue_script('jquery-ui-slider');
         wp_deregister_script('jquery-hotkeys');
-        wp_deregister_script('jquery-ui');
+
+        $wp_inc_url = includes_url() .'/js/jquery/ui/';
 
         // Add an almost astronomical amount of javascript
         $javascripts = array(
-            'jquery-ui'         => 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js',
             'media-upload'      => false,
             'thickbox'          => false,
             'qtip'              => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.qtip.min.js',
@@ -668,12 +673,19 @@ class Arlima_Plugin
             'arlima-js'         => ARLIMA_PLUGIN_URL . 'js/arlima/arlima.js',
             'arlima-plupload'   => ARLIMA_PLUGIN_URL . 'js/arlima/plupload-init.js',
             'arlima-main-js'    => ARLIMA_PLUGIN_URL . 'js/page-main.js',
-            'new-hotkeys'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.hotkeys.js'
+            'new-hotkeys'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.hotkeys.js',
+            'jquery-ui-effects' => $wp_inc_url .'jquery.ui.effect.min.js',
+            'jquery-ui-effects-shake' => $wp_inc_url .'jquery.ui.effect-shake.min.js',
+            'jquery-ui-effects-highlight' => $wp_inc_url .'jquery.ui.effect-highlight.min.js'
         );
 
         foreach($javascripts as $handle => $js) {
             if( $js !== false ) {
-                wp_register_script($handle, $js, array('jquery'), self::STATIC_VERSION, false);
+                $dependency = array('jquery');
+                if( $handle == 'ui-nestedsortable')
+                    $dependency = array('jquery-ui-sortable');
+
+                wp_register_script($handle, $js, $dependency, self::STATIC_VERSION, false);
             }
             wp_enqueue_script($handle);
         }

@@ -31,15 +31,15 @@
             }
             var search = $.trim($(this).val());
             if(search.length > 0) {
-                $(listChildrenQuery+":Contains('" + search + "')").show(0);
-                $(listChildrenQuery).not(":Contains('" + search + "')").hide(0);
-            }else{
-                $(listChildrenQuery).hide(0);
+                $(listChildrenQuery+":Contains('" + search + "')").show();
+                $(listChildrenQuery).not(":Contains('" + search + "')").hide();
+            } else {
+                $(listChildrenQuery).hide();
             }
         })
         .blur(function() {
           setTimeout(function() {
-              $(listChildrenQuery).hide(0);
+              $(listChildrenQuery).hide();
           }, 500); // this has to be done after a while, otherwise the children wont be possible to click
         })
         .focus(function() {

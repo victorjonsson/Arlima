@@ -47,7 +47,7 @@ li.dragger {
 
 .arlima-postbox {
     background: #fff;
-    border: #dfdfdf solid 1px;
+    border: #E5E5E5 solid 1px;
     line-height: 1;
     margin-bottom: 20px;
     width: 600px;
@@ -64,18 +64,27 @@ li.dragger {
     line-height: 1;
     margin: 0;
     padding: 7px 9px;
-    background: url("../../../../wp-admin/images/gray-grad.png") repeat-x scroll left top #DFDFDF;
     text-shadow: 0 1px 0 #FFFFFF;
+    background: whiteSmoke;
+    background-image: -webkit-gradient(linear,left bottom,left top,from(whiteSmoke),to(#F9F9F9));
+    background-image: -webkit-linear-gradient(bottom,whiteSmoke,#F9F9F9);
+    background-image: -moz-linear-gradient(bottom,whiteSmoke,#F9F9F9);
+    background-image: -o-linear-gradient(bottom,whiteSmoke,#F9F9F9);
+    background-image: linear-gradient(to top,whiteSmoke,#F9F9F9);
 }
 
 .arlima-postbox .handlediv {
     float: right;
     height: 26px;
     width: 23px;
+    background: url(../../../../wp-admin/images/arrows.png) no-repeat 4px 6px;
+    opacity: 0.75;
+    cursor: pointer;
 }
 
-.arlima-postbox:hover .handlediv {
-    background: transparent url(../../../../wp-admin/images/menu-bits.gif) no-repeat scroll left -111px;
+.arlima-postbox .handlediv:hover {
+    opacity: 1;
+    background-color: rgba(255,255,255, .6);
 }
 
 .arlima-postbox table table td {
@@ -84,13 +93,16 @@ li.dragger {
 
 #arlima-toplinks {
     line-height: 18px;
+    padding: 12px 0 10px;
 }
 
-#arlima-toplinks a {
+#arlima-toplinks a,
+#arlima-refresh-all-lists {
     text-decoration: none;
 }
 
-#arlima-toplinks a img {
+#arlima-toplinks a img,
+#arlima-refresh-all-lists img {
     vertical-align: baseline;
 }
 
@@ -171,7 +183,7 @@ li.dragger {
 #arlima-edit-article .arlima-title-fontsize-span {
     display: inline;
     border: 1px solid #ccc;
-    background: url("../../../../wp-admin/images/gray-grad.png") repeat-x scroll left top #DFDFDF;
+    background: #DFDFDF;
     cursor: pointer;
     padding: 4px;
 }
@@ -248,7 +260,7 @@ li.dragger {
 
 .arlima-list-header {
     color: #fff;
-    background: url("../../../../wp-admin/images/button-grad.png") repeat-x scroll left top #dfdfdf;
+    background: #3F8FB4;
     height: 20px;
     width: inherit;
     padding: 0;
@@ -313,8 +325,7 @@ li.dragger {
 }
 
 .arlima-list-version-info {
-    /*float: right;*/
-    font-size: 9px;
+    font-size: 10px;
     margin-right: 5px;
 
 }
@@ -340,7 +351,7 @@ li.dragger {
 .arlima-list .listitem,
 .arlima-list .listitem.sticky:hover {
     border: #dfdfdf solid 1px;
-    background: url("../../../../wp-admin/images/gray-grad.png") repeat-x scroll left top #DFDFDF;
+    background:#DFDFDF;
     padding: 0;
     margin-bottom: 3px;
     cursor: pointer;

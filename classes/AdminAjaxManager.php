@@ -50,6 +50,22 @@ class Arlima_AdminAjaxManager
         add_action('wp_ajax_arlima_print_custom_templates', array($this, 'printCustomTemplates'));
         add_action('wp_ajax_arlima_duplicate_image', array($this, 'duplicateImage'));
         add_action('wp_ajax_arlima_import_arlima_list', array($this, 'importList'));
+        add_action('wp_ajax_arlima_remove_image_versions', array($this, 'removeImageVersions'));
+    }
+
+    /**
+     * Removes all arlima image versions (nothing will happen if WP version < 3.5)
+     */
+    public function removeImageVersions()
+    {
+        $this->initAjaxRequest();
+        if( empty($_POST['attachment']) ) {
+            die( json_encode(array('error'=>'No attachment given')));
+        }
+        else {
+            Arlima_ImageVersionManager::removeVersions($_POST['attachment']);
+            die( json_encode(array('success'=>true)));
+        }
     }
 
     /**

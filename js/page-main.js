@@ -69,6 +69,7 @@ jQuery(function($) {
             $('#arlima-article-image img').removeClass('thumbnail');
             $('#arlima-article-image-scissors').html('').hide();
             Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)});
+            Arlima.ArticleEditor.removeImageVersions(); // todo: make sure scissors actually did any changes to the image
         },
         onStart : function(){
             var imgOptions = $('#arlima-article-image-options').data('image_options');

@@ -3,8 +3,8 @@
 Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, frontpage, wysiwyg
 Requires at least: 3.0
-Tested up to: 3.4.2
-Stable tag: 2.5.3
+Tested up to: 3.5
+Stable tag: 2.5.7
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,14 @@ the list that you created on step 2.
 
 
 == Changelog ==
+
+= 2.5.7 =
+
+- Arlima now compatible with WP version 3.5
+
+= 2.5.5 =
+
+- Several small bugs in yesterday's release now fixed
 
 = 2.5 =
 - Total remake of the theme implementation. The page template should no longer be used. It will still work

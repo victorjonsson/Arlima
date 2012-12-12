@@ -167,21 +167,12 @@ class Arlima_FilterApplier
             $img_class = $article['image_options']['size'] . ' ' . $article['image_options']['alignment'];
             $img_alt = htmlspecialchars($article['title']);
             $attach_url = wp_get_attachment_url($article['image_options']['attach_id']);
-            $resized_img = image_resize(
-                WP_CONTENT_DIR . '/uploads/' . $attach_meta['file'],
-                $size[0],
-                null,
-                false,
-                null,
-                null,
-                98
-            );
-
-            if ( !is_wp_error($resized_img) ) {
-                $img_url = dirname($attach_url) . '/' . basename($resized_img);
-            } else {
-                $img_url = $attach_url;
-            }
+            $resized_url = self::generateImageVersion(
+                                $attach_meta['file'],
+                                $attach_url,
+                                $size,
+                                $article['image_options']['attach_id']
+                            );
 
             $filtered = self::filter(
                             'arlima_article_image',
@@ -191,7 +182,7 @@ class Arlima_FilterApplier
                             $list,
                             $img_size,
                             $attach_url,
-                            $img_url,
+                            $resized_url,
                             $article_width
                         );
         }
@@ -221,6 +212,44 @@ class Arlima_FilterApplier
         }
 
         return $filtered['content'];
+    }
+
+    /**
+     * @param string $file
+     * @param string $attach_url
+     * @param array $size
+     * @param int $attach_id
+     * @return string
+     */
+    private static function generateImageVersion($file, $attach_url, $size, $attach_id)
+    {
+        global $wp_version;
+
+        if( version_compare( $wp_version, '3.5', '<' ) ) {
+            $resized_img = image_resize(
+                WP_CONTENT_DIR . '/uploads/' . $file,
+                $size[0],
+                null,
+                false,
+                null,
+                null,
+                98
+            );
+
+            if ( !is_wp_error($resized_img) ) {
+                $img_url = dirname($attach_url) . '/' . basename($resized_img);
+            } else {
+                $img_url = $attach_url;
+            }
+        } else {
+
+            $version_manager = new Arlima_ImageVersionManager($attach_id);
+            $img_url = $version_manager->getVersionURL($size[0]);
+            if( $img_url === false )
+                $img_url = $attach_url;
+        }
+
+        return $img_url;
     }
 
     /**

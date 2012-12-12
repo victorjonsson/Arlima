@@ -3,7 +3,7 @@
  *
  * @todo: Look over all insufficient use of jQuery
  * @todo: make compressed version of this file
- * @todo: maybe move each class to its own file and write unit test
+ * @todo: move each class to its own file and write unit test
  *
  * Dependencies:
  *  - jQuery
@@ -35,7 +35,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
         /**
          * @param {Object} data
-         * @param {Function} callback
+         * @param {Function} [callback]
          */
         queryPosts : function(data, callback) {
             this._ajax('arlima_query_posts', data, callback);
@@ -44,7 +44,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * @param {Number} listId
          * @param {Number} version
-         * @param {Function} callback
+         * @param {Function} [callback]
          */
         getLaterVersion : function(listId, version, callback) {
             this._ajax('arlima_check_for_later_version', {alid:listId, version:version}, callback);
@@ -53,7 +53,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * Get URL for post with given id
          * @param {Number} postId
-         * @param callback
+         * @param [callback]
          */
         getPost : function(postId, callback) {
             this._ajax('arlima_get_post', {postid:postId}, callback);
@@ -62,7 +62,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * Get all attachments related to wordpress post with given id
          * @param {Number} postId
-         * @param {Function} callback
+         * @param {Function} [callback]
          */
         getPostAttachments : function(postId, callback) {
             this._ajax('arlima_get_attached_images', {postid: postId}, callback);
@@ -71,7 +71,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * @param {Number} listId
          * @param {Array|Object} articles
-         * @param {Function} callback
+         * @param {Function} [callback]
          */
         saveList : function(listId, articles, callback) {
             this._ajax("arlima_save_list", {alid:listId, articles:articles}, callback);
@@ -80,14 +80,23 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * @param {Number} listId
          * @param {Array} articles
-         * @param {Function} callback
+         * @param {Function} [callback]
          */
         savePreview : function(listId, articles, callback) {
             this._ajax("arlima_save_list", {alid:listId, articles:articles, preview:1}, callback);
         },
 
         /**
-         * @param {Function} callback
+         * Removes image versions (only needed in WP >= 3.5)
+         * @param {Number} attachID
+         * @param {Function} [callback]
+         */
+        removeImageVersions : function(attachID, callback) {
+            this._ajax('arlima_remove_image_versions', {attachment : attachID}, callback);
+        },
+
+        /**
+         * @param {Function} [callback]
          */
         loadCustomTemplateData : function(callback) {
             this._ajax('arlima_print_custom_templates', {}, callback);
@@ -97,7 +106,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          * Load information about a list and its articles
          * @param {Number} listID 
          * @param {Number|String} version - Optional, empty string to get latest version
-         * @param {Function} callback - Optional
+         * @param {Function} [callback]
          */
         loadListData : function(listID, version, callback) {
             this._ajax('arlima_add_list_widget', {alid:listID, version:version}, callback);
@@ -107,7 +116,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          * Get the lists supposed to be loaded on page load for currentyl
          * visited user
          * @see Backend.saveListSetup()
-         * @param {Function} callback - Optional
+         * @param {Function} [callback]
          */
         loadListSetup : function(callback) {
             this._ajax('arlima_get_list_setup', {}, callback);
@@ -117,7 +126,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          * Save external image (local or remote) to wordpress
          * @param {String} url
          * @param {Number} postId - Optional
-         * @param {Function} callback - Optional
+         * @param {Function} [callback]
          */
         plupload : function(url, postId, callback) {
             var extension = url.substr(url.lastIndexOf('.')+1).toLowerCase();
@@ -138,7 +147,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * Save the lists that should be available on page load for currently logged in user
          * @param {Array} lists
-         * @param {Function} callback - Optional
+         * @param {Function} [callback]
          */
         saveListSetup : function(lists, callback) {
             this._ajax('arlima_save_list_setup', {lists: lists}, callback);
@@ -146,7 +155,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
         /**
          * @param {Number} attachmentId
-         * @param {Function} callback - Optional
+         * @param {Function} [callback]
          */
         loadScissorsHTML : function(attachmentId, callback) {
             this._ajax('arlima_get_scissors', {attachment_id: attachmentId}, callback, 'html');
@@ -154,7 +163,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
         /**
          * @param {Number} attachId
-         * @param {Function} callback
+         * @param {Function} [callback]
          */
         duplicateImage : function(attachId, callback) {
             this._ajax('arlima_duplicate_image', {attachid:attachId}, callback);
@@ -266,6 +275,11 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * @property {jQuery}
          */
+        _$articleLink : false,
+
+        /**
+         * @property {jQuery}
+         */
         _$sticky : false,
 
         /**
@@ -286,6 +300,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             this._$form = $('#arlima-edit-article-form');
             this._$imgContainer = $('#arlima-article-image');
             this._$futureNotice = $('#future-notice');
+            this._$articleLink = $('#arlima-article-link');
             this._$sticky = $('#sticky-interval');
             this._$blocker = $('<div></div>');
             this._$blocker
@@ -339,8 +354,10 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
             if( isFutureDate(articleData.publish_date) ) {
                 this._$futureNotice.show();
+                this._$articleLink.hide();
             }
             else {
+                this._$articleLink.show();
                 this._$futureNotice.hide();
             }
 
@@ -807,6 +824,18 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         },
 
         /**
+         * Sends request to backend telling arlima to remove all
+         * generated versions for the image related to currently
+         * edited article (This will only have effect in WP version >= 3.5)
+         */
+        removeImageVersions : function() {
+            var attachId = $('#arlima-article-image-attach_id').val();
+            if( attachId ) {
+                Backend.removeImageVersions(attachId);
+            }
+        },
+
+        /**
          * @param {Object} args
          * @param {Boolean} [updateArticle] - Optional, defaults to true
          */
@@ -1163,7 +1192,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          */
         addList : function(id, position, callback) {
             if(this.hasList(id)) {
-                this._lists[id].jQuery.effect("shake", { times:4, distance: 10 }, 50);
+                this._lists[id].jQuery.effect("shake", { times:4, distance: 10 }, 500);
             }
             else {
                 var self = this;
@@ -2165,7 +2194,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             _copyArticleData($helper, $li);
                             if($helper.hasClass('edited'))
                                 $helper.removeClass('edited');
-                            $helper.effect("highlight", {}, 300);
+                            $helper.effect("highlight", 500);
                         }
 
                         return $li.clone();
@@ -2221,7 +2250,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         if($.inArray(listID, ArlimaList.listsInolvedInTransaction) == -1) {
                             ArlimaList.listsInolvedInTransaction.push(listID);
                         }
-                        $item.effect("highlight", {}, 500);
+                        $item.effect("highlight", 500);
                         ArlimaList.applyItemPresentation($item);
                     },
                     stop : function(e, ui) {

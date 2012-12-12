@@ -62,11 +62,10 @@ $available_lists = $factory->loadListSlugs();
                     </div>
                 <?php endif; ?>
 				<div class="tablenav">
-					<div class="alignleft actions">
+					<div class="alignleft">
 						
 						<div id="arlima-lists" >
-							<input type="text" name="arlima-search-lists" id="arlima-search-lists"/>
-                            <?php _e('Search', 'arlima') ?>
+							<input type="text" name="arlima-search-lists" id="arlima-search-lists" placeholder="<?php _e('Search', 'arlima') ?>..." />
 							<ul>
 								<?php foreach($available_lists as $list_data): ?>
 									<li class="arlima-list-link" id="arlima-list-link_<?php echo $list_data->id; ?>" style="display:none;">
@@ -89,7 +88,6 @@ $available_lists = $factory->loadListSlugs();
                                     </option>
 								<?php endforeach; ?>
 							</select>
-                            <?php _e('Browse', 'arlima') ?>
 						</form>
 						
 						<a href="admin.php?page=arlima-editpage">

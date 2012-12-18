@@ -99,6 +99,51 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $this->assertEquals('helloBEGINCONTENTEND', $content);
     }
 
+    function testSpecifiedFilters() {
+        $list = $this->createList(1);
+        $list->setOption('template', 'some-template');
+        $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+
+        // Add default filters
+
+        add_action('arlima_article_begin', function($data) {
+                $data['content'] = 'BEGIN';
+                return $data;
+            });
+
+        add_action('arlima_article_end', function($data) {
+                $data['content'] = 'END';
+                return $data;
+            });
+
+        add_action('arlima_article_content', function($data) {
+                $data['content'] = 'CONTENT';
+                return $data;
+            });
+
+        // Add specific filters
+
+        $filter_suffix = 'my-filter';
+
+        add_action('arlima_article_begin-'.$filter_suffix, function($data) {
+                $data['content'] = 'BEGIN-filtered';
+                return $data;
+            });
+
+        add_action('arlima_article_end-'.$filter_suffix, function($data) {
+                $data['content'] = 'END-filtered';
+                return $data;
+            });
+
+        add_action('arlima_article_content-'.$filter_suffix, function($data) {
+                $data['content'] = 'CONTENT-filtered';
+                return $data;
+            });
+
+        $content = arlima_render_list($renderer, array('echo'=>false, 'filter_suffix'=>$filter_suffix));
+        $this->assertEquals('helloBEGIN-filteredCONTENT-filteredEND-filtered', $content);
+    }
+
     public function testChildArticle() {
         $list = $this->createList(1);
         $list->setOption('template', 'some-template');

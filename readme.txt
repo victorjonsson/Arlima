@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, frontpage, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.5.7
+Stable tag: 2.5.8
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

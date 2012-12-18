@@ -96,6 +96,25 @@ class TestActions extends PHPUnit_Framework_TestCase {
         });
 
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $this->assertEquals('hello BEGIN CONTENT END', $content);
+        $this->assertEquals('helloBEGINCONTENTEND', $content);
+    }
+
+    public function testChildArticle() {
+        $list = $this->createList(1);
+        $list->setOption('template', 'some-template');
+
+        $articles = $list->getArticles();
+        $articles[0]['children'] = array(
+            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA')),
+            Arlima_ListFactory::createArticleDataArray(array('title' => 'childB'))
+        );
+
+        $list->setArticles($articles);
+
+        $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+        $content = arlima_render_list($renderer, array('echo'=>false));
+        $expected = 'hellohellochildAhellochildB';
+
+        $this->assertEquals($expected, $content);
     }
 }

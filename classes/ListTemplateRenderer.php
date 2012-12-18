@@ -170,7 +170,8 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                             $post,
                             $article_counter,
                             $this->img_size_name,
-                            true
+                            true,
+                            false
                         );
 
         // load sub articles if there's any
@@ -293,7 +294,8 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                 $post,
                 -1,
                 $image_size,
-                false
+                false,
+                true
             );
             $template_data['container']['attr'] = '';
             $template_data['container']['class'] = 'teaser small' . ($children_count > 1 ? ' teaser-split' : '') . ($count % 2 == 0 ? ' first' : ' last');

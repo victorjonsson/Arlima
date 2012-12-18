@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, frontpage, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.5.8
+Stable tag: 2.5.7.4
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,10 @@ the list that you created on step 2.
 
 
 == Changelog ==
+
+= 2.5.8 =
+- New js events in the list manager and improved js performance in the list manager
+- Fixed bug that made it impossible to check if the currently rendered article was a child article in the jQuery template
 
 = 2.5.7 =
 

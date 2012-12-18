@@ -5,6 +5,7 @@ require_once __DIR__ .'/setup.php';
 class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
 
     /**
+     * @param int $num_articles
      * @return Arlima_List
      */
     private function createList($num_articles = 3) {
@@ -80,5 +81,4 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
 
         }
     }
-
 }

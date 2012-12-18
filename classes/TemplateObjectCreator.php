@@ -94,6 +94,7 @@ class Arlima_TemplateObjectCreator
             'before_related' => false,
             'article_begin' => false,
             'article_end' => false,
+            'is_child' => false,
             'image' => false
         );
     }
@@ -144,6 +145,7 @@ class Arlima_TemplateObjectCreator
      * @param $article_counter
      * @param null $img_size
      * @param bool $load_related_articles
+     * @param bool $is_child
      * @return array
      */
     public function create(
@@ -154,7 +156,8 @@ class Arlima_TemplateObjectCreator
         $post,
         $article_counter,
         $img_size = null,
-        $load_related_articles = true
+        $load_related_articles = true,
+        $is_child = false
     ) {
         $obj = $this->getEmptyObjectArray();
         $has_streamer = $display_streamer && isset($article['options']['streamer']);
@@ -169,6 +172,7 @@ class Arlima_TemplateObjectCreator
         $obj['article']['html_title'] = $is_empty ? '' : $this->getTitleHtml($article);
         $obj['article']['url'] = $url;
         $obj['article']['publish_date'] = $article['publish_date'];
+        $obj['is_child'] = $is_child;
 
         if ( !empty($article['options']) && !empty($article['options']['format']) ) {
             $obj['container']['class'] .= ' ' . $article['options']['format'];

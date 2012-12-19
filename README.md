@@ -27,29 +27,29 @@ the list that you created on step 2.
 
 #### User manual
 
-- [Publishing article lists](Arlima/wiki/Publishing-article-lists)
-- [Interface walkthrough](Arlima/wiki/Interface-walkthrough)
-- [Keyboard shortcuts in the list manager](Arlima/wiki/Keyboard-shortcuts)
+- [Publishing article lists](https://github.com/victorjonsson/Arlima/wiki/Publishing-article-lists)
+- [Interface walkthrough](https://github.com/victorjonsson/Arlima/wiki/Interface-walkthrough)
+- [Keyboard shortcuts in the list manager](https://github.com/victorjonsson/Arlima/wiki/Keyboard-shortcuts)
 - Importing article lists from remote websites
 - Importing RSS-feeds
 
 #### Developer manual
 
 - [Custom CSS](Arlima/wiki/Custom-css)
-- [Creating a custom page template](Arlima/wiki/Writing-a-custom-page-template)
-- [Filters and actions](Arlima/wiki/Filters-and-actions)
-- [Programmatically insert article lists in your template](Arlima/wiki/Programmatically-insert-lists)
-- [Creating custom jQuery templates](Arlima/wiki/Custom-jQuery-templates)
-- [Customized streamers](Arlima/wiki/Custom-streamers)
-- [Article formats](Arlima/wiki/Custom-formats)
-- [Cache management](Arlima/wiki/Cache-management)
-- [How to modify the post search](Arlima/wiki/Modified-search)
+- [Creating a custom page template](https://github.com/victorjonsson/Arlima/wiki/Writing-a-custom-page-template)
+- [Filters and actions](https://github.com/victorjonsson/Arlima/wiki/Filters-and-actions)
+- [Programmatically insert article lists in your template](https://github.com/victorjonsson/Arlima/wiki/Programmatically-insert-lists)
+- [Creating custom jQuery templates](https://github.com/victorjonsson/Arlima/wiki/Custom-jQuery-templates)
+- [Customized streamers](https://github.com/victorjonsson/Arlima/wiki/Custom-streamers)
+- [Article formats](https://github.com/victorjonsson/Arlima/wiki/Custom-formats)
+- [Cache management](https://github.com/victorjonsson/Arlima/wiki/Cache-management)
+- [How to modify the post search](https://github.com/victorjonsson/Arlima/wiki/Modified-search)
 
 
 #### Misc
 
-- [Using other plugins together with Arlima](Arlima/wiki/Extending-arlima)
-- [FAQ](Arlima/wiki/FAQ)
+- [Using other plugins together with Arlima](https://github.com/victorjonsson/Arlima/wiki/Extending-arlima)
+- [FAQ](https://github.com/victorjonsson/Arlima/wiki/FAQ)
 
 
 ## Some websites using this plugin

@@ -35,7 +35,7 @@ the list that you created on step 2.
 
 #### Developer manual
 
-- [Custom CSS](Arlima/wiki/Custom-css)
+- [Custom CSS](https://github.com/victorjonsson/Arlima/wiki/Custom-css)
 - [Creating a custom page template](https://github.com/victorjonsson/Arlima/wiki/Writing-a-custom-page-template)
 - [Filters and actions](https://github.com/victorjonsson/Arlima/wiki/Filters-and-actions)
 - [Programmatically insert article lists in your template](https://github.com/victorjonsson/Arlima/wiki/Programmatically-insert-lists)

@@ -39,7 +39,7 @@ class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
 
         $article = Arlima_ListFactory::createArticleDataArray(array('url'=>'http://google.se', 'title'=>'Howdy', 'id'=>99));
 
-        $template_obj = $obj_creator->create($article, true, false, false, array(), 1, 'hello');
+        $template_obj = $obj_creator->create($article, false, new stdClass(), 1);
 
         $this->assertEquals(array(
                 "title"=> "Howdy",
@@ -60,8 +60,7 @@ class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
     function testNotCrashingWithoutCallbacks() {
         $obj_creator = new Arlima_TemplateObjectCreator();
         $article = Arlima_ListFactory::createArticleDataArray();
-        $template_obj = $obj_creator->create($article, true, false, false, array(), 1, 'hello');
-
+        $template_obj = $obj_creator->create($article, false, new stdClass(), 1);
         $this->assertEquals('<h2 class="fsize-24"><span>Unknown</span></h2>', $template_obj['article']['html_title']);
     }
 }

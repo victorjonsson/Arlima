@@ -60,6 +60,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             $this->template_obj_creator->setAfterTitleHtml($this->list->options['after_title']);
         }
 
+        $this->template_obj_creator->setImgSize($this->img_size_name);
         $this->template_obj_creator->setArticleBeginCallback($this->article_begin_callback);
         $this->template_obj_creator->doAddTitleFontSize($this->list->getOption('ignore_fontsize') ? false : true);
         $this->template_obj_creator->setArticleEndCallback($this->article_end_callback);
@@ -164,19 +165,16 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
         $template_data = $this->template_obj_creator->create(
                             $article,
-                            true,
                             $is_empty,
-                            $is_post,
                             $post,
-                            $article_counter,
-                            $this->img_size_name,
-                            true,
-                            false
+                            $article_counter
                         );
 
         // load sub articles if there's any
         if ( !empty($article['children']) && is_array($article['children']) ) {
             $template_data['sub_articles'] = $this->renderSubArticles($article['children'], $jQueryTmpl_df);
+            $this->template_obj_creator->setIsChild(false);
+            $this->template_obj_creator->setIsChildSplit(false);
         }
 
         // output the article
@@ -275,8 +273,11 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     {
         $sub_articles = '';
         $count = 0;
-        $children_count = sizeof($articles);
+        $children_count = count($articles);
         $image_size = $children_count == 1 ? $this->img_size_name_sub_article_full : $this->img_size_name_sub_article;
+        $this->template_obj_creator->setImgSize($image_size);
+        $this->template_obj_creator->setIsChild(true);
+        $this->template_obj_creator->setIsChildSplit($children_count > 1);
 
         foreach ($articles as $article_data) {
 
@@ -287,16 +288,13 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             }
 
             $template_data = $this->template_obj_creator->create(
-                $article,
-                true,
-                $is_empty,
-                $is_post,
-                $post,
-                -1,
-                $image_size,
-                false,
-                true
-            );
+                                $article,
+                                $is_empty,
+                                $post,
+                                -1,
+                                false
+                            );
+
             $template_data['container']['attr'] = '';
             $template_data['container']['class'] = 'teaser small' . ($children_count > 1 ? ' teaser-split' : '') . ($count % 2 == 0 ? ' first' : ' last');
 

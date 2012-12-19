@@ -144,7 +144,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $this->assertEquals('helloBEGIN-filteredCONTENT-filteredEND-filtered', $content);
     }
 
-    public function testChildArticle() {
+    public function testChildArticles() {
         $list = $this->createList(1);
         $list->setOption('template', 'some-template');
 
@@ -158,7 +158,25 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $expected = 'hellohellochildAhellochildB';
+        $expected = 'hellohellochildA_IS_SPLIT_hellochildB_IS_SPLIT_';
+
+        $this->assertEquals($expected, $content);
+    }
+
+    public function testOneChildArticle() {
+        $list = $this->createList(1);
+        $list->setOption('template', 'some-template');
+
+        $articles = $list->getArticles();
+        $articles[0]['children'] = array(
+            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA'))
+        );
+
+        $list->setArticles($articles);
+
+        $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+        $content = arlima_render_list($renderer, array('echo'=>false));
+        $expected = 'hellohellochildA';
 
         $this->assertEquals($expected, $content);
     }

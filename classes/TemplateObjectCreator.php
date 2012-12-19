@@ -11,6 +11,26 @@ class Arlima_TemplateObjectCreator
 {
 
     /**
+     * @var bool
+     */
+    private $display_streamer = true;
+
+    /**
+     * @var string|bool
+     */
+    private $is_child = false;
+
+    /**
+     * @var string|bool
+     */
+    private $is_child_split = false;
+
+    /**
+     * @var string
+     */
+    private $img_size = '';
+
+    /**
      * @var Closure
      */
     private $content_callback = false;
@@ -72,6 +92,22 @@ class Arlima_TemplateObjectCreator
     }
 
     /**
+     * @param boolean $display_streamer
+     */
+    public function setDisplayStreamer($display_streamer)
+    {
+        $this->display_streamer = $display_streamer;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getDisplayStreamer()
+    {
+        return $this->display_streamer;
+    }
+
+    /**
      * Returns an empty jquery tmpl data object
      * @return array
      */
@@ -97,6 +133,55 @@ class Arlima_TemplateObjectCreator
             'is_child' => false,
             'image' => false
         );
+    }
+
+
+    /**
+     * @param string $img_size
+     */
+    public function setImgSize($img_size)
+    {
+        $this->img_size = $img_size;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImgSize()
+    {
+        return $this->img_size;
+    }
+
+    /**
+     * @param bool|string $is_child
+     */
+    public function setIsChild($is_child)
+    {
+        $this->is_child = $is_child;
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function getIsChild()
+    {
+        return $this->is_child;
+    }
+
+    /**
+     * @param bool|string $is_child_split
+     */
+    public function setIsChildSplit($is_child_split)
+    {
+        $this->is_child_split = $is_child_split;
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function getIsChildSplit()
+    {
+        return $this->is_child_split;
     }
 
     /**
@@ -138,29 +223,21 @@ class Arlima_TemplateObjectCreator
 
     /**
      * @param $article
-     * @param $display_streamer
      * @param $is_empty
-     * @param $is_post
      * @param $post
      * @param $article_counter
-     * @param null $img_size
      * @param bool $load_related_articles
-     * @param bool $is_child
      * @return array
      */
     public function create(
         $article,
-        $display_streamer,
         $is_empty,
-        $is_post,
         $post,
         $article_counter,
-        $img_size = null,
-        $load_related_articles = true,
-        $is_child = false
+        $load_related_articles = true
     ) {
         $obj = $this->getEmptyObjectArray();
-        $has_streamer = $display_streamer && isset($article['options']['streamer']);
+        $has_streamer = $this->display_streamer && isset($article['options']['streamer']);
         $img_opt_size = isset($article['image_options']) && !empty($article['image_options']['size']) ? $article['image_options']['size'] : false;
 
         $url = isset($article['url']) ? $article['url'] : '';
@@ -172,7 +249,8 @@ class Arlima_TemplateObjectCreator
         $obj['article']['html_title'] = $is_empty ? '' : $this->getTitleHtml($article);
         $obj['article']['url'] = $url;
         $obj['article']['publish_date'] = $article['publish_date'];
-        $obj['is_child'] = $is_child;
+        $obj['is_child'] = $this->is_child;
+        $obj['is_child_split'] = $this->is_child_split;
 
         if ( !empty($article['options']) && !empty($article['options']['format']) ) {
             $obj['container']['class'] .= ' ' . $article['options']['format'];
@@ -185,7 +263,7 @@ class Arlima_TemplateObjectCreator
 
         if ( !$is_empty ) {
 
-            $this->generateImageData($article, $img_size, $article_counter, $obj, $img_opt_size, $post);
+            $this->generateImageData($article, $this->img_size, $article_counter, $obj, $img_opt_size, $post);
 
             // Text content
             if( $this->content_callback !== false ) {

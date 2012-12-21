@@ -1,10 +1,10 @@
 === Article List Manager (arlima) ===
 
 Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
-Tags: CMS, e-paper, e-magazine, magazine, newspaper, frontpage, wysiwyg
+Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.5.7.5
+Stable tag: 2.5.8
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,11 +42,15 @@ the list that you created on step 2.
 
 == Changelog ==
 
-= 2.5.8 (not yet released) =
-- New js events in the list manager and improved js performance in the list manager
-- Fixed bug that made it impossible to check if the currently rendered article was a child article in the jQuery template
-- General code improvements
-- Added filter arlima_template_object
+= 2.5.8 (Christmas release) =
+
+Santa claus won't be bringing you any new features this time but his sack is filled with a whole lot of nice bug fixes.
+
+- Fixed bug that made it impossible to check if the currently rendered article was a child article in the jQuery template.
+- Fixed bugs that appears when running Arlima on older versions of WordPress.
+- Fixed bug that removed content from a page if the page had a related article list (github issue #6).
+- Added filter arlima_template_object.
+- New js events and improved js performance in the list manager.
 
 = 2.5.7 =
 

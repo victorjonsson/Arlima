@@ -310,6 +310,11 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 })
                 .appendTo('body')
                 .addClass('arlima-editor-blocker');
+
+            if( typeof $.fn.effect == 'undefined' ) {
+                log('This wordpress application is outdated. Please update to the newest version', 'warn');
+                $.fn.effect = function() {};
+            }
         },
 
         /**

@@ -351,7 +351,12 @@ li.dragger {
 .arlima-list .listitem,
 .arlima-list .listitem.sticky:hover {
     border: #dfdfdf solid 1px;
-    background:#DFDFDF;
+    background: whiteSmoke;
+    background-image: -webkit-gradient(linear,left bottom,left top,from(whiteSmoke),to(#F9F9F9));
+    background-image: -webkit-linear-gradient(bottom,whiteSmoke,#F9F9F9);
+    background-image: -moz-linear-gradient(bottom,whiteSmoke,#F9F9F9);
+    background-image: -o-linear-gradient(bottom,whiteSmoke,#F9F9F9);
+    background-image: linear-gradient(to top,whiteSmoke,#F9F9F9);
     padding: 0;
     margin-bottom: 3px;
     cursor: pointer;

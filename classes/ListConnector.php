@@ -92,14 +92,35 @@ class Arlima_ListConnector {
      */
     public function getRelationData($post_id)
     {
+        $data = false;
         $list_id = get_post_meta($post_id, self::META_KEY_LIST, true);
+
         if ( $list_id ) {
-            return array(
+            $data = array(
                 'id' => $list_id,
                 'attr' => get_post_meta($post_id, self::META_KEY_ATTR, true)
             );
+
+            if( !is_array($data['attr']) ) {
+                $data['attr'] = $this->getDefaultListAttributes();
+            } else {
+                $data['attr'] = array_merge($this->getDefaultListAttributes(), $data['attr']);
+            }
         }
 
-        return false;
+        return $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultListAttributes()
+    {
+        return array(
+            'width' => 560,
+            'offset' => 0,
+            'limit' => 0,
+            'position' => 'before'
+        );
     }
 }

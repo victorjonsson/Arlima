@@ -10,7 +10,7 @@ class Arlima_Plugin
 {
     const VERSION = 2.5;
     const EXPORT_FEED_NAME = 'arlima-export';
-    const STATIC_VERSION = '16.22';
+    const STATIC_VERSION = '17.22';
 
     private static $is_scissors_installed = null;
     private static $is_wp_related_post_installed = null;
@@ -44,7 +44,7 @@ class Arlima_Plugin
         add_action('wp_print_styles', array($this, 'addTemplateCSS'));
         add_shortcode('arlima', array($this, 'arlimaListShortCode'));
         if ( is_page() ) {
-            add_action('the_content', array($this, 'displayArlimaList'));
+            add_filter('the_content', array($this, 'displayArlimaList'));
         }
     }
 
@@ -56,9 +56,14 @@ class Arlima_Plugin
             global $post;
             $connector = new Arlima_ListConnector();
             $relation = $connector->getRelationData($post->ID);
-            arlima_render_list(get_arlima_list(), $relation['attr']);
-            $content = '';
+            if( isset($relation['attr']['position']) && $relation['attr']['position'] == 'after') {
+                $relation['attr']['echo'] = false;
+                $content .= arlima_render_list(get_arlima_list(), $relation['attr']);
+            } else {
+                arlima_render_list(get_arlima_list(), $relation['attr']);
+            }
         }
+
         return $content;
     }
 
@@ -411,19 +416,18 @@ class Arlima_Plugin
     {
         global $post;
         wp_nonce_field(__FILE__, 'arlima_nonce');
-        $default_data = array('list' => '', 'width' => 560, 'offset' => 0, 'limit' => 0);
-        $list_data = $default_data;
-        if ( $post ) {
-            $list_id = get_post_meta($post->ID, '_arlima_list', true);
-            $list_data = get_post_meta($post->ID, '_arlima_list_data', true);
-            if ( $list_id ) {
-                $list_data = array_merge($default_data, $list_data, array('list' => $list_id));
-            } else {
-                $list_data = $default_data;
-            }
-        }
         $factory = new Arlima_ListFactory();
+        $connector = new Arlima_ListConnector();
         $lists = $factory->loadListSlugs();
+        $relation_data = false;
+        if ( $post ) {
+            $relation_data = $connector->getRelationData($post->ID);
+        }
+
+        if( !$relation_data )
+            $relation_data = array('id' => '', 'attr'=>$connector->getDefaultListAttributes());
+
+
         ?>
         <div id="arlima-list-settings">
             <?php if( empty($lists) ): ?>
@@ -442,7 +446,7 @@ class Arlima_Plugin
                                 <?php foreach ($lists as $arlima_list): ?>
                                     <option value="<?php echo $arlima_list->id; ?>"<?php
                                     // may be either slug or id
-                                    if ( in_array($list_data['list'], (array)$arlima_list) ){
+                                    if ( in_array($relation_data['id'], (array)$arlima_list) ){
                                         echo ' selected="selected"';
                                     }
                                     ?>><?php echo $arlima_list->title; ?></option>
@@ -451,18 +455,31 @@ class Arlima_Plugin
                             <a href="" style="display: none" target="_blank" id="arlima-edit">[<?php _e('edit', 'arlima') ?>]</a>
                         </td>
                     </tr>
+                    <tr>
+                        <td><strong><?php _e('Position') ?></strong>:</td>
+                        <td>
+                            <select name="arlima_position">
+                                <option value="before"<?php if($relation_data['attr']['position'] == 'before') echo ' selected="selected"' ?>>
+                                    Before content
+                                </option>
+                                <option value="after"<?php if($relation_data['attr']['position'] == 'after') echo ' selected="selected"' ?>>
+                                    After content
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
                     <tr class="arlima-opt">
                         <td><strong>Width:</strong></td>
-                        <td><input type="number" name="arlima_width" value="<?php echo $list_data['width'] ?>" style="width:50px"/> px
+                        <td><input type="number" name="arlima_width" value="<?php echo $relation_data['attr']['width'] ?>" style="width:50px"/> px
                         </td>
                     </tr>
                     <tr>
                         <td><strong>Offset:</strong></td>
-                        <td><input type="number" name="arlima_offset" value="<?php echo $list_data['offset'] ?>" style="width:50px"/></td>
+                        <td><input type="number" name="arlima_offset" value="<?php echo $relation_data['attr']['offset'] ?>" style="width:50px"/></td>
                     </tr>
                     <tr>
                         <td><strong>Limit:</strong></td>
-                        <td><input type="number" name="arlima_limit" value="<?php echo $list_data['limit'] ?>" style="width:50px"/></td>
+                        <td><input type="number" name="arlima_limit" value="<?php echo $relation_data['attr']['limit'] ?>" style="width:50px"/></td>
                     </tr>
                 </table>
             <?php endif; ?>
@@ -489,7 +506,8 @@ class Arlima_Plugin
                     $connector->relate($post_id, array(
                             'width' => (int)$_POST['arlima_width'],
                             'offset' => (int)$_POST['arlima_offset'],
-                            'limit' => (int)$_POST['arlima_limit']
+                            'limit' => (int)$_POST['arlima_limit'],
+                            'position' => $_POST['arlima_position']
                         ));
                 }
             } else {

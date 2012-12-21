@@ -42,10 +42,11 @@ the list that you created on step 2.
 
 == Changelog ==
 
-= 2.5.8 =
+= 2.5.8 (not yet released) =
 - New js events in the list manager and improved js performance in the list manager
 - Fixed bug that made it impossible to check if the currently rendered article was a child article in the jQuery template
 - General code improvements
+- Added filter arlima_template_object
 
 = 2.5.7 =
 

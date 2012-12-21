@@ -286,7 +286,7 @@ class Arlima_TemplateObjectCreator
             $obj['article_end'] = call_user_func($this->article_end_callback, $article_counter, $article, $post, $this->list);
         }
 
-        return $obj;
+        return apply_filters('arlima_template_object', $obj);
     }
 
     /**

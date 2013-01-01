@@ -65,7 +65,7 @@ class Arlima_ImageVersionManager
         $meta = wp_get_attachment_metadata($attach_id);
         if( !empty($meta) && !empty($meta[self::META_KEY])) {
             $manager = new self($attach_id);
-            foreach($manager->getVersions() as $path) {
+            foreach($manager->getVersions($meta) as $path) {
                 if( file_exists($path) )
                     @unlink($path);
             }
@@ -98,14 +98,14 @@ class Arlima_ImageVersionManager
                 $editor = wp_get_image_editor(self::uploadDirData('basedir').'/'.$file);
 
                 if( is_wp_error($editor) ) {
-                    trigger_error('Wp image editor saying: '.$editor->get_error_message(), E_USER_ERROR);
+                    trigger_error('Failed loading WP image editor with message: '.$editor->get_error_message(), E_USER_ERROR);
                     $version_url = $this->generateFileURL($file);
                 } else {
-                    $editor->set_quality(95);
+                    $editor->set_quality( apply_filters('arlima_image_quality', 100) );
                     if( $editor->resize($max_width, false) ) {
 
                         if( ($error = $editor->save(self::uploadDirData('basedir').'/'.$version_file)) instanceof WP_Error ) {
-                            trigger_error('Wp image editor saying: '.$error->get_error_message(), E_USER_ERROR);
+                            trigger_error('Failed saving resized image with message: '.$error->get_error_message(), E_USER_ERROR);
                             $version_url = $this->generateFileURL($file);
                         } else {
 

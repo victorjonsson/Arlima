@@ -676,7 +676,7 @@ class Arlima_AdminAjaxManager
         $post_id = intval($_POST['postid']);
         $post = get_post($post_id);
 
-        if ( $post->post_type == 'post' && $post->post_status != 'deleted' && $post->post_status != 'trash' ) {
+        if ( is_object($post) && $post->post_type == 'post' && $post->post_status != 'deleted' && $post->post_status != 'trash' ) {
             $post->url = get_permalink($post->ID);
             $post->publish_date = strtotime($post->post_date_gmt);
             echo json_encode((array)$post);

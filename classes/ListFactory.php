@@ -629,7 +629,7 @@ class Arlima_ListFactory {
         $table_name = $wpdb->prefix . "arlima_articlelist";
 
         $sql = "CREATE TABLE " . $table_name . " (
-        al_id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        al_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
         al_created bigint(11) DEFAULT '0' NOT NULL,
         al_title tinytext NOT NULL,
         al_slug varchar(50),
@@ -645,11 +645,11 @@ class Arlima_ListFactory {
         $table_name = $wpdb->prefix . "arlima_articlelist_version";
 
         $sql = "CREATE TABLE " . $table_name . " (
-        alv_id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        alv_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
         alv_created bigint(11) DEFAULT '0' NOT NULL,
-        alv_al_id mediumint(9) NOT NULL,
+        alv_al_id bigint(11) NOT NULL,
         alv_status tinyint(1) DEFAULT '1' NOT NULL,
-        alv_user_id mediumint(9) NOT NULL,
+        alv_user_id bigint(11) NOT NULL,
         UNIQUE KEY id (alv_id),
         KEY created (alv_created),
         KEY alid (alv_al_id),
@@ -661,20 +661,20 @@ class Arlima_ListFactory {
         $table_name = $wpdb->prefix . "arlima_articlelist_article";
 
         $sql = "CREATE TABLE " . $table_name . " (
-        ala_id mediumint(9) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        ala_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
         ala_created bigint(11) DEFAULT '0' NOT NULL,
         ala_publish_date bigint(11) DEFAULT '0' NOT NULL,
-        ala_alv_id mediumint(9) NOT NULL,
-        ala_post_id mediumint(9) DEFAULT '-1' NOT NULL,
+        ala_alv_id bigint(11) NOT NULL,
+        ala_post_id bigint(11) DEFAULT '-1' NOT NULL,
         ala_title varchar(255),
         ala_text text,
-        ala_sort mediumint(9) DEFAULT '100' NOT NULL,
+        ala_sort bigint(11) DEFAULT '100' NOT NULL,
         ala_title_fontsize tinyint(1) DEFAULT '24' NOT NULL,
         ala_url varchar(255),
         ala_options text,
         ala_image varchar(255),
         ala_image_options text,
-        ala_parent mediumint(9) DEFAULT '-1' NOT NULL,
+        ala_parent bigint(11) DEFAULT '-1' NOT NULL,
         UNIQUE KEY id (ala_id),
         KEY created (ala_created),
         KEY alvid (ala_alv_id),

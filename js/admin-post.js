@@ -1,4 +1,8 @@
 jQuery(document).ready(function($) {
+
+    //
+    // Send post to arlima list
+    //
     $('#arlima-send-to-list-btn').click( function(e) {
 
         var $metabox = $('#arlima-meta-box');
@@ -24,8 +28,10 @@ jQuery(document).ready(function($) {
 
     });
 
+    //
+    // Navigate between lists on edit list page
+    //
     var $arlimaEditLink = $('#arlima-edit');
-
     $('#arlima-lists').change(function() {
         if( this.value ) {
             $arlimaEditLink.attr('href', 'admin.php?page=arlima&open_list='+this.value);
@@ -34,5 +40,27 @@ jQuery(document).ready(function($) {
             $arlimaEditLink.hide();
         }
     }).trigger('change');
+
+    //
+    // Remove image versions from attachment editor
+    //
+    $('#delete-arlima-versions').bind('click', function() {
+        var $link = $(this);
+        var data = {
+            action: 'arlima_remove_image_versions',
+            attachment: $(this).attr('data-post-id'),
+            _ajax_nonce : ArlimaJSAdmin.arlimaNonce
+        };
+
+        $.post( ajaxurl, data, function(json) {
+            if( json.error ) {
+                alert(json.error);
+            } else {
+                $link.parent().remove();
+                $('#arlima-versions').hide();
+                $('#arlima-no-versions-info').show();
+            }
+        }, 'json');
+    });
 });
 

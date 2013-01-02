@@ -417,6 +417,9 @@ msgstr "Är du säker på att du vill lägga till artikeln i toppen av vald arti
 msgid "The post is inserted in article list"
 msgstr "Artikeln skickades till"
 
+msgid "Send"
+msgstr "Skicka"
+
 msgid "Your login session seems to have expired, pls reload the page!"
 msgstr "Du verkar ha blivit utloggad och bör därför ladda om den här sidan."
 
@@ -470,3 +473,30 @@ msgstr "Den här listan är inte kopplad till någon sida"
 
 msgid "Related pages"
 msgstr "Relaterade sidor"
+
+msgid "Arlima image versions"
+msgstr "Bildversioner (Arlima)"
+
+msgid "Before content"
+msgstr "Före textinnehåll"
+
+msgid "After content"
+msgstr "Efter textinnehåll"
+
+msgid "Width"
+msgstr "Bredd"
+
+msgid "Offset"
+msgstr "Starta från artikel"
+
+msgid "Limit"
+msgstr "Antal artiklar"
+
+msgid "Generated versions"
+msgstr "Skapade bildversioner"
+
+msgid "This image has no generated versions"
+msgstr "Den här bilden har inga bildversioner"
+
+msgid "Delete versions"
+msgstr "Radera"

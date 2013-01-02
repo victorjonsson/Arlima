@@ -159,9 +159,10 @@ class Arlima_ImageVersionManager
     /**
      * Get paths to all generated arlima version
      * @param array|null $meta
+     * @param bool $as_url
      * @return array
      */
-    function getVersions($meta = null)
+    function getVersions($meta = null, $as_url = false)
     {
         if( $meta === null )
             $meta = wp_get_attachment_metadata($this->attach_id);
@@ -171,6 +172,11 @@ class Arlima_ImageVersionManager
         if( $meta && !empty($meta[self::META_KEY]) ) {
             foreach( $meta[self::META_KEY] as $version )
                 $paths[] = $dir . $version;
+        }
+
+        if( $as_url ) {
+            foreach($paths as $i => $file)
+                $paths[$i] = $this->generateFileURL( $file );
         }
 
         return $paths;

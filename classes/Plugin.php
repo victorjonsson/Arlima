@@ -8,9 +8,9 @@
  */
 class Arlima_Plugin
 {
-    const VERSION = 2.5;
+    const VERSION = 2.6;
     const EXPORT_FEED_NAME = 'arlima-export';
-    const STATIC_VERSION = '17.22';
+    const STATIC_VERSION = '18.22';
 
     private static $is_scissors_installed = null;
     private static $is_wp_related_post_installed = null;
@@ -186,6 +186,74 @@ class Arlima_Plugin
         self::update();
         self::loadTextDomain();
         add_action('save_post', array($this, 'savePageMetaBox'));
+        add_action('add_meta_boxes', array($this, 'addAttachmentMetaBox'));
+    }
+
+    /**
+     * Adds attachment meta box
+     */
+    function addAttachmentMetaBox()
+    {
+        if( $this->doAddAttachmentMetaBox() ) {
+
+            add_meta_box(
+                'arlima-attachment-media',
+                __('Arlima image versions', 'arlima'),
+                array($this, 'attachmentMetaBox'),
+                'attachment'
+            );
+        }
+    }
+
+    /**
+     * Outputs HTML content of arlima versions meta box
+     */
+    function attachmentMetaBox()
+    {
+        global $post;
+        $version_manager = new Arlima_ImageVersionManager($post->ID);
+        $versions = $version_manager->getVersions(null, true);
+        $no_version_style = count($versions) > 0 ? ' style="display:none"':'';
+        $versions_style = $no_version_style == '' ? ' style="display:none"':'';
+        ?>
+        <p id="arlima-no-versions-info"<?php echo $no_version_style ?>>
+            <?php _e('This image has no generated versions', 'arlima') ?>
+        </p>
+        <p id="arlima-versions"<?php echo $versions_style ?>>
+            <strong><?php _e('Generated versions', 'arlima') ?>:</strong>
+            <?php foreach($versions as $version): ?>
+                <a href="<?php echo $version ?>" target="_blank">
+                    [<?php echo $this->getVersionDisplayName($version) ?>]
+                </a>
+            <?php endforeach; ?>
+        </p>
+        <?php if($no_version_style != ''): ?>
+            <p>
+                <input type="button" data-post-id="<?php echo $post->ID ?>" id="delete-arlima-versions" class="button" value="<?php _e('Delete versions', 'arlima') ?>" />
+            </p>
+        <?php endif;
+    }
+
+    /**
+     * @param $file
+     * @return string
+     */
+    private function getVersionDisplayName($file)
+    {
+        $parts = pathinfo($file);
+        return current( array_slice( explode('_mw',  $parts['filename']), 1, 1));
+    }
+
+    /**
+     * @return bool
+     */
+    private function doAddAttachmentMetaBox()
+    {
+        global $wp_version, $post;
+        $img_content_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/png');
+        return version_compare( $wp_version, '3.5', '>=' ) &&
+                is_object($post) &&
+                in_array(strtolower($post->post_mime_type), $img_content_types);
     }
 
     /**
@@ -402,7 +470,7 @@ class Arlima_Plugin
                    class="button-secondary action"
                    type="button"
                    name="arlima-send-to-list-btn"
-                   value="Skicka" />
+                   value="<?php _e('Send', 'arlima') ?>" />
             <img src="<?php echo   ARLIMA_PLUGIN_URL . '/images/ajax-loader-trans.gif'; ?>"
                 class="ajax-loader"
                 style="display:none;" />
@@ -460,25 +528,25 @@ class Arlima_Plugin
                         <td>
                             <select name="arlima_position">
                                 <option value="before"<?php if($relation_data['attr']['position'] == 'before') echo ' selected="selected"' ?>>
-                                    Before content
+                                    <?php _e('Before content', 'arlima') ?>
                                 </option>
                                 <option value="after"<?php if($relation_data['attr']['position'] == 'after') echo ' selected="selected"' ?>>
-                                    After content
+                                    <?php _e('After content', 'arlima') ?>
                                 </option>
                             </select>
                         </td>
                     </tr>
                     <tr class="arlima-opt">
-                        <td><strong>Width:</strong></td>
+                        <td><strong><?php _e('Width', 'arlima') ?>:</strong></td>
                         <td><input type="number" name="arlima_width" value="<?php echo $relation_data['attr']['width'] ?>" style="width:50px"/> px
                         </td>
                     </tr>
                     <tr>
-                        <td><strong>Offset:</strong></td>
+                        <td><strong><?php _e('Offset', 'arlima') ?>:</strong></td>
                         <td><input type="number" name="arlima_offset" value="<?php echo $relation_data['attr']['offset'] ?>" style="width:50px"/></td>
                     </tr>
                     <tr>
-                        <td><strong>Limit:</strong></td>
+                        <td><strong><?php _e('Limit', 'arlima') ?>:</strong></td>
                         <td><input type="number" name="arlima_limit" value="<?php echo $relation_data['attr']['limit'] ?>" style="width:50px"/></td>
                     </tr>
                 </table>

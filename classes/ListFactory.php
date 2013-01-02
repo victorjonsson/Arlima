@@ -385,6 +385,10 @@ class Arlima_ListFactory {
      * @return mixed
      */
     private function executeSQLQuery($method, $sql, $remove_prefix = false, $preserve_obj=false) {
+        if( !$sql ) {
+            throw new Exception('Empty SQL, last error from wpdb: '.$this->wpdb->last_error);
+        }
+
         $obj = call_user_func(array($this->wpdb, $method), $sql);
         if( is_wp_error($obj) || $this->wpdb->last_error )
             throw new Exception($this->wpdb->last_error);
@@ -699,6 +703,13 @@ class Arlima_ListFactory {
         elseif($version < 2.5) {
             $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article DROP ala_status');
             $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist DROP al_status');
+        }
+        elseif($version < 2.6) {
+            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist al_id al_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY');
+            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_version alv_id alv_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY');
+            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_version alv_al_id alv_al_id bigint(11)');
+            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article ala_id ala_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY');
+            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article ala_alv_id ala_alv_id bigint(11)');
         }
     }
 

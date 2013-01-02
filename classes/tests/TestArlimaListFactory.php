@@ -200,4 +200,82 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Test list', $list->title);
 
     }
+
+    function testCache() {
+        $file_cache = new Private_ArlimaFileCache(sys_get_temp_dir());
+        self::$factory->setCacheManager( $file_cache );
+
+        $list_id = $this->createList('Cached list', 'cached')->id();
+        $list = self::$factory->loadList($list_id);
+
+        $this->assertEquals(array('arlima_list_props_'.$list_id, 'arlima_list_articles_data_'.$list_id), $file_cache->log['get']);
+        $file_cache->resetLog();
+
+        self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray() ), 1);
+        $list = self::$factory->loadList($list_id);
+
+        $this->assertEquals(array('arlima_list_props_'.$list_id, 'arlima_list_articles_data_'.$list_id), $file_cache->log['get']);
+        $this->assertEquals(array('arlima_list_articles_data_'.$list_id), $file_cache->log['set']);
+        $this->assertEquals(array('arlima_list_articles_data_'.$list_id), $file_cache->log['delete']);
+        $file_cache->resetLog();
+
+        $this->assertEquals(1, count( $list->getArticles() ));
+
+        self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray(),Arlima_ListFactory::createArticleDataArray() ), 1);
+        $list = self::$factory->loadList($list_id);
+
+        $file_cache->resetLog();
+
+        $list = self::$factory->loadList($list_id);
+
+        $this->assertEquals(array('arlima_list_props_'.$list_id, 'arlima_list_articles_data_'.$list_id), $file_cache->log['get']);
+
+        $this->assertEquals(2, count( $list->getArticles() ));
+    }
+}
+
+
+class Private_ArlimaFileCache {
+
+    private $path;
+
+    public $log;
+
+    function __construct($p) {
+        $this->path = $p;
+        $this->resetLog();
+    }
+
+    function resetLog() {
+        $this->log = array(
+                'get' => array(),
+                'set' => array(),
+                'delete' => array()
+            );
+    }
+
+    function get($id) {
+        $this->log['get'][] = $id;
+        $file = $this->generateFileName($id);
+        if( stream_resolve_include_path($file) !== false) {
+            return unserialize(file_get_contents($file));
+        }
+        return false;
+    }
+
+    function set($id, $content) {
+        $this->log['set'][] = $id;
+        file_put_contents($this->generateFileName($id), serialize($content));
+    }
+
+    function delete($id) {
+        $this->log['delete'][] = $id;
+        $file = $this->generateFileName($id);
+        if( stream_resolve_include_path($file) !== false)
+            @unlink($file);
+    }
+
+    private function generateFileName($id) {
+        return $this->path .'/'. $id .'.cache';
+    }
 }

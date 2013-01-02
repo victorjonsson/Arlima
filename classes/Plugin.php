@@ -241,7 +241,7 @@ class Arlima_Plugin
     private function getVersionDisplayName($file)
     {
         $parts = pathinfo($file);
-        return current( array_slice( explode('_mw',  $parts['filename']), 1, 1));
+        return current( array_slice( explode(Arlima_ImageVersionManager::VERSION_PREFIX,  $parts['filename']), 1, 1));
     }
 
     /**
@@ -250,7 +250,7 @@ class Arlima_Plugin
     private function doAddAttachmentMetaBox()
     {
         global $wp_version, $post;
-        $img_content_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/png');
+        $img_content_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif');
         return version_compare( $wp_version, '3.5', '>=' ) &&
                 is_object($post) &&
                 in_array(strtolower($post->post_mime_type), $img_content_types);

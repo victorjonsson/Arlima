@@ -44,6 +44,14 @@ class Arlima_ListFactory {
     }
 
     /**
+     * @param object|mixed $cache_instance
+     */
+    public function setCacheManager( $cache_instance )
+    {
+       $this->cache = $cache_instance;
+    }
+
+    /**
      * Creates a new article list
      * @param $title
      * @param $slug

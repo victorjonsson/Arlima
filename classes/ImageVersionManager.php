@@ -11,6 +11,7 @@ class Arlima_ImageVersionManager
 {
 
     const META_KEY = 'arlima-images';
+    const VERSION_PREFIX = 'arlima_mw';
     
     /**
      * @var int
@@ -60,7 +61,7 @@ class Arlima_ImageVersionManager
      * Removes all image versions created for given attachment
      * @param int $attach_id
      */
-    public static function removeVersions($attach_id)
+    public static function removeVersions($attach_id = null)
     {
         $meta = wp_get_attachment_metadata($attach_id);
         if( !empty($meta) && !empty($meta[self::META_KEY])) {
@@ -95,12 +96,14 @@ class Arlima_ImageVersionManager
                 // Try to create new version
 
                 $version_file = $this->generateVersionName($file, $max_width);
-                $editor = wp_get_image_editor(self::uploadDirData('basedir').'/'.$file);
+                $file_full_path = self::uploadDirData('basedir').'/'.$file;
+                $editor = wp_get_image_editor($file_full_path);
 
                 if( is_wp_error($editor) ) {
                     trigger_error('Failed loading WP image editor with message: '.$editor->get_error_message(), E_USER_ERROR);
                     $version_url = $this->generateFileURL($file);
-                } else {
+                }
+                elseif( $this->canGenerateVersion($file_full_path, $max_width) ) {
                     $editor->set_quality( apply_filters('arlima_image_quality', 100) );
                     if( $editor->resize($max_width, false) ) {
 
@@ -108,15 +111,8 @@ class Arlima_ImageVersionManager
                             trigger_error('Failed saving resized image with message: '.$error->get_error_message(), E_USER_ERROR);
                             $version_url = $this->generateFileURL($file);
                         } else {
-
-                            if( empty($meta[self::META_KEY]) )
-                                $meta[self::META_KEY] = array();
-
-                            $meta[self::META_KEY][$max_width] = $version_file;
-                            wp_update_attachment_metadata($this->attach_id, $meta);
-
+                            $this->saveGeneratedVersion($meta, $version_file, $max_width);
                             $version_url = $this->generateFileURL($version_file);
-
                         }
 
                     } else {
@@ -124,9 +120,42 @@ class Arlima_ImageVersionManager
                         $version_url = $this->generateFileURL($file);
                     }
                 }
+                else {
+                    // We can not generate a version out of this file, use original source
+                    $this->saveGeneratedVersion($meta, $file, $max_width);
+                    $version_url = $this->generateFileURL($file);
+                }
             }
         }
         return $version_url;
+    }
+
+    /**
+     * @param $meta
+     * @param $version_file
+     * @param $max_width
+     * @return array
+     */
+    private function saveGeneratedVersion($meta, $version_file, $max_width)
+    {
+        if( empty($meta[self::META_KEY]) )
+            $meta[self::META_KEY] = array();
+
+        $meta[self::META_KEY][$max_width] = $version_file;
+        wp_update_attachment_metadata($this->attach_id, $meta);
+        return $meta;
+    }
+
+    /**
+     * Do not upsize to small png images
+     * @param $file
+     * @param $max_width
+     * @return bool
+     */
+    private function canGenerateVersion($file, $max_width)
+    {
+        return strtolower(pathinfo($file, PATHINFO_EXTENSION)) != 'png' ||
+                current(getimagesize($file)) > $max_width;
     }
 
     /**
@@ -153,7 +182,7 @@ class Arlima_ImageVersionManager
     private function generateVersionName($file, $max_width)
     {
         $info = pathinfo($file);
-        return $info['dirname'] .'/'. $info['filename'] .'-arlima_mw'. $max_width .'.'. $info['extension'];
+        return $info['dirname'] .'/'. $info['filename'] .'-' .self::VERSION_PREFIX. $max_width .'.'. $info['extension'];
     }
 
     /**
@@ -169,9 +198,15 @@ class Arlima_ImageVersionManager
 
         $paths = array();
         $dir = self::uploadDirData('basedir').'/';
+        $file_name_regex = '/'.self::VERSION_PREFIX.'([0-9]+)\.([a-zA-Z]+)/';
         if( $meta && !empty($meta[self::META_KEY]) ) {
-            foreach( $meta[self::META_KEY] as $version )
-                $paths[] = $dir . $version;
+            foreach( $meta[self::META_KEY] as $version ) {
+                if( preg_match_all($file_name_regex, $version, $m) ) {
+                    $paths[] = $dir . $version;
+                    // some paths may be the same as the original source since we
+                    // do not scale up images
+                }
+            }
         }
 
         if( $as_url ) {

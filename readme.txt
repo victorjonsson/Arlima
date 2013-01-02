@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.5.9
+Stable tag: 2.5.11
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,13 @@ the list that you created on step 2.
 
 
 == Changelog ==
+
+= 2.6 =
+
+- Now possible to delete image versions created by arlima on the page where you edit attachments.
+- Minor bug fixes and general improvements.
+- Added missing translations.
+
 
 = 2.5.8 (Christmas release) =
 

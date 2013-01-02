@@ -9,6 +9,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
         remove_all_filters('arlima_article_end');
         remove_all_filters('arlima_article_content');
         remove_all_filters('arlima_article_image');
+        remove_all_filters('arlima_template_object');
         remove_all_filters('arlima_article_future_post');
         $this->executed_actions = 0;
     }
@@ -179,5 +180,24 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $expected = 'hellohellochildA';
 
         $this->assertEquals($expected, $content);
+    }
+
+    public function testObjectFilter() {
+        $list = $this->createList(1);
+        $list->setOption('template', 'some-template');
+
+
+        add_filter('arlima_template_object', 'TestActions::templateObjectFilter');
+
+        $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+        $content = arlima_render_list($renderer, array('echo'=>false));
+        $expected = 'helloChanged in filter';
+
+        $this->assertEquals($expected, $content);
+    }
+
+    public static function templateObjectFilter($obj) {
+        $obj['article']['html_text'] = 'Changed in filter';
+        return $obj;
     }
 }

@@ -51,6 +51,29 @@ class Arlima_AdminAjaxManager
         add_action('wp_ajax_arlima_duplicate_image', array($this, 'duplicateImage'));
         add_action('wp_ajax_arlima_import_arlima_list', array($this, 'importList'));
         add_action('wp_ajax_arlima_remove_image_versions', array($this, 'removeImageVersions'));
+
+        // The following action is not possible to hook into wtf???
+        // add_action('wp_ajax_image-editor', array($this, 'removeImageVersions'));
+        if ( $this->isSavingEditedImage() ) {
+            add_action('init', array($this, 'removeImageVersions'));
+        }
+    }
+
+    /**
+     * Tells whether or not this request is made to save an edited image.
+     * This is a workaround for add_action('wp_ajax_image-editor', ...)
+     * @return bool
+     */
+    private function isSavingEditedImage()
+    {
+        return isset($_POST['action']) &&
+        isset($_POST['postid']) &&
+        isset($_POST['do']) &&
+        isset($_POST['context']) &&
+        $_POST['action'] == 'image-editor' &&
+        $_POST['do'] == 'save' &&
+        $_POST['context'] == 'edit-attachment' &&
+        basename($_SERVER['PHP_SELF']) == 'admin-ajax.php';
     }
 
     /**
@@ -58,13 +81,19 @@ class Arlima_AdminAjaxManager
      */
     public function removeImageVersions()
     {
-        $this->initAjaxRequest();
-        if( empty($_POST['attachment']) ) {
-            die( json_encode(array('error'=>'No attachment given')));
-        }
-        else {
+        // Arlima admin request
+        if( !empty($_POST['attachment']) ) {
+            $this->initAjaxRequest();
             Arlima_ImageVersionManager::removeVersions($_POST['attachment']);
             die( json_encode(array('success'=>true)));
+        }
+
+        // image editor in wp-admin
+        elseif( !empty($_POST['postid']) && is_user_logged_in() ) {
+            Arlima_ImageVersionManager::removeVersions($_POST['postid']);
+        }
+        else {
+            die( json_encode(array('error'=>'No attachment given')));
         }
     }
 

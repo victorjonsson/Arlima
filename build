@@ -2,13 +2,17 @@
 /**
  * Build file for arlima
  * --------------------------
- * 1. Increases version number
- * 2. Runs all unit tests
- * 3. Translates pot-files
- * 4. Copies all wordpress files to a new directory named "build-X.Y.Z", one step down in the file system
  *
- * Running this script requires that you install module "wrench"
- *  npm install wrench --global
+ * This script does the following:
+ *   1. Increases version number
+ *   2. Runs all unit tests
+ *   3. Translates pot-files
+ *   4. Copies all wordpress files to a new directory named "build-X.Y.Z", one step down in the file system
+ *
+ * Requirements: 
+ *   - Node
+ *   - Node module wrench ($ npm install wrench)
+ *   - msgfmt and phpunit.phar has to be installed and added to your $PATH
  */
 
 
@@ -17,7 +21,25 @@ var fs = require('fs'),
     wrench = require('./node_modules/wrench'),
     exec = require('child_process').exec,
     mainScript = 'arlima.php',
-    newVersion = -1;
+    finishedTests = 0,
+    testsFailed = false,
+    newVersion = -1,
+    tests = [
+        'classes/tests/TestActions.php',
+        'classes/tests/TestArlimaExport.php',
+        'classes/tests/TestArlimaImport.php',
+        'classes/tests/TestArlimaListFactory.php',
+        'classes/tests/TestArlimaListRendering.php',
+        'classes/tests/TestTemplateObjectCreator.php',
+        'classes/tests/TestTemplatePathResolver.php'
+    ],
+    buildFile = function(path, versionSplit) {
+        var codeParts = fs.readFileSync(path, 'utf-8').split(versionSplit);
+        var lastCodeParts = codeParts[1].split("\n");
+        var origCode = codeParts[0] + versionSplit+newVersion+ "\n" + lastCodeParts.slice(1, lastCodeParts.length).join("\n") + "";
+        fs.writeFileSync(path, origCode);
+    };
+
 
 /*
  * Find out new version number
@@ -33,27 +55,10 @@ else {
     newVersion = versionParts.join('.') + '.' + newSubVersion.toString();
 }
 
+
 console.log('Build version: '+newVersion);
 console.log('Running tests...');
 
-function buildFile(path, versionSplit) {
-    var codeParts = fs.readFileSync(path, 'utf-8').split(versionSplit);
-    var lastCodeParts = codeParts[1].split("\n");
-    var origCode = codeParts[0] + versionSplit+newVersion+ "\n" + lastCodeParts.slice(1, lastCodeParts.length).join("\n") + "";
-    fs.writeFileSync(path, origCode);
-}
-
-var finishedTests = 0;
-var testsFailed = false;
-var tests = [
-    'classes/tests/TestActions.php',
-    'classes/tests/TestArlimaExport.php',
-    'classes/tests/TestArlimaImport.php',
-    'classes/tests/TestArlimaListFactory.php',
-    'classes/tests/TestArlimaListRendering.php',
-    'classes/tests/TestTemplateObjectCreator.php',
-    'classes/tests/TestTemplatePathResolver.php'
-];
 
 tests.every(function(file) {
     exec('phpunit.phar '+file, function (error, stdout, stderr) {
@@ -70,8 +75,10 @@ tests.every(function(file) {
             console.log('Build failed :(');
         }
         else {
+
             console.log('- SUCCESS :: '+file);
             finishedTests++;
+
             if( finishedTests == tests.length ) {
                 console.log('Translating pot-files');
 

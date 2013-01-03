@@ -28,16 +28,14 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
     function testFindDefaultTemplates() {
 
         $files = $this->path_resolver->getTemplateFiles();
-        $this->assertEquals(array('article', 'giant'), array_keys($files));
+        $this->assertEquals(array('article', 'giant', 'widget'), array_keys($files));
 
-        // Strip away root path from templates
-        foreach($files as $key => $file) {
-            $files[$key] = $this->stripRootPath($file);
-        }
+        $this->stipRootPathsFromFiles($files);
 
         $this->assertEquals(array(
-               'article'=> 'arlima/templates/article.tmpl',
-               'giant'=> 'arlima/templates/giant.tmpl'
+               'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'article', 'name'=>'article'),
+               'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'giant', 'name'=>'giant'),
+               'widget'=> array('file'=>'arlima/templates/widget.tmpl', 'url' => 'arlima/templates/widget.tmpl', 'label' => 'widget', 'name'=>'widget')
             ), $files);
 
         $this->assertEquals('arlima/templates/article.tmpl', $this->stripRootPath($this->path_resolver->getDefaultTemplate()) );
@@ -47,20 +45,50 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $this->path_resolver = new Arlima_TemplatePathResolver(array(__DIR__.'/test-templates/'), false);
 
         $files = $this->path_resolver->getTemplateFiles();
-        $this->assertEquals(array('some-template', 'article', 'giant'), array_keys($files));
+        $this->assertEquals(array('some-template', 'article', 'giant', 'widget'), array_keys($files));
 
-        // Strip away root path from templates
-        foreach($files as $key => $file) {
-            $files[$key] = $this->stripRootPath($file);
-        }
+        $this->stipRootPathsFromFiles($files);
 
         $this->assertEquals(array(
-                'some-template'=> 'arlima/classes/tests/test-templates/some-template.tmpl',
-                'article'=> 'arlima/templates/article.tmpl',
-                'giant'=> 'arlima/templates/giant.tmpl'
+                'some-template'=> array('file'=>'arlima/classes/tests/test-templates/some-template.tmpl', 'url' => 'arlima/classes/tests/test-templates/some-template.tmpl', 'label' => 'some-template', 'name'=>'some-template'),
+                'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'article', 'name'=>'article'),
+                'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'giant', 'name'=>'giant'),
+                'widget'=> array('file'=>'arlima/templates/widget.tmpl', 'url' => 'arlima/templates/widget.tmpl', 'label' => 'widget', 'name'=>'widget'),
             ), $files);
 
         $this->assertEquals('arlima/templates/article.tmpl', $this->stripRootPath($this->path_resolver->getDefaultTemplate()) );
     }
 
+    function testLabeling() {
+        add_filter('arlima_template_labels', array($this, 'templateLabels'));
+        $this->path_resolver = new Arlima_TemplatePathResolver(array(__DIR__.'/test-templates/'), false);
+        $files = $this->path_resolver->getTemplateFiles();
+
+        $this->stipRootPathsFromFiles($files);
+
+        $this->assertEquals(array(
+                'some-template'=> array('file'=>'arlima/classes/tests/test-templates/some-template.tmpl', 'url' => 'arlima/classes/tests/test-templates/some-template.tmpl', 'label' => 'APA', 'name'=>'some-template'),
+                'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'article', 'name'=>'article'),
+                'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'giant', 'name'=>'giant'),
+                'widget'=> array('file'=>'arlima/templates/widget.tmpl', 'url' => 'arlima/templates/widget.tmpl', 'label' => 'HÄST', 'name'=>'widget'),
+            ), $files);
+    }
+
+    /**
+     * @param $files
+     */
+    private function stipRootPathsFromFiles(&$files)
+    {
+        foreach ($files as $key => $file) {
+            $files[$key] = $file;
+            $files[$key]['file'] = $this->stripRootPath($file['file']);
+            $files[$key]['url'] = $this->stripRootPath($file['url']);
+        }
+    }
+
+    function templateLabels($labels) {
+        $labels['some-template'] = 'APA';
+        $labels['widget'] = 'HÄST';
+        return $labels;
+    }
 }

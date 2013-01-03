@@ -1,0 +1,25 @@
+<div class="${container.class} tmpl-article tmpl-widget">
+    <article>
+
+        {{if streamer}}
+            <div style="${streamer.style}" class="streamer ${streamer.type}">
+                <span>{{html streamer.content}}</span>
+            </div>
+        {{/if}}
+
+        {{html article_begin}}
+
+        {{include parts/top-image.tmpl}}
+
+        {{if article.url}}
+            <h4><a href="${article.url}">${article.title}</a></h4>
+        {{else}}
+            <h4>${article.title}</h4>
+        {{/if}}
+
+        {{html article.html_text}}
+
+    </article>
+</div>
+
+{{html article_end}}

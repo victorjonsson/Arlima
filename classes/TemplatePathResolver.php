@@ -51,12 +51,18 @@ class Arlima_TemplatePathResolver
     public function getTemplateFiles()
     {
         $templates = array();
+        $labels = apply_filters('arlima_template_labels', array());
         foreach ($this->getPaths() as $path) {
             $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
             foreach (glob($path . '*' . self::TMPL_EXT) as $file) {
                 $name = pathinfo($file, PATHINFO_FILENAME);
                 if ( empty($templates[$name]) ) {
-                    $templates[$name] = $file;
+                    $templates[$name] = array(
+                                        'file' => $file,
+                                        'label' => empty($labels[$name]) ? $name : $labels[$name],
+                                        'name' => $name,
+                                        'url' => $this->fileToUrl($file)
+                                    );
                 }
             }
         }

@@ -574,10 +574,16 @@ class Arlima_AdminAjaxManager
         $preview_url = '';
         $preview_page_width = '';
 
+        // Get article width from a related page
         if( $preview_page ) {
             $preview_url = get_permalink($preview_page->ID);
             $relation = $connector->getRelationData($preview_page->ID);
             $preview_page_width = $relation['attr']['width'];
+        }
+
+        // Get article width form a widget where the list is used
+        elseif( $widget = current($connector->loadRelatedWidgets()) ) {
+            $preview_page_width = $widget['width'];
         }
 
         ?>

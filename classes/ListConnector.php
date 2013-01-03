@@ -85,6 +85,42 @@ class Arlima_ListConnector {
         return array();
     }
 
+    public function loadRelatedWidgets()
+    {
+        global $wp_registered_widgets;
+        $related = array();
+        $list_id = $this->list->id();
+        $prefix_len = strlen(Arlima_Widget::WIDGET_PREFIX);
+        foreach(wp_get_sidebars_widgets() as $sidebar => $widgets) {
+            $index = 0;
+            foreach( $widgets as $widget_id ) {
+                $index++;
+                if( substr($widget_id, 0, $prefix_len) == Arlima_Widget::WIDGET_PREFIX && !empty($wp_registered_widgets[$widget_id])) {
+                    $widget = $this->findWidgetObject($wp_registered_widgets[$widget_id]);
+                    if( $widget_id !== null) {
+                        $settings = current( array_slice($widget->get_settings(), -1) );
+                        if( $settings['list'] ==  $list_id )
+                            $related[] = array('sidebar' => $sidebar, 'index' => $index, 'width' => $settings['width']);
+                    }
+                }
+            }
+        }
+
+        return $related;
+    }
+
+    /**
+     * @param array $registered_data
+     * @return null|WP_Widget
+     */
+    private function findWidgetObject($registered_data)
+    {
+        if( !empty($registered_data['callback']) && !empty( $registered_data['callback'][0] ) ) {
+            return is_object($registered_data['callback'][0]) ? $registered_data['callback'][0] : null;
+        }
+        return null;
+    }
+
     /**
      * Returns false if not relation is made
      * @param int $post_id

@@ -134,9 +134,9 @@ $available_lists = $factory->loadListSlugs();
                                         <select name="options[template]" id="article-template">
                                             <?php
                                             $tmpl = new Arlima_TemplatePathResolver();
-                                            foreach($tmpl->getTemplateFiles() as $name => $file) {
-                                                $selected = $name == $list->getOption('template') ? ' selected="selected"':'';
-                                                echo sprintf('<option value="%s"%s>%s</option>', $name, $selected, $name);
+                                            foreach($tmpl->getTemplateFiles() as $file) {
+                                                $selected = $file['name'] == $list->getOption('template') ? ' selected="selected"':'';
+                                                echo sprintf('<option value="%s"%s>%s</option>', $file['name'], $selected, $file['label']);
                                             }
                                             ?>
                                         </select>
@@ -163,21 +163,26 @@ $available_lists = $factory->loadListSlugs();
                                 <input type="button" value="<?php _e('Remove', 'arlima') ?>" style="color:red; margin-left: 5px;" class="button-secondary action"
                                        onclick="if(confirm('<?php _e('Are you sure that you want to remove this list?', 'arlima') ?>')) document.location = document.location.href + '&remove_list=1'" />
 
-                                <div style="background: #F4F4F4; padding: 2px 8px 8px; color: #777; margin-top: 12px">
-                                    <p>
-                                        <strong><?php _e('Related pages', 'arlima') ?>:</strong>
-                                    </p>
+                                <div class="content-relations">
+                                    <p><strong><?php _e('Pages') ?>:</strong></p>
                                     <?php
-                                        $pages = $connector->loadRelatedPages();
-                                        if( empty($pages) ):?>
-                                            <em><?php _e('This list is not yet related to any page', 'arlima') ?></em>
-                                       <?php else: ?>
-                                            <?php foreach($pages as $p): ?>
-                                                <a href="<?php echo get_permalink($p->ID) ?>" target="_blank">
-                                                    <?php echo $p->post_title ?>
-                                                </a>
-                                            <?php endforeach; ?>
-                                       <?php endif; ?>
+                                    $pages = $connector->loadRelatedPages();
+                                    $widgets = $connector->loadRelatedWidgets();
+                                    if( empty($pages) ):?>
+                                        <p><em><?php _e('This list is not yet related to any page', 'arlima') ?></em></p>
+                                    <?php else: ?>
+                                        <?php foreach($pages as $p): ?>
+                                            <a href="<?php echo get_permalink($p->ID) ?>" target="_blank">
+                                            <?php echo $p->post_title ?>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                    <?php if( !empty($widgets) ): ?>
+                                        <p><strong><?php _e('Widgets') ?>:</strong></p>
+                                        <?php foreach($widgets as $data): ?>
+                                            <?php echo __('Widget number ', 'arlima').$data['index'].__(' in ', 'arlima').' &quot;'.$data['sidebar'].'&quot;' ?>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
 
 							<?php endif; ?>

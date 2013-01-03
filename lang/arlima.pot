@@ -471,9 +471,6 @@ msgstr "Skapa din första lista"
 msgid "This list is not yet related to any page"
 msgstr "Den här listan är inte kopplad till någon sida"
 
-msgid "Related pages"
-msgstr "Relaterade sidor"
-
 msgid "Arlima image versions"
 msgstr "Bildversioner (Arlima)"
 
@@ -500,3 +497,15 @@ msgstr "Den här bilden har inga bildversioner"
 
 msgid "Delete versions"
 msgstr "Radera"
+
+msgid "Widget that displays an article list"
+msgstr "Widget som visar en artikellista"
+
+msgid "No override"
+msgstr "Standard"
+
+msgid "Widget number "
+msgstr "Widget nummer "
+
+msgid " in "
+msgstr " i "

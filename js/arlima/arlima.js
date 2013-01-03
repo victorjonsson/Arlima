@@ -829,6 +829,16 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 else {
                     $('#arlima-article-wp-connection').hide();
                 }
+
+                // Title font size toggle
+                if( tmpl.indexOf('{html article.html_title}') > -1) {
+                    $('#arlima-edit-article-title-fontsize-slider').show();
+                    $('#arlima-edit-article-title-fontsize').show();
+                }
+                else {
+                    $('#arlima-edit-article-title-fontsize-slider').hide();
+                    $('#arlima-edit-article-title-fontsize').hide();
+                }
             }
         },
 

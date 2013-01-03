@@ -10,7 +10,7 @@ class Arlima_Plugin
 {
     const VERSION = 2.6;
     const EXPORT_FEED_NAME = 'arlima-export';
-    const STATIC_VERSION = '18.22';
+    const STATIC_VERSION = '18.23';
 
     private static $is_scissors_installed = null;
     private static $is_wp_related_post_installed = null;
@@ -21,6 +21,9 @@ class Arlima_Plugin
      */
     function initThemeActions()
     {
+        // Register widget
+        add_action('widgets_init', array($this, 'setupWidgets'));
+
         add_action('init', array($this, 'commonInitHook'));
         add_action('template_redirect', array($this, 'themeInitHook'));
     }
@@ -30,6 +33,9 @@ class Arlima_Plugin
      */
     function initAdminActions()
     {
+        // Register widget
+        add_action('widgets_init', array($this, 'setupWidgets'));
+
         add_action('init', array($this, 'commonInitHook'));
         add_action('init', array($this, 'adminInitHook'));
         add_action('admin_menu', array($this, 'adminMenu'));
@@ -163,10 +169,13 @@ class Arlima_Plugin
      */
     function commonInitHook()
     {
+        // Add links to admin bar
         add_action('wp_before_admin_bar_render', array($this, 'adminBar'));
 
+        // Add export feeds
         $this->addExportFeeds();
 
+        // Check if some other plugins might be installed
         self::$is_scissors_installed = function_exists('scissors_create_image');
         self::$is_wp_related_post_installed = function_exists('MRP_get_related_posts');
 
@@ -176,6 +185,14 @@ class Arlima_Plugin
 
         // Image version filters
         Arlima_ImageVersionManager::registerFilters();
+    }
+
+    /**
+     * Register our widgets and widget filters
+     */
+    public function setupWidgets()
+    {
+        register_widget('Arlima_Widget'); // Class will be autoloaded
     }
 
     /**
@@ -845,7 +862,7 @@ class Arlima_Plugin
         <script>
             var tmpls = [];
             <?php foreach ($tmpl_resolver->getTemplateFiles() as $tmpl): ?>
-                tmpls.push('<?php echo $tmpl_resolver->fileToUrl($tmpl); ?>?v=5');
+                tmpls.push('<?php echo $tmpl['url']; ?>?v=5');
             <?php endforeach; ?>
             ArlimaTemplateLoader.load(tmpls);
             <?php if ( !empty($_GET['open_list']) ): ?>

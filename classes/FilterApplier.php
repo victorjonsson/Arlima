@@ -21,6 +21,23 @@ class Arlima_FilterApplier
     private static $width = 468;
 
     /**
+     * @var null|bool
+     */
+    private static $is_wp_support_img_editor = null;
+
+    /**
+     * @return bool
+     */
+    protected static function supportsImageEditor()
+    {
+        if( self::$is_wp_support_img_editor === null ) {
+            global $wp_version;
+            self::$is_wp_support_img_editor = version_compare( $wp_version, '3.5', '>=' );
+        }
+        return self::$is_wp_support_img_editor;
+    }
+
+    /**
      * @param string $s
      */
     public static function setFilterSuffix($s)
@@ -95,7 +112,8 @@ class Arlima_FilterApplier
             'count' => $article_counter,
             'post' => $post,
             'content' => '',
-            'list' => $list
+            'list' => $list,
+            'filter_suffix' => self::$filter_suffix
         );
         if($img_size) {
             $data['size_name'] = $img_size;
@@ -223,9 +241,7 @@ class Arlima_FilterApplier
      */
     private static function generateImageVersion($file, $attach_url, $size, $attach_id)
     {
-        global $wp_version;
-
-        if( version_compare( $wp_version, '3.5', '<' ) ) {
+        if( !self::supportsImageEditor() ) {
             $resized_img = image_resize(
                 WP_CONTENT_DIR . '/uploads/' . $file,
                 $size[0],
@@ -302,7 +318,7 @@ class Arlima_FilterApplier
         $filtered = self::filter('arlima_article_related_content', $article_counter, $article, $post, $list);
 
         if ( empty($filtered['content']) ) {
-            return !empty($post) ? arlima_related_posts('inline', null, false) : '';
+            return !empty($post) ? arlima_related_posts() : '';
         } else {
             return $filtered['content'];
         }

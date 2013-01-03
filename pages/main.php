@@ -130,7 +130,7 @@ $factory = new Arlima_ListFactory();
                                             <select id="arlima-edit-article-options-format" name="options-format">
                                                 <option value=""><?php _e('Default', 'arlima') ?></option>
                                                 <?php foreach($formats as $format): ?>
-                                                    <option value="<?php echo $format['class'] ?>" data-arlima-template="<?php foreach($format['templates'] as $tmpl) echo "[$tmpl]"; ?>">
+                                                    <option value="<?php echo $format['class'] ?>" data-arlima-template="<?php foreach($format['templates'] as $path_resolver) echo "[$path_resolver]"; ?>">
                                                         <?php echo $format['label'] ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -140,17 +140,16 @@ $factory = new Arlima_ListFactory();
                                     <?php
                                         _e('Template', 'arlima');
                                         $hidden = apply_filters('arlima_hidden_templates', array());
-                                        $labels = apply_filters('arlima_template_labels', array());
                                     ?>
                                     <select  id="arlima-edit-article-options-template" name="options-template">
                                         <option value=""><?php _e('Default', 'arlima') ?></option>
                                         <?php
-                                            $tmpl = new Arlima_TemplatePathResolver();
-                                            foreach($tmpl->getTemplateFiles() as $name => $file):
+                                            $path_resolver = new Arlima_TemplatePathResolver();
+                                            foreach($path_resolver->getTemplateFiles() as $file):
                                                 if( in_array($name, $hidden) )
                                                     continue; ?>
-                                                <option value="<?php echo $name ?>">
-                                                    <?php echo !empty($labels[$name]) ? $labels[$name] : $name; ?>
+                                                <option value="<?php echo $file['name'] ?>">
+                                                    <?php echo $file['label']; ?>
                                                 </option>
                                         <?php endforeach; ?>
                                     </select>

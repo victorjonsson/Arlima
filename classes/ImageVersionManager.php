@@ -76,6 +76,7 @@ class Arlima_ImageVersionManager
     }
 
     /**
+     * Generates a new version
      * @param int $max_width
      * @return string
      */

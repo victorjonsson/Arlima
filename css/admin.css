@@ -545,6 +545,13 @@ li.dragger {
     background: #fff;
 }
 
+.content-relations {
+    background: #F4F4F4;
+    padding: 2px 8px 8px;
+    color: #777;
+    margin-top: 12px;
+}
+
 #arlima-lists ul li:hover {
     background: #eee;
 }

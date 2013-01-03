@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.5.12
+Stable tag: 2.6
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,12 +42,13 @@ the list that you created on step 2.
 
 == Changelog ==
 
-= 2.6 (WIP...) =
+= 2.6 =
 
 - New feature: Display an article list in a widget.
 - New feature: Now possible to delete image versions (created by Arlima) on the same page where you edit attachments (only WordPress version >= 3.5).
 - New template: This release brings along a new template that's meant to be used when displaying a list in a widget. This template is
  practically the same as the default template except that it does not display related articles nor sub articles.
+- Now possible to use filters to prevent stuff from being sent to the jQuery template (thanks for helping us sort this out <a href="http://dotunited.se/">Mattias</a>).
 - Minor bug fixes and general improvements.
 - Added missing translations.
 

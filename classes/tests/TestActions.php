@@ -100,6 +100,51 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $this->assertEquals('helloBEGINCONTENTEND', $content);
     }
 
+    function testSomeFiltersSettingContentToFalse() {
+        $list = $this->createList(1);
+        $list->setOption('template', 'some-template');
+        $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+
+        add_action('arlima_article_begin', function($data) {
+                $data['content'] = false;
+                return $data;
+            });
+
+        add_action('arlima_article_end', function($data) {
+                $data['content'] = false;
+                return $data;
+            });
+
+        add_action('arlima_article_content', function($data) {
+                $data['content'] = false;
+                return $data;
+            });
+
+        $content = arlima_render_list($renderer, array('echo'=>false));
+        $this->assertEquals('hello', $content);
+    }
+
+    function testSomeFiltersReturningFalse() {
+        $list = $this->createList(1);
+        $list->setOption('template', 'some-template');
+        $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+
+        add_action('arlima_article_begin', function($data) {
+                return false;
+            });
+
+        add_action('arlima_article_end', function($data) {
+                return false;
+            });
+
+        add_action('arlima_article_content', function($data) {
+                return false;
+            });
+
+        $content = arlima_render_list($renderer, array('echo'=>false));
+        $this->assertEquals('hello', $content);
+    }
+
     function testSpecifiedFilters() {
         $list = $this->createList(1);
         $list->setOption('template', 'some-template');

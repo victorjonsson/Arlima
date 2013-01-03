@@ -83,8 +83,6 @@ class Arlima_Widget extends WP_Widget {
         $factory = new Arlima_ListFactory();
         $lists = $factory->loadListSlugs();
 
-        // TODO: add options for offset, limit, filter-suffix, default template
-
         ?>
         <table cellpadding="5">
             <tr>
@@ -92,15 +90,15 @@ class Arlima_Widget extends WP_Widget {
                 <td><input type="text" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title'] ?>" style="width:120px"></td>
             </tr>
             <tr>
-                <td><strong><?php _e('Title', 'arlima') ?>:</strong></td>
+                <td><strong><?php _e('List', 'arlima') ?>:</strong></td>
                 <td>
                     <select id="<?php echo $this->get_field_id( 'list' ); ?>" name="<?php echo $this->get_field_name( 'list' ); ?>">
-                        <?php foreach ($lists as $arlima_list): ?>
-                            <option value="<?php echo $arlima_list->id; ?>"<?php
-                                if ( $instance['list'] ==  $arlima_list->id ){
+                        <?php foreach ($lists as $list_data): ?>
+                            <option value="<?php echo $list_data->id; ?>"<?php
+                                if ( $instance['list'] ==  $list_data->id ){
                                     echo ' selected="selected"';
                                 }
-                                ?>><?php echo $arlima_list->title; ?></option>
+                                ?>><?php echo $list_data->title; ?></option>
                         <?php endforeach; ?>
                     </select>
                 </td>

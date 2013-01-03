@@ -130,7 +130,7 @@ $factory = new Arlima_ListFactory();
                                             <select id="arlima-edit-article-options-format" name="options-format">
                                                 <option value=""><?php _e('Default', 'arlima') ?></option>
                                                 <?php foreach($formats as $format): ?>
-                                                    <option value="<?php echo $format['class'] ?>" data-arlima-template="<?php foreach($format['templates'] as $path_resolver) echo "[$path_resolver]"; ?>">
+                                                    <option value="<?php echo $format['class'] ?>" data-arlima-template="<?php foreach($format['templates'] as $templates) echo "[$templates]"; ?>">
                                                         <?php echo $format['label'] ?>
                                                     </option>
                                                 <?php endforeach; ?>

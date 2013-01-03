@@ -125,7 +125,12 @@ class Arlima_FilterApplier
         if( !empty(self::$filter_suffix) )
             $filter .= '-'.self::$filter_suffix;
 
-        return apply_filters($filter, $data);
+        $filtered_data = apply_filters($filter, $data);
+        if( empty($filtered_data) ) {
+            $filtered_data = array('content' => false);
+        }
+
+        return $filtered_data;
     }
 
     /**
@@ -219,7 +224,7 @@ class Arlima_FilterApplier
             );
         }
 
-        if( empty($filtered['content']) && !empty($filtered['resized'])) {
+        if( empty($filtered['content']) && !empty($filtered['resized']) && $filtered['content'] !== false) {
             $filtered['content'] = sprintf(
                 '<img src="%s" %s alt="%s" class="%s" />',
                 $filtered['resized'],
@@ -279,12 +284,14 @@ class Arlima_FilterApplier
     {
         $filtered = self::filter('arlima_future_post', $article_counter, $article, $post, $list);
 
-        $message = '<div class="arlima future-post">
+        if( empty($filtered['content']) && $filtered['content'] !== false) {
+            $filtered['content'] = '<div class="arlima future-post">
                         Hey dude, <a href="' . admin_url('post.php?action=edit&amp;post=' . $post->ID) . '" target="_blank">this post</a>
                         will not show up in the list until it\'s published, unless you\'re not previewing the list that is...
                     </div>';
+        }
 
-        return empty($filtered['content']) ? $message : $filtered['content'];
+        return $filtered['content'];
     }
 
     /**
@@ -299,11 +306,11 @@ class Arlima_FilterApplier
     {
         $filtered = self::filter('arlima_article_content', $article_counter, $article, $post, $list);
 
-        if( empty($filtered['content']) ) {
-            return arlima_link_entrywords(trim($article['text']), $article['url']);
-        } else {
-            return $filtered['content'];
+        if( empty($filtered['content']) && $filtered['content'] !== false ) {
+            $filtered['content'] = arlima_link_entrywords(trim($article['text']), $article['url']);
         }
+
+        return $filtered['content'];
     }
 
     /**
@@ -317,10 +324,10 @@ class Arlima_FilterApplier
     {
         $filtered = self::filter('arlima_article_related_content', $article_counter, $article, $post, $list);
 
-        if ( empty($filtered['content']) ) {
-            return !empty($post) ? arlima_related_posts() : '';
-        } else {
-            return $filtered['content'];
+        if ( empty($filtered['content']) && $filtered['content'] !== false && !empty($post) ) {
+            $filtered['content'] = arlima_related_posts();
         }
+
+        return $filtered['content'];
     }
 }

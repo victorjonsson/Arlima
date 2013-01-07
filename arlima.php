@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.6
+Version: 2.6.2
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -114,7 +114,7 @@ function arlima_modify_post_search($form_callback, $query_callback, $deprecated=
  * @return bool
  */
 function is_arlima_preview() {
-    static $is_arlima_preview;
+    static $is_arlima_preview = null;
     if( $is_arlima_preview === null ) {
         $is_arlima_preview =  isset( $_GET[Arlima_List::QUERY_ARG_PREVIEW] ) &&
                                // has_arlima_list() &&
@@ -199,9 +199,9 @@ function has_arlima_list() {
  * @return Arlima_List|bool
  */
 function get_arlima_list() {
-    static $the_current_arlima_list;
-    if( $the_current_arlima_list === null ) {
-        $the_current_arlima_list = false;
+    static $current_arlima_list = null;
+    if( $current_arlima_list === null ) {
+        $current_arlima_list = false;
         if( is_page() ) {
             global $post;
             $connector = new Arlima_ListConnector();
@@ -213,12 +213,12 @@ function get_arlima_list() {
                 $version = $is_requesting_preview ? 'preview' : '';
                 $list = $list_factory->loadList($relation['id'], $version, $is_requesting_preview);
                 if( $list->exists() ) {
-                    $the_current_arlima_list = $list;
+                    $current_arlima_list = $list;
                 }
             }
         }
     }
-    return $the_current_arlima_list;
+    return $current_arlima_list;
 }
 
 /**

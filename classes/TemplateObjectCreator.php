@@ -286,7 +286,8 @@ class Arlima_TemplateObjectCreator
             $obj['article_end'] = call_user_func($this->article_end_callback, $article_counter, $article, $post, $this->list);
         }
 
-        return apply_filters('arlima_template_object', $obj);
+        $filter_suffix = Arlima_FilterApplier::getFilterSuffix();
+        return apply_filters('arlima_template_object'. ($filter_suffix ? '-'.$filter_suffix:''), $obj);
     }
 
     /**

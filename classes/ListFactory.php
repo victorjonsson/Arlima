@@ -488,15 +488,17 @@ class Arlima_ListFactory {
     }
 
     /**
+     * Load lists preferably by id number using loadList()
      * @see Arlima_ListFactory::loadList()
      * @param string $slug
      * @param bool $version
+     * @param bool $include_future_posts
      * @return Arlima_List
      */
-    public function loadListBySlug($slug, $version=false) {
+    public function loadListBySlug($slug, $version=false, $include_future_posts=false) {
         $id = $this->getListId($slug);
         if( $id )
-            return $this->loadList($id, $version);
+            return $this->loadList($id, $version, $include_future_posts);
 
         return new Arlima_List(false);
     }

@@ -183,6 +183,10 @@ class Arlima_Plugin
         arlima_register_format('format-inverted', 'Inverted', array('giant'));
         arlima_register_format('format-serif', 'Serif');
 
+        // Invoke an action meant for the theme or other plugins to hook into
+        // when wanting to register article formats
+        do_action('arlima_register_formats', false);
+
         // Image version filters
         Arlima_ImageVersionManager::registerFilters();
     }
@@ -266,11 +270,28 @@ class Arlima_Plugin
      */
     private function doAddAttachmentMetaBox()
     {
-        global $wp_version, $post;
+        global $post;
         $img_content_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif');
-        return version_compare( $wp_version, '3.5', '>=' ) &&
+        return self::supportsImageEditor() &&
                 is_object($post) &&
                 in_array(strtolower($post->post_mime_type), $img_content_types);
+    }
+
+    /**
+     * @var null|bool
+     */
+    private static $is_wp_support_img_editor = null;
+
+    /**
+     * @return bool
+     */
+    public static function supportsImageEditor()
+    {
+        if( self::$is_wp_support_img_editor === null ) {
+            global $wp_version;
+            self::$is_wp_support_img_editor = version_compare( $wp_version, '3.5', '>=' );
+        }
+        return self::$is_wp_support_img_editor;
     }
 
     /**
@@ -759,7 +780,6 @@ class Arlima_Plugin
         wp_enqueue_script('jquery-ui-slider');
         wp_deregister_script('jquery-hotkeys');
 
-        $wp_inc_url = includes_url() .'/js/jquery/ui/';
 
         // Add an almost astronomical amount of javascript
         $javascripts = array(
@@ -776,11 +796,16 @@ class Arlima_Plugin
             'arlima-js'         => ARLIMA_PLUGIN_URL . 'js/arlima/arlima.js',
             'arlima-plupload'   => ARLIMA_PLUGIN_URL . 'js/arlima/plupload-init.js',
             'arlima-main-js'    => ARLIMA_PLUGIN_URL . 'js/page-main.js',
-            'new-hotkeys'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.hotkeys.js',
-            'jquery-ui-effects' => $wp_inc_url .'jquery.ui.effect.min.js',
-            'jquery-ui-effects-shake' => $wp_inc_url .'jquery.ui.effect-shake.min.js',
-            'jquery-ui-effects-highlight' => $wp_inc_url .'jquery.ui.effect-highlight.min.js'
+            'new-hotkeys'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.hotkeys.js'
         );
+
+        if( self::supportsImageEditor() ) {
+            // these files could not be enqueue´d until wp version 3.5
+            $wp_inc_url = includes_url() .'/js/jquery/ui/';
+            $javascripts['jquery-ui-effects'] = $wp_inc_url .'jquery.ui.effect.min.js';
+            $javascripts['jquery-ui-effects-shake'] = $wp_inc_url .'jquery.ui.effect-shake.min.js';
+            $javascripts['jquery-ui-effects-highlight'] = $wp_inc_url .'jquery.ui.effect-highlight.min.js';
+        }
 
         foreach($javascripts as $handle => $js) {
             if( $js !== false ) {

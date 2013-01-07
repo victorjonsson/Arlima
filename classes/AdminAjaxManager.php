@@ -586,6 +586,10 @@ class Arlima_AdminAjaxManager
             $preview_page_width = $widget['width'];
         }
 
+        if( empty($preview_url) ) {
+            $preview_url = apply_filters('arlima_preview_url', $list);
+        }
+
         ?>
         <div class="arlima-list-header">
             <span>

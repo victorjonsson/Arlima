@@ -21,28 +21,19 @@ class Arlima_FilterApplier
     private static $width = 468;
 
     /**
-     * @var null|bool
-     */
-    private static $is_wp_support_img_editor = null;
-
-    /**
-     * @return bool
-     */
-    protected static function supportsImageEditor()
-    {
-        if( self::$is_wp_support_img_editor === null ) {
-            global $wp_version;
-            self::$is_wp_support_img_editor = version_compare( $wp_version, '3.5', '>=' );
-        }
-        return self::$is_wp_support_img_editor;
-    }
-
-    /**
      * @param string $s
      */
     public static function setFilterSuffix($s)
     {
         self::$filter_suffix = $s;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getFilterSuffix()
+    {
+        return self::$filter_suffix;
     }
 
     /**
@@ -246,7 +237,7 @@ class Arlima_FilterApplier
      */
     private static function generateImageVersion($file, $attach_url, $size, $attach_id)
     {
-        if( !self::supportsImageEditor() ) {
+        if( !Arlima_Plugin::supportsImageEditor() ) {
             $resized_img = image_resize(
                 WP_CONTENT_DIR . '/uploads/' . $file,
                 $size[0],

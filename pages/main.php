@@ -144,13 +144,13 @@ $factory = new Arlima_ListFactory();
                                     <select  id="arlima-edit-article-options-template" name="options-template">
                                         <option value=""><?php _e('Default', 'arlima') ?></option>
                                         <?php
-                                            $path_resolver = new Arlima_TemplatePathResolver();
-                                            foreach($path_resolver->getTemplateFiles() as $file):
-                                                if( in_array($name, $hidden) )
-                                                    continue; ?>
-                                                <option value="<?php echo $file['name'] ?>">
-                                                    <?php echo $file['label']; ?>
-                                                </option>
+                                        $path_resolver = new Arlima_TemplatePathResolver();
+                                        foreach($path_resolver->getTemplateFiles() as $file):
+                                            if( in_array($file['name'], $hidden) )
+                                                continue; ?>
+                                            <option value="<?php echo $file['name'] ?>">
+                                                <?php echo $file['label']; ?>
+                                            </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>

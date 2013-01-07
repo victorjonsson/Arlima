@@ -59,7 +59,7 @@ class Arlima_TemplatePathResolver
                 if ( empty($templates[$name]) ) {
                     $templates[$name] = array(
                                         'file' => $file,
-                                        'label' => empty($labels[$name]) ? $name : $labels[$name],
+                                        'label' => empty($labels[$name]) ? ucfirst($name) : $labels[$name],
                                         'name' => $name,
                                         'url' => $this->fileToUrl($file)
                                     );
@@ -72,13 +72,13 @@ class Arlima_TemplatePathResolver
 
     /**
      * Takes a file path to somewhere inside wp-content and turns it into an url.
-     * @param string $tmpl_file
+     * @param string $template_file
      * @return string
      */
-    public function fileToUrl($tmpl_file)
+    public function fileToUrl($template_file)
     {
         $content_dir = sprintf('%swp-content%s', DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR);
-        $tmpl_url = WP_CONTENT_URL . '/' . current(array_splice(explode($content_dir, $tmpl_file), 1, 1));
+        $tmpl_url = WP_CONTENT_URL . '/' . current(array_splice(explode($content_dir, $template_file), 1, 1));
         if ( DIRECTORY_SEPARATOR != '/' ) {
             $tmpl_url = str_replace(DIRECTORY_SEPARATOR, '/', $tmpl_url);
         }

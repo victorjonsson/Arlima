@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.6
+Stable tag: 2.6.2
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,11 @@ the list that you created on step 2.
 
 
 == Changelog ==
+
+= 2.6.x (WIP) =
+
+- Added action "arlima_register_format" to hook into when using any of the arlima_register/register functions
+- Minor bug fixes and improvements
 
 = 2.6 =
 

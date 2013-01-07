@@ -58,7 +58,6 @@ the list that you created on step 2.
 - http://www.vk.se/
 - http://www.folkbladet.nu/
 - http://www.utryckning.se/
-- http://hajfi.se/
 - http://victorjonsson.se/
 
 

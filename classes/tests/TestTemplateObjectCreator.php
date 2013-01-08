@@ -78,7 +78,7 @@ class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
         $this->assertTrue($obj->b instanceof Arlima_TemplateObject);
         $this->assertTrue($obj->b->c instanceof Arlima_TemplateObject);
         $this->assertTrue($obj->b->c->e instanceof Arlima_TemplateObject);
-
-        $obj->unkown->exedor = 11;
+        $this->assertFalse($obj->b->c->a);
+        $this->assertEquals('hej', $obj->b->c->d);
     }
 }

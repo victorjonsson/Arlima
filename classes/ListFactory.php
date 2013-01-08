@@ -214,8 +214,9 @@ class Arlima_ListFactory {
             }
         }
 
-        if( !$preview )
+        if( !$preview ) {
             $this->cache->delete('arlima_list_articles_data_'.$list->id());
+        }
     }
 
     /**

@@ -315,6 +315,7 @@ abstract class Arlima_AbstractListRenderingManager
 
     /**
      * @deprecated
+     * @see Arlima_AbstractListManager::setContentCallback()
      */
     function setTextModifierCallback($callback_func)
     {
@@ -323,6 +324,7 @@ abstract class Arlima_AbstractListRenderingManager
 
     /**
      * @deprecated
+     * @see Arlima_AbstractListManager::setImageCallback()
      */
     function setGetImageCallback($callback_func)
     {
@@ -331,6 +333,7 @@ abstract class Arlima_AbstractListRenderingManager
 
     /**
      * @deprecated
+     * @see Arlima_AbstractListManager::setArticleBeginCallback()
      */
     function setBeforeArticleCallback($callback_func)
     {
@@ -339,6 +342,7 @@ abstract class Arlima_AbstractListRenderingManager
 
     /**
      * @deprecated
+     * @see Arlima_AbstractListManager::setArticleEndCallback()
      */
     function setAfterArticleCallback($callback_func)
     {

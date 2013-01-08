@@ -18,17 +18,11 @@ class Arlima_AdminAjaxManager
     private $arlima_plugin;
 
     /**
-     * @var Arlima_ListFactory
-     */
-    private $factory;
-
-    /**
      * @param Arlima_Plugin $arlima_plugin
      */
     public function __construct($arlima_plugin)
     {
         $this->arlima_plugin = $arlima_plugin;
-        $this->factory = new Arlima_ListFactory();
     }
 
     /**
@@ -93,7 +87,7 @@ class Arlima_AdminAjaxManager
             Arlima_ImageVersionManager::removeVersions($_POST['postid']);
         }
         else {
-            die( json_encode(array('error'=>'No attachment given')));
+            die( json_encode(array('error'=>'No attachment given')) );
         }
     }
 
@@ -449,13 +443,20 @@ class Arlima_AdminAjaxManager
                 );
             }
 
-            $list = $this->factory->loadList($list_id, false, true);
+            $list = $this->loadListFactory()->loadList($list_id, false, true);
             $articles = $list->getArticles();
             array_unshift($articles, $article);
 
             $this->saveAndOutputNewListVersion($list, $articles);
         }
         die(json_encode(array()));
+    }
+
+    /**
+     * @return Arlima_ListFactory
+     */
+    private function loadListFactory() {
+        return new Arlima_ListFactory();
     }
 
     /**
@@ -482,16 +483,18 @@ class Arlima_AdminAjaxManager
      */
     private function saveAndOutputNewListVersion($list_id, $articles, $preview = false)
     {
+        $list_factory = $this->loadListFactory();
+
         if ( $list_id instanceof Arlima_List ) {
             $list = $list_id;
         } else {
-            $list = $this->factory->loadList($list_id);
+            $list = $list_factory->loadList($list_id);
         }
 
-        $this->factory->saveNewListVersion($list, $articles, get_current_user_id(), $preview);
+        $list_factory->saveNewListVersion($list, $articles, get_current_user_id(), $preview);
 
         // Reload list to get latest version
-        $list = $this->factory->loadList($list_id, false, true);
+        $list = $list_factory->loadList($list_id, false, true);
 
         echo json_encode(
             array(
@@ -516,7 +519,7 @@ class Arlima_AdminAjaxManager
         $version = isset($_POST['version']) ? (int)$_POST['version'] : false;
 
         if ( $list_id && $version ) {
-            $list = $this->factory->loadList($list_id);
+            $list = $this->loadListFactory()->loadList($list_id);
             if ( $list->getVersionAttribute('id') > $version ) {
                 echo json_encode(
                     array(
@@ -544,7 +547,7 @@ class Arlima_AdminAjaxManager
         $version = isset($_POST['version']) && is_numeric($_POST['version']) ? (int)$_POST['version'] : false;
 
         if ( is_numeric($list_id) ) {
-            $list = $this->factory->loadList($list_id, $version, true);
+            $list = $this->loadListFactory()->loadList($list_id, $version, true);
             $this->loadListWidgets($list);
         } elseif ( $list_id ) {
             // Probably url referring to an imported list

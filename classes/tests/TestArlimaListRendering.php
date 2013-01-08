@@ -35,7 +35,7 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
             $GLOBALS['count'] = 0;
 
             if( $class == 'Arlima_SimpleListRenderer') {
-                $renderer->setDisplayPostCallback(function($article_counter, $article, $post, $list) {
+                $renderer->setDisplayArticleCallback(function($article_counter, $article, $post, $list) {
                     $GLOBALS['title'] = $article['title'];
                     $GLOBALS['count'] = $article_counter;
                 });

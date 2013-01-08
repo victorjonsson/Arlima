@@ -25,7 +25,7 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
     /**
      * @var callable
      */
-    private $display_post_callback = 'Arlima_SimpleListRenderer::defaultPostDisplayCallback';
+    private $display_article_callback = 'Arlima_SimpleListRenderer::defaultPostDisplayCallback';
 
     /**
      * @param Arlima_List|null $list
@@ -38,19 +38,20 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
     /**
      * @param int $article_counter
      * @param array $article
-     * @param stdClass|false $post
+     * @param WP_Post|bool $post
      * @param Arlima_List $list
+     * @return string
      */
     public static function defaultPostDisplayCallback($article_counter, $article, $post, $list) {
-        echo '<br />No callback given, this is article #' . $post->ID;
+        return '<p>No callback given for article' . ($post ? '(post &quot;'.$post->post_title.'&quot;' : '').'</p>';
     }
 
     /**
      * @param Closure $func
      */
-    function setDisplayPostCallback($func)
+    function setDisplayArticleCallback($func)
     {
-        $this->display_post_callback = $func;
+        $this->display_article_callback = $func;
     }
 
     /**
@@ -78,7 +79,7 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
                 continue;
             }
 
-            $article_content = call_user_func($this->display_post_callback, $article_counter, $article, $post, $this->list );
+            $article_content = call_user_func($this->display_article_callback, $article_counter, $article, $post, $this->list );
 
             if( $output ) {
                 echo $article_content;

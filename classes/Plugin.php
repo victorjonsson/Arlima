@@ -40,6 +40,10 @@ class Arlima_Plugin
         add_action('init', array($this, 'adminInitHook'));
         add_action('admin_menu', array($this, 'adminMenu'));
         add_action('add_meta_boxes', array($this, 'addMetaBox'));
+
+        // Ajax functions
+        $ajax_manager = new Arlima_AdminAjaxManager($this);
+        $ajax_manager->initActions();
     }
 
     /**

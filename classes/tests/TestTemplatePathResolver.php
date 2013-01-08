@@ -33,9 +33,9 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $this->stipRootPathsFromFiles($files);
 
         $this->assertEquals(array(
-               'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'article', 'name'=>'article'),
-               'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'giant', 'name'=>'giant'),
-               'widget'=> array('file'=>'arlima/templates/widget.tmpl', 'url' => 'arlima/templates/widget.tmpl', 'label' => 'widget', 'name'=>'widget')
+               'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'Article', 'name'=>'article'),
+               'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'Giant', 'name'=>'giant'),
+               'widget'=> array('file'=>'arlima/templates/widget.tmpl', 'url' => 'arlima/templates/widget.tmpl', 'label' => 'Widget', 'name'=>'widget')
             ), $files);
 
         $this->assertEquals('arlima/templates/article.tmpl', $this->stripRootPath($this->path_resolver->getDefaultTemplate()) );
@@ -50,10 +50,10 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $this->stipRootPathsFromFiles($files);
 
         $this->assertEquals(array(
-                'some-template'=> array('file'=>'arlima/classes/tests/test-templates/some-template.tmpl', 'url' => 'arlima/classes/tests/test-templates/some-template.tmpl', 'label' => 'some-template', 'name'=>'some-template'),
-                'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'article', 'name'=>'article'),
-                'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'giant', 'name'=>'giant'),
-                'widget'=> array('file'=>'arlima/templates/widget.tmpl', 'url' => 'arlima/templates/widget.tmpl', 'label' => 'widget', 'name'=>'widget'),
+                'some-template'=> array('file'=>'arlima/classes/tests/test-templates/some-template.tmpl', 'url' => 'arlima/classes/tests/test-templates/some-template.tmpl', 'label' => 'Some-template', 'name'=>'some-template'),
+                'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'Article', 'name'=>'article'),
+                'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'Giant', 'name'=>'giant'),
+                'widget'=> array('file'=>'arlima/templates/widget.tmpl', 'url' => 'arlima/templates/widget.tmpl', 'label' => 'Widget', 'name'=>'widget'),
             ), $files);
 
         $this->assertEquals('arlima/templates/article.tmpl', $this->stripRootPath($this->path_resolver->getDefaultTemplate()) );
@@ -68,8 +68,8 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(array(
                 'some-template'=> array('file'=>'arlima/classes/tests/test-templates/some-template.tmpl', 'url' => 'arlima/classes/tests/test-templates/some-template.tmpl', 'label' => 'APA', 'name'=>'some-template'),
-                'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'article', 'name'=>'article'),
-                'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'giant', 'name'=>'giant'),
+                'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'Article', 'name'=>'article'),
+                'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'Giant', 'name'=>'giant'),
                 'widget'=> array('file'=>'arlima/templates/widget.tmpl', 'url' => 'arlima/templates/widget.tmpl', 'label' => 'HÄST', 'name'=>'widget'),
             ), $files);
     }

@@ -495,14 +495,8 @@ class Arlima_List
      */
     public function __get($arg)
     {
-        if( !defined('ARLIMA_UNIT_TEST') || !ARLIMA_UNIT_TEST) {
-            Arlima_Plugin::warnAboutUseOfDeprecatedFunction(
-                'Arlima_List::' . $arg,
-                2.5,
-                'This variable is no longer a public property'
-            );
-        }
-
+        // todo: remove when moving to version 3.0
+        $this->warnAboutDeprecatedUseOfProperty($arg);
         $get_func = 'get' . ucfirst($arg);
         if ( method_exists($this, $get_func) ) {
             return call_user_func(array($this, $get_func));
@@ -513,6 +507,32 @@ class Arlima_List
         }
 
         return false;
+    }
+
+    /**
+     * Magic method that makes it possible to request previously public
+     * member variables (considered deprecated).
+     * @param string $name
+     * @param mixed $val
+     */
+    public function __set($name, $val)
+    {
+        $this->warnAboutDeprecatedUseOfProperty($name);
+        $this->$name = $val;
+    }
+
+    /**
+     * @param $arg
+     */
+    private function warnAboutDeprecatedUseOfProperty($arg)
+    {
+        if( !defined('ARLIMA_UNIT_TEST') || !ARLIMA_UNIT_TEST) {
+            Arlima_Plugin::warnAboutUseOfDeprecatedFunction(
+                'Arlima_List::' . $arg,
+                2.5,
+                'This variable is no longer a public property'
+            );
+        }
     }
 
     /**

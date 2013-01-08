@@ -755,7 +755,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
         toggleAvailableFormats : function(articleTemplate) {
             if( articleTemplate == '' )
-                articleTemplate = this.DEFAULT_TMPL;
+                articleTemplate = $('.arlima-list-previewtemplate', this.currentlyEditedList.jQuery).val();
 
             var $formatOptions = $('#arlima-edit-article-options-format option');
             $formatOptions.removeAttr('disabled');

@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.6.2
+Stable tag: 2.6.5
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,8 +44,10 @@ the list that you created on step 2.
 
 = 2.6.x (WIP) =
 
-- Added action "arlima_register_format" to hook into when using any of the arlima_register/register functions
-- Minor bug fixes and improvements
+- Added action "arlima_register_format" to hook into when using any of the arlima_register/deregister functions.
+- Fixed bug that sometimes caused articles to generate the wrong image version.
+- Fixed bug that prevented Arlima from expiring the list cache if using a custom implementation of Arlima_CacheManager.
+- Minor bug fixes and improvements.
 
 = 2.6 =
 

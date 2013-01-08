@@ -94,7 +94,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
         // Create template
         $jQueryTmpl_df = new jQueryTmpl_Data_Factory();
-        $this->jQueryTmpl_default = $this->loadTemplate(
+        $this->jQueryTmpl_default = $this->loadjQueryTmpl(
             $this->list->getOption('template'),
             new jQueryTmpl_Factory(),
             new jQueryTmpl_Markup_Factory()
@@ -163,45 +163,58 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                 );
         }
 
+        list($template_factory, $article_template) = $this->loadjQueryTemplate($article);
+
         $template_data = $this->template_obj_creator->create(
                             $article,
                             $is_empty,
                             $post,
-                            $article_counter
+                            $article_counter,
+                            true,
+                            $article_template
                         );
 
         // load sub articles if there's any
         if ( !empty($article['children']) && is_array($article['children']) ) {
             $template_data['sub_articles'] = $this->renderSubArticles($article['children'], $jQueryTmpl_df);
-            $this->template_obj_creator->setIsChild(false);
-            $this->template_obj_creator->setIsChildSplit(false);
         }
 
         // output the article
-        $content = $this->generateTemplateOutput($article, $jQueryTmpl_df, $template_data);
+        $content = $this->generateTemplateOutput($jQueryTmpl_df, $template_factory, $template_data);
 
         return array($article_counter + 1, $content);
     }
 
     /**
-     * @param $article
-     * @param jQueryTmpl_Data_Factory $jQueryTmpl_df
-     * @param $template_data
-     * @return string
+     * @param array $article
+     * @return array
      */
-    private function generateTemplateOutput($article, $jQueryTmpl_df, $template_data)
+    private function loadjQueryTemplate($article)
     {
         if ( !empty($article['options']) && !empty($article['options']['template']) ) {
-            $template_factory = $this->loadTemplate(
+            $template_factory = $this->loadjQueryTmpl(
                 $article['options']['template'],
                 new jQueryTmpl_Factory(),
                 new jQueryTmpl_Markup_Factory()
             );
+            $article_template = $article['options']['template'];
         } else {
             $template_factory = $this->jQueryTmpl_default;
+            $article_template = $this->list->getOption('template');
         }
 
-        return $template_factory->tmpl('tpl', $jQueryTmpl_df->createFromArray($template_data))->getHtml();
+        return array($template_factory, $article_template);
+    }
+
+    /**
+     * @param jQueryTmpl_Data_Factory $jQueryTmpl_df
+     * @param jQueryTmpl $jQueryTmpl
+     * @param $template_data
+     * @return string
+     */
+    private function generateTemplateOutput($jQueryTmpl_df, $jQueryTmpl, $template_data)
+    {
+        return $jQueryTmpl->tmpl('tpl', new jQueryTmpl_Data( Arlima_TemplateObject::create($template_data), $jQueryTmpl_df ))->getHtml();
     }
 
     /**
@@ -273,11 +286,13 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     {
         $sub_articles = '';
         $count = 0;
-        $children_count = count($articles);
-        $image_size = $children_count == 1 ? $this->img_size_name_sub_article_full : $this->img_size_name_sub_article;
+        $is_child_split = count($articles) > 1;
+        $image_size = !$is_child_split ? $this->img_size_name_sub_article_full : $this->img_size_name_sub_article;
+
+        // Configure object creator for child articles
         $this->template_obj_creator->setImgSize($image_size);
         $this->template_obj_creator->setIsChild(true);
-        $this->template_obj_creator->setIsChildSplit($children_count > 1);
+        $this->template_obj_creator->setIsChildSplit($is_child_split);
 
         foreach ($articles as $article_data) {
 
@@ -287,20 +302,28 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                 continue;
             }
 
+            list($template_factory, $article_template) = $this->loadjQueryTemplate($article);
+
             $template_data = $this->template_obj_creator->create(
                                 $article,
                                 $is_empty,
                                 $post,
                                 -1,
-                                false
+                                false,
+                                $article_template
                             );
 
             $template_data['container']['attr'] = '';
-            $template_data['container']['class'] = 'teaser small' . ($children_count > 1 ? ' teaser-split' : '') . ($count % 2 == 0 ? ' first' : ' last');
+            $template_data['container']['class'] = 'teaser small' . ($is_child_split ? ' teaser-split' : '') . ($count % 2 == 0 ? ' first' : ' last');
 
-            $sub_articles .= $this->generateTemplateOutput($article, $jQueryTmpl_df, $template_data);
+            $sub_articles .= $this->generateTemplateOutput($jQueryTmpl_df, $template_factory, $template_data);
             $count++;
         }
+
+        // Reset configuration for child articles
+        $this->template_obj_creator->setIsChild(false);
+        $this->template_obj_creator->setIsChildSplit(false);
+        $this->template_obj_creator->setImgSize($this->img_size_name);
 
         return $sub_articles;
     }
@@ -311,7 +334,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      * @param jQueryTmpl_Markup_Factory $jQueryTmpl_Markup_Factory
      * @return jQueryTmpl
      */
-    protected function loadTemplate(
+    protected function loadjQueryTmpl(
         $template_name,
         jQueryTmpl_Factory $jQueryTmpl_Factory,
         jQueryTmpl_Markup_Factory $jQueryTmpl_Markup_Factory

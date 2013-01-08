@@ -234,7 +234,8 @@ class Arlima_TemplateObjectCreator
         $is_empty,
         $post,
         $article_counter,
-        $load_related_articles = true
+        $load_related_articles = true,
+        $template_name = null
     ) {
         $obj = $this->getEmptyObjectArray();
         $has_streamer = $this->display_streamer && isset($article['options']['streamer']);
@@ -286,8 +287,8 @@ class Arlima_TemplateObjectCreator
             $obj['article_end'] = call_user_func($this->article_end_callback, $article_counter, $article, $post, $this->list);
         }
 
-        $filter_suffix = Arlima_FilterApplier::getFilterSuffix();
-        return apply_filters('arlima_template_object'. ($filter_suffix ? '-'.$filter_suffix:''), $obj);
+        $filter_suffix = Arlima_FilterApplier::getFilterSuffix(); 
+        return apply_filters('arlima_template_object'. ($filter_suffix ? '-'.$filter_suffix:''), $obj, $article, $this->list, $template_name);
     }
 
     /**

@@ -47,7 +47,9 @@ the list that you created on step 2.
 - Added action "arlima_register_format" to hook into when using any of the arlima_register/deregister functions.
 - Fixed bug that sometimes caused articles to generate the wrong image version.
 - Fixed bug that prevented Arlima from expiring the list cache if using a custom implementation of Arlima_CacheManager.
-- Minor bug fixes and improvements.
+- Fixed bug that sometimes prevented the article from updating url and title
+- General improvements.
+
 
 = 2.6 =
 

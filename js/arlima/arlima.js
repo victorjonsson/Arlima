@@ -330,62 +330,82 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          * information available in the form and then update the article preview. Changes
          * being made in the form should result in this function getting called
          */
-        updateArticle : function(toggleSaveState) {
-            if(toggleSaveState === undefined)
-                toggleSaveState = true;
+        updateArticle : function(arg, updatePreview) {
 
-            if(toggleSaveState) {
+            if(updatePreview === undefined)
+                updatePreview = true;
+            if(arg === undefined)
+                arg = true;
+
+            if(arg) {
                 // todo: make sure that we really have made changes....
                 this.currentlyEditedList.toggleUnsavedState(true);
             }
 
-            var formData = this._$form.serializeObject();
-            formData.options = {};
-            $.each(formData, function(key, value) {
-                if(key.substr(0, 8) == 'options-') {
-                    formData.options[key.substr(8)] = value;
-                    delete formData[key];
+            // only updating one input element in form
+            if( typeof arg == 'object' ) {
+                var name = arg.name;
+                if(name.substr(0, 8) == 'options-') {
+                    this.$item.data('article')['options'][name.substr(8)] = arg.value;
+                } else {
+                    this.$item.data('article')[name] = arg.value;
                 }
-            });
-
-            formData.text = $.tinyMCEContent();
-            formData.image_options = $('#arlima-article-image-options').data('image_options');
-
-            var articleData = this.$item.data('article');
-            $.extend(articleData, formData);
-            this.$item.data('article', articleData);
-
-            ArlimaList.applyItemPresentation(this.$item);
-
-            if( isFutureDate(articleData.publish_date) ) {
-                this._$futureNotice.show();
-                this._$articleLink.hide();
+                this.updateArticleStreamerPreview();
+                if( updatePreview && this.isShowingPreview() ) {
+                    this.updatePreview();
+                }
             }
+
+            // Collecting all data in form
             else {
-                this._$articleLink.show();
-                this._$futureNotice.hide();
-            }
+                var formData = this._$form.serializeObject();
+                formData.options = {};
+                $.each(formData, function(key, value) {
+                    if(key.substr(0, 8) == 'options-') {
+                        formData.options[key.substr(8)] = value;
+                        delete formData[key];
+                    }
+                });
 
-            if(articleData.options && articleData.options.sticky) {
-                $('.sticky-interval-fancybox').attr('title', ArlimaJS.lang.sticky+' ('+articleData.options.sticky_interval+')');
-            }
+                formData.text = $.tinyMCEContent();
+                formData.image_options = $('#arlima-article-image-options').data('image_options');
 
-            $('.arlima-listitem-title:first', this.$item).html( ArlimaList.getArticleTitleHTML(articleData) );
+                var articleData = this.$item.data('article');
+                $.extend(articleData, formData);
+                this.$item.data('article', articleData);
 
-            this.updateArticleStreamerPreview();
+                ArlimaList.applyItemPresentation(this.$item, articleData);
 
-            if( this.isShowingPreview() ) {
-                this.updatePreview();
-            }
+                if( isFutureDate(articleData.publish_date) ) {
+                    this._$futureNotice.show();
+                    this._$articleLink.hide();
+                }
+                else {
+                    this._$articleLink.show();
+                    this._$futureNotice.hide();
+                }
 
-            if(articleData.options && articleData.options.sticky) {
-                this._$sticky.show();
-                var $interval = this._$sticky.find('input');
-                if($.trim($interval.val()) == '')
-                    $interval.val('*:*');
-            }
-            else {
-                this._$sticky.hide();
+                if(articleData.options && articleData.options.sticky) {
+                    $('.sticky-interval-fancybox').attr('title', ArlimaJS.lang.sticky+' ('+articleData.options.sticky_interval+')');
+                }
+
+                $('.arlima-listitem-title:first', this.$item).html( ArlimaList.getArticleTitleHTML(articleData) );
+
+                this.updateArticleStreamerPreview();
+
+                if( updatePreview && this.isShowingPreview() ) {
+                    this.updatePreview();
+                }
+
+                if(articleData.options && articleData.options.sticky) {
+                    this._$sticky.show();
+                    var $interval = this._$sticky.find('input');
+                    if($.trim($interval.val()) == '')
+                        $interval.val('*:*');
+                }
+                else {
+                    this._$sticky.hide();
+                }
             }
 
             Manager.triggerEvent('articleUpdate', this.$item);
@@ -1207,8 +1227,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * Add list with given id to the page
          * @param {Number} id - Id of list
-         * @param {Object} position - Optional, css properties for the position of the list
-         * @param {Function} callback - Optional, will be called when list is added to page
+         * @param {Object} [position] - Optional, css properties for the position of the list
+         * @param {Function} [callback] - Optional, will be called when list is added to page
          */
         addList : function(id, position, callback) {
             if(this.hasList(id)) {
@@ -1929,7 +1949,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         }
 
         $item.data('article', articleData);
-        ArlimaList.applyItemPresentation($item);
+        ArlimaList.applyItemPresentation($item, articleData);
     };
 
     /**
@@ -1938,8 +1958,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * @param {jQuery} $item
      * @return {Boolean}
      */
-    ArlimaList.applyItemPresentation = function($item) {
-        var data = $item.data('article');
+    ArlimaList.applyItemPresentation = function($item, data) {
 
         // FUTURE
         if(data.publish_date) {
@@ -2275,7 +2294,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             ArlimaList.listsInolvedInTransaction.push(listID);
                         }
                         $item.effect("highlight", 500);
-                        ArlimaList.applyItemPresentation($item);
+                        ArlimaList.applyItemPresentation($item, articleData);
                     },
                     stop : function(e, ui) {
 

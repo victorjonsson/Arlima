@@ -118,7 +118,7 @@ jQuery(function($) {
                 data.options.sticky_interval = newInterval;
                 Arlima.ArticleEditor.$item.data('article', data);
                 $('#arlima-interval').val(data.options.sticky_interval);
-                Arlima.ArticleEditor.updateArticle();
+                Arlima.ArticleEditor.updateArticle(true, false);
             }
         },
         onStart : function(){
@@ -302,13 +302,29 @@ jQuery(function($) {
         Arlima.Manager.saveSetup();
     });
 
-    // Update article preview when changing data in article form
+    // Update article and preview when changing data in article form
     $('#arlima-edit-article-form').change( function(e) {
         var $target = $(e.target);
-        if( $target.attr('name') != 'image_align' && $target.attr('id') != 'arlima-article-image-size' ) {
-            Arlima.ArticleEditor.updateArticle();
+        var changedInput = $target.attr('name');
+
+        // Some inputs will update article in another function when changed
+        if( changedInput != 'image_align' && changedInput != 'post_id' && $target.attr('id') != 'arlima-article-image-size' ) {
+
+            // Some inputs doesn't require that we update the preview
+            var updatePreview = $.inArray(changedInput, ['title', 'options-pre_title', 'options-streamer_content',
+                                            'options-hiderelated', 'url']) == -1;
+
+            Arlima.ArticleEditor.updateArticle(true, updatePreview);
+        }
+    })
+
+    // Update some inputs immediately when they get changed (http://wordpress.org/support/topic/manage-list-issue)
+    .find('input').bind('keyup', function() {
+        if($.inArray(this.name, ['title', 'options-pre_title', 'options-streamer_content', 'post_id', 'url']) > -1) {
+            Arlima.ArticleEditor.updateArticle( this, $.inArray(this.name, ['post_id', 'url']) == -1 ); // update article with only that is changed in this input
         }
     });
+
 
     // Update article when doing changes to the image
     $('#arlima-article-image-options input').click(function() { Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)}); });
@@ -348,7 +364,6 @@ jQuery(function($) {
         }
 
         Arlima.ArticleEditor.$item.data('article', articleData);
-        Arlima.ArticleEditor.updateArticle();
     });
 
     // Toggle editor, search and custom templates
@@ -399,18 +414,18 @@ jQuery(function($) {
                     }
 
                     Arlima.ArticleEditor.$item.data('article', articleData);
-                    Arlima.ArticleEditor.updateArticle();
+                    Arlima.ArticleEditor.updateArticle(true, false);
                 });
             }
             else {
                 var articleData = Arlima.ArticleEditor.$item.data('article');
                 articleData.publish_date = 0;
                 Arlima.ArticleEditor.$item.data('article', articleData);
-                Arlima.ArticleEditor.updateArticle();
+                Arlima.ArticleEditor.updateArticle(true, false);
             }
         });
 
-    // Real time update of article title
+    /* Real time update of article title
     $('#arlima-edit-article-title').keyup(function() {
         var el = Arlima.ArticleEditor.currentlyEditedList.titleElement;
         if(el != '') {
@@ -424,7 +439,7 @@ jQuery(function($) {
                 $('#teaser-'+articleData.id).find(el).eq(0).html(title);
             }
         }
-    });
+    }); */
 
     // tinyMCe events (update, focus, preview), will not work
     // when loading page with tinyMCE being in HTML mode

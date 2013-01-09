@@ -76,7 +76,7 @@ class Arlima_TemplateObjectCreator
     private $list;
 
     /**
-     * @param \Arlima_List $list
+     * @param Arlima_List $list
      */
     public function setList($list)
     {
@@ -84,7 +84,7 @@ class Arlima_TemplateObjectCreator
     }
 
     /**
-     * @return \Arlima_List
+     * @return Arlima_List 
      */
     public function getList()
     {
@@ -125,7 +125,7 @@ class Arlima_TemplateObjectCreator
                 'html_text' => false
             ),
             'sub_articles' => false,
-            'streamer' => array(),
+            'streamer' => false,
             'related' => false,
             'before_related' => false,
             'article_begin' => false,

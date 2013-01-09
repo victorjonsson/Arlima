@@ -202,10 +202,10 @@ class Arlima_List
     {
         if( $name == 'template' ) {
             // Backward compatibility. todo: Remove when moving up to version 3.0
-            if( isset($this->options['previewtemplate']) )
-                return $this->options['previewtemplate'];
-            elseif(isset($this->options['template']))
+            if( isset($this->options['template']) )
                 return $this->options['template'];
+            elseif( isset($this->options['previewtemplate']) )
+                return $this->options['previewtemplate'];
             else
                 return null;
         }

@@ -10,7 +10,7 @@ class Arlima_Plugin
 {
     const VERSION = 2.6;
     const EXPORT_FEED_NAME = 'arlima-export';
-    const STATIC_VERSION = '18.33';
+    const STATIC_VERSION = '18.53';
 
     private static $is_scissors_installed = null;
     private static $is_wp_related_post_installed = null;
@@ -779,14 +779,18 @@ class Arlima_Plugin
         }
         add_filter('mce_css', 'tdav_css');
 
-        wp_enqueue_script('jquery');
-        wp_enqueue_script('jquery-ui');
-        wp_enqueue_script('jquery-ui-slider');
+        // Deregister scripts we need to override
         wp_deregister_script('jquery-hotkeys');
+        wp_deregister_script('jquery-ui-sortable');
 
+        // Replace jquery.ui.sortable with old version of the same function
+        wp_register_script('jquery-ui-sortable', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.sortable-1.82.js', array('jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), 12, true);
+        wp_enqueue_script('jquery-ui-sortable');
 
         // Add an almost astronomical amount of javascript
-        $javascripts = array(
+        $scripts = array(
+            'jquery'            => false,
+            'jquery-ui-slider'  => false,
             'media-upload'      => false,
             'thickbox'          => false,
             'qtip'              => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.qtip.min.js',
@@ -806,15 +810,15 @@ class Arlima_Plugin
         if( self::supportsImageEditor() ) {
             // these files could not be enqueue´d until wp version 3.5
             $wp_inc_url = includes_url() .'/js/jquery/ui/';
-            $javascripts['jquery-ui-effects'] = $wp_inc_url .'jquery.ui.effect.min.js';
-            $javascripts['jquery-ui-effects-shake'] = $wp_inc_url .'jquery.ui.effect-shake.min.js';
-            $javascripts['jquery-ui-effects-highlight'] = $wp_inc_url .'jquery.ui.effect-highlight.min.js';
+            $scripts['jquery-ui-effects'] = $wp_inc_url .'jquery.ui.effect.min.js';
+            $scripts['jquery-ui-effects-shake'] = $wp_inc_url .'jquery.ui.effect-shake.min.js';
+            $scripts['jquery-ui-effects-highlight'] = $wp_inc_url .'jquery.ui.effect-highlight.min.js';
         }
 
-        foreach($javascripts as $handle => $js) {
+        foreach($scripts as $handle => $js) {
             if( $js !== false ) {
                 $dependency = array('jquery');
-                if( $handle == 'ui-nestedsortable')
+                if( $handle == 'ui-nestedsortable' )
                     $dependency = array('jquery-ui-sortable');
 
                 wp_register_script($handle, $js, $dependency, self::STATIC_VERSION, false);
@@ -878,7 +882,7 @@ class Arlima_Plugin
      */
     public static function getTemplateCSS()
     {
-        return apply_filters('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css');
+        return apply_filters('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css?v='.self::STATIC_VERSION);
     }
 
     /**

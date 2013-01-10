@@ -8,18 +8,23 @@
  *   2. Runs all unit tests
  *   3. Translates pot-files
  *   4. Copies all wordpress files to a new directory named "build-X.Y.Z", one step down in the file system
+ *   5. Minify js and css files in build dir
  *
  * Requirements: 
  *   - Node
  *   - Node module wrench ($ npm install wrench)
+ *   - Node module uglify-JS ($ npm install uglify-js)
  *   - msgfmt and phpunit.phar has to be installed and added to your $PATH
  */
-
 
 var fs = require('fs'),
     sys = require('sys'),
     wrench = require('./node_modules/wrench'),
     exec = require('child_process').exec,
+    minifier = {
+        css : require("uglifycss"),
+        js : require("uglify-js")
+    },
     mainScript = 'arlima.php',
     finishedTests = 0,
     testsFailed = false,
@@ -33,11 +38,24 @@ var fs = require('fs'),
         'classes/tests/TestTemplateObjectCreator.php',
         'classes/tests/TestTemplatePathResolver.php'
     ],
+    filesToMinify = {
+        js: ['js/arlima/arlima.js', 'js/arlima/template-loader.js', 'js/jquery/jquery.ui.nestedSortable.js', 'js/jquery/jquery.hotkeys.js',
+            'js/jquery/colourpicker/jquery.colourpicker.js', 'js/page-main.js', 'js/arlima/plupload-init.js'],
+        css: ['css/admin.css']
+    },
     buildFile = function(path, versionSplit) {
         var codeParts = fs.readFileSync(path, 'utf-8').split(versionSplit);
         var lastCodeParts = codeParts[1].split("\n");
         var origCode = codeParts[0] + versionSplit+newVersion+ "\n" + lastCodeParts.slice(1, lastCodeParts.length).join("\n") + "";
         fs.writeFileSync(path, origCode);
+    },
+    minifyJS = function(path) {
+        var minCode = minifier.js.minify(path).code;
+        var source = fs.readFileSync(path, 'utf-8');
+        fs.writeFileSync(path, source.substr(0, source.indexOf('*/')+2) + minCode);
+    },
+    minifyCSS = function(path) {
+        fs.writeFileSync(path, minifier.css.processString(fs.readFileSync(path, 'utf-8')) );
     };
 
 
@@ -118,6 +136,17 @@ tests.every(function(file) {
                             } catch(e) {
                                 console.log(e);
                             }
+                            return true;
+                        });
+
+                        console.log('Minifying js and css');
+
+                        filesToMinify.js.every(function(file) {
+                            minifyJS(buildDir+'/'+file);
+                            return true;
+                        });
+                        filesToMinify.css.every(function(file) {
+                            minifyCSS(buildDir+'/'+file);
                             return true;
                         });
 

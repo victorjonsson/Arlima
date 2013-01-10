@@ -26,6 +26,11 @@
     padding-top: 0;
 }
 
+.tmpl-article.img-full {
+    overflow: visible;
+    clear: none;
+}
+
 /* wp-admin only (none responsive). In case the list is related to
  a page the width set on the list in wp-admin will be add to style
  attribute by the list manager */
@@ -190,7 +195,8 @@ a.teaser-entryword:hover {
 * * * * * * * * * * * */
 .teaser-children {
     padding-top: 16px;
-    overflow: auto;
+    overflow: hidden;
+    clear: both;
 }
 
 .teaser-children .tmpl-article {
@@ -202,7 +208,8 @@ a.teaser-entryword:hover {
 .teaser-children .tmpl-article.teaser-split.first,
 .teaser-children .tmpl-article.teaser-split.last {
     float: left;
-    width: 45% !important;
+    width: 48% !important;
+    clear: none;
 }
 
 .teaser-children .tmpl-article.teaser-split.last {

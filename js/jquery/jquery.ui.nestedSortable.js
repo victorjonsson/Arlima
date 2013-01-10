@@ -1,6 +1,6 @@
 /*
  * jQuery UI Nested Sortable
- * v 1.4 / 30 dec 2011
+ * v 1.3.5 / 21 jun 2012
  * http://mjsarfatti.com/code/nestedSortable
  *
  * Depends on:
@@ -19,6 +19,7 @@
             tabSize: 20,
             disableNesting: 'mjs-nestedSortable-no-nesting',
             errorClass: 'mjs-nestedSortable-error',
+            doNotClear: false,
             listType: 'ol',
             maxLevels: 0,
             protectRoot: false,
@@ -53,9 +54,11 @@
                 this.lastPositionAbs = this.positionAbs;
             }
 
+            var o = this.options;
+
             //Do scrolling
             if(this.options.scroll) {
-                var o = this.options, scrolled = false;
+                var scrolled = false;
                 if(this.scrollParent[0] != document && this.scrollParent[0].tagName != 'HTML') {
 
                     if((this.overflowOffset.top + this.scrollParent[0].offsetHeight) - event.pageY < o.scrollSensitivity)
@@ -88,6 +91,9 @@
 
             //Regenerate the absolute position used for position checks
             this.positionAbs = this._convertPositionTo("absolute");
+
+            // Find the top offset before rearrangement,
+            var previousTopOffset = this.placeholder.offset().top;
 
             //Set the helper position
             if(!this.options.axis || this.options.axis != "y") this.helper[0].style.left = this.position.left+'px';
@@ -131,11 +137,12 @@
                     ? $(this.placeholder[0].parentNode.parentNode)
                     : null,
                 level = this._getLevel(this.placeholder),
-                childLevels = this._getChildLevels(this.helper),
-                previousItem = this.placeholder[0].previousSibling ? $(this.placeholder[0].previousSibling) : null;
+                childLevels = this._getChildLevels(this.helper);
 
+            // To find the previous sibling in the list, keep backtracking until we hit a valid list item.
+            var previousItem = this.placeholder[0].previousSibling ? $(this.placeholder[0].previousSibling) : null;
             if (previousItem != null) {
-                while (previousItem[0].nodeName.toLowerCase() != 'li' || previousItem[0] == this.currentItem[0]) {
+                while (previousItem[0].nodeName.toLowerCase() != 'li' || previousItem[0] == this.currentItem[0] || previousItem[0] == this.helper[0]) {
                     if (previousItem[0].previousSibling) {
                         previousItem = $(previousItem[0].previousSibling);
                     } else {
@@ -145,19 +152,32 @@
                 }
             }
 
+            // To find the next sibling in the list, keep stepping forward until we hit a valid list item.
+            var nextItem = this.placeholder[0].nextSibling ? $(this.placeholder[0].nextSibling) : null;
+            if (nextItem != null) {
+                while (nextItem[0].nodeName.toLowerCase() != 'li' || nextItem[0] == this.currentItem[0] || nextItem[0] == this.helper[0]) {
+                    if (nextItem[0].nextSibling) {
+                        nextItem = $(nextItem[0].nextSibling);
+                    } else {
+                        nextItem = null;
+                        break;
+                    }
+                }
+            }
+
             var newList = document.createElement(o.listType);
 
             this.beyondMaxLevels = 0;
 
-            // If the item is moved to the left, send it to its parent level
-            if (parentItem != null &&
+            // If the item is moved to the left, send it to its parent's level unless there are siblings below it.
+            if (parentItem != null && nextItem == null &&
                 (o.rtl && (this.positionAbs.left + this.helper.outerWidth() > parentItem.offset().left + parentItem.outerWidth()) ||
                     !o.rtl && (this.positionAbs.left < parentItem.offset().left))) {
                 parentItem.after(this.placeholder[0]);
                 this._clearEmpty(parentItem[0]);
                 this._trigger("change", event, this._uiHash());
             }
-            // If the item is below another one and is moved to the right, make it a children of it
+            // If the item is below a sibling and is moved to the right, make it a child of that sibling.
             else if (previousItem != null &&
                 (o.rtl && (this.positionAbs.left + this.helper.outerWidth() < previousItem.offset().left + previousItem.outerWidth() - o.tabSize) ||
                     !o.rtl && (this.positionAbs.left > previousItem.offset().left + o.tabSize))) {
@@ -165,7 +185,14 @@
                 if (!previousItem.children(o.listType).length) {
                     previousItem[0].appendChild(newList);
                 }
-                previousItem.children(o.listType)[0].appendChild(this.placeholder[0]);
+                // If this item is being moved from the top, add it to the top of the list.
+                if (previousTopOffset && (previousTopOffset <= previousItem.offset().top)) {
+                    previousItem.children(o.listType).prepend(this.placeholder);
+                }
+                // Otherwise, add it to the bottom of the list.
+                else {
+                    previousItem.children(o.listType)[0].appendChild(this.placeholder[0]);
+                }
                 this._trigger("change", event, this._uiHash());
             }
             else {
@@ -333,7 +360,7 @@
         _clearEmpty: function(item) {
 
             var emptyList = $(item).children(this.options.listType);
-            if (emptyList.length && !emptyList.children().length) {
+            if (emptyList.length && !emptyList.children().length && !this.options.doNotClear) {
                 emptyList.remove();
             }
 
@@ -345,7 +372,8 @@
 
             if (this.options.listType) {
                 var list = item.closest(this.options.listType);
-                while (!list.is('.ui-sortable')) {
+                while (list && list.length > 0 &&
+                    !list.is('.ui-sortable')) {
                     level++;
                     list = list.parent().closest(this.options.listType);
                 }
@@ -369,24 +397,25 @@
 
         _isAllowed: function(parentItem, level, levels) {
             var o = this.options,
-                isRoot = $(this.domPosition.parent).hasClass('ui-sortable') ? true : false;
+                isRoot = $(this.domPosition.parent).hasClass('ui-sortable') ? true : false,
+                maxLevels = this.placeholder.closest('.ui-sortable').nestedSortable('option', 'maxLevels'); // this takes into account the maxLevels set to the recipient list
 
             // Is the root protected?
             // Are we trying to nest under a no-nest?
             // Are we nesting too deep?
-            if (!o.isAllowed(parentItem, this.placeholder) ||
+            if (!o.isAllowed(this.currentItem, parentItem) ||
                 parentItem && parentItem.hasClass(o.disableNesting) ||
                 o.protectRoot && (parentItem == null && !isRoot || isRoot && level > 1)) {
                 this.placeholder.addClass(o.errorClass);
-                if (o.maxLevels < levels && o.maxLevels != 0) {
-                    this.beyondMaxLevels = levels - o.maxLevels;
+                if (maxLevels < levels && maxLevels != 0) {
+                    this.beyondMaxLevels = levels - maxLevels;
                 } else {
                     this.beyondMaxLevels = 1;
                 }
             } else {
-                if (o.maxLevels < levels && o.maxLevels != 0) {
+                if (maxLevels < levels && maxLevels != 0) {
                     this.placeholder.addClass(o.errorClass);
-                    this.beyondMaxLevels = levels - o.maxLevels;
+                    this.beyondMaxLevels = levels - maxLevels;
                 } else {
                     this.placeholder.removeClass(o.errorClass);
                     this.beyondMaxLevels = 0;

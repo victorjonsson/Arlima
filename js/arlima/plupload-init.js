@@ -1,3 +1,6 @@
+/**
+ * Upload images using arlima and plupload
+ */
 var ArlimaUploader = (function($, window, Arlima, ArlimaJS, plupload) {
 
     return {

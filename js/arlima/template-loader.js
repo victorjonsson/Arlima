@@ -1,3 +1,6 @@
+/**
+ * Class responsible of loading jquery templates
+ */
 var ArlimaTemplateLoader = {
 
     _templatesToLoad : 0,

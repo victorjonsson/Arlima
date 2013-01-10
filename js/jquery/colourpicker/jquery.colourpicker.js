@@ -1,3 +1,6 @@
+/**
+ * @author Unknown....
+ */
 jQuery.fn.colourPicker = function (conf) {
 	// Config for plug
 	var config = jQuery.extend({

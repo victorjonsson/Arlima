@@ -78,7 +78,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
 
         // Create template
         $jQueryTmpl_df = new jQueryTmpl_Data_Factory();
-        $this->jQueryTmpl_default = $this->loadTemplate(
+        $this->jQueryTmpl_default = $this->loadjQueryTmpl(
             $this->list->getOption('template'),
             new jQueryTmpl_Factory(),
             new jQueryTmpl_Markup_Factory()
@@ -132,10 +132,10 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
     }
 
     /**
-     * @param stdClass $post
+     * @param WP_Post $post
      * @return array
      */
-    protected function extractArticleData(stdClass $post, $article_counter)
+    protected function extractArticleData($post, $article_counter)
     {
         $date = strtotime($post->post_date_gmt);
         $article = array(

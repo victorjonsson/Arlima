@@ -2,7 +2,6 @@
  * Arlima admin library
  *
  * @todo: Look over all insufficient use of jQuery
- * @todo: make compressed version of this file
  * @todo: move each class to its own file and write unit test
  *
  * Dependencies:
@@ -12,15 +11,6 @@
  *  - jQuery.slider
  *  - ArlimaJS
  *  - ArlimaTemplateLoader
- *
- * General coding guide lines:
- *  - All variables, functions written in CamelCase, first letter in uppercase for classes and static object, lowercase otherwise
- *  - Prefix variables referring to a jQuery object with $
- *  - Prefix functions/variables considered private with _
- *  - Prefix variables considered private referring to a jQuery object with _$
- *  - Always declare variables using "var" keyword
- *  - Always add function and variable comments according to JSDoc (http://en.wikipedia.org/wiki/JSDoc)
- *
  */
 var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 

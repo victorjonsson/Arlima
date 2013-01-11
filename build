@@ -14,6 +14,7 @@
  *   - Node
  *   - Node module wrench ($ npm install wrench)
  *   - Node module uglify-JS ($ npm install uglify-js)
+ *   - Node module uglify-CSS ($ npm install uglifycss)
  *   - msgfmt and phpunit.phar has to be installed and added to your $PATH
  */
 

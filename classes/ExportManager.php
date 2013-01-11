@@ -158,6 +158,7 @@ class Arlima_ExportManager
         foreach (array_keys($articles) as $key) {
             $this->prepareArticleForExport($articles[$key], $base_url);
         }
+        $list->setArticles($articles);
 
         // RSS export
         if ( $format == self::FORMAT_RSS ) {

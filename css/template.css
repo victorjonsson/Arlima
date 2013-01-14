@@ -224,6 +224,7 @@ TMPL related posts
     margin:16px 8px 8px;
     border:#F2F2F2 solid 1px;
     overflow: hidden;
+    clear: both
 }
 
 .teaser-related-posts h3 {

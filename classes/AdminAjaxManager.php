@@ -590,7 +590,7 @@ class Arlima_AdminAjaxManager
         }
 
         if( empty($preview_url) ) {
-            $preview_url = apply_filters('arlima_preview_url', $list);
+            $preview_url = apply_filters('arlima_preview_url', '');
         }
 
         ?>

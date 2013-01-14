@@ -42,8 +42,10 @@ class Arlima_Plugin
         add_action('add_meta_boxes', array($this, 'addMetaBox'));
 
         // Ajax functions
-        $ajax_manager = new Arlima_AdminAjaxManager($this);
-        $ajax_manager->initActions();
+        if( defined('DOING_AJAX') && DOING_AJAX ) {
+            $ajax_manager = new Arlima_AdminAjaxManager($this);
+            $ajax_manager->initActions();
+        }
     }
 
     /**

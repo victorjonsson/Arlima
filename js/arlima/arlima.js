@@ -260,12 +260,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * @property {jQuery}
          */
-        _$futureNotice : false,
-
-        /**
-         * @property {jQuery}
-         */
-        _$articleLink : false,
 
         /**
          * @property {jQuery}
@@ -289,8 +283,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             this._$preview = $('#arlima-preview');
             this._$form = $('#arlima-edit-article-form');
             this._$imgContainer = $('#arlima-article-image');
-            this._$futureNotice = $('#future-notice');
-            this._$articleLink = $('#arlima-article-link');
             this._$sticky = $('#sticky-interval');
             this._$blocker = $('<div></div>');
             this._$blocker
@@ -305,6 +297,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 log('This wordpress application is outdated. Please update to the newest version', 'warn');
                 $.fn.effect = function() {};
             }
+
+            this.PostConnector.init(this._$form);
         },
 
         /**
@@ -366,14 +360,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
                 ArlimaList.applyItemPresentation(this.$item, articleData);
 
-                if( isFutureDate(articleData.publish_date) ) {
-                    this._$futureNotice.show();
-                    this._$articleLink.hide();
-                }
-                else {
-                    this._$articleLink.show();
-                    this._$futureNotice.hide();
-                }
+                this.PostConnector.toggleFutureNotice( isFutureDate(articleData.publish_date) );
 
                 if(articleData.options && articleData.options.sticky) {
                     $('.sticky-interval-fancybox').attr('title', ArlimaJS.lang.sticky+' ('+articleData.options.sticky_interval+')');
@@ -410,8 +397,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         articleTemplate : function(articleData) {
             // Template changed by format value
             var previewTemplate = $('.arlima-list-previewtemplate', this.currentlyEditedList.jQuery).val();
-            var customTemplate = articleData.options ? articleData.options.template : undefined;
-            if( customTemplate !== undefined && customTemplate ) {
+            var customTemplate = articleData.options ? articleData.options.template : false;
+            if( customTemplate ) {
                 if( ArlimaTemplateLoader.templates[customTemplate] === undefined ) {
                     log('Use of unknown custom template "'+customTemplate+'"', 'warn');
                 }
@@ -615,24 +602,24 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         },
 
         /**
-         * @param {jQuery} $listiItem
-         * @param {ArlimaList|Object} list
+         * @param {jQuery} $listItem
+         * @param {ArlimaList} list
          */
-        edit : function($listiItem, list) {
+        edit : function($listItem, list) {
 
             Manager.setFocusedList(list);
             var self = this;
             var doShowArticlePreview = this.isShowingPreview();
             this.clear();
             this.currentlyEditedList = list;
-            this.$item = $listiItem;
+            this.$item = $listItem;
 
             // change element classes
             var $listParent = list.jQuery.parent();
             $listParent.find('.edited').removeClass('edited');
             $listParent.find('.active').removeClass('active');
             list.jQuery.addClass('active');
-            $listiItem.addClass('edited');
+            $listItem.addClass('edited');
 
             // Show form if hidden
             var $formContainer = this._$form.parent();
@@ -652,17 +639,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             if(!article.title_fontsize)
                 article.title_fontsize = 24;
 
-            // Post connection
-            if(article.post_id == 0)
-                article.post_id = null;
-            if(article.post_id) {
-                $('#tinyMCE-add_media', this._$form).attr('href', 'media-upload.php?post_id=' + article.post_id + '&type=image&TB_iframe=1&send=true');
-                $('#arlima-article-connected-post', this._$form).html('<a href="post.php?post=' + article.post_id + '&action=edit" target="_blank">' + article.post_id + '</a>');
-            }else{
-                $('#tinyMCE-add_media', this._$form).attr('href', 'media-upload.php?type=image&TB_iframe=1&send=true');
-                $('#arlima-article-connected-post-change').hide();
-                $('#arlima-article-post_id').show();
-            }
+            // Setup post connection
+            this.PostConnector.setup(article);
 
             // Add title and body text
             $.tinyMCEContent(article.text);
@@ -709,7 +687,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 }
                 return true;
             });
-
 
             if(article.options) {
 
@@ -1090,6 +1067,138 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         }
     };
 
+    /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     * @property {Object}
+     */
+    ArticleEditor.PostConnector = {
+        
+        _$openButton : false,
+        _$urlInput : false,
+        _$postIdInput : false,
+        _$targetInput : false,
+        _$info : false,
+        _$editorButton : false,
+        _$futureNotice : false,
+        $fancyBox : false,
+
+        /**
+         * @param {jQuery} $f
+         */
+        init : function($f) {
+            // todo: change from id to classes
+            this._$info = $('#arlima-article-connected-post', $f);
+            this._$editorButton = $('#tinyMCE-add_media', $f);
+            this._$openButton = $('#arlima-article-connected-post-open', $f);
+            this._$urlInput = $f.find('input[name="options-overriding_url"]');
+            this._$targetInput = $f.find('input[name="options-target"]');
+            this._$postIdInput = $f.find('input[name="post_id"]');
+            this._$futureNotice = $('#future-notice', $f);
+            this.$fancyBox = $('#post-connect-fancybox');
+        },
+
+        /**
+         * @param {Object} article
+         */
+        setup : function(article) {
+            var _self = this;
+            if(article.post_id == 0)
+                article.post_id = null;
+
+            if(article.post_id) {
+                this._$info.html('');
+                this._$editorButton.attr('href', 'media-upload.php?post_id=' + article.post_id + '&type=image&TB_iframe=1&send=true');
+                Backend.getPost(article.post_id, function(json) {
+                    _self._setConnectionLabel('(post #'+json.ID+') '+json.post_title, json.post_title);
+                });
+            }
+            else {
+                this._$editorButton.attr('href', 'media-upload.php?type=image&TB_iframe=1&send=true');
+                this._setConnectionLabel(article.url, article.url);
+            }
+
+            this._$openButton.unbind('click');
+            this._$openButton.bind('click', function() {
+                if( article.post_id ) {
+                    window.open('post.php?post=' + article.post_id + '&action=edit');
+                } else {
+                    window.open(article.url);
+                }
+                return false;
+            });
+        },
+
+        /**
+         * @param {Boolean} toggle
+         */
+        toggleFutureNotice : function(toggle) {
+            if( toggle ) {
+                this._$futureNotice.show();
+            } else {
+                this._$futureNotice.hide();
+            }
+        },
+
+        /**
+         * Get text presentation of current article connection
+         * @return {String}
+         */
+        getConnectionLabel : function() {
+            return this._$info.find('em').attr('title');
+        },
+
+        /**
+         * @param label
+         * @param title
+         * @protected
+         */
+        _setConnectionLabel : function(label, title) {
+            this._$info.html('<em style="color:#666" class="tooltip" title="'+label+'">'+strPad(title)+'</em>');
+        },
+
+        /**
+         * Set article connection
+         * @param {String|Number} arg Either post ID or external URL
+         * @param {String} [target] set target for external url
+         */
+        connect : function(arg, target) {
+            var articleData = ArticleEditor.$item.data('article');
+
+            // post ID
+            if( $.isNumeric(arg) ) {
+                if( articleData.post_id != arg ) {
+                    this._$urlInput.val('');
+                    this._$targetInput.val('');
+                    this._$postIdInput.val(arg);
+                    var _self = this;
+                    Backend.getPost(arg, function(json) {
+                        if(json && json.url) {
+                            $('#arlima-edit-article-url').val(json.url);
+                            articleData.publish_date = json.publish_date;
+                            _self._setConnectionLabel('(post #'+json.ID+') '+json.post_title, json.post_title);
+                        }
+                        else {
+                            articleData.publish_date = 3;
+                            alert('This post has been removed'); // this should never happen
+                        }
+
+                        ArticleEditor.updateArticle(true, false);
+                    });
+                }
+            }
+
+            // External url
+            else {
+                if( articleData.url != arg || articleData.options.target != target) {
+                    this._setConnectionLabel(arg, arg);
+                    this._$targetInput.val(target);
+                    this._$postIdInput.val('');
+                    this._$urlInput.val(arg);
+                    articleData.publish_date = 3;
+                    ArticleEditor.updateArticle(true, false);
+                }
+            }
+        }
+    };
 
 
     /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1465,7 +1574,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
                     $('.dragger', $div).each( function (i, item) {
                         var $item = $(item);
-                        var article = json.articles[i];
+                        var article = json.posts[i];
                         var content = article.content;
                         delete article.content;
                         ArlimaList.prepareArticleForListTransactions($item, article);
@@ -1473,7 +1582,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             position: {
                                 my: 'right top',
                                 at: 'center left',
-                                viewport: jQuery(window)
+                                viewport: $(window)
                             },
                             style: { classes: 'ui-tooltip-shadow ui-tooltip-light ui-tooltip-480'}
                         };
@@ -1701,7 +1810,10 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 message += "# Article \""+ArticleEditor.$item.find('.arlima-listitem-title').text()+"\" is being edited";
             }
 
-            log(message, "log");
+            log(message, 'log');
+            try {
+                log(ArticleEditor.$item.data('article'), 'log');
+            } catch(e) {}
         }
     };
 
@@ -2419,6 +2531,21 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         if( !$.isNumeric(ts) )
             ts = ts.publish_date;
         return ts && (ts*1000) > new Date().getTime();
+    }
+
+    /**
+     * @param {*} str
+     * @param {Number} [len]
+     * @return {String}
+     */
+    function strPad(str, len) {
+        if(!len)
+            len = 30
+        str = str ? str.toString() : '';
+        if( str.length > len ) {
+            return str.substr(0, len-3)+'...';
+        }
+        return str;
     }
 
     /**

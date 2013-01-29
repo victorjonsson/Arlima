@@ -193,6 +193,7 @@ class Arlima_ExportManager
     /**
      * - Move all ID numbers from key "xxx_id" to "external_xxx_id"
      * - Make sure all URL:s starts with a base url
+     * - move permalink/url to external url
      *
      * @param array &$article_data
      * @param string $base_url
@@ -200,8 +201,10 @@ class Arlima_ExportManager
      */
     private function prepareArticleForExport(&$article_data, $base_url)
     {
-        if ( substr($article_data['url'], 0, 7) != 'http://' ) {
-            $article_data['url'] = $base_url . ltrim($article_data['url'], '/');
+        $article_data['external_url'] = Arlima_List::resolveURL($article_data);
+
+        if ( strpos($article_data['external_url'], 'http') === false ) {
+            $article_data['external_url'] = $base_url . ltrim($article_data['external_url'], '/');
         }
 
         $article_data['external_post_id'] = 0;
@@ -246,7 +249,7 @@ class Arlima_ExportManager
         return '<item>
                     <title><![CDATA[' . $article['title'] . ']]></title>
                     <description><![CDATA[' . strip_tags($article['text']) . ']]></description>
-                    <link>' . $article['url'] . '</link>
+                    <link>' . $article['external_url'] . '</link>
                     <guid isPermaLink="false">' . $guid . '</guid>
                     <pubDate>' . $date . '</pubDate>
                     ' . $img . '

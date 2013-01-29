@@ -198,6 +198,8 @@ abstract class Arlima_AbstractListRenderingManager
             $is_empty = true;
         }
 
+        $article['url'] = Arlima_List::resolveURL($article);
+
         return array($post, $article, $is_post, $is_empty);
     }
 

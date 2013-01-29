@@ -1,11 +1,10 @@
 <?php
 
 require_once __DIR__ .'/setup.php';
+require_once __DIR__.'/ExportImportBase.php';
 
-/**
- * @todo Test that articles gets imported as expected
- */
-class TestArlimaImport extends PHPUnit_Framework_TestCase {
+
+class TestArlimaImport extends ExportImportBase {
 
     /**
      * @var Arlima_ExportManager
@@ -22,15 +21,6 @@ class TestArlimaImport extends PHPUnit_Framework_TestCase {
         self::$importer = new Arlima_ImportManager(new Private_ArlimaPluginDummy());
     }
 
-    /**
-     * @return Arlima_List
-     */
-    function createList() {
-        $list = new Arlima_List(true, 99);
-        $list->setSlug('Slug');
-        $list->setTitle('Title');
-        return $list;
-    }
 
     private function generateServerResponse($body, $content_type, $code = 200)  {
         return array(
@@ -50,10 +40,18 @@ class TestArlimaImport extends PHPUnit_Framework_TestCase {
         $server_response = $this->generateServerResponse($json, 'application/json');
         $imported = self::$importer->serverResponseToArlimaList($server_response, 'http://google.se/export/');
 
+
         $this->assertTrue( $imported->exists() );
         $this->assertTrue( $imported->isImported() );
         $this->assertEquals('[google.se] Title', $imported->getTitle());
         $this->assertEquals('http://google.se/export/', $imported->id());
+        $this->assertEquals(1, $imported->numArticles());
+
+        $article = current($imported->getArticles());
+        $this->assertEquals(self::$some_post_id, $article['external_post_id']);
+        $this->assertTrue( isset($article['post_id']) && empty($article['post_id']) );
+
+        $this->assertEquals(get_permalink(self::$some_post_id), $article['options']['overriding_url']);
     }
 
     function testImportRSS() {

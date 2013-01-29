@@ -45,11 +45,32 @@ class Arlima_AdminAjaxManager
         add_action('wp_ajax_arlima_duplicate_image', array($this, 'duplicateImage'));
         add_action('wp_ajax_arlima_import_arlima_list', array($this, 'importList'));
         add_action('wp_ajax_arlima_remove_image_versions', array($this, 'removeImageVersions'));
+        add_action('wp_ajax_arlima_update_article', array($this, 'updateArticle'));
 
         // The following action is not possible to hook into wtf???
         // add_action('wp_ajax_image-editor', array($this, 'removeImageVersions'));
         if ( $this->isSavingEditedImage() ) {
             add_action('init', array($this, 'removeImageVersions'));
+        }
+    }
+
+    public function updateArticle()
+    {
+        $this->initAjaxRequest();
+        if( empty($_POST['ala_id']) ) {
+            die(json_encode(array('error'=>'No ala_id given')));
+        }
+        elseif( empty($_POST['update']) ) {
+            die(json_encode(array('error'=>'Nothing to update')));
+        }
+        else {
+            try {
+                $factory = new Arlima_ListFactory();
+                $factory->updateArticle($_POST['ala_id'], $_POST['update']);
+                die(json_encode(array('success'=>1)));
+            } catch(Exception $e) {
+                die(json_encode(array('error'=>$e->getMessage())));
+            }
         }
     }
 
@@ -61,13 +82,13 @@ class Arlima_AdminAjaxManager
     private function isSavingEditedImage()
     {
         return isset($_POST['action']) &&
-        isset($_POST['postid']) &&
-        isset($_POST['do']) &&
-        isset($_POST['context']) &&
-        $_POST['action'] == 'image-editor' &&
-        $_POST['do'] == 'save' &&
-        $_POST['context'] == 'edit-attachment' &&
-        basename($_SERVER['PHP_SELF']) == 'admin-ajax.php';
+                isset($_POST['postid']) &&
+                isset($_POST['do']) &&
+                isset($_POST['context']) &&
+                $_POST['action'] == 'image-editor' &&
+                $_POST['do'] == 'save' &&
+                $_POST['context'] == 'edit-attachment' &&
+                basename($_SERVER['PHP_SELF']) == 'admin-ajax.php';
     }
 
     /**
@@ -503,9 +524,6 @@ class Arlima_AdminAjaxManager
                 'versions' => $list->getVersions()
             )
         );
-
-        // custom hook that other plugins can add actions to.
-        do_action('arlima_save_list', $list);
     }
 
     /**
@@ -937,7 +955,7 @@ class Arlima_AdminAjaxManager
     <?php
         $html = ob_get_contents();
         ob_end_clean();
-        $data = array("html" => $html, "articles" => $articles);
+        $data = array("html" => $html, "posts" => $articles);
         echo json_encode($data);
     }
 }

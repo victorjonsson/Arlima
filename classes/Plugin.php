@@ -8,9 +8,10 @@
  */
 class Arlima_Plugin
 {
-    const VERSION = 2.6;
+    const VERSION = 2.7;
     const EXPORT_FEED_NAME = 'arlima-export';
-    const STATIC_VERSION = '18.53';
+    const STATIC_VERSION = '18.773';
+    const PLUGIN_SETTINGS_OPT = 'arlima_plugin_settings';
 
     private static $is_scissors_installed = null;
     private static $is_wp_related_post_installed = null;
@@ -57,6 +58,13 @@ class Arlima_Plugin
         add_shortcode('arlima', array($this, 'arlimaListShortCode'));
         if ( is_page() ) {
             add_filter('the_content', array($this, 'displayArlimaList'));
+        }
+
+        // Add filters that makes content editable in context
+        // todo: check if setting is enabled
+        if( is_user_logged_in() ) {
+            $editor = new Arlima_InContextEditor($this);
+            $editor->apply();
         }
     }
 
@@ -313,19 +321,26 @@ class Arlima_Plugin
      *  - Adds database tables
      *  - Adds version number in db
      *  - Adds arlima export feed and flushed wp_rewrite
+     *  - Adds initial settings
      * @static
      */
     public static function install()
     {
+        // Add db tables
         $factory = new Arlima_ListFactory();
         $factory->install();
+
+        // Add feed
         global $wp_rewrite;
         $plugin = new self();
         $plugin->addExportFeeds();
         $wp_rewrite->flush_rules();
+
+        // Add settings
         $plugin = new self();
         $settings = $plugin->loadSettings();
         $settings['install_version'] = self::VERSION;
+        $settings['in_context_editing'] = true;
         $plugin->saveSettings($settings);
     }
 
@@ -339,7 +354,7 @@ class Arlima_Plugin
     {
         $factory = new Arlima_ListFactory();
         $factory->uninstall();
-        delete_option('arlima_plugin_settings');
+        delete_option(self::PLUGIN_SETTINGS_OPT);
     }
 
     /**
@@ -382,9 +397,8 @@ class Arlima_Plugin
                 Arlima_ListFactory::databaseUpdates($current_version);
             }
 
-            // Update to version 2.4
-            if ( $current_version < self::VERSION ) {
-
+            // Update to version 2.6
+            if( $current_version < 2.6 ) {
                 Arlima_ListFactory::databaseUpdates($current_version);
 
                 $pages = get_pages(
@@ -412,10 +426,10 @@ class Arlima_Plugin
                 $connector = new Arlima_ListConnector();
                 $factory = new Arlima_ListFactory();
                 $list_attr = array(
-                        'width' => $list_width,
-                        'offset' => 0,
-                        'limit' => 0
-                    );
+                    'width' => $list_width,
+                    'offset' => 0,
+                    'limit' => 0
+                );
 
                 foreach ($pages as $page) {
                     $arlima_slug = get_post_meta($page->ID, 'arlima', true);
@@ -427,6 +441,11 @@ class Arlima_Plugin
                         }
                     }
                 }
+            }
+
+            // Update to 2.7
+            if ( $current_version < self::VERSION ) {
+                $settings['in_context_editing'] = true;
             }
 
             $settings['install_version'] = self::VERSION;
@@ -453,7 +472,7 @@ class Arlima_Plugin
      */
     function loadSettings()
     {
-        return get_option('arlima_plugin_settings', array());
+        return get_option(self::PLUGIN_SETTINGS_OPT, array());
     }
 
     /**
@@ -461,7 +480,7 @@ class Arlima_Plugin
      */
     function saveSettings($setting)
     {
-        update_option('arlima_plugin_settings', $setting);
+        update_option(self::PLUGIN_SETTINGS_OPT, $setting);
     }
 
     /**
@@ -623,7 +642,7 @@ class Arlima_Plugin
                         ));
                 }
             } else {
-                Arlima_ListFactory::updateArlimaArticleData(get_post($post_id));
+                Arlima_ListFactory::updateArticlePublishDate(get_post($post_id));
             }
         }
     }
@@ -702,23 +721,31 @@ class Arlima_Plugin
                 array('jquery'),
                 self::STATIC_VERSION
             );
-            wp_localize_script(
-                'arlima_js_admin',
-                'ArlimaJSAdmin',
-                array(
-                    'ajaxurl' => admin_url('admin-ajax.php'),
-                    'arlimaNonce' => wp_create_nonce('arlima-nonce'),
-                    'imageurl' => ARLIMA_PLUGIN_URL . '/images/',
-                    'lang' => array(
-                        'notice' => __(
-                            'Are you sure you want to insert this post in the top of selected article list?',
-                            'arlima'
-                        ),
-                        'wasSentTo' => __('The post is inserted in article list', 'arlima')
-                    )
-                )
-            );
+            $this->addAdminJavascriptVars('arlima_js_admin');
         }
+    }
+
+    /**
+     *
+     */
+    public function addAdminJavascriptVars($handle)
+    {
+        wp_localize_script(
+            $handle,
+            'ArlimaJSAdmin',
+            array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'arlimaNonce' => wp_create_nonce('arlima-nonce'),
+                'imageurl' => ARLIMA_PLUGIN_URL . '/images/',
+                'lang' => array(
+                    'notice' => __(
+                        'Are you sure you want to insert this post in the top of selected article list?',
+                        'arlima'
+                    ),
+                    'wasSentTo' => __('The post is inserted in article list', 'arlima')
+                )
+            )
+        );
     }
 
     /**
@@ -998,17 +1025,15 @@ class Arlima_Plugin
     public static function classLoader($class)
     {
         // use substr instead of strpos or regexp, way faster in this case
-        if ( substr($class, 0, 7) == 'Arlima_' ) {
-
+        if ( strpos($class, 'Arlima_') === 0 ) {
             require_once ARLIMA_PLUGIN_PATH . '/classes/' . substr($class, 7) . '.php';
-
-        } elseif ( substr($class, 0, 10) == 'jQueryTmpl' ) {
+        } elseif ( strpos($class, 'jQueryTmpl') === 0 ) {
             $jquery_tmpl_class = ARLIMA_PLUGIN_PATH . '/classes/jquery-tmpl-php/' .
-                                    str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
+                                    str_replace('_', '/', $class) . '.php';
             require_once $jquery_tmpl_class;
 
         } // Deprecated classes
-        elseif ( substr($class, 0, 6) == 'Arlima' ) {
+        elseif ( strpos($class, 'Arlima') === 0 ) {
             require_once ARLIMA_PLUGIN_PATH . '/classes/deprecated.php';
         }
     }

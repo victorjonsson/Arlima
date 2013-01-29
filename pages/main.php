@@ -164,6 +164,7 @@ $factory = new Arlima_ListFactory();
                                 $settings = array(
                                     'wpautop' => true,
                                     'media_buttons' => true,
+                                    'textarea_rows' => 90,
                                     'tinymce' => array(
                                         'onchange_callback' => 'arlimaTinyMCEChanged'
                                         // 'save_onsavecallback' => 'arlimaTinyMCESaved' does not work, ctrl + s never gets triggered
@@ -180,17 +181,18 @@ $factory = new Arlima_ListFactory();
                                         <tr>
                                             <td>
                                                 <span id="post-connection">
-                                                    <?php _e('Post') ?>:
+                                                    <?php _e('Connected to', 'arlima') ?>:
                                                     <span id="arlima-article-connected-post"></span>
-                                                    <a href="#" id="arlima-article-connected-post-change">
+                                                    <a  href="#post-connect-fancybox" id="arlima-article-connected-post-change">
                                                         <?php _e('[change]', 'arlima') ?>
                                                     </a>
-                                                    <input type="text" name="post_id" id="arlima-article-post_id" size="7"/>
+                                                    <a href="#" id="arlima-article-connected-post-open">
+                                                        <?php _e('[open]', 'arlima') ?>
+                                                    </a>
+                                                    <input type="hidden" name="post_id" />
+                                                    <input type="hidden" name="options-overriding_url" />
+                                                    <input type="hidden" name="options-target" />
                                                     <em id="future-notice">(<?php _e('Future post', 'arlima') ?>)</em>
-                                                </span>
-                                                <span id="arlima-article-link">
-                                                    <?php _e('Link', 'arlima') ?>:
-                                                    <input id="arlima-edit-article-url" name="url" value="" style="width: 290px" />
                                                 </span>
                                             </td>
                                             <?php if( Arlima_Plugin::isWPRelatedPostsInstalled() ): ?>
@@ -237,13 +239,48 @@ $factory = new Arlima_ListFactory();
                                             </div>
                                             <h2><?php _e('Hours', 'arlima'); ?></h2>
                                             <div id="sticky-hour-container" class="sticky-interval-time">
-                                                <!-- generated with js -->
+                                                <!-- inputs for hours generated with js -->
                                                 <p>
                                                     <a href="" class="time-checkbox-toggler">[<?php _e('Toggle all', 'arlima') ?>]</a>
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div style="display: none">
+                                        <div id="post-connect-fancybox">
+                                            <p>
+                                                <strong>Connected to:</strong>
+                                                <span class="connection"></span>
+                                            </p>
+                                            <p>
+                                                <a href="#wp-post" class="button open">Connect to post</a>
+                                                <a href="#external-url" class="button open">Connect to external URL</a>
+                                            </p>
+                                            <div class="external-url connection-containers">
+                                                <p style="line-height: 220%">
+                                                    <strong>URL</strong>
+                                                    <input type="text" class="url" style="width: 90%" />
+                                                    <br />
+                                                    <strong>Open in a new window?</strong>
+                                                    <br />
+                                                    <select>
+                                                        <option value="_blank">Yes</option>
+                                                        <option value="">No</option>
+                                                    </select>
+                                                </p>
+                                            </div>
+                                            <div class="wp-post connection-containers">
+                                                <p>
+                                                    <input type="search" placeholder="Search for title or post ID..." />
+                                                    <a href="#" class="do-search button">Search</a>
+                                                    <input type="hidden" class="post-connection" />
+                                                </p>
+                                                <div class="search-result"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </li>
 

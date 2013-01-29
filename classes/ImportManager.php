@@ -209,6 +209,14 @@ class Arlima_ImportManager
             if ( empty($list_data['title']) || empty($list_data['slug']) || !isset($list_data['articles']) ) {
                 throw new Exception('JSON data invalid. Properties "title", "slug" and "articles" is mandatory');
             }
+            if( !empty($list_data['articles']) ) {
+                foreach($list_data['articles'] as $key => $data) {
+                    // Back compat
+                    $url = isset($list_data['articles'][$key]['url']) ? $list_data['articles'][$key]['url'] : $list_data['articles'][$key]['external_url'];
+                    $list_data['articles'][$key]['options']['overriding_url'] = $url;
+                   # var_dump($list_data['articles'][$key]['options']);
+                }
+            }
         }
 
         // RSS DATA
@@ -288,7 +296,6 @@ class Arlima_ImportManager
 
         $art = Arlima_ListFactory::createArticleDataArray(
             array(
-                'url' => (string)$item->link,
                 'image_options' => $img_options,
                 'text' => $description,
                 'title' => (string)$item->title,
@@ -296,6 +303,8 @@ class Arlima_ImportManager
                 'html_title' => '<h2>' . ((string)$item->title) . '</h2>'
             )
         );
+
+        $art['options']['overriding_url'] = (string)$item->link;
 
         return $art;
     }

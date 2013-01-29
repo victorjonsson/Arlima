@@ -422,9 +422,10 @@ class Arlima_List
 
     /**
      * @param array $article
+     * @param array $header_classes
      * @return string
      */
-    function getTitleHtml($article)
+    function getTitleHtml($article, $header_classes=array())
     {
 
         if ( $article['title'] == '' ) {
@@ -440,8 +441,6 @@ class Arlima_List
         $title_html = '';
         $start_tag = empty($this->options['before_title']) ? '<h2>' : $this->options['before_title'];
         $end_tag = empty($this->options['after_title']) ? '</h2>' : $this->options['after_title'];
-
-        $header_classes = array();
 
         if ( !isset($this->options['ignore_fontsize']) || !$this->options['ignore_fontsize'] ) {
             $header_classes[] = ' fsize-' . $article['title_fontsize'];
@@ -533,6 +532,20 @@ class Arlima_List
                 'This variable is no longer a public property'
             );
         }
+    }
+
+    /**
+     * @param $article
+     * @return null|string
+     */
+    public static function resolveURL($article)
+    {
+        if( !empty($article['options']) && !empty($article['options']['overriding_url']) ) {
+            return $article['options']['overriding_url'];
+        } elseif( !empty($article['post_id']) ) {
+            return get_permalink($article['post_id']);
+        }
+        return null;
     }
 
     /**

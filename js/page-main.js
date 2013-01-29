@@ -1,6 +1,6 @@
 /**
- * This file contains everything that happens when the page for the article
- * list editor gets loaded
+ * This file contains everything that happens when the page for
+ * the list manager gets loaded
  *
  * @todo Fix all insufficient use of jQuery
  */
@@ -9,9 +9,7 @@ jQuery(function($) {
     // Initiate Arlima and plupload
     Arlima.Manager.init('#arlima-container-area');
     Arlima.ArticleEditor.init();
-    //initPlUopload();
     ArlimaUploader.init();
-
 
     // Load custom templates
     Arlima.Manager.loadCustomTemplates();
@@ -28,6 +26,12 @@ jQuery(function($) {
             Arlima.Manager.addList(loadArlimListOnLoad);
         }
     });
+
+    // Hax the height of tinyMCE, setting the height as you're supposed
+    // to makes it look messed up for some reason...
+    setTimeout(function() {
+        $('#tinyMCE_ifr').css('height', '120px');
+    }, 800);
 
     // Convert all title attributes to tooltips
     $('[title].tooltip').qtip({
@@ -55,6 +59,7 @@ jQuery(function($) {
     });
 
     // Initiate scissors fancy box popup
+    var $imgOptions = $('#arlima-article-image-options');
     $('#arlima-article-image-scissors-popup').fancybox( {
         autoDimensions :	true,
         speedIn		:	300,
@@ -72,7 +77,7 @@ jQuery(function($) {
             Arlima.ArticleEditor.removeImageVersions(); // todo: make sure scissors actually did any changes to the image
         },
         onStart : function(){
-            var imgOptions = $('#arlima-article-image-options').data('image_options');
+            var imgOptions = $imgOptions.data('image_options');
             Arlima.Backend.loadScissorsHTML(imgOptions.attach_id, function(html) {
                 if(html) {
                     $('#arlima-article-image-scissors').html(html).show();
@@ -86,7 +91,108 @@ jQuery(function($) {
         }
     });
 
+
+    //
+    // Post connection fancy box
+    //
+    var $postConnectionBox = Arlima.ArticleEditor.PostConnector.$fancyBox;
+    var $connectionButtons = $postConnectionBox.find('.button');
+    var hasChangedConnection = false;
+    $('#arlima-article-connected-post-change').fancybox({
+        autoDimensions :	true,
+        speedIn		:	300,
+        speedOut	: 	300,
+        titlePosition :	false,
+        onComplete	:	function() {},
+        onClosed	:	function( ) {
+            if( hasChangedConnection !== false ) {
+                var target = undefined;
+                var connection = '';
+                if( hasChangedConnection === 'external' ) {
+                    target = $postConnectionBox.find('select').val();
+                    connection = $postConnectionBox.find('input.url').val();
+                } else {
+                    connection = $postConnectionBox.find('input.post-connection').val();
+                }
+
+                if( connection ) {
+                    Arlima.ArticleEditor.PostConnector.connect(connection, target);
+                }
+
+                hasChangedConnection = false;
+            }
+        },
+        onStart : function() {
+            var connector = Arlima.ArticleEditor.PostConnector;
+            var articleData = Arlima.ArticleEditor.$item.data('article');
+            hasChangedConnection = false;
+            $postConnectionBox.find('.connection').text(connector.getConnectionLabel());
+            $postConnectionBox.find('.invalid-info').remove();
+            $postConnectionBox.find('.connection-containers').hide();
+            $connectionButtons.filter('.open').css('opacity', 1);
+            $postConnectionBox.find('input,select').val('');
+            $postConnectionBox.find('option').removeAttr('selected');
+            if( !articleData.post_id ) {
+                $postConnectionBox.find('input.url').val(articleData.url);
+                var target = articleData.options.target;
+                if( target !== undefined ) {
+                    $postConnectionBox.find('option[value="'+target+'"]').attr('selected', 'selected');
+                }
+            }
+        }
+    });
+    $connectionButtons.filter('.open').click(function() {
+        $connectionButtons.filter('.open').css('opacity', 1);
+        this.style.opacity = '0.6';
+        $postConnectionBox.find('.connection-containers').hide();
+        $postConnectionBox.find('.'+this.href.split('#')[1]).show();
+        return false;
+    });
+    $postConnectionBox.find('input,select').bind('change', function() {
+        hasChangedConnection = $postConnectionBox.find('.external-url').is(':visible') ? 'external':'post-id';
+        var $in = $(this);
+        // warn if url invalid
+        if( $in.hasClass('url') ) {
+            var url = $in.val();
+            if( url.indexOf('#') !== 0 &&
+                url.toLowerCase().indexOf('javascript: ') !== 0 &&
+                !url.match(/(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/gi)) {
+                $in.after('<em style="color:darkred" class="invalid-info"><br />This URL seems to be invalid</em>');
+            }
+            else {
+                $in.parent().find('.invalid-info').remove();
+            }
+        }
+    });
+    $postConnectionBox.find('.do-search').click(function() {
+        var search = $.trim($postConnectionBox.find('input[type="search"]').val());
+        Arlima.Backend.queryPosts({search:search}, function(data) {
+            var $resultContainer = $postConnectionBox.find('.search-result');
+            if( data.posts.length == 0 ) {
+                $resultContainer.html('<p>Inget hittades....</p>');
+            }
+            else {
+                var result = '';
+                $.each(data.posts, function(i, post) {
+                    result += '<p><a href="#" data-post="'+post.post_id+'">'+post.title+'</a></p>';
+                });
+
+                $resultContainer.html(result);
+                $resultContainer.find('a').click(function() {
+                    hasChangedConnection = 'post-id';
+                    $postConnectionBox.find('.post-connection').val($(this).attr('data-post'));
+                    $('#fancybox-close').click();
+                    return false;
+                });
+            }
+        });
+        return false;
+    });
+
+
+    //
     // Sticky interval picker
+    //
     $('.sticky-interval-fancybox').fancybox({
         autoDimensions :	true,
         speedIn		:	300,
@@ -251,7 +357,7 @@ jQuery(function($) {
         return false;
     });
 
-    // Publish current list
+    // Publish focused list
     $('#arlima-save-active-list').click(function() {
         Arlima.Manager.saveFocusedList();
         return false;
@@ -262,8 +368,6 @@ jQuery(function($) {
         var id = $('#arlima-add-list-select').val();
         if(id)
             Arlima.Manager.addList(id);
-
-        e.preventDefault();
         return false;
     });
 
@@ -325,10 +429,9 @@ jQuery(function($) {
         }
     });
 
-
     // Update article when doing changes to the image
-    $('#arlima-article-image-options input').click(function() { Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)}); });
-    $('#arlima-article-image-options select').change(function() { Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)}); });
+    $imgOptions.find('input').click(function() { Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)}); });
+    $imgOptions.find('select').change(function() { Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)}); });
     $('#arlima-article-image-remove').click(function() {
         $('.hide-if-no-image').hide();
         Arlima.ArticleEditor.removeArticleImage();
@@ -384,65 +487,10 @@ jQuery(function($) {
         return false;
     });
 
-    // changing post connection
-    $('#arlima-article-connected-post-change').click( function(e) {
-        e.preventDefault();
-        $(this).hide();
-        $('#arlima-article-connected-post').html('');
-        $('#arlima-article-post_id').show().focus();
-    });
-
-    // Update with new url when changing post connection
-    var currentPostConnection = null;
-    $('#arlima-article-post_id')
-        .focus(function() {
-           currentPostConnection = $(this).val();
-        })
-        .blur(function() {
-            var $input = $(this);
-            var postId = $.trim($input.val());
-            if($.isNumeric(postId) && currentPostConnection != postId) {
-                Arlima.Backend.getPost(postId, function(json) {
-                    var articleData = Arlima.ArticleEditor.$item.data('article');
-                    if(json && json.url) {
-                        $('#arlima-edit-article-url').val(json.url);
-                        articleData.publish_date = json.publish_date;
-                    }
-                    else {
-                        articleData.publish_date = 0;
-                        alert('This post does not exist');
-                    }
-
-                    Arlima.ArticleEditor.$item.data('article', articleData);
-                    Arlima.ArticleEditor.updateArticle(true, false);
-                });
-            }
-            else {
-                var articleData = Arlima.ArticleEditor.$item.data('article');
-                articleData.publish_date = 0;
-                Arlima.ArticleEditor.$item.data('article', articleData);
-                Arlima.ArticleEditor.updateArticle(true, false);
-            }
-        });
-
-    /* Real time update of article title
-    $('#arlima-edit-article-title').keyup(function() {
-        var el = Arlima.ArticleEditor.currentlyEditedList.titleElement;
-        if(el != '') {
-            var articleData = Arlima.ArticleEditor.$item.data('article');
-            var entryWord = articleData.options.pre_title;
-            var title = (entryWord ? '<span class="arlima-pre-title">'+entryWord+'</span> ':'') +this.value;
-            if(articleData.parent == -1) {
-                Arlima.ArticleEditor._$preview.find(el).eq(0).html(title);
-            }
-            else if(articleData.id) {
-                $('#teaser-'+articleData.id).find(el).eq(0).html(title);
-            }
-        }
-    }); */
-
-    // tinyMCe events (update, focus, preview), will not work
-    // when loading page with tinyMCE being in HTML mode
+    // tinyMCe events (update, focus, preview). This will not work
+    // when loading the page with tinyMCE being in HTML mode, therefor
+    // we put the initiation in a interval that runs until visual mode
+    // is activated
     var tinyMCEEventInterval = setInterval(function() {
         if(tinyMCE !== undefined) {
             clearInterval(tinyMCEEventInterval);
@@ -504,86 +552,72 @@ jQuery(function($) {
         else {
             throw new Error('Trying to disconnect image that is not connected');
         }
-        e.preventDefault();
+        return false;
     });
-
 
 
     // Listen for scissors startup, and uncheck the aspect ratio checkbox
-    document.addEventListener("DOMNodeInserted", function(event) {
-        var node_id = $(event.target).attr('id')+"";
+    var modifyScissorsSettings = function(event) {
+        var $elem = $(event.target);
+        var elemID = $elem.attr('id');
 
-        //String function, self explanatory
-        String.prototype.startsWith = function(str) {
-            return this.match("^"+str)==str;
-        };
+        // Cropped image
+        if ( elemID && elemID.indexOf('scissorsCrop') == 0 ) {
 
-        function setScissorsRatio( attach_id, rx, ry ){
-            //alert( attach_id + " " + rx + ry);
-            $('#scissorsLockBox-' + attach_id).prop("checked", true);
-            scissorsAspectChange(attach_id);
-            $('#scissorsLockX-' + attach_id).val(rx);
-            $('#scissorsLockY-' + attach_id).val(ry);
-            scissorsManualAspectChange(attach_id);
-        }
-        
-        if ( node_id.startsWith('scissorsCrop') ){
-            $('#'+ node_id +' input[type="checkbox"]').each( function( i, e ){
-                var aspect = e.id+"";
-                if(aspect.startsWith('scissorsLockBox')){
-                    $(e).prop("checked", false);
+            var attachmentID = $('#arlima-article-image-attach_id').val();
+
+            /**
+             * @param {String} name
+             * @param {Number} rx
+             * @param {Number} ry
+             */
+            var createRatioButton = function(name, rx, ry) {
+                $('<button></button>')
+                    .html(name)
+                    .addClass('button')
+                    .appendTo('#scissorsCropPane-' + attachmentID)
+                    .on('click', function() {
+                        $('#scissorsLockBox-' + attachmentID).prop("checked", true);
+                        scissorsAspectChange(attachmentID);
+                        $('#scissorsLockX-' + attachmentID).val(rx);
+                        $('#scissorsLockY-' + attachmentID).val(ry);
+                        scissorsManualAspectChange(attachmentID);
+                        return false;
+                    });
+            };
+
+            // Create ratio buttons
+            createRatioButton('Widescreen', 16, 9);
+            createRatioButton('Cinema', 21, 9);
+            createRatioButton('Square', 666, 666);
+
+            // Modify settings in crop form
+            $elem.find('input[type="checkbox"]').each(function() {
+                if(this.id && this.id.indexOf('scissorsLockBox') == 0){
+                    $(this).prop("checked", false);
                 }
             });
-
-            $('#'+ node_id +' div').each( function( i, e ){
-                var div = e.id+"";
-                if ( div.startsWith('scissorsReir') ){
-                    $('#'+ div).hide();
-                }
-            });
-
-            // Attach ratio buttons
-            var arlima_attach_id = $('#arlima-article-image-attach_id').val();
-            var ratio_ws = $('<button />').click( function(e){
-                e.preventDefault();
-                setScissorsRatio(arlima_attach_id, '16', '9');
-            })
-            .html('Widescreen')
-            .addClass('button');
-
-            var ratio_cinema = $('<button>').click( function(e){
-                e.preventDefault();
-                setScissorsRatio(arlima_attach_id, '21', '9');
-            })
-            .html('Cinema')
-            .addClass('button');
-
-            var ratio_square = $('<button>').click( function(e){
-                e.preventDefault();
-                setScissorsRatio(arlima_attach_id, '666', '666');
-            })
-            .html('Kvadrat')
-            .addClass('button');
-
-            $('#scissorsCropPane-' + arlima_attach_id).append(ratio_ws);
-            $('#scissorsCropPane-' + arlima_attach_id).append(ratio_cinema);
-            $('#scissorsCropPane-' + arlima_attach_id).append(ratio_square);
-        }
-
-        if ( node_id.startsWith('scissorsWatermark') ){
-            var vkpt_attach_id = $('#vkpt-attach-id').val();
-
-            $('#'+ node_id +' input[type="checkbox"]').each( function( i, e ){
-                var node = e.id+"";
-                if(node.startsWith('scissors_watermark_target')){
-                    var split = node.split("_");
-                    split = split[3].split("-");
-                    $(e).prop("checked", true);
-                    scissorsWatermarkStateChanged( split[1], split[0] );
+            $elem.find('div').each(function() {
+                if (this.id && this.id.indexOf('scissorsReir') == 0) {
+                    $('#'+ this.id).hide();
                 }
             });
         }
-    });
+
+        else if ( elemID && elemID.indexOf('scissorsWatermark') === 0 ) {
+            $elem.find('input[type="checkbox"]').each(function() {
+                if( this.id && this.id.indexOf('scissors_watermark_target') == 0 ) {
+                    var split = this.id.split("_");
+                    if( split[3] !== undefined ) {
+                        split = split[3].split("-");
+                        $(this).prop("checked", true);
+                        scissorsWatermarkStateChanged( split[split.length-1], split[0] );
+                    }
+                }
+            });
+        }
+    };
+    document.addEventListener("DOMNodeInserted", modifyScissorsSettings);
 
 
     /* * * * * Keyboard short cuts using jquery.hotkeys plugin * * * * * */

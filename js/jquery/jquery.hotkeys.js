@@ -12,6 +12,8 @@
 
 (function(jQuery){
 
+    var $ = jQuery.noConflict();
+
     jQuery.hotkeys = {
         version: "0.8+",
 

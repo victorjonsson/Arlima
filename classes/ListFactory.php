@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class with all the know-how about article lists creation and how its data is stored in the database.
+ * Class with all the know-how about creation of article lists and how the data is stored in the database.
  * All direct use of wpdb in the Arlima plugin should be placed in this class, at least as long as
  * the database communication is about getting data related to article lists.
  *
@@ -38,7 +38,8 @@ class Arlima_ListFactory {
      * @param wpdb $db
      * @param null $cache
      */
-    public function __construct($db = null, $cache = null) {
+    public function __construct($db = null, $cache = null)
+    {
         $this->wpdb = $db === null ? $GLOBALS['wpdb'] : $db;
         $this->cache = $cache === null ? Arlima_CacheManager::loadInstance() : $cache;
     }
@@ -60,7 +61,8 @@ class Arlima_ListFactory {
      * @throws Exception
      * @return Arlima_List
      */
-    public function createList($title, $slug, $options=array(), $max_length=50) {
+    public function createList($title, $slug, $options=array(), $max_length=50)
+    {
         $options = array_merge($this->options, $options);
 
         $insert_data = array(
@@ -72,7 +74,7 @@ class Arlima_ListFactory {
         );
 
         // Insert list data in DB
-        $sql = 'INSERT INTO ' . $this->wpdb->prefix . 'arlima_articlelist
+        $sql = 'INSERT INTO ' . $this->dbTable() . '
                 (al_created, al_title, al_slug, al_maxlength, al_options)
                 VALUES (%d, %s, %s, %d, %s)';
 
@@ -99,16 +101,17 @@ class Arlima_ListFactory {
      * @param Arlima_List $list
      * @throws Exception
      */
-    public function updateListProperties($list) {
+    public function updateListProperties($list)
+    {
         $update_data = array(
-            $list->getTitle(),
-            $list->getSlug(),
-            $list->getMaxlength(),
-            serialize( $list->getOptions() ),
-            (int)$list->id()
-        );
+                    $list->getTitle(),
+                    $list->getSlug(),
+                    $list->getMaxlength(),
+                    serialize( $list->getOptions() ),
+                    (int)$list->id()
+                );
 
-        $sql = 'UPDATE ' . $this->wpdb->prefix . 'arlima_articlelist
+        $sql = 'UPDATE ' . $this->dbTable() . '
                     SET al_title = %s, al_slug = %s, al_maxlength=%d, al_options = %s
                     WHERE al_id = %d ';
 
@@ -121,36 +124,100 @@ class Arlima_ListFactory {
     /**
      * @param Arlima_List $list
      */
-    public function deleteList($list) {
-
+    public function deleteList($list)
+    {
         // Get versions
-        $version_data = $this->wpdb->get_results(sprintf(
-                            "SELECT alv_id FROM %sarlima_articlelist_version WHERE alv_al_id=%d",
-                            $this->wpdb->prefix,
-                            (int)$list->id()
-                        ));
+        $version_data = $this->executeSQLQuery('get_results',
+                            'SELECT alv_id FROM '.$this->dbTable('_version').' WHERE alv_al_id='.intval($list->id()));
 
         // Remove articles
         if( !empty($version_data) ) {
+            $versions = array();
             foreach($version_data as $data) {
                 $versions[] = $data->alv_id;
             }
             $this->executeSQLQuery('query', sprintf(
-                        "DELETE FROM ".$this->wpdb->prefix."arlima_articlelist_article WHERE ala_alv_id in (%s)",
+                        "DELETE FROM ".$this->dbTable('_article')." WHERE ala_alv_id in (%s)",
                         implode(',', $versions)
                     ));
         }
 
         // Remove list properties
-        $this->executeSQLQuery('query', 'DELETE FROM '.$this->wpdb->prefix.'arlima_articlelist WHERE al_id='.$list->id());
+        $this->executeSQLQuery('query', 'DELETE FROM '.$this->dbTable().' WHERE al_id='.$list->id());
 
         // Remove versions
-        $this->executeSQLQuery('query', 'DELETE FROM '.$this->wpdb->prefix.'arlima_articlelist_version WHERE alv_al_id='.$list->id() );
+        $this->executeSQLQuery('query', 'DELETE FROM '.$this->dbTable('_version').' WHERE alv_al_id='.$list->id() );
 
         // remove cache
         $this->cache->delete('arlima_list_props_'.$list->id());
         $this->cache->delete('arlima_list_articles_data_'.$list->id());
         $this->cache->delete('arlima_list_slugs');
+    }
+
+    /**
+     * @param int $id
+     * @param array $data
+     * @throws Exception
+     */
+    public function updateArticle($id, $data)
+    {
+        $sql = $this->wpdb->prepare('SELECT * FROM '.$this->dbTable('_article').' WHERE ala_id=%d', $id);
+        $cols = $this->executeSQLQuery('get_row', $sql, 'ala_');
+
+        if( !empty($cols) ) {
+
+            $sql = 'UPDATE '.$this->dbTable('_article').' SET ';
+            foreach($data as $col => $val) {
+                if( !isset($cols[$col]) )
+                    throw new Exception('Trying to update article using unknown column "'.$col.'"');
+                if($col == 'options') {
+                    $val = array_merge(unserialize($cols['options']), $val);
+                    $val = self::sanitizeListOptions($val);
+                }
+                if($col == 'options' || $col == 'image_options')
+                    $val = serialize( $val );
+
+                $sql .= " ala_$col = '".$this->wpdb->escape(stripslashes($val))."', ";
+            }
+
+            $sql = rtrim($sql, ', ') . ' WHERE ala_id = '.intval($id);
+
+            $this->executeSQLQuery('query', $sql);
+
+            // Update cache
+            $list = $this->loadListByVersionId($cols['alv_id']);
+            if($list !== null) {
+                $this->doSaveListAction($list);
+                $this->cache->delete('arlima_list_articles_data_'.$list->id());
+            }
+        }
+    }
+
+    /**
+     * @param string $type
+     * @return string
+     */
+    private function dbTable($type='')
+    {
+        return $this->wpdb->prefix.'arlima_articlelist'.$type;
+    }
+
+    /**
+     * @param Arlima_List $list
+     */
+    private function doSaveListAction($list)
+    {
+        do_action('arlima_save_list', $list);
+    }
+
+    /**
+     * @param $version
+     * @return Arlima_List|null
+     */
+    private function loadListByVersionId($version)
+    {
+        $id = $this->executeSQLQuery('get_var', 'SELECT alv_al_id FROM '.$this->dbTable('_version').' WHERE alv_id='.intval($version));
+        return $id ? $this->loadList($id) : null;
     }
 
     /**
@@ -160,8 +227,8 @@ class Arlima_ListFactory {
      * @param bool $preview
      * @throws Exception
      */
-    public function saveNewListVersion($list, $articles, $user_id, $preview = false) {
-
+    public function saveNewListVersion($list, $articles, $user_id, $preview = false)
+    {
         if(!$list->exists())
             throw new Exception('You can not create a new version of a list that does not exist');
         if($list->isImported())
@@ -172,7 +239,7 @@ class Arlima_ListFactory {
 
         // Create the new version
         $sql = $this->wpdb->prepare(
-                "INSERT INTO " . $this->wpdb->prefix . "arlima_articlelist_version
+                "INSERT INTO " . $this->dbTable('_version') . "
                 (alv_created, alv_al_id, alv_status, alv_user_id)
                 VALUES (%d, %s, %d, %d)",
                     time(),
@@ -216,6 +283,7 @@ class Arlima_ListFactory {
 
         if( !$preview ) {
             $this->cache->delete('arlima_list_articles_data_'.$list->id());
+            $this->doSaveListAction($list);
         }
     }
 
@@ -226,8 +294,8 @@ class Arlima_ListFactory {
      * @param int $parent[optional=-1]
      * @param int $offset
      */
-    private function saveArticle($version_id, $article, $sort, $parent=-1, $offset) {
-
+    private function saveArticle($version_id, $article, $sort, $parent=-1, $offset)
+    {
         if( empty($article['options']) || !is_array($article['options']) )
             $article['options'] = array();
         if( empty($article['image_options']) || !is_array($article['image_options']) )
@@ -237,11 +305,11 @@ class Arlima_ListFactory {
         $image_options = serialize( $article[ 'image_options' ] );
 
         $sql = $this->wpdb->prepare(
-                    "INSERT INTO " . $this->wpdb->prefix . "arlima_articlelist_article
+                    "INSERT INTO " . $this->dbTable('_article') . "
                     (ala_created, ala_publish_date, ala_alv_id, ala_post_id, ala_title,
-                    ala_text, ala_sort, ala_title_fontsize, ala_url, ala_options,
+                    ala_text, ala_sort, ala_title_fontsize, ala_options,
                     ala_image, ala_image_options, ala_parent)
-                    VALUES (%d, %d, %d, %d, %s, %s, %d, %d, %s, %s, %s, %s, %d)",
+                    VALUES (%d, %d, %d, %d, %s, %s, %d, %d, %s, %s, %s, %d)",
                     empty($article['created']) ? time():(int)$article['created'],
                     empty($article['publish_date']) ? time():(int)$article['publish_date'],
                     $version_id,
@@ -250,7 +318,6 @@ class Arlima_ListFactory {
                     stripslashes( $article[ 'text' ] ),
                     (int)$sort,
                     (int)$article[ 'title_fontsize' ],
-                    $article[ 'url' ],
                     $options,
                     isset($article[ 'image' ]) ? $article[ 'image' ]:'',
                     $image_options,
@@ -279,7 +346,7 @@ class Arlima_ListFactory {
 
             //fetch all versions older than the last 10
             $sql = $this->wpdb->prepare(
-                        "SELECT alv_id FROM " . $this->wpdb->prefix . "arlima_articlelist_version
+                        "SELECT alv_id FROM " . $this->dbTable('_version') . "
                         WHERE alv_al_id = %d AND alv_status = %d
                         ORDER BY alv_id DESC LIMIT %d, 10",
                         $list->id(),
@@ -292,7 +359,7 @@ class Arlima_ListFactory {
 
         // fetch all old previews
         $sql = $this->wpdb->prepare(
-                    "SELECT alv_id FROM " . $this->wpdb->prefix . "arlima_articlelist_version
+                    "SELECT alv_id FROM " . $this->dbTable('_version') . "
                     WHERE alv_al_id = %d AND alv_status = %d",
                     $list->id(),
                     Arlima_List::STATUS_PREVIEW
@@ -308,7 +375,7 @@ class Arlima_ListFactory {
             $this->executeSQLQuery(
                     'query',
                     sprintf(
-                        "DELETE FROM " . $this->wpdb->prefix . "arlima_articlelist_article
+                        "DELETE FROM " . $this->dbTable('_article') . "
                         WHERE ala_alv_id IN (%s)",
                         implode(',', $versions_to_remove)
                     )
@@ -318,7 +385,7 @@ class Arlima_ListFactory {
             $this->executeSQLQuery(
                 'query',
                 sprintf(
-                    "DELETE FROM " . $this->wpdb->prefix . "arlima_articlelist_version
+                    "DELETE FROM " . $this->dbTable('_version') . "
                             WHERE alv_id IN (%s)",
                     implode(',', $versions_to_remove)
                 )
@@ -327,6 +394,7 @@ class Arlima_ListFactory {
         }
         return $sql;
     }
+
 
     /**
      * Future posts will always be included in the list if you're loading a specific version of
@@ -339,7 +407,8 @@ class Arlima_ListFactory {
      * @param bool $include_future_posts
      * @return Arlima_List
      */
-    public function loadList($id, $version=false, $include_future_posts=false) {
+    public function loadList($id, $version=false, $include_future_posts=false)
+    {
         $list = $this->queryList($id);
         if( !$list->exists() )
             return $list;
@@ -393,8 +462,12 @@ class Arlima_ListFactory {
      * @throws Exception
      * @return mixed
      */
-    private function executeSQLQuery($method, $sql, $remove_prefix = false, $preserve_obj=false) {
-        if( !$sql ) {
+    private function executeSQLQuery($method, $sql, $remove_prefix = false, $preserve_obj=false)
+    {
+        if( $sql instanceof WP_Error) {
+            throw new Exception($sql->get_error_message());
+        }
+        elseif( !$sql ) {
             throw new Exception('Empty SQL, last error from wpdb: '.$this->wpdb->last_error);
         }
 
@@ -410,9 +483,9 @@ class Arlima_ListFactory {
      * @param $version
      * @return array
      */
-    private function queryVersionData($list_id, $version) {
-
-        $version_data_sql = "SELECT alv_id, alv_created, alv_status, alv_user_id FROM {$this->wpdb->prefix}arlima_articlelist_version";
+    private function queryVersionData($list_id, $version)
+    {
+        $version_data_sql = "SELECT alv_id, alv_created, alv_status, alv_user_id FROM ".$this->dbTable('_version');
 
         // latest preview version
         if( $version === 'preview' ) {
@@ -443,7 +516,7 @@ class Arlima_ListFactory {
         $version_data_sql .= ' ORDER BY alv_id DESC LIMIT 0,1';
 
         $version_list_sql = $this->wpdb->prepare (
-            "SELECT alv_id FROM " . $this->wpdb->prefix . "arlima_articlelist_version
+            "SELECT alv_id FROM " . $this->dbTable('_version') . "
             WHERE alv_al_id = %d AND alv_status = %d
             ORDER BY alv_id DESC LIMIT 0,10",
             (int)$list_id,
@@ -466,7 +539,7 @@ class Arlima_ListFactory {
         $list = $this->cache->get('arlima_list_props_'.$id);
         if( !$list ) {
             $sql = $this->wpdb->prepare(
-                "SELECT * FROM " . $this->wpdb->prefix . "arlima_articlelist WHERE al_id = %d",
+                "SELECT * FROM " . $this->dbTable() . " WHERE al_id = %d",
                 (int)$id
             );
 
@@ -496,7 +569,8 @@ class Arlima_ListFactory {
      * @param bool $include_future_posts
      * @return Arlima_List
      */
-    public function loadListBySlug($slug, $version=false, $include_future_posts=false) {
+    public function loadListBySlug($slug, $version=false, $include_future_posts=false)
+    {
         $id = $this->getListId($slug);
         if( $id )
             return $this->loadList($id, $version, $include_future_posts);
@@ -509,7 +583,8 @@ class Arlima_ListFactory {
      * @param int $id
      * @return Arlima_List
      */
-    public function loadLatestPreview($id) {
+    public function loadLatestPreview($id)
+    {
         if( !is_numeric($id) ) {
             Arlima_Plugin::warnAboutUseOfDeprecatedFunction('Arlima_ListFactory::loadLatestPreview', 2.5, 'Should be called using list id as argument, not slug');
             $id = $this->getListId($id);
@@ -523,11 +598,11 @@ class Arlima_ListFactory {
      * @param bool $include_future_posts
      * @return array
      */
-    private function queryListArticles($version, $include_future_posts) {
-
+    private function queryListArticles($version, $include_future_posts)
+    {
         $sql = "SELECT ala_id, ala_created, ala_publish_date, ala_post_id, ala_title, ala_text,
-                        ala_title_fontsize, ala_url, ala_options, ala_image, ala_image_options, ala_parent, ala_sort
-                        FROM " . $this->wpdb->prefix . "arlima_articlelist_article %s ORDER BY ala_parent, ala_sort";
+                ala_title_fontsize, ala_options, ala_image, ala_image_options, ala_parent, ala_sort
+                FROM " . $this->dbTable('_article') . " %s ORDER BY ala_parent, ala_sort";
 
         $where = '';
         if($version)
@@ -578,11 +653,12 @@ class Arlima_ListFactory {
      * will return an array looking like array( stdClass(id => ... title => ... slug => ...) )
      * @return array
      */
-    public function loadListSlugs() {
+    public function loadListSlugs()
+    {
         $data = $this->cache->get('arlima_list_slugs');
         if(!is_array($data)) {
             $sql = 'SELECT al_id, al_title, al_slug
-                    FROM ' . $this->wpdb->prefix . 'arlima_articlelist
+                    FROM ' . $this->dbTable() . '
                     ORDER BY al_title ASC';
 
             $data = $this->executeSQLQuery('get_results', $sql, 'al_', true);
@@ -596,7 +672,8 @@ class Arlima_ListFactory {
      * @param $slug
      * @return int|bool
      */
-    public function getListId($slug) {
+    public function getListId($slug)
+    {
         foreach($this->loadListSlugs() as $data) {
             if($data->slug == $slug)
                 return $data->id;
@@ -615,9 +692,9 @@ class Arlima_ListFactory {
      * Database installer for this plugin.
      * @static
      */
-    public function install() {
-
-        $table_name = $this->wpdb->prefix . "arlima_articlelist";
+    public function install()
+    {
+        $table_name = $this->dbTable();
         if($this->wpdb->get_var("show tables like '$table_name'") != $table_name) {
             self::createDatabaseTables($this->wpdb);
             add_option("arlima_db_version", self::DB_VERSION);
@@ -638,7 +715,8 @@ class Arlima_ListFactory {
      * @static
      * @param wpdb $wpdb
      */
-    private static function createDatabaseTables($wpdb) {
+    private static function createDatabaseTables($wpdb)
+    {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
         $table_name = $wpdb->prefix . "arlima_articlelist";
@@ -685,7 +763,6 @@ class Arlima_ListFactory {
         ala_text text,
         ala_sort bigint(11) DEFAULT '100' NOT NULL,
         ala_title_fontsize tinyint(1) DEFAULT '24' NOT NULL,
-        ala_url varchar(255),
         ala_options text,
         ala_image varchar(255),
         ala_image_options text,
@@ -703,7 +780,8 @@ class Arlima_ListFactory {
         dbDelta($sql);
     }
 
-    public static function databaseUpdates($version) {
+    public static function databaseUpdates($version)
+    {
         /* @var wpdb $wpdb */
         global $wpdb;
         $wpdb->suppress_errors(true);
@@ -728,10 +806,11 @@ class Arlima_ListFactory {
      * Removes the database tables created when plugin was installed
      * @static
      */
-    public function uninstall() {
-        $this->wpdb->query('DROP TABLE IF EXISTS '.$this->wpdb->prefix.'arlima_articlelist');
-        $this->wpdb->query('DROP TABLE IF EXISTS '.$this->wpdb->prefix.'arlima_articlelist_version');
-        $this->wpdb->query('DROP TABLE IF EXISTS '.$this->wpdb->prefix.'arlima_articlelist_article');
+    public function uninstall()
+    {
+        $this->wpdb->query('DROP TABLE IF EXISTS '.$this->dbTable());
+        $this->wpdb->query('DROP TABLE IF EXISTS '.$this->dbTable('_version'));
+        $this->wpdb->query('DROP TABLE IF EXISTS '.$this->dbTable('_article'));
     }
 
 
@@ -747,7 +826,8 @@ class Arlima_ListFactory {
      * @param array $options
      * @return array
      */
-    private static function cleanArticleOptions(array $options) {
+    private static function cleanArticleOptions(array $options)
+    {
         if( empty($options['streamer']) ) {
             unset($options['streamer_type']);
             unset($options['streamer_content']);
@@ -769,13 +849,15 @@ class Arlima_ListFactory {
      * @static
      * @param stdClass $post
      */
-    public static function updateArlimaArticleData($post) {
+    public static function updateArticlePublishDate($post)
+    {
         if($post && $post->post_type == 'post') {
             /* @var wpdb $wpdb */
             global $wpdb;
 
             $date = strtotime($post->post_date_gmt);
             $prep_statement = $wpdb->prepare('UPDATE '.$wpdb->prefix.'arlima_articlelist_article SET ala_publish_date=%d WHERE ala_post_id=%d AND ala_publish_date != %d', $date, (int)$post->ID, $date);
+
             $wpdb->query($prep_statement);
 
             // Clear list cache
@@ -793,7 +875,7 @@ class Arlima_ListFactory {
                 $cache = Arlima_CacheManager::loadInstance();
                 foreach($ids as $id) {
                     $cache_id = 'arlima_articles_id_'.$id->alv_al_id;
-                    $found = $cache->delete($cache_id);
+                    $cache->delete($cache_id);
                 }
             }
         }
@@ -804,8 +886,8 @@ class Arlima_ListFactory {
      * @param Arlima_List $list
      * @return array
      */
-    protected static function sanitizeList( &$list ) {
-
+    protected static function sanitizeList( &$list )
+    {
         $list->setTitle( stripslashes($list->getTitle()) );
         $list->setSlug( sanitize_title(stripslashes($list->getSlug())) );
         $list->setOptions( array_map( 'stripslashes_deep', self::sanitizeListOptions( $list->getOptions() )) );
@@ -819,7 +901,8 @@ class Arlima_ListFactory {
      * @param array $options
      * @return array
      */
-    protected static function sanitizeListOptions($options) {
+    protected static function sanitizeListOptions($options)
+    {
         $default_options = array(
             'template' => 'article',
             'before_title' => '<h2>',
@@ -853,7 +936,8 @@ class Arlima_ListFactory {
      * @param array $override[optional=array()]
      * @return array
      */
-    public static function createArticleDataArray($override=array()) {
+    public static function createArticleDataArray($override=array())
+    {
         $options = array(
             'pre_title' => '',
             'streamer_color' => '',
@@ -876,7 +960,6 @@ class Arlima_ListFactory {
             'text' => '',
             'title' => 'Unknown',
             'title_fontsize' => 24,
-            'url' => '',
             'created' => 0,
             'publish_date' => 0
             );
@@ -914,7 +997,8 @@ class Arlima_ListFactory {
      * @param bool $preserve_std_objects[optional=false]
      * @return array
      */
-    protected static function removePrefix($array = array(), $prefix, $preserve_std_objects=false) {
+    protected static function removePrefix($array = array(), $prefix, $preserve_std_objects=false)
+    {
         $convert_to_std = $preserve_std_objects && $array instanceof stdClass;
         $new_array = array();
         $prefix_len = strlen($prefix);

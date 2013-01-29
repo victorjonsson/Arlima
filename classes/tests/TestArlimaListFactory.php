@@ -201,6 +201,19 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
 
     }
 
+    function testUpdateArticle() {
+        $list = $this->createList();
+        self::$factory->saveNewListVersion($list, array(Arlima_ListFactory::createArticleDataArray()), 1);
+        $latest_version = self::$factory->loadList($list->id());
+        $article = current($latest_version->getArticles());
+        self::$factory->updateArticle($article['id'], array('text'=>'Some text', 'title'=>'A title', 'title_fontsize'=>33));
+        $reloaded_version = self::$factory->loadList($list->id());
+        $article = current($reloaded_version->getArticles());
+        $this->assertEquals($article['text'], 'Some text');
+        $this->assertEquals($article['title'], 'A title');
+        $this->assertEquals($article['title_fontsize'], 33);
+    }
+
     function testCache() {
         $file_cache = new Private_ArlimaFileCache(sys_get_temp_dir());
         self::$factory->setCacheManager( $file_cache );

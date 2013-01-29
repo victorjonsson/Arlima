@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.6.23
+Stable tag: 2.6.27
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,17 +42,25 @@ the list that you created on step 2.
 
 == Changelog ==
 
+= 2.7 =
+
+- New feature: "Quick Edit — Edit articles in front-end". It's now possible to edit the title and body text of your articles directly on your front page.
+- Improved article form in the list manager, connecting articles to posts or external URL´s have been given a new interface.
+- Fixed bug that made it impossible to add watermarks to images using "Scissors Continued" when having image versions containing hyphens.
+- Fixed bug in jQuery hot keys
+
+
 = 2.6.23 =
 
-- Important bug fix that sometimes made the list manager crash
+- Important bug fix that sometimes made the list manager crash.
 
 = 2.6.22 =
 
 - Fixed bug that made it hard to add child articles in the list manager when having several lists open at once.
 - Fixed bug that sometimes caused articles to generate the wrong image version.
-- Fixed bug that sometimes prevented the article from updating url and title
+- Fixed bug that sometimes prevented the article from updating url and title.
 - Fixed bug that prevented Arlima from expiring the list cache if using a custom implementation of Arlima_CacheManager.
-- Added action "arlima_register_format" to hook into when using any of the arlima_register/deregister functions.
+- Added action "arlima_register_format" that you can hook into when using any of the arlima_register/deregister functions.
 - General improvements.
 
 

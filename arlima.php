@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.6.23
+Version: 2.6.27
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -264,9 +264,14 @@ function arlima_render_list($list, $args=array()) {
 
         if( $renderer->havePosts() ) {
 
-            // Add wordpress filters
-            if( !empty($args['filter_suffix']) )
+            $action_suffix = '';
+            if( !empty($args['filter_suffix']) ) {
                 Arlima_FilterApplier::setFilterSuffix($args['filter_suffix']);
+                $action_suffix = '-'.$args['filter_suffix'];
+            }
+
+            do_action('arlima_list_begin'.$action_suffix, $renderer, $args);
+
 
             Arlima_FilterApplier::setArticleWidth($args['width']);
             Arlima_FilterApplier::applyFilters($renderer);
@@ -274,7 +279,9 @@ function arlima_render_list($list, $args=array()) {
             $content = $renderer->renderList($args['echo']);
             Arlima_FilterApplier::setFilterSuffix('');
 
-            return $content;
+            do_action('arlima_list_end'.$action_suffix, $renderer, $args);
+
+            return apply_filters('arlima_list_content', $content, $renderer);
         }
     }
 

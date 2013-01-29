@@ -15,6 +15,7 @@
  *   - Node module wrench ($ npm install wrench)
  *   - Node module uglify-JS ($ npm install uglify-js)
  *   - Node module uglify-CSS ($ npm install uglifycss)
+ *   - Node moduel mval installed globally ($ npm install -g mval)
  *   - msgfmt and phpunit.phar has to be installed and added to your $PATH
  */
 
@@ -41,7 +42,7 @@ var fs = require('fs'),
     ],
     filesToMinify = {
         js: ['js/arlima/arlima.js', 'js/arlima/template-loader.js', 'js/jquery/jquery.ui.nestedSortable.js', 'js/jquery/jquery.hotkeys.js',
-            'js/jquery/colourpicker/jquery.colourpicker.js', 'js/page-main.js', 'js/arlima/plupload-init.js'],
+            'js/jquery/colourpicker/jquery.colourpicker.js', 'js/page-main.js', 'js/arlima/plupload-init.js', 'js/in-context-editor.js'],
         css: ['css/admin.css']
     },
     buildFile = function(path, versionSplit) {
@@ -59,7 +60,6 @@ var fs = require('fs'),
         fs.writeFileSync(path, minifier.css.processString(fs.readFileSync(path, 'utf-8')) );
     };
 
-
 /*
  * Find out new version number
  */
@@ -74,88 +74,96 @@ else {
     newVersion = versionParts.join('.') + '.' + newSubVersion.toString();
 }
 
-
 console.log('Build version: '+newVersion);
 console.log('Running tests...');
 
+exec('mval ./readme.txt', function(error, stdout, stderr) {
 
-tests.every(function(file) {
-    exec('phpunit.phar '+file, function (error, stdout, stderr) {
+    if(error) {
+        throw error;
+    }
+    if(stderr) {
+        throw stderr;
+    }
 
-        if( testsFailed )
-            return;
+    tests.every(function(file) {
+        exec('phpunit.phar '+file, function (error, stdout, stderr) {
 
-        if(stderr || error) {
-            console.log('*** FAILED :: '+file);
-            console.log(stdout);
-            console.log(error);
-            console.log(stderr);
-            testsFailed = true;
-            console.log('Build failed :(');
-        }
-        else {
+            if( testsFailed )
+                return;
 
-            console.log('- SUCCESS :: '+file);
-            finishedTests++;
-
-            if( finishedTests == tests.length ) {
-                console.log('Translating pot-files');
-
-                exec('msgfmt -o lang/arlima-sv_SE.mo lang/arlima.pot', function (error, stdout, stderr) {
-                    if( error || stderr) {
-                        console.log('*** FAILED :: translation (msgfmt)');
-                        console.log(stdout);
-                        console.log(error);
-                        console.log(stderr);
-                    }
-                    else {
-
-                        console.log('Creating new plugin source');
-
-                        buildFile('arlima.php', 'Version: ');
-                        buildFile('readme.txt', 'Stable tag: ');
-
-                        var buildDir = '../build-arlima-'+newVersion;
-
-                        console.log(buildDir+ ' created');
-
-                        wrench.copyDirSyncRecursive('../arlima/', buildDir);
-
-                        // Remove files we don't wont to end up on wordpress repo
-
-                        var remove = ['node_modules/', 'vendor/', 'composer.json', 'README.md',
-                            'build', '.gitignore', 'composer.lock', 'test.php', '.git/'];
-
-                        remove.every(function(file) {
-                            try {
-                                if( file.substr(-1) == '/') {
-                                    wrench.rmdirSyncRecursive(buildDir+'/'+file);
-                                }
-                                else {
-                                    fs.unlinkSync(buildDir+'/'+file);
-                                }
-                            } catch(e) {
-                                console.log(e);
-                            }
-                            return true;
-                        });
-
-                        console.log('Minifying js and css');
-
-                        filesToMinify.js.every(function(file) {
-                            minifyJS(buildDir+'/'+file);
-                            return true;
-                        });
-                        filesToMinify.css.every(function(file) {
-                            minifyCSS(buildDir+'/'+file);
-                            return true;
-                        });
-
-                        console.log('# BUILD FINISHED :)');
-                    }
-                });
+            if(stderr || error) {
+                console.log('*** FAILED :: '+file);
+                console.log(stdout);
+                console.log(error);
+                console.log(stderr);
+                testsFailed = true;
+                console.log('Build failed :(');
             }
-        }
+            else {
+
+                console.log('- SUCCESS :: '+file);
+                finishedTests++;
+
+                if( finishedTests == tests.length ) {
+                    console.log('Translating pot-files');
+
+                    exec('msgfmt -o lang/arlima-sv_SE.mo lang/arlima.pot', function (error, stdout, stderr) {
+                        if( error || stderr) {
+                            console.log('*** FAILED :: translation (msgfmt)');
+                            console.log(stdout);
+                            console.log(error);
+                            console.log(stderr);
+                        }
+                        else {
+
+                            console.log('Creating new plugin source');
+
+                            buildFile('arlima.php', 'Version: ');
+                            buildFile('readme.txt', 'Stable tag: ');
+
+                            var buildDir = '../build-arlima-'+newVersion;
+
+                            console.log(buildDir+ ' created');
+
+                            wrench.copyDirSyncRecursive('../arlima/', buildDir);
+
+                            // Remove files we don't wont to end up on wordpress repo
+
+                            var remove = ['node_modules/', 'vendor/', 'composer.json', 'README.md',
+                                'build', '.gitignore', 'composer.lock', 'test.php', '.git/'];
+
+                            remove.every(function(file) {
+                                try {
+                                    if( file.substr(-1) == '/') {
+                                        wrench.rmdirSyncRecursive(buildDir+'/'+file);
+                                    }
+                                    else {
+                                        fs.unlinkSync(buildDir+'/'+file);
+                                    }
+                                } catch(e) {
+                                    console.log(e);
+                                }
+                                return true;
+                            });
+
+                            console.log('Minifying js and css');
+
+                            filesToMinify.js.every(function(file) {
+                                minifyJS(buildDir+'/'+file);
+                                return true;
+                            });
+                            filesToMinify.css.every(function(file) {
+                                minifyCSS(buildDir+'/'+file);
+                                return true;
+                            });
+
+                            console.log('\033[32m# BUILD FINISHED :)\033[0m');
+                        }
+                    });
+                }
+            }
+        });
+        return true;
     });
-    return true;
 });

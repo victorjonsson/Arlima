@@ -254,15 +254,22 @@ jQuery(function($) {
     }
 
     // Initiate font size slider in article editor
-    $("#arlima-edit-article-title-fontsize-slider").slider({
+    var hasSliderFocus = false;
+    var $fontSizeInput = $("#arlima-edit-article-title-fontsize");
+    var $fontSizeSlider = $("#arlima-edit-article-title-fontsize-slider").slider({
         value:18,
         min: 8,
         max: 100,
         slide: function( event, ui ) {
-            $( "#arlima-edit-article-title-fontsize" ).val( ui.value );
+            hasSliderFocus = true;
+            $fontSizeInput.val( ui.value );
             Arlima.ArticleEditor.updateArticle();
         }
+    })
+    .mousedown(function() {
+        hasSliderFocus = true;
     });
+
 
     // Initiate colour picker in article editor
     $('#arlima-edit-article-options-streamer-color').colourPicker({
@@ -389,6 +396,7 @@ jQuery(function($) {
     $('html').click(function() {
         $('.arlima-list-version-select').hide();
         $('.arlima-list-version-info').show();
+        hasSliderFocus = false;
     });
 
     // Make sure we're not reloading page while having unsaved lists
@@ -625,6 +633,7 @@ jQuery(function($) {
 
     $doc.bind('keydown', function(e) {
         var key = e.keyCode ? e.keyCode : e.which;
+
         if((e.ctrlKey || e.metaKey) && $.inArray(key, [80, 83, 76]) > -1) {
 
             switch (key) {
@@ -641,6 +650,18 @@ jQuery(function($) {
 
             e.preventDefault();
             return false;
+        }
+
+        // Increase font size, this should be taken care of by jquery-ui but
+        // for some reason we have to create this feature our selves
+        else if( $.inArray(key, [39,37]) > -1 && hasSliderFocus ) {
+            if( Arlima.ArticleEditor.isEditingArticle() ) {
+                var size = parseInt($fontSizeInput.val(), 10);
+                size += key == 37 ? -1:1;
+                $fontSizeSlider.slider('value', size);
+                $fontSizeInput.val(size);
+                Arlima.ArticleEditor.updateArticle();
+            }
         }
     });
 });

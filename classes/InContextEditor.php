@@ -127,8 +127,8 @@ class Arlima_InContextEditor {
      */
     function wpFooter()
     {
-        wp_enqueue_script('jquery-editable', ARLIMA_PLUGIN_URL.'js/jquery/jquery.editable.min.js', array('jquery'), Arlima_Plugin::STATIC_VERSION, true);
-        wp_enqueue_script('arlima-editor', ARLIMA_PLUGIN_URL.'js/in-context-editor.js', array('jquery-editable'), Arlima_Plugin::STATIC_VERSION, true);
+        wp_enqueue_script('jquery-editable', ARLIMA_PLUGIN_URL.'js/jquery/jquery.editable.min.js', array('jquery'), ARLIMA_FILE_VERSION, true);
+        wp_enqueue_script('arlima-editor', ARLIMA_PLUGIN_URL.'js/in-context-editor.js', array('jquery-editable'), ARLIMA_FILE_VERSION, true);
         $this->plugin->addAdminJavascriptVars('arlima-editor');
     }
 }

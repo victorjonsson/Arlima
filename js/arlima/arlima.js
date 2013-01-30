@@ -425,7 +425,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 if(!ArlimaTemplateLoader.finishedLoading) {
                     // templates not yet loaded
                     setTimeout(function() {
-                        _buildPreviewTeaser($container, article, templatename, isChildArticle, extraClasses);
+                        _buildPreviewTeaser($container, article, isChildArticle, extraClasses, isChildSplit);
                     }, 500);
                     return;
                 }
@@ -465,6 +465,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     // Format class
                     if( article.options.format ) {
                         templateArgs.container['class'] += ' '+article.options.format;
+                        templateArgs.container['format'] = article.options.format;
                     }
 
                     // Streamer
@@ -816,16 +817,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 else {
                     $('#arlima-article-wp-connection').hide();
                 }
-
-                // Title font size toggle
-                if( tmpl.indexOf('{html article.html_title}') > -1) {
-                    $('#arlima-edit-article-title-fontsize-slider').show();
-                    $('#arlima-edit-article-title-fontsize').show();
-                }
-                else {
-                    $('#arlima-edit-article-title-fontsize-slider').hide();
-                    $('#arlima-edit-article-title-fontsize').hide();
-                }
             }
         },
 
@@ -1064,6 +1055,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             $('#arlima-article-connected-post-change').show();
             $('#arlima-article-post_id').hide();
             $('#arlima-edit-article-options-streamer-content').hide();
+        },
+
+        /**
+         * @returns {Boolean}
+         */
+        isEditingArticle : function() {
+            return this.$item !== false;
         }
     };
 
@@ -1807,10 +1805,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             else {
                 message += "# Has focus on list \""+this.getFocusedList().getDisplayName()+
                     "\", the list has "+(this.getFocusedList().isUnsaved ? 'changes':'no changes')+"\n";
-                message += "# Article \""+ArticleEditor.$item.find('.arlima-listitem-title').text()+"\" is being edited";
+                if( ArticleEditor.isEditingArticle() ) {
+                    message += "# Article \""+ArticleEditor.$item.find('.arlima-listitem-title').text()+"\" is being edited";
+                }
             }
 
             log(message, 'log');
+
             try {
                 log(ArticleEditor.$item.data('article'), 'log');
             } catch(e) {}

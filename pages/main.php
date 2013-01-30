@@ -47,7 +47,7 @@ $factory = new Arlima_ListFactory();
 
                                         <input type="text" name="options-streamer_content" />
                                         <select name="options-streamer_color" id="arlima-edit-article-options-streamer-color">
-                                            <?php Arlima_Plugin::loadStreamerColos(); ?>
+                                            <?php Arlima_Plugin::loadStreamerColors(); ?>
                                         </select>
                                     </div>
 

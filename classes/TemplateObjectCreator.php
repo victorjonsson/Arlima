@@ -255,6 +255,7 @@ class Arlima_TemplateObjectCreator
 
         if ( !empty($article['options']) && !empty($article['options']['format']) ) {
             $obj['container']['class'] .= ' ' . $article['options']['format'];
+            $obj['container']['format'] = $article['options']['format'];
         }
 
         // Add article end content

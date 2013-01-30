@@ -119,6 +119,7 @@ class Arlima_ListFactory {
 
         // remove cache
         $this->cache->delete('arlima_list_props_'.$list->id());
+        $this->cache->delete('arlima_list_slugs');
     }
 
     /**
@@ -847,7 +848,7 @@ class Arlima_ListFactory {
      * Updates publish date for all arlima articles related to given post and clears the cache
      * of the lists where they appear
      * @static
-     * @param stdClass $post
+     * @param stdClass|WP_Post $post
      */
     public static function updateArticlePublishDate($post)
     {

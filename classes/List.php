@@ -480,8 +480,10 @@ class Arlima_List
     public function toArray()
     {
         $arr = array();
-        foreach($this as $key => $val)
-            $arr[$key] = $val;
+        foreach($this as $key => $val) {
+            if( $key !== 'preview' )
+                $arr[$key] = $val;
+        }
 
         return $arr;
     }

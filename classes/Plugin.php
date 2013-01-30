@@ -10,7 +10,6 @@ class Arlima_Plugin
 {
     const VERSION = 2.7;
     const EXPORT_FEED_NAME = 'arlima-export';
-    const STATIC_VERSION = '18.773';
     const PLUGIN_SETTINGS_OPT = 'arlima_plugin_settings';
 
     private static $is_scissors_installed = null;
@@ -42,7 +41,7 @@ class Arlima_Plugin
         add_action('admin_menu', array($this, 'adminMenu'));
         add_action('add_meta_boxes', array($this, 'addMetaBox'));
 
-        // Ajax functions
+        // Ajax actions
         if( defined('DOING_AJAX') && DOING_AJAX ) {
             $ajax_manager = new Arlima_AdminAjaxManager($this);
             $ajax_manager->initActions();
@@ -56,6 +55,7 @@ class Arlima_Plugin
     {
         add_action('wp_print_styles', array($this, 'addTemplateCSS'));
         add_shortcode('arlima', array($this, 'arlimaListShortCode'));
+
         if ( is_page() ) {
             add_filter('the_content', array($this, 'displayArlimaList'));
         }
@@ -155,7 +155,7 @@ class Arlima_Plugin
         global $wp_admin_bar;
         if ( is_admin_bar_showing() ) {
             Arlima_Plugin::loadTextDomain();
-            $admin_url = admin_url('admin.php?page=arlima');
+            $admin_url = admin_url('admin.php?page=arlima-main');
             $wp_admin_bar->add_menu(
                 array(
                     'id' => 'arlima',
@@ -484,6 +484,16 @@ class Arlima_Plugin
     }
 
     /**
+     * @param string $name
+     * @return mixed
+     */
+    function getSetting($name)
+    {
+        $settings = $this->loadSettings();
+        return isset($settings[$name]) ? $settings[$name] : false;
+    }
+
+    /**
      * Adds meta box to post edit/create page
      */
     function addMetaBox()
@@ -558,12 +568,11 @@ class Arlima_Plugin
         if( !$relation_data )
             $relation_data = array('id' => '', 'attr'=>$connector->getDefaultListAttributes());
 
-
         ?>
         <div id="arlima-list-settings">
             <?php if( empty($lists) ): ?>
                 <p>
-                    <a href="admin.php?page=arlima-editpage" target="_blank">
+                    <a href="admin.php?page=arlima-edit" target="_blank">
                         <?php _e('Create your first article list', 'arlima') ?>
                     </a>
                 </p>
@@ -648,80 +657,36 @@ class Arlima_Plugin
     }
 
     /**
-     * Creates the menu in wp-admin for this plugin and then call Arlima_Plugin::addAdminPageScriptsAndStylesheets
-     * that will add all javascript and stylesheets needed by this plugin in wp-admin
+     * Creates the menu in wp-admin for this plugin
      */
     function adminMenu()
     {
-        $arlima_mainpage = add_menu_page(
-            __('Article List Manager', 'arlima'),
-            __('Article lists', 'arlima'),
-            'edit_posts',
-            'arlima',
-            'Arlima_Plugin::loadAdminMainPage',
-            ARLIMA_PLUGIN_URL . '/images/arlima-icon.png'
-        );
-        add_submenu_page(
-            'arlima',
-            __('Article lists', 'arlima'),
-            __('Manage lists', 'arlima'),
-            'edit_posts',
-            'arlima',
-            'Arlima_Plugin::loadAdminMainPage'
-        );
-        $arlima_editpage = add_submenu_page(
-            'arlima',
-            __('Edit lists', 'arlima'),
-            __('Edit lists', 'arlima'),
-            'edit_posts',
-            'arlima-editpage',
-            'Arlima_Plugin::loadAdminEditPage'
-        );
-        $arlima_webservicepage = add_submenu_page(
-            'arlima',
-            __('Web Service', 'arlima'),
-            __('Web Service', 'arlima'),
-            'edit_posts',
-            'arlima-webservicepage',
-            'Arlima_Plugin::loadAdminWebServicePage'
+        $pages_classes = array(
+            'Arlima_Page_Main',
+            'Arlima_Page_Edit',
+            'Arlima_Page_Services',
+            'Arlima_Page_Settings'
         );
 
-        $this->addAdminPageScriptsAndStylesheets($arlima_mainpage, $arlima_editpage, $arlima_webservicepage);
-
-        if ( function_exists('poll_footer_admin') ) {
-            add_action('admin_footer', 'poll_footer_admin');
+        /* @var Arlima_AbstractAdminPage $page */
+        foreach($pages_classes as $page_class) {
+            $page = new $page_class($this);
+            $page->registerPage();
         }
-    }
 
-    /**
-     * @param string $main_page_slug
-     * @param string $edit_page_slug
-     * @param string $service_page_slug
-     */
-    function addAdminPageScriptsAndStylesheets($main_page_slug, $edit_page_slug, $service_page_slug)
-    {
-        add_action('admin_print_scripts-' . $main_page_slug, array($this, 'addAdminMainPageScripts'));
-        add_action('admin_print_styles-' . $main_page_slug, array($this, 'addAdminStyleSheets'));
-        add_action('admin_print_styles-' . $main_page_slug, array($this, 'addTemplateCSS'));
-        add_action('admin_print_scripts-' . $main_page_slug, array($this, 'addTinyMCEFilters'));
-        add_action('admin_footer-' . $main_page_slug, array($this, 'addTemplateLoadingJS'));
-
-        add_action('admin_print_scripts-' . $edit_page_slug, array($this, 'addAdminEditPageScripts'));
-        add_action('admin_print_styles-' . $edit_page_slug, array($this, 'addAdminStyleSheets'));
-
-        add_action('admin_print_styles-' . $service_page_slug, array($this, 'addAdminStyleSheets'));
-        add_action('admin_print_scripts-' . $service_page_slug, array($this, 'addAdminServicePageScripts'));
-
-        // Javascript used in meta-box on wp-admin page where blog posts is created
         $php_file = basename($_SERVER['PHP_SELF']);
         if ( $php_file == 'post-new.php' || $php_file = 'post.php' ) {
             wp_enqueue_script(
                 'arlima_js_admin',
                 ARLIMA_PLUGIN_URL . '/js/admin-post.js',
                 array('jquery'),
-                self::STATIC_VERSION
+                ARLIMA_FILE_VERSION
             );
             $this->addAdminJavascriptVars('arlima_js_admin');
+        }
+
+        if ( function_exists('poll_footer_admin') ) {
+            add_action('admin_footer', 'poll_footer_admin');
         }
     }
 
@@ -749,153 +714,6 @@ class Arlima_Plugin
     }
 
     /**
-     * Add javascripts used on list edit page in wp-admin
-     */
-    function addAdminEditPageScripts()
-    {
-        wp_enqueue_script('arlima_js', ARLIMA_PLUGIN_URL . 'js/page-edit.js', array('jquery'), self::STATIC_VERSION);
-        wp_enqueue_script(
-            'arlima_js_jquery',
-            ARLIMA_PLUGIN_URL . 'js/arlima/arlima-jquery-plugins.js',
-            array('jquery'),
-            self::STATIC_VERSION
-        );
-    }
-
-    /**
-     * Add javascripts used on list edit page in wp-admin
-     */
-    function addAdminServicePageScripts()
-    {
-        wp_enqueue_script('arlima_js', ARLIMA_PLUGIN_URL . 'js/page-service.js', array('jquery'), self::STATIC_VERSION);
-    }
-
-    /**
-     * Adds all javascript files needed in the list editor in wp-admin
-     */
-    function addAdminMainPageScripts()
-    {
-
-        // Enqueue scissors scripts if installed
-        if ( Arlima_Plugin::isScissorsInstalled() ) {
-
-            $scissors_url = WP_PLUGIN_URL . '/scissors-continued';
-            wp_enqueue_script('scissors_crop', $scissors_url . '/js/jquery.Jcrop.js', array('jquery'));
-            wp_enqueue_script('scissors_js', $scissors_url . '/js/scissors.js');
-
-            $scissors_js_obj = array('ajaxUrl' => admin_url('admin-ajax.php'));
-            foreach (array('large', 'medium', 'thumbnail') as $size) {
-                $width = intval(get_option("{$size}_size_w"));
-                $height = intval(get_option("{$size}_size_h"));
-                $ratio = max(1, $width) / max(1, $height);
-                if ( !get_option("{$size}_crop") ) {
-                    $ratio = 0;
-                }
-
-                $scissors_js_obj[$size . 'AspectRatio'] = $ratio;
-            }
-
-            echo '<script>var scissors = ' . json_encode($scissors_js_obj) . ';</script>';
-        }
-
-        // Add our template css to tinyMCE
-        if ( !function_exists('tdav_css') ) {
-            function tdav_css($wp)
-            {
-                $wp .= ',' . Arlima_Plugin::getTemplateCSS();
-                return $wp;
-            }
-        }
-        add_filter('mce_css', 'tdav_css');
-
-        // Deregister scripts we need to override
-        wp_deregister_script('jquery-hotkeys');
-        wp_deregister_script('jquery-ui-sortable');
-
-        // Replace jquery.ui.sortable with old version of the same function
-        wp_register_script('jquery-ui-sortable', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.sortable-1.82.js', array('jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), 12, true);
-        wp_enqueue_script('jquery-ui-sortable');
-
-        // Add an almost astronomical amount of javascript
-        $scripts = array(
-            'jquery'            => false,
-            'jquery-ui-slider'  => false,
-            'media-upload'      => false,
-            'thickbox'          => false,
-            'qtip'              => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.qtip.min.js',
-            'colourpicker'      => ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/jquery.colourpicker.js',
-            'fancybox'          => ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox-1.3.4.pack.js',
-            'ui-nestedsortable' => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.nestedSortable.js',
-            'pluploadfull'      => ARLIMA_PLUGIN_URL . 'js/misc/plupload.full.js',
-            'jquery-tmpl'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.tmpl.min.js',
-            'arlima-jquery'     => ARLIMA_PLUGIN_URL . 'js/arlima/arlima-jquery-plugins.js',
-            'arlima-tmpl'       => ARLIMA_PLUGIN_URL . 'js/arlima/template-loader.js',
-            'arlima-js'         => ARLIMA_PLUGIN_URL . 'js/arlima/arlima.js',
-            'arlima-plupload'   => ARLIMA_PLUGIN_URL . 'js/arlima/plupload-init.js',
-            'arlima-main-js'    => ARLIMA_PLUGIN_URL . 'js/page-main.js',
-            'new-hotkeys'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.hotkeys.js'
-        );
-
-        if( self::supportsImageEditor() ) {
-            // these files could not be enqueue´d until wp version 3.5
-            $wp_inc_url = includes_url() .'/js/jquery/ui/';
-            $scripts['jquery-ui-effects'] = $wp_inc_url .'jquery.ui.effect.min.js';
-            $scripts['jquery-ui-effects-shake'] = $wp_inc_url .'jquery.ui.effect-shake.min.js';
-            $scripts['jquery-ui-effects-highlight'] = $wp_inc_url .'jquery.ui.effect-highlight.min.js';
-        }
-
-        foreach($scripts as $handle => $js) {
-            if( $js !== false ) {
-                $dependency = array('jquery');
-                if( $handle == 'ui-nestedsortable' )
-                    $dependency = array('jquery-ui-sortable');
-
-                wp_register_script($handle, $js, $dependency, self::STATIC_VERSION, false);
-            }
-            wp_enqueue_script($handle);
-        }
-
-        wp_localize_script(
-            'arlima-js',
-            'ArlimaJS',
-            array(
-                'ajaxurl' => admin_url('admin-ajax.php'),
-                'arlimaNonce' => wp_create_nonce('arlima-nonce'),
-                'imageurl' => ARLIMA_PLUGIN_URL . '/images/',
-                'baseurl' => get_bloginfo('url'),
-                'is_admin' => current_user_can('manage_options') ? 1 : 0,
-                'preview_query_arg' => Arlima_List::QUERY_ARG_PREVIEW,
-                'lang' => array( // todo: but these args in a separate .js.php file when this array gets to long
-                    'unsaved' => __('You have one, or more, unsaved article lists', 'arlima'),
-                    'laterVersion' => __('It exists an older version of this article list', 'arlima'),
-                    'overWrite' => __('Do you still want to save this version of the list?', 'arlima'),
-                    'severalExtras' => __('This article list has more than one extra-streamer', 'arlima'),
-                    'changesBeforeRemove' => __(
-                        'You have made changes to this list, do you want to remove it anyway?',
-                        'arlima'
-                    ),
-                    'wantToRemove' => __('Do you want to remove "', 'arlima'),
-                    'fromList' => __('" from this article list?', 'arlima'),
-                    'chooseImage' => __('Choose image', 'arlima'),
-                    'admin_lock' => __('This article is locked by admin', 'arlima'),
-                    'admin_only' => __('Only administrators can manage article locks', 'arlima'),
-                    'noList' => __('No list is active!', 'arlima'),
-                    'noImages' => __('This article has no related image', 'arlima'),
-                    'noConnection' => __('this article is not connected to any post', 'arlima'),
-                    'listRemoved' => __('This list have been removed!', 'arlima'),
-                    'savePreview' => __('to save article list', 'arlima'),
-                    'isSaved' => __('This list has no unsaved changes', 'arlima'),
-                    'missingPreviewPage' => __('This list is not yet related to any page', 'arlima'),
-                    'hasUnsavedChanges' => __('This list has unsaved changes', 'arlima'),
-                    'dragAndDrop' => __('Drag images to this container', 'arlima'),
-                    'sticky' => __('Sticky', 'arlima'),
-                    'loggedOut' => __('Your login session seems to have expired, pls reload the page!', 'arlima')
-                )
-            )
-        );
-    }
-
-    /**
      * Will enqueue the css for the presentation of articles in an arlima list
      */
     function addTemplateCSS()
@@ -911,89 +729,7 @@ class Arlima_Plugin
      */
     public static function getTemplateCSS()
     {
-        return apply_filters('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css?v='.self::STATIC_VERSION);
-    }
-
-    /**
-     * Will output javascript that loads all jQuery templates from backend
-     */
-    function addTemplateLoadingJS()
-    {
-        $tmpl_resolver = new Arlima_TemplatePathResolver();
-        ?>
-        <script>
-            var tmpls = [];
-            <?php foreach ($tmpl_resolver->getTemplateFiles() as $tmpl): ?>
-                tmpls.push('<?php echo $tmpl['url']; ?>?v=5');
-            <?php endforeach; ?>
-            ArlimaTemplateLoader.load(tmpls);
-            <?php if ( !empty($_GET['open_list']) ): ?>
-                var loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
-            <?php endif; ?>
-        </script>
-        <?php
-    }
-
-    /**
-     * Add all stylesheets needed by this plugin in wp-admin
-     */
-    function addAdminStyleSheets()
-    {
-        wp_enqueue_style('arlima_css', ARLIMA_PLUGIN_URL . 'css/admin.css', null, self::STATIC_VERSION);
-        wp_enqueue_style('thickbox');
-        wp_enqueue_style(
-            'jquery_ui_css',
-            'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css'
-        );
-        wp_enqueue_style('colourpicker_css', ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/colourpicker.css');
-        wp_enqueue_style('fancy_css', ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox-1.3.4.css');
-    }
-
-    /**
-     * Will hook into tinyMCE setup and modify the functionality of tinyMCE HTML editor
-     * @TODO: Decide whether or not this should be moved from this plugin to somewhere else
-     */
-    function addTinyMCEFilters()
-    {
-        add_filter('mce_external_plugins', array($this, 'mcePlugin'));
-        add_filter('mce_buttons', array($this, 'mceButtons1'), 20);
-        add_filter('mce_buttons_2', array($this, 'mceButtons2'), 20);
-    }
-
-    /**
-     * @param $plugin_array
-     * @return mixed
-     */
-    public function mcePlugin($plugin_array)
-    {
-        $plugin_array['vkentrywords'] = ARLIMA_PLUGIN_URL . 'js/tinymce/plugins/vkentrywords/editor_plugin.js';
-        return $plugin_array;
-    }
-
-    /**
-     * @param $buttons
-     * @return mixed
-     */
-    public function mceButtons1($buttons)
-    {
-        unset($buttons[array_search('wp_more', $buttons)]);
-        unset($buttons[array_search('fullscreen', $buttons)]);
-        unset($buttons[array_search('vkpreamble', $buttons)]);
-        unset($buttons[array_search('vksubheading', $buttons)]);
-        array_unshift($buttons, "vkentrywords");
-        return $buttons;
-    }
-
-    /**
-     * @param $buttons
-     * @return mixed
-     */
-    public function mceButtons2($buttons)
-    {
-        unset($buttons[array_search('outdent', $buttons)]);
-        unset($buttons[array_search('indent', $buttons)]);
-        unset($buttons[array_search('wp_help', $buttons)]);
-        return $buttons;
+        return apply_filters('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css?v='.ARLIMA_FILE_VERSION);
     }
 
     /**
@@ -1026,7 +762,7 @@ class Arlima_Plugin
     {
         // use substr instead of strpos or regexp, way faster in this case
         if ( strpos($class, 'Arlima_') === 0 ) {
-            require_once ARLIMA_PLUGIN_PATH . '/classes/' . substr($class, 7) . '.php';
+            require_once ARLIMA_PLUGIN_PATH . '/classes/' . str_replace('_', '/', substr($class, 7)) . '.php';
         } elseif ( strpos($class, 'jQueryTmpl') === 0 ) {
             $jquery_tmpl_class = ARLIMA_PLUGIN_PATH . '/classes/jquery-tmpl-php/' .
                                     str_replace('_', '/', $class) . '.php';
@@ -1060,40 +796,10 @@ class Arlima_Plugin
     }
 
     /**
-     * @static
-     * @param string $page
-     */
-    protected static function loadAdminPage($page)
-    {
-        ?>
-        <div class="wrap">
-            <div id="icon-plugins" class="icon32"></div>
-            <h2><?php _e('Article List Manager', 'arlima') ?></h2>
-            <?php require ARLIMA_PLUGIN_PATH . '/pages/' . $page . '.php'; ?>
-        </div>
-        <?php
-    }
-
-    public static function loadAdminMainPage()
-    {
-        self::loadAdminPage('main');
-    }
-
-    public static function loadAdminEditPage()
-    {
-        self::loadAdminPage('edit');
-    }
-
-    public static function loadAdminWebServicePage()
-    {
-        self::loadAdminPage('service');
-    }
-
-    /**
      * Will output a set of option elements containing streamer background colors.
      * @static
      */
-    public static function loadStreamerColos()
+    public static function loadStreamerColors()
     {
         // Make it possible for theme or other plugins to
         // define their own streamer colors

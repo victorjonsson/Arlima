@@ -69,7 +69,7 @@ $available_lists = $factory->loadListSlugs();
 							<ul>
 								<?php foreach($available_lists as $list_data): ?>
 									<li class="arlima-list-link" id="arlima-list-link_<?php echo $list_data->id; ?>" style="display:none;">
-                                        <a href="admin.php?page=arlima-editpage&alid=<?php echo $list_data->id; ?>">
+                                        <a href="admin.php?page=arlima-edit&alid=<?php echo $list_data->id; ?>">
                                             <?php echo $list_data->id . '. ' . $list_data->title; ?>
                                         </a>
                                     </li>
@@ -78,7 +78,7 @@ $available_lists = $factory->loadListSlugs();
 						</div>
 					
 						<form method="get" action="admin.php" id="arlima-select-list" style="display:inline;margin-right:50px">
-							<input type="hidden" name="page" value="arlima-editpage" />
+							<input type="hidden" name="page" value="arlima-edit" />
 							<select name="alid" id="arlima-add-list-select" style="margin-left: 50px;">
 								<option value=""><?php _e('Choose article list', 'arlima') ?></option>
 								<?php
@@ -90,7 +90,7 @@ $available_lists = $factory->loadListSlugs();
 							</select>
 						</form>
 						
-						<a href="admin.php?page=arlima-editpage">
+						<a href="admin.php?page=arlima-edit">
                             <input type="button" value="<?php _e('New list', 'arlima') ?>" class="button-secondary action" />
                         </a>
 

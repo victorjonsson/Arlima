@@ -19,6 +19,27 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         return $list;
     }
 
+    function testDeepTemplateInclusion() {
+        $list = $this->createList(1);
+        $list->setOption('template', 'deep-include');
+        $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+        $list_content = $renderer->renderList(false);
+        $this->assertEquals('root -> include1 -> include2 -> article1', $list_content);
+    }
+
+    function testArticleTemplateOverridingListTemplate() {
+        $list = $this->createList(1);
+        $list->setOption('template', 'some-template');
+
+        $articles = $list->getArticles();
+        $articles[0]['options']['template'] = 'deep-include';
+        $list->setArticles($articles);
+
+        $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+        $list_content = $renderer->renderList(false);
+        $this->assertEquals('root -> include1 -> include2 -> article1', $list_content);
+    }
+
     function testOffsetAndLimit() {
 
         $renderers = array(

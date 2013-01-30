@@ -29,7 +29,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     /**
      * @var array
      */
-    private $custom_templates = array();
+    private static $custom_templates = array();
 
     /**
      * @var jQueryTmpl
@@ -339,8 +339,8 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         jQueryTmpl_Factory $jQueryTmpl_Factory,
         jQueryTmpl_Markup_Factory $jQueryTmpl_Markup_Factory
     ) {
-        if ( isset($this->custom_templates[$template_name]) ) {
-            return $this->custom_templates[$template_name];
+        if ( isset(self::$custom_templates[$template_name]) ) {
+            return self::$custom_templates[$template_name];
         }
 
         $jQueryTmpl = $jQueryTmpl_Factory->create();
@@ -349,29 +349,29 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         foreach ($template_paths as $template_path) {
             $template_file = $template_path . DIRECTORY_SEPARATOR . $template_name . Arlima_TemplatePathResolver::TMPL_EXT;
             if ( file_exists($template_file) ) {
-                $this->custom_templates[$template_name] = $this->createTemplate(
+                self::$custom_templates[$template_name] = $this->createTemplate(
                     $template_file,
                     $jQueryTmpl,
                     $jQueryTmpl_Markup_Factory
                 );
-                return $this->custom_templates[$template_name];
+                return self::$custom_templates[$template_name];
             }
         }
 
         // If we have come this far the template doesn't exist in any template path
         $error_msg = 'Arlima tmpl file ' . $template_name . ' is not present in '.
-                    'any template path. Paths registered: ' . join(',',$template_paths);
+            'any template path. Paths registered: ' . join(',',$template_paths);
 
         trigger_error($error_msg, E_USER_WARNING);
-        
-        $template_fallback = $this->template_resolver->getDefaultTemplate();
-        $this->custom_templates['article'] = $this->createTemplate(
-                                                $template_fallback,
-                                                $jQueryTmpl,
-                                                $jQueryTmpl_Markup_Factory
-                                            );
 
-        return $this->custom_templates['article'];
+        $template_fallback = $this->template_resolver->getDefaultTemplate();
+        self::$custom_templates['article'] = $this->createTemplate(
+            $template_fallback,
+            $jQueryTmpl,
+            $jQueryTmpl_Markup_Factory
+        );
+
+        return self::$custom_templates['article'];
     }
 
     /**
@@ -384,7 +384,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     {
         $template_content = file_get_contents($template_file);
         preg_match_all('(\{\{include [0-9a-z\/A-Z\-\_\.]*\}\})', $template_content, $sub_parts);
-        if ( !empty($sub_parts) && !empty($sub_parts[0]) ) {
+        while ( !empty($sub_parts) && !empty($sub_parts[0]) ) {
 
             $template_path = dirname($template_file) . '/';
             foreach ($sub_parts[0] as $tpl_part) {
@@ -400,6 +400,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                     );
                 }
             }
+            preg_match_all('(\{\{include [0-9a-z\/A-Z\-\_\.]*\}\})', $template_content, $sub_parts);
         }
 
         $jQueryTmpl->template('tpl', $jQueryTmpl_Markup_Factory->createFromString($template_content));

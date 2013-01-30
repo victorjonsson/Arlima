@@ -66,7 +66,7 @@ if( isset($message) ): ?>
 <div id="arlima-help">
     <h2><?php _e('Export', 'arlima') ?></h2>
     <p><?php _e('Choose which article lists that should be available for export', 'arlima') ?></p>
-    <form action="admin.php?page=arlima-webservicepage" method="post">
+    <form action="admin.php?page=arlima-services" method="post">
         <input type="hidden" name="type" value="export" />
         <div id="export-list">
             <?php $i=0; foreach($lists_sorted as $list_data): $i++; ?>
@@ -100,7 +100,7 @@ if( isset($message) ): ?>
         <input type="text" id="import-url" placeholder="http://...." />
         <input type="button" value="<?php _e('Import list', 'arlima') ?>" class="button-secondary action" onclick="importExternalList(jQuery('#import-url'), jQuery('#imported-lists'));" />
     </p>
-    <form action="admin.php?page=arlima-webservicepage" method="post" id="imported-lists">
+    <form action="admin.php?page=arlima-services" method="post" id="imported-lists">
         <input type="hidden" name="type" value="remove_import" />
         <?php
         $imported = $import_manager->getImportedLists();

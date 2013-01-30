@@ -4,7 +4,7 @@
  * --------------------------
  *
  * This script does the following:
- *   1. Increases version number
+ *   1. Increases version number and changes DEV_MODE constant
  *   2. Runs all unit tests
  *   3. Translates pot-files
  *   4. Copies all wordpress files to a new directory named "build-X.Y.Z", one step down in the file system
@@ -15,7 +15,7 @@
  *   - Node module wrench ($ npm install wrench)
  *   - Node module uglify-JS ($ npm install uglify-js)
  *   - Node module uglify-CSS ($ npm install uglifycss)
- *   - Node moduel mval installed globally ($ npm install -g mval)
+ *   - Node module mval installed globally ($ npm install -g mval)
  *   - msgfmt and phpunit.phar has to be installed and added to your $PATH
  */
 
@@ -55,6 +55,9 @@ var fs = require('fs'),
         var minCode = minifier.js.minify(path).code;
         var source = fs.readFileSync(path, 'utf-8');
         fs.writeFileSync(path, source.substr(0, source.indexOf('*/')+2) + minCode);
+    },
+    replaceInFile = function(path, from, to) {
+        fs.writeFileSync(path, fs.readFileSync(path, 'utf-8').replace(from, to));
     },
     minifyCSS = function(path) {
         fs.writeFileSync(path, minifier.css.processString(fs.readFileSync(path, 'utf-8')) );
@@ -148,6 +151,8 @@ exec('mval ./readme.txt', function(error, stdout, stderr) {
                             });
 
                             console.log('Minifying js and css');
+
+                            replaceInFile(buildDir+'/constants.php', "define('ARLIMA_DEV_MODE', true)", "define('ARLIMA_DEV_MODE', false)");
 
                             filesToMinify.js.every(function(file) {
                                 minifyJS(buildDir+'/'+file);

@@ -183,10 +183,7 @@ abstract class Arlima_AbstractAdminPage {
                     'laterVersion' => __('It exists an older version of this article list', 'arlima'),
                     'overWrite' => __('Do you still want to save this version of the list?', 'arlima'),
                     'severalExtras' => __('This article list has more than one extra-streamer', 'arlima'),
-                    'changesBeforeRemove' => __(
-                        'You have made changes to this list, do you want to remove it anyway?',
-                        'arlima'
-                    ),
+                    'changesBeforeRemove' => __('You have made changes to this list, do you want to remove it anyway?','arlima'),
                     'wantToRemove' => __('Do you want to remove "', 'arlima'),
                     'fromList' => __('" from this article list?', 'arlima'),
                     'chooseImage' => __('Choose image', 'arlima'),
@@ -202,7 +199,8 @@ abstract class Arlima_AbstractAdminPage {
                     'hasUnsavedChanges' => __('This list has unsaved changes', 'arlima'),
                     'dragAndDrop' => __('Drag images to this container', 'arlima'),
                     'sticky' => __('Sticky', 'arlima'),
-                    'loggedOut' => __('Your login session seems to have expired, pls reload the page!', 'arlima')
+                    'loggedOut' => __('Your login session seems to have expired, pls reload the page!', 'arlima'),
+                    'notValidColor' => __('Not a valid color!', 'arlima')
                 )
             )
         );

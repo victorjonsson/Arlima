@@ -32,7 +32,7 @@ jQuery(function($) {
             addColorField(color);
             $colorInput.val('');
         } else {
-            alert('Not a valid color!');
+            alert(ArlimaJS.lang.notValidColor);
         }
     });
 

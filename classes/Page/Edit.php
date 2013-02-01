@@ -1,6 +1,10 @@
 <?php
 
 
+/**
+ * @since 2.7
+ * @package Arlima
+ */
 class Arlima_Page_Edit extends Arlima_AbstractAdminPage {
 
     function scripts()

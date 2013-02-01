@@ -379,6 +379,7 @@ class Arlima_ImportManager
         ?>
         <p>
             <strong><?php echo $name ?></strong>
+            <a href="#" class="del">&times;</a>
             <input type="button" value="<?php _e('Remove', 'arlima') ?>" class="button-secondary action"
                    onclick="removeImportedList('<?php echo $url ?>', jQuery('#imported-lists'));"/>
             <br/>

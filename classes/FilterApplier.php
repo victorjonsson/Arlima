@@ -255,7 +255,7 @@ class Arlima_FilterApplier
             }
         } else {
 
-            $version_manager = new Arlima_ImageVersionManager($attach_id);
+            $version_manager = new Arlima_ImageVersionManager($attach_id, new Arlima_Plugin());
             $img_url = $version_manager->getVersionURL($size[0]);
             if( $img_url === false )
                 $img_url = $attach_url;

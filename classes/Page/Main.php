@@ -1,6 +1,10 @@
 <?php
 
 
+/**
+ * @since 2.7
+ * @package Arlima
+ */
 class Arlima_Page_Main extends Arlima_AbstractAdminPage {
 
     function scripts()
@@ -52,14 +56,14 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         );
     }
 
-    function enqueueStyles() {
+    function enqueueStyles()
+    {
         $this->plugin->addTemplateCSS();
         parent::enqueueStyles();
     }
 
     function enqueueScripts()
     {
-
         // Enqueue scissors scripts if installed
         if ( Arlima_Plugin::isScissorsInstalled() ) {
 
@@ -191,7 +195,8 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         return false;
     }
 
-    function icon() {
+    function icon()
+    {
         return ARLIMA_PLUGIN_URL . '/images/arlima-icon.png';
     }
 

@@ -26,8 +26,8 @@ class Arlima_ExportManager
     private $error_messages = array(
         self::ERROR_UNSUPPORTED_FORMAT => 'Requesting unsupported format, only JSON or RSS is allowed',
         self::ERROR_PAGE_NOT_FOUND => 'Page not found',
-        self::ERROR_MISSING_LIST_REFERENCE => 'This page has no custom field referring to an Arlima article list',
-        self::ERROR_LIST_DOES_NOT_EXIST => 'Custom field "arlima" on current page is referring to an article list that does not exist',
+        self::ERROR_MISSING_LIST_REFERENCE => 'This page has no related article list',
+        self::ERROR_LIST_DOES_NOT_EXIST => 'This page is related to an article list that does not exist',
         self::ERROR_LIST_BLOCKED_FROM_EXPORT => 'This list is not available for export'
     );
 
@@ -67,10 +67,11 @@ class Arlima_ExportManager
             $this->sendErrorToClient(self::ERROR_UNSUPPORTED_FORMAT, '400 Bad Request', self::DEFAULT_FORMAT);
         }
 
-        $front = get_option('page_on_front', 0);
-        $page = !$page_slug ? get_page($front) : get_page_by_title(
-            str_replace('-', ' ', $page_slug)
-        );
+        if( $page_slug ) {
+            $page = get_page_by_title(str_replace('-', ' ', $page_slug));
+        } else {
+            $page = get_post(get_option('page_on_front', 0));
+        }
 
         if ( !$page ) {
             $this->sendErrorToClient(self::ERROR_PAGE_NOT_FOUND, '404 Page Not Found', $format);
@@ -79,7 +80,7 @@ class Arlima_ExportManager
             $factory = new Arlima_ListFactory();
             $connector = new Arlima_ListConnector();
             $relation = $connector->getRelationData($page->ID);
-            $list = false;
+
             if ( empty($relation) ) {
                 $arlima_slug = get_post_meta($page->ID, 'arlima', true);
                 if( empty($arlima_slug) ) {
@@ -206,6 +207,9 @@ class Arlima_ExportManager
         if ( strpos($article_data['external_url'], 'http') === false ) {
             $article_data['external_url'] = $base_url . ltrim($article_data['external_url'], '/');
         }
+
+        // Add url for backward compatibility @todo: remove when moving up to version 3.0
+        $article_data['url'] = $article_data['external_url'];
 
         $article_data['external_post_id'] = 0;
         if ( !empty($article_data['post_id']) ) {

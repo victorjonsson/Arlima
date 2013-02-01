@@ -1,8 +1,14 @@
 <?php
 
 /**
- * @since 1.0
- * @package Aurora
+ * Base class extended by classes representing admin pages in wordpress.
+ *
+ * Using this class reduces the amount of code needs to be written when
+ * wanting to have several admin pages in a plugin. It also reduces code
+ * duplication that appears when having several admin pages in one plugin.
+ *
+ * @since 2.7
+ * @package Arlima
  */
 abstract class Arlima_AbstractAdminPage {
 
@@ -15,44 +21,91 @@ abstract class Arlima_AbstractAdminPage {
     /**
      * @param Arlima_Plugin $arlima_plugin
      */
-    function __construct($arlima_plugin)
+    final public function __construct($arlima_plugin)
     {
         $this->plugin = $arlima_plugin;
     }
 
+    /**
+     * @param \Arlima_Plugin $plugin
+     */
+    public function setPlugin($plugin)
+    {
+        $this->plugin = $plugin;
+    }
+
+    /**
+     * @return \Arlima_Plugin
+     */
+    public function getPlugin()
+    {
+        return $this->plugin;
+    }
+
+    /**
+     * @return array
+     */
     function styleSheets()
     {
         return array();
     }
 
+    /**
+     * @return array
+     */
     function scripts()
     {
         return array();
     }
 
+    /**
+     * Name of this page
+     * @return mixed
+     */
     abstract function getName();
 
+    /**
+     * Menu name of this plugin
+     * @return mixed
+     */
     abstract function getMenuName();
 
+    /**
+     * slug used for this admin page
+     * @return string
+     */
     abstract function slug();
 
+    /**
+     * Menu slug of parent page. Return empty string to set as parent page
+     * @return string
+     */
     abstract function parentSlug();
 
+    /**
+     * Only used when parentSlug() returns empty string
+     * @return string
+     */
+    public function icon()
+    {
+        return '';
+    }
+
+    /**
+     * User capability needed to visit this page
+     * @return string
+     */
     function capability()
     {
         return 'edit_posts';
     }
 
     /**
-     * Only used when !$this->isSubPage()
-     * @return string
+     * Registers the page and enqueue's the js and css in case
+     * this page is being visited.
      */
-    public function icon() {
-        return '';
-    }
-
-    final public function registerPage() {
-        $page_ref = false;
+    final public function registerPage()
+    {
         if( $this->parentSlug() ) {
             $page_ref = add_submenu_page(
                     $this->parentSlug(),
@@ -80,6 +133,9 @@ abstract class Arlima_AbstractAdminPage {
         }
     }
 
+    /**
+     * @return string|bool
+     */
     protected function requestedAdminPage()
     {
         if(
@@ -92,6 +148,9 @@ abstract class Arlima_AbstractAdminPage {
         return false;
     }
 
+    /**
+     * Enqueue's the stylesheets returned by Arlima_AbstractAdminPage::styleSheets()
+     */
     public function enqueueStyles()
     {
         foreach($this->styleSheets() as $handle => $data) {
@@ -99,6 +158,9 @@ abstract class Arlima_AbstractAdminPage {
         }
     }
 
+    /**
+     * Enqueue's the scripts returned by Arlima_AbstractAdminPage::scripts()
+     */
     public function enqueueScripts()
     {
         wp_enqueue_script('jquery');
@@ -146,7 +208,11 @@ abstract class Arlima_AbstractAdminPage {
         );
     }
 
-    function loadPage() {
+    /**
+     * Loads the view of this page
+     */
+    function loadPage()
+    {
         ?>
         <div class="wrap">
             <div id="icon-plugins" class="icon32"></div>

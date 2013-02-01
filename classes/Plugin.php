@@ -61,8 +61,7 @@ class Arlima_Plugin
         }
 
         // Add filters that makes content editable in context
-        // todo: check if setting is enabled
-        if( is_user_logged_in() ) {
+        if( is_user_logged_in() && $this->getSetting('in_context_editor') ) {
             $editor = new Arlima_InContextEditor($this);
             $editor->apply();
         }
@@ -246,7 +245,7 @@ class Arlima_Plugin
     function attachmentMetaBox()
     {
         global $post;
-        $version_manager = new Arlima_ImageVersionManager($post->ID);
+        $version_manager = new Arlima_ImageVersionManager($post->ID, $this);
         $versions = $version_manager->getVersions(null, true);
         $no_version_style = count($versions) > 0 ? ' style="display:none"':'';
         $versions_style = $no_version_style == '' ? ' style="display:none"':'';
@@ -341,6 +340,7 @@ class Arlima_Plugin
         $settings = $plugin->loadSettings();
         $settings['install_version'] = self::VERSION;
         $settings['in_context_editing'] = true;
+        $settings['image_quality'] = 100;
         $plugin->saveSettings($settings);
     }
 
@@ -446,6 +446,7 @@ class Arlima_Plugin
             // Update to 2.7
             if ( $current_version < self::VERSION ) {
                 $settings['in_context_editing'] = true;
+                $settings['image_quality'] = 100;
             }
 
             $settings['install_version'] = self::VERSION;
@@ -485,12 +486,13 @@ class Arlima_Plugin
 
     /**
      * @param string $name
+     * @param bool $default
      * @return mixed
      */
-    function getSetting($name)
+    function getSetting($name, $default=false)
     {
         $settings = $this->loadSettings();
-        return isset($settings[$name]) ? $settings[$name] : false;
+        return isset($settings[$name]) ? $settings[$name] : $default;
     }
 
     /**
@@ -803,7 +805,9 @@ class Arlima_Plugin
     {
         // Make it possible for theme or other plugins to
         // define their own streamer colors
-        $predefined_colors = apply_filters('arlima_streamer_colors', array());
+        $plugin = new Arlima_Plugin();
+        $colors = $plugin->getSetting('streamer_colors', array());
+        $predefined_colors = apply_filters('arlima_streamer_colors', $colors);
         if ( !empty($predefined_colors) ) {
             foreach ($predefined_colors as $hex) {
                 echo '<option value="' . $hex . '">#' . $hex . '</option>';

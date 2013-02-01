@@ -477,6 +477,14 @@ jQuery(function($) {
         Arlima.ArticleEditor.$item.data('article', articleData);
     });
 
+    // Put editor blocker back into place when resizing the window
+    $(window).bind('resize', function() {
+        var list = Arlima.Manager.getFocusedList();
+        if( list && list.isImported && Arlima.ArticleEditor.isEditingArticle() ) {
+            Arlima.ArticleEditor.toggleEditorBlocker(true);
+        }
+    });
+
     // Toggle editor, search and custom templates
     $('.handlediv').click( function() {
         $(this).parent().find('.inside').slideToggle(200);

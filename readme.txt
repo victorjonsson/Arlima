@@ -49,6 +49,7 @@ the list that you created on step 2.
 - Fixed bug that made it impossible to add watermarks images using "Scissors Continued".
 - Fixed bug in jQuery hot keys.
 - Font size slider can now be controlled using arrow keys.
+- Added a settings page from where you can change streamer colors and some other stuff.
 
 
 = 2.6.23 =

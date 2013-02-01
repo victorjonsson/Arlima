@@ -72,7 +72,7 @@ var ArlimaTemplateLoader = (function($) {
                     var baseURL = url.substr(0, url.lastIndexOf('/')) +'/';
                     this.templates[templateName] = this._templateParts[url];
                     var includes = this.parseIncludes(this.templates[templateName], baseURL);
-                    while( includes && includes.lenght > 0 ) {
+                    while( includes && includes.length > 0 ) {
                         for(var i=0; i < includes.length; i++) {
                             this.templates[templateName] = this.templates[templateName].replace(includes[i][0], this._templateParts[includes[i][1]]);
                         }

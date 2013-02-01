@@ -24,6 +24,21 @@ class Arlima_ImageVersionManager
     private static $upload_dir_data;
 
     /**
+     * @var Arlima_Plugin|null
+     */
+    private $plugin;
+
+    /**
+     * @param int $id
+     * @param Arlima_Plugin $plugin
+     */
+    public function __construct($id, $plugin=null)
+    {
+        $this->attach_id = $id;
+        $this->plugin = $plugin;
+    }
+
+    /**
      * @param string $key
      * @return array
      */
@@ -33,20 +48,12 @@ class Arlima_ImageVersionManager
             self::$upload_dir_data = wp_upload_dir();
             if( self::$upload_dir_data === false || false !== self::$upload_dir_data['error']) {
                 self::$upload_dir_data = array(
-                        'basedir' => WP_CONTENT_DIR .'/uploads',
-                        'baseurl' => home_url() .'/wp-content/uploads'
-                    );
+                    'basedir' => WP_CONTENT_DIR .'/uploads',
+                    'baseurl' => home_url() .'/wp-content/uploads'
+                );
             }
         }
         return $key === null ? self::$upload_dir_data : self::$upload_dir_data[$key];
-    }
-
-    /**
-     * @param int $id
-     */
-    public function __construct($id)
-    {
-        $this->attach_id = $id;
     }
 
     /**
@@ -105,7 +112,7 @@ class Arlima_ImageVersionManager
                     $version_url = $this->generateFileURL($file);
                 }
                 elseif( $this->canGenerateVersion($file_full_path, $max_width) ) {
-                    $editor->set_quality( apply_filters('arlima_image_quality', 100) );
+                    $editor->set_quality( apply_filters('arlima_image_quality', $this->plugin->getSetting('image_quality', 100)) );
                     if( $editor->resize($max_width, false) ) {
 
                         if( ($error = $editor->save(self::uploadDirData('basedir').'/'.$version_file)) instanceof WP_Error ) {

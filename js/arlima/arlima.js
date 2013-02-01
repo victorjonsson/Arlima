@@ -396,8 +396,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          */
         articleTemplate : function(articleData) {
             // Template changed by format value
-            var previewTemplate = $('.arlima-list-previewtemplate', this.currentlyEditedList.jQuery).val();
-            var customTemplate = articleData.options ? articleData.options.template : false;
+            var previewTemplate = this.currentlyEditedList.defaultTemplate();
+            var customTemplate = articleData.options ? articleData.options.template : undefined;
             if( customTemplate ) {
                 if( ArlimaTemplateLoader.templates[customTemplate] === undefined ) {
                     log('Use of unknown custom template "'+customTemplate+'"', 'warn');
@@ -678,7 +678,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             this.toggleEditorFeatures( tmplName );
 
             // Hide default template from template list
-            var defaultTemplate = $('.arlima-list-previewtemplate', this.currentlyEditedList.jQuery).val();
+            var defaultTemplate = this.currentlyEditedList.defaultTemplate();
             var $tmplOptions = $('#arlima-edit-article-options-template option');
             $tmplOptions.show();
             $tmplOptions.each(function() {
@@ -743,7 +743,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
         toggleAvailableFormats : function(articleTemplate) {
             if( articleTemplate == '' )
-                articleTemplate = $('.arlima-list-previewtemplate', this.currentlyEditedList.jQuery).val();
+                articleTemplate = this.currentlyEditedList.defaultTemplate();
 
             var $formatOptions = $('#arlima-edit-article-options-format option');
             $formatOptions.removeAttr('disabled');
@@ -784,7 +784,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          */
         toggleEditorFeatures : function(templateName) {
             if( templateName == '' )
-                templateName = $('.arlima-list-previewtemplate', this.currentlyEditedList.jQuery).val();
+                templateName = this.currentlyEditedList.defaultTemplate();
 
             var tmpl = ArlimaTemplateLoader.templates[templateName];
             if( tmpl !== undefined ) {
@@ -816,6 +816,16 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 }
                 else {
                     $('#arlima-article-wp-connection').hide();
+                }
+
+                // Title font size toggle
+                if( tmpl.indexOf('{html article.html_title}') > -1) {
+                    $('#arlima-edit-article-title-fontsize-slider').show();
+                    $('#arlima-edit-article-title-fontsize').show();
+                }
+                else {
+                    $('#arlima-edit-article-title-fontsize-slider').hide();
+                    $('#arlima-edit-article-title-fontsize').hide();
                 }
             }
         },
@@ -1852,6 +1862,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
     };
 
     /**
+     * @returns {String}
+     */
+    ArlimaList.prototype.defaultTemplate = function() {
+        return $('.arlima-list-previewtemplate', this.jQuery).val();
+    };
+
+    /**
      * Goes through all sticky items in the list and makes sure
      * they're in the correct place
      * @param {String} [insertFunc]
@@ -1894,7 +1911,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             $listItem
                 .addClass('listitem')
                 .html('<div><span class="arlima-listitem-title"></span>'+
-                '<img class="arlima-listitem-remove" alt="remove" src="' + ArlimaJS.imageurl + 'close-icon.png" /></div>');
+                        '<img class="arlima-listitem-remove" alt="remove" src="' + ArlimaJS.imageurl + 'close-icon.png" /></div>');
 
             ArlimaList.bindArticleItemEvents($listItem);
             ArlimaList.prepareArticleForListTransactions($listItem, article);

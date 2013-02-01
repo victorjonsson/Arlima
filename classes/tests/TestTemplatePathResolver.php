@@ -30,7 +30,7 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $files = $this->path_resolver->getTemplateFiles();
         $this->assertEquals(array('article', 'giant', 'widget'), array_keys($files));
 
-        $this->stipRootPathsFromFiles($files);
+        $this->stripRootPathsFromFiles($files);
 
         $this->assertEquals(array(
                'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'Article', 'name'=>'article'),
@@ -47,7 +47,7 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $files = $this->path_resolver->getTemplateFiles();
         $this->assertEquals(array('deep-include', 'some-template', 'article', 'giant', 'widget'), array_keys($files));
 
-        $this->stipRootPathsFromFiles($files);
+        $this->stripRootPathsFromFiles($files);
 
         $this->assertEquals(array(
                 'deep-include'=> array('file'=>'arlima/classes/tests/test-templates/deep-include.tmpl', 'url' => 'arlima/classes/tests/test-templates/deep-include.tmpl', 'label' => 'Deep-include', 'name'=>'deep-include'),
@@ -65,7 +65,7 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $this->path_resolver = new Arlima_TemplatePathResolver(array(__DIR__.'/test-templates/'), false);
         $files = $this->path_resolver->getTemplateFiles();
 
-        $this->stipRootPathsFromFiles($files);
+        $this->stripRootPathsFromFiles($files);
 
         $this->assertEquals(array(
                 'deep-include'=> array('file'=>'arlima/classes/tests/test-templates/deep-include.tmpl', 'url' => 'arlima/classes/tests/test-templates/deep-include.tmpl', 'label' => 'Deep-include', 'name'=>'deep-include'),
@@ -79,7 +79,7 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
     /**
      * @param $files
      */
-    private function stipRootPathsFromFiles(&$files)
+    private function stripRootPathsFromFiles(&$files)
     {
         foreach ($files as $key => $file) {
             $files[$key] = $file;

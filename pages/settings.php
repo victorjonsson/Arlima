@@ -1,1 +1,218 @@
-hgej
+<?php
+/**
+ * @var Arlima_AbstractAdminPage $this
+ */
+
+$settings = $this->getPlugin()->loadSettings();
+$export_manager = new Arlima_ExportManager($this->getPlugin());
+$import_manager = new Arlima_ImportManager($this->getPlugin());
+$factory = new Arlima_ListFactory();
+$connector = new Arlima_ListConnector();
+
+if( isset($_POST['settings']) ) {
+
+    // Save some settings
+    $settings = array_merge($settings, $_POST['settings']);
+    if( !isset($_POST['settings']['streamer_colors']) )
+        $settings['streamer_colors'] = array();
+    $this->getPlugin()->saveSettings($settings);
+
+    // Save approved for export
+    $approved = empty($_POST['approved']) ? array() : $_POST['approved'];
+    $export_manager->setListsAvailableForExport($approved);
+    $message = __('Export settings saved successfully', 'arlima');
+
+    // Remove imported lists
+    if( !empty($_POST['remove_imported']) ) {
+        foreach($_POST['remove_imported'] as $remove) {
+            $import_manager->removeImportedList($remove);
+        }
+    }
+
+    $message = 'Settings was successfully updated';
+}
+
+
+// Create a list of our arlima lists sorted so that those lists
+// approved for export comes first. Also find out from which
+// page the approved lists can be exported
+$lists_sorted = array();
+$lists = $factory->loadListSlugs();
+$has_exportable_list = false;
+foreach($lists as &$list_data) {
+    if($export_manager->isAvailableForExport($list_data->id)) {
+        $has_exportable_list = true;
+
+        // Monkey patch the list object
+        $list_data->approved = true;
+        $list_data->export_page = false;
+        $connector->setList($factory->loadList($list_data->id));
+        $pages = $connector->loadRelatedPages();
+
+        if(!empty($pages)) { // monkey patch from which page list can be exported
+            $list_data->export_page = rtrim(get_permalink($pages[0]->ID),'/') .'/'.Arlima_Plugin::EXPORT_FEED_NAME.'/';
+        }
+
+        array_unshift($lists_sorted, $list_data);
+
+    }
+    else {
+        $list_data->approved = false;
+        array_push($lists_sorted, $list_data);
+    }
+}
+
+if( isset($message) ): ?>
+    <div id="setting-error-settings_updated" class="updated settings-error success">
+        <p><strong><?php echo $message; ?></strong></p>
+    </div>
+<?php endif; ?>
+<div id="arlima-settings-page" style="padding-top: 22px">
+
+    <form action="admin.php?page=arlima-settings" method="post">
+
+        <div class="arlima-postbox">
+            <h3>Quick edit</h3>
+            <div class="inside">
+                <table>
+                    <tr>
+                        <td>
+                            This is an experimental feature that makes it possible to edit articles directly
+                            on your front page. (<a href="https://github.com/victorjonsson/Arlima/wiki" target="_blank">Read more</a>)
+                        </td>
+                        <td>
+                            <select name="settings[in_context_editing]">
+                                <option value="1"<?php echo $settings['in_context_editing'] ? ' selected="selected"':'' ?>>
+                                    Enabled
+                                </option>
+                                <option value=""<?php echo !$settings['in_context_editing'] ? ' selected="selected"':'' ?>>
+                                    Disabled
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="arlima-postbox">
+            <h3>Streamer colors</h3>
+            <div class="inside">
+                <table>
+                    <tr>
+                        <td>
+                            Use this tool to define colors that should be available as
+                            background colors for your <a href="https://github.com/victorjonsson/Arlima/wiki/Custom-streamers" target="_blank">&quot;streamers&quot;</a>
+                        </td>
+                        <td>
+                            <input type="text" id="streamer-color" placeholder="FF0000" />
+                            <input type="button" value="Add" id="streamer-button" class="button" />
+                            <div id="streamer-wrapper" data-colors="<?php if( !empty($settings['streamer_colors']) ) echo implode(',', $settings['streamer_colors']) ?>"></div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <?php if( Arlima_Plugin::supportsImageEditor() ): ?>
+            <div class="arlima-postbox">
+                <h3>Image quality</h3>
+                <div class="inside">
+                    <table>
+                        <tr>
+                            <td>
+                                The quality of image versions generated by Arlima
+                            </td>
+                            <td>
+                                <select name="settings[image_quality]">
+                                    <?php for($i=70; $i < 101; $i++): ?>
+                                        <option value="<?php echo $i ?>"<?php echo $settings['image_quality'] == $i ? ' selected="selected"':'' ?>>
+                                            <?php echo $i ?>
+                                        </option>
+                                    <?php endfor; ?>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <div class="arlima-postbox">
+            <h3><?php _e('Export', 'arlima') ?></h3>
+            <div class="inside">
+                <table>
+                    <tr>
+                        <td>
+                            <?php _e('Choose which article lists that should be available for export', 'arlima') ?>
+                        </td>
+                        <td style="width:400px">
+                            <input type="hidden" name="type" value="export" />
+                            <div id="export-list" style="width: 100%; max-width: none">
+                                <?php $i=0; foreach($lists_sorted as $list_data): $i++; ?>
+                                    <p>
+                                        <label for="list<?php echo $i; ?>">
+                                            <input id="list<?php echo $i; ?>" type="checkbox" name="approved[]" value="<?php echo $list_data->id ?>" <?php if($list_data->approved) echo ' checked="checked"'; ?> />
+                                            <strong><?php echo $list_data->title ?></strong>
+                                        </label>
+                                        <?php if($list_data->approved): ?>
+                                            <span class="gray-small">
+                                            <?php if($list_data->export_page): ?>
+                                                    <?php _e('URL', 'arlima') ?>: <a href="<?php echo $list_data->export_page ?>" target="_blank"><?php echo $list_data->export_page ?></a>
+                                                <?php else:
+                                                    // todo: Translate
+                                                    echo sprintf(__('This list is not related to any page!', 'arlima'), '&quot;'.$list_data->slug.'&quot;');
+                                                endif; ?>
+                                        </span>
+                                        <?php endif; ?>
+                                    </p>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php if($has_exportable_list): ?>
+                                <p>
+                                    <em class="gray-small">(<?php _e('You can export your lists in RSS format by adding ?format=rss to the URL.', 'arlima') ?>)</em>
+                                </p>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="arlima-postbox">
+            <h3><?php _e('Import', 'arlima') ?></h3>
+            <div class="inside">
+                <table>
+                    <tr>
+                        <td>
+                            With this tool you can import RSS-feeds
+                            or arlima articles lists from remote websites.
+                            Once a list is imported it will be available in
+                            the list manager
+                        </td>
+                        <td>
+                            <input type="text" id="import-url" placeholder="http://...." style="width:140px" />
+                            <input type="button" value="<?php _e('Import list', 'arlima') ?>" class="button-secondary action" onclick="importExternalList(jQuery('#import-url'), jQuery('#imported-lists'));" />
+                            <div id="imported-lists">
+                                <?php foreach($import_manager->getImportedLists() as $list_data): ?>
+                                    <div class="imported">
+                                        <strong><?php echo $list_data['title'] ?></strong>
+                                        <a href="#" class="del">&times;</a>
+                                        <br/>
+                                        <a href="<?php echo $list_data['url'] ?>" target="_blank"><?php echo $list_data['url'] ?></a>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <p>
+            <input type="submit" name="send" value="<?php _e('Save settings', 'arlima') ?>" class="button-primary" />
+        </p>
+
+    </form>
+
+</div>

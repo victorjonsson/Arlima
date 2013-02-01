@@ -46,10 +46,10 @@ the list that you created on step 2.
 
 - New feature: "Quick Edit — Edit articles in front-end". It's now possible to edit the title and body text of your articles directly on your front page.
 - Improved article form in the list manager, connecting articles to posts or external URL´s have been given a new interface.
-- Fixed bug that made it impossible to add watermarks images using "Scissors Continued".
+- Fixed bug that made it impossible to add watermark images using "Scissors Continued".
 - Fixed bug in jQuery hot keys.
 - Font size slider can now be controlled using arrow keys.
-- Added a settings page from where you can change streamer colors and some other stuff.
+- The admin page "Web Services" is renamed to "Settings" and has been given more configuration options.
 
 
 = 2.6.23 =

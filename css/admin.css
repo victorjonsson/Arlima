@@ -934,7 +934,6 @@ span.arlima-streamer-indicator {
     height: 200px;
     overflow-x: hidden;
     overflow-y: scroll;
-    border-radius: 10px;
     max-width: 65%;
 }
 
@@ -943,6 +942,7 @@ span.arlima-streamer-indicator {
     border-bottom: #E2E2E2 solid 1px;
     border-top: #FFF solid 1px;
     margin: 0;
+    line-height: 160%;
 }
 
 #export-list p:first-child {
@@ -998,4 +998,14 @@ span.arlima-streamer-indicator {
     text-decoration: none;
     font-size: 140%;
     margin-left: 5px;
+}
+
+#imported-lists div {
+    padding: 5px 2px 8px;
+}
+
+#imported-lists div:first-child {
+    padding-top: 14px;
+    margin-top: 10px;
+    border-top: #EEE solid 1px;
 }

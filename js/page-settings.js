@@ -11,7 +11,7 @@ jQuery(function($) {
         if( colors.indexOf(color) == -1 ) {
             var $div = $('<div></div>');
             $div.append('<span style="background:#'+color+'" class="color"></span>');
-            $div.append('<span style="color:#999; margin-left: 3px">'+color+'</span>');
+            $div.append('<span style="color:#999; margin-left: 3px">#'+color+'</span>');
             $div.append('<input type="hidden" name="settings[streamer_colors][]" value="'+color+'" />');
             $div.append('<a href="#" class="del">&times;</a>');
             $colorContainer.append($div);
@@ -43,6 +43,12 @@ jQuery(function($) {
         if( color ) {
             addColorField(color);
         }
+    });
+
+    // Delete imported lists
+    $('#imported-lists .del').live('click', function() {
+        removeImportedList($(this));
+        return false;
     });
 
 });
@@ -85,9 +91,10 @@ function importExternalList($input, $form) {
 
 /**
  *
- * @param {String} url
- * @param {jQuery} $form
+ * @param {jQuery} $link
  */
-function removeImportedList(url, $form) {
-    $form.append('<input type="hidden" name="remove_imported[]" value="'+url+'" />');
+function removeImportedList($link) {
+    var url = $link.attr('data-link');
+    var $div = $link.parent();
+    $div.html('<input type="hidden" name="remove_imported[]" value="'+url+'" />');
 }

@@ -61,7 +61,7 @@ class Arlima_Plugin
         }
 
         // Add filters that makes content editable in context
-        if( is_user_logged_in() && $this->getSetting('in_context_editor') ) {
+        if( is_user_logged_in() && $this->getSetting('in_context_editing') ) {
             $editor = new Arlima_InContextEditor($this);
             $editor->apply();
         }
@@ -666,7 +666,6 @@ class Arlima_Plugin
         $pages_classes = array(
             'Arlima_Page_Main',
             'Arlima_Page_Edit',
-            'Arlima_Page_Services',
             'Arlima_Page_Settings'
         );
 

@@ -3,7 +3,7 @@
 /**
  * Base class extended by classes representing admin pages in wordpress.
  *
- * Using this class reduces the amount of code needs to be written when
+ * Using this class reduces the amount of code that needs to be written when
  * wanting to have several admin pages in a plugin. It also reduces code
  * duplication that appears when having several admin pages in one plugin.
  *

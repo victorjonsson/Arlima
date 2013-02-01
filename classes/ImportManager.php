@@ -377,14 +377,12 @@ class Arlima_ImportManager
     public static function displayImportedList($url, $name)
     {
         ?>
-        <p>
+        <div class="imported">
             <strong><?php echo $name ?></strong>
-            <a href="#" class="del">&times;</a>
-            <input type="button" value="<?php _e('Remove', 'arlima') ?>" class="button-secondary action"
-                   onclick="removeImportedList('<?php echo $url ?>', jQuery('#imported-lists'));"/>
+            <a href="#" class="del" data-link="<?php echo $url ?>">&times;</a>
             <br/>
             <a href="<?php echo $url ?>" target="_blank"><?php echo $url ?></a>
-        </p>
+        </div>
         <?php
     }
 }

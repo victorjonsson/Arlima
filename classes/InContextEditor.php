@@ -114,7 +114,7 @@ class Arlima_InContextEditor {
             add_action('wp_footer', array($this, 'wpFooter'));
         }
 
-        $obj['article']['html_title'] = $list->getTitleHtml($article, array('arlima-ice-title'));
+        $obj['article']['html_title'] = Arlima_List::getTitleHtml($article, $list->getOptions(), array('arlima-ice-title'));
         $obj['article']['html_text'] = '<div class="arlima-ice-content">' . $obj['article']['html_text'] . '</div>';
         $obj['container']['class'] .= ' arlima-editable-article article-'.$article['id'];
 

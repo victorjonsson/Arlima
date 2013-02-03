@@ -174,7 +174,7 @@ abstract class Arlima_AbstractAdminPage {
             array(
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'arlimaNonce' => wp_create_nonce('arlima-nonce'),
-                'imageurl' => ARLIMA_PLUGIN_URL . '/images/',
+                'imageurl' => ARLIMA_PLUGIN_URL . 'images/',
                 'baseurl' => get_bloginfo('url'),
                 'is_admin' => current_user_can('manage_options') ? 1 : 0,
                 'preview_query_arg' => Arlima_List::QUERY_ARG_PREVIEW,
@@ -200,7 +200,9 @@ abstract class Arlima_AbstractAdminPage {
                     'dragAndDrop' => __('Drag images to this container', 'arlima'),
                     'sticky' => __('Sticky', 'arlima'),
                     'loggedOut' => __('Your login session seems to have expired, pls reload the page!', 'arlima'),
-                    'notValidColor' => __('Not a valid color!', 'arlima')
+                    'notValidColor' => __('Not a valid color!', 'arlima'),
+                    'invalidURL' => __('This URL seems to be invalid', 'arlima'),
+                    'nothingFound' => __('Nothing found...', 'arlima')
                 )
             )
         );

@@ -58,8 +58,8 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
 
     function enqueueStyles()
     {
-        $this->plugin->addTemplateCSS();
         parent::enqueueStyles();
+        $this->plugin->addTemplateCSS();
     }
 
     function enqueueScripts()

@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.6.30
+Version: 2.7
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -54,11 +54,16 @@ else {
  * Replaces the entry-word span (tinymce plugin) with a link
  * @param string $content
  * @param string $url
+ * @param bool|string $target
  * @return string
  */
-function arlima_link_entrywords( $content, $url ) {
+function arlima_link_entrywords( $content, $url, $target=false) {
     $pattern = '/(<span)(.*class=\".*teaser-entryword.*\")>(.*)(<\/span>)/isxmU';
-    return preg_replace($pattern, '<a href="'.$url.'" class="teaser-entryword">$3</a>' , $content);
+    return preg_replace(
+                $pattern,
+                '<a href="'.$url.'" '.($target ? ' target="'.$target.'"':'').'class="teaser-entryword">$3</a>',
+                $content
+            );
 }
 
 

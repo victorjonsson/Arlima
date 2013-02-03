@@ -79,7 +79,7 @@ class Arlima_Plugin
                 $relation['attr']['echo'] = false;
                 $content .= arlima_render_list(get_arlima_list(), $relation['attr']);
             } else {
-                arlima_render_list(get_arlima_list(), $relation['attr']);
+                arlima_render_list(get_arlima_list(), isset($relation['attr']) ?  $relation['attr'] : array());
             }
         }
 

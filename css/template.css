@@ -59,14 +59,14 @@
 body.mceContentBody {
     font-family: Tahoma, Arial, sans-serif;
     font-size: 10.5pt;
-    color:#444;
+    color:#333;
 }
 
 /* links */
 .tmpl-article a,
 body.mceContentBody a {
     text-decoration: none;
-    color:#444;
+    color:#333;
     cursor: pointer;
 }
 
@@ -79,7 +79,7 @@ body.mceContentBody a {
     margin: 0;
     line-height: 110%;
     clear: none;
-    color: #000;
+    color: #333;
     font-weight: bold;
 }
 
@@ -508,5 +508,13 @@ current list in wp-admin
     .tmpl-article.format-serif h2,
     .tmpl-article.format-serif h1 {
         font-size: 20px !important;
+    }
+
+    .teaser-children .tmpl-article.teaser-split,
+    .teaser-children .tmpl-article.teaser-split.last,
+    .teaser-children .tmpl-article.teaser-split.first
+    {
+        float: none !important;
+        width: 100% !important;
     }
 }

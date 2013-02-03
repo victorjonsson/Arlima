@@ -115,10 +115,7 @@ jQuery(function($) {
                     connection = $postConnectionBox.find('input.post-connection').val();
                 }
 
-                if( connection ) {
-                    Arlima.ArticleEditor.PostConnector.connect(connection, target);
-                }
-
+                Arlima.ArticleEditor.PostConnector.connect(connection, target);
                 hasChangedConnection = false;
             }
         },
@@ -133,9 +130,9 @@ jQuery(function($) {
             $postConnectionBox.find('input,select').val('');
             $postConnectionBox.find('option').removeAttr('selected');
             if( !articleData.post_id ) {
-                $postConnectionBox.find('input.url').val(articleData.url);
+                $postConnectionBox.find('.url').val(articleData.options.overriding_url || '');
                 var target = articleData.options.target;
-                if( target !== undefined ) {
+                if( target ) {
                     $postConnectionBox.find('option[value="'+target+'"]').attr('selected', 'selected');
                 }
             }
@@ -155,9 +152,10 @@ jQuery(function($) {
         if( $in.hasClass('url') ) {
             var url = $in.val();
             if( url.indexOf('#') !== 0 &&
+                url != '' &&
                 url.toLowerCase().indexOf('javascript: ') !== 0 &&
                 !url.match(/(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/gi)) {
-                $in.after('<em style="color:darkred" class="invalid-info"><br />This URL seems to be invalid</em>');
+                $in.after('<em style="color:darkred" class="invalid-info"><br />'+ArlimaJS.lang.invalidURL+'</em>');
             }
             else {
                 $in.parent().find('.invalid-info').remove();
@@ -169,7 +167,7 @@ jQuery(function($) {
         Arlima.Backend.queryPosts({search:search}, function(data) {
             var $resultContainer = $postConnectionBox.find('.search-result');
             if( data.posts.length == 0 ) {
-                $resultContainer.html('<p>Inget hittades....</p>');
+                $resultContainer.html('<p>'+ArlimaJS.lang.nothingFound+'</p>');
             }
             else {
                 var result = '';
@@ -305,9 +303,9 @@ jQuery(function($) {
     });
 
     // Reload all lists on page
-    $('#arlima-refresh-all-lists').click(function() {
+    $('#arlima-refresh-all-lists').click(function(e) {
         var doReload = true;
-        if(Arlima.Manager.getUnsavedLists().length > 0) {
+        if(!e.metaKey && Arlima.Manager.getUnsavedLists().length > 0) {
             doReload = confirm(ArlimaJS.lang.unsaved);
         }
         if(doReload) {
@@ -592,7 +590,7 @@ jQuery(function($) {
                     .html(name)
                     .addClass('button')
                     .appendTo('#scissorsCropPane-' + attachmentID)
-                    .on('click', function() {
+                    .bind('click', function() {
                         $('#scissorsLockBox-' + attachmentID).prop("checked", true);
                         scissorsAspectChange(attachmentID);
                         $('#scissorsLockX-' + attachmentID).val(rx);
@@ -656,12 +654,11 @@ jQuery(function($) {
                     break;
             }
 
-            e.preventDefault();
             return false;
         }
 
         // Increase font size, this should be taken care of by jquery-ui but
-        // for some reason we have to create this feature our selves
+        // for some reason we have to create this feature
         else if( $.inArray(key, [39,37]) > -1 && hasSliderFocus ) {
             if( Arlima.ArticleEditor.isEditingArticle() ) {
                 var size = parseInt($fontSizeInput.val(), 10);
@@ -669,6 +666,7 @@ jQuery(function($) {
                 $fontSizeSlider.slider('value', size);
                 $fontSizeInput.val(size);
                 Arlima.ArticleEditor.updateArticle();
+                return false;
             }
         }
     });

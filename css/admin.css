@@ -924,43 +924,6 @@ span.arlima-streamer-indicator {
     float: right;
 }
 
-/*
- Arlima Web Service Page
-*/
-
-#export-list {
-    background: #F2F2F2;
-    border: #E2E2E2 solid 1px;
-    height: 200px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    max-width: 65%;
-}
-
-#export-list p {
-    padding: 8px 12px;
-    border-bottom: #E2E2E2 solid 1px;
-    border-top: #FFF solid 1px;
-    margin: 0;
-    line-height: 160%;
-}
-
-#export-list p:first-child {
-    border-top: 0;
-}
-
-#export-list p input {
-    margin-right: 4px;
-}
-
-.gray-small {
-    font-size: 90%;
-    color: #777;
-}
-
-#export-list .gray-small {
-    display: block;
-}
 
 
 /*
@@ -1008,4 +971,43 @@ span.arlima-streamer-indicator {
     padding-top: 14px;
     margin-top: 10px;
     border-top: #EEE solid 1px;
+}
+
+#streamer-color {
+    width: 120px;
+}
+
+
+#export-list {
+    background: #F2F2F2;
+    border: #E2E2E2 solid 1px;
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    max-width: 65%;
+}
+
+#export-list p {
+    padding: 8px 12px;
+    border-bottom: #E2E2E2 solid 1px;
+    border-top: #FFF solid 1px;
+    margin: 0;
+    line-height: 160%;
+}
+
+#export-list p:first-child {
+    border-top: 0;
+}
+
+#export-list p input {
+    margin-right: 4px;
+}
+
+.gray-small {
+    font-size: 90%;
+    color: #777;
+}
+
+#export-list .gray-small {
+    display: block;
 }

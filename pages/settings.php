@@ -76,15 +76,16 @@ if( isset($message) ): ?>
                 <table>
                     <tr>
                         <td>
-                            <?php _e('This is an experimental feature that makes it possible to edit articles directly on your front page. (<a href="https://github.com/victorjonsson/Arlima/wiki" target="_blank">Read more</a>).', 'arlima') ?>
+                            <?php _e('This is an experimental feature that makes it possible to edit articles directly on your front page.', 'arlima') ?>
+                            (<a href="https://github.com/victorjonsson/Arlima/wiki" target="_blank"><?php _e('Read more', 'arlima') ?></a>)
                         </td>
                         <td>
                             <select name="settings[in_context_editing]">
                                 <option value="1"<?php echo $settings['in_context_editing'] ? ' selected="selected"':'' ?>>
-                                    Enabled
+                                    <?php _e('Enabled', 'arlima') ?>
                                 </option>
                                 <option value=""<?php echo !$settings['in_context_editing'] ? ' selected="selected"':'' ?>>
-                                    Disabled
+                                    <?php _e('Disabled', 'arlima') ?>
                                 </option>
                             </select>
                         </td>
@@ -99,7 +100,8 @@ if( isset($message) ): ?>
                 <table>
                     <tr>
                         <td>
-                            <?php _e('Use this tool to define colors that should be available as background colors for your <a href="https://github.com/victorjonsson/Arlima/wiki/Custom-streamers" target="_blank">&quot;streamers&quot;</a>.', 'arlima') ?>
+                            <?php _e('Use this tool to define colors that should be available as background colors for your', 'arlima') ?>
+                            <a href="https://github.com/victorjonsson/Arlima/wiki/Custom-streamers" target="_blank">&quot;streamers&quot;</a>.
                         </td>
                         <td>
                             <input type="text" id="streamer-color" placeholder="FF0000" />
@@ -182,10 +184,7 @@ if( isset($message) ): ?>
                 <table>
                     <tr>
                         <td>
-                            With this tool you can import RSS-feeds
-                            and articles lists from remote websites.
-                            Once a list is imported it will be available in
-                            the list manager.
+                            <?php _e('With this tool you can import RSS-feeds and articles lists from remote websites. Once a list is imported it will be available in the list manager.', 'arlima') ?>
                         </td>
                         <td>
                             <input type="text" id="import-url" placeholder="http://...." style="width:140px" />

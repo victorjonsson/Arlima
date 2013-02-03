@@ -141,7 +141,7 @@ class Arlima_FilterApplier
      * @param $article_counter
      * @param $article
      * @param $post
-     * @param $list
+     * @param Arlima_List $list
      * @param $img_size
      * @return string
      */
@@ -225,7 +225,7 @@ class Arlima_FilterApplier
             );
         }
 
-        return $filtered['content'];
+        return Arlima_List::linkWrap($article, $filtered['content']);
     }
 
     /**
@@ -276,8 +276,9 @@ class Arlima_FilterApplier
         $filtered = self::filter('arlima_future_post', $article_counter, $article, $post, $list);
 
         if( empty($filtered['content']) && $filtered['content'] !== false) {
+            $url = $article['post_id'] ? admin_url('post.php?action=edit&amp;post=' . $post->ID) : $article['url'];
             $filtered['content'] = '<div class="arlima future-post">
-                        Hey dude, <a href="' . admin_url('post.php?action=edit&amp;post=' . $post->ID) . '" target="_blank">this post</a>
+                        Hey dude, <a href="' . $url . '" target="_blank">&quot;'.$article['title'].'&quot;</a>
                         will not show up in the list until it\'s published, unless you\'re not previewing the list that is...
                     </div>';
         }
@@ -298,7 +299,8 @@ class Arlima_FilterApplier
         $filtered = self::filter('arlima_article_content', $article_counter, $article, $post, $list);
 
         if( empty($filtered['content']) && $filtered['content'] !== false ) {
-            $filtered['content'] = arlima_link_entrywords(trim($article['text']), $article['url']);
+            $target = empty($article['options']['target']) ? false:$article['options']['target'];
+            $filtered['content'] = arlima_link_entrywords(trim($article['text']), $article['url'], $target);
         }
 
         return $filtered['content'];

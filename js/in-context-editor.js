@@ -1,5 +1,7 @@
 (function($, ArlimaJSAdmin) {
 
+    var $currentlyEdited = false;
+
     var sanitize = function(str) {
         return str.replace(/\&nbsp\;/g, '');
     };
@@ -52,9 +54,12 @@
     var makeEditable = function(querySelector, elemType) {
         $(querySelector)
             .editable({
-                event: 'none',
+                event: 'dblclick',
                 toggleFontSize : elemType == 'title',
                 callback : function( data ) {
+
+                    $currentlyEdited = false;
+
                     if( elemType == 'title' ) {
                         var update = {};
                         if( data.content ) {
@@ -70,35 +75,43 @@
                     }
                 }
             })
-            .on('mousemove', function(e) {
+            .bind('mousemove', function(e) {
                 var $elem = $(this);
                 if( (e.ctrlKey || e.metaKey) &&
                     $elem.attr('data-about-to-edit') === undefined &&
                     !$elem.is(':editing')
                 ) {
+
                     $elem
                         .attr('data-about-to-edit', 1)
                         .css('background-color', 'lightyellow');
                 }
             })
-            .on('mouseleave', function() {
+            .bind('mouseleave', function() {
                 $(this)
                     .removeAttr('data-about-to-edit')
                     .css('background', 'none');
             })
-            .on('edit', function() {
-                $(this)
-                    .removeAttr('data-about-to-edit')
-                    .removeAttr('style')
-                    .css('background', 'none');
-            })
-            .on('mousedown', function(e) {
+            .bind('mousedown', function(e) {
                 if( e.ctrlKey || e.metaKey ) {
-                    $(this).editable('open');
+
+                    var $this = $(this);
+                    $currentlyEdited = $this;
+                    $this.editable('open');
+
+                    $this.removeAttr('data-about-to-edit');
+                    $this.find('textarea')
+                        .css({
+                            background:'none',
+                            width: '100%',
+                            display :'inline-block'
+                        });
+                    $this.trigger('mouseleave');
+
                     return false;
                 }
             })
-            .on('click', function() {
+            .bind('click', function() {
                 if( $(this).is(':editing') ) {
                     return false;
                 }
@@ -106,6 +119,7 @@
     };
 
     makeEditable('.arlima-ice-title a', 'title');
+    makeEditable('.arlima-ice-title:not(:has(>a))', 'title');
     makeEditable('.arlima-ice-content', 'text');
 
 })(jQuery, ArlimaJSAdmin);

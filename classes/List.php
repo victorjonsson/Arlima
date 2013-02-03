@@ -421,60 +421,6 @@ class Arlima_List
     }
 
     /**
-     * @param array $article
-     * @param array $header_classes
-     * @return string
-     */
-    function getTitleHtml($article, $header_classes=array())
-    {
-
-        if ( $article['title'] == '' ) {
-            return '';
-        }
-
-        $title = str_replace('__', '<br />', $article['title']);
-
-        if ( !empty ($article['options']['pre_title']) ) {
-            $title = '<span class="arlima-pre-title">' . $article['options']['pre_title'] . '</span> ' . $title;
-        }
-
-        $title_html = '';
-        $start_tag = empty($this->options['before_title']) ? '<h2>' : $this->options['before_title'];
-        $end_tag = empty($this->options['after_title']) ? '</h2>' : $this->options['after_title'];
-
-        if ( !isset($this->options['ignore_fontsize']) || !$this->options['ignore_fontsize'] ) {
-            $header_classes[] = ' fsize-' . $article['title_fontsize'];
-        }
-        if ( !empty($article['options']['header_class']) ) {
-            $header_classes[] = $article['options']['header_class'];
-        }
-
-        if ( !empty($header_classes) ) {
-            if ( stristr($start_tag, 'class') !== false ) {
-                $start_tag = str_replace(
-                    'class="',
-                    'class="arlima-title ' . implode(' ', $header_classes) . ' ',
-                    $start_tag
-                );
-            } else {
-                $start_tag = str_replace(
-                    '>',
-                    ' class="arlima-title ' . implode(' ', $header_classes) . '">',
-                    $start_tag
-                );
-            }
-        }
-
-        if ( !empty($article['url']) ) {
-            $title_html .= '<a href="' . $article['url'] . '">' . $title . '</a>';
-        } else {
-            $title_html .= '<span>' . $title . '</span>';
-        }
-
-        return $start_tag . $title_html . $end_tag;
-    }
-
-    /**
      * @return array
      */
     public function toArray()
@@ -536,6 +482,68 @@ class Arlima_List
         }
     }
 
+
+
+
+    /* * * * * * * * * * * * * * * * STATIC UTILITY FUNCTIONS * * * * * * * * */
+
+
+    /**
+     * @param array $article
+     * @param array $options
+     * @param array $header_classes
+     * @return string
+     */
+    public static function getTitleHtml($article, $options, $header_classes=array())
+    {
+
+        if ( $article['title'] == '' ) {
+            return '';
+        }
+
+        $title = str_replace('__', '<br />', $article['title']);
+
+        if ( !empty ($article['options']['pre_title']) ) {
+            $title = '<span class="arlima-pre-title">' . $article['options']['pre_title'] . '</span> ' . $title;
+        }
+
+        $title_html = '';
+        $header_classes[] = 'fsize-' . $article['title_fontsize'];
+
+        $start_tag = empty($options['before_title']) ? '<h2>' : $options['before_title'];
+        $end_tag = empty($options['after_title']) ? '</h2>' : $options['after_title'];
+
+        if ( !empty($article['options']['header_class']) ) {
+            $header_classes[] = $article['options']['header_class'];
+        }
+
+        if ( !empty($header_classes) ) {
+            if ( stristr($start_tag, 'class') !== false ) {
+                $start_tag = str_replace(
+                    'class="',
+                    'class="' . implode(' ', $header_classes) . ' ',
+                    $start_tag
+                );
+            } else {
+                $start_tag = str_replace(
+                    '>',
+                    ' class="' . implode(' ', $header_classes) . '">',
+                    $start_tag
+                );
+            }
+        }
+
+        if ( !empty($article['url']) ) {
+            $title_html .= self::linkWrap($article, $title);
+        } else {
+            $title_html .= $title;
+        }
+
+        return $start_tag . $title_html . $end_tag;
+    }
+
+
+
     /**
      * @param $article
      * @return null|string
@@ -549,6 +557,28 @@ class Arlima_List
         }
         return null;
     }
+
+
+    /**
+     * Wrap given content with article link
+     * @param array $article
+     * @param string $content
+     * @return string
+     */
+    public static function linkWrap($article, $content)
+    {
+        if( !empty($article['url']) ) {
+            $target = !empty($article['options']['target']) ? ' target="'.$article['options']['target'].'"' : '';
+            return '<a href="' . $article['url'] . '"'.$target.'>' . $content . '</a>';
+        }
+        return $content;
+    }
+
+
+
+
+    /* * * * * * * * * * * * * * * * DEPRECATED FUNCTIONS * * * * * * * * */
+
 
     /**
      * @deprecated

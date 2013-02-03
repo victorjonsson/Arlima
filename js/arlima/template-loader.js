@@ -1,3 +1,6 @@
+/**
+ * Arlima template loader
+ */
 var ArlimaTemplateLoader = (function($) {
 
     'use strict';

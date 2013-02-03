@@ -61,7 +61,7 @@ class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
         $obj_creator = new Arlima_TemplateObjectCreator();
         $article = Arlima_ListFactory::createArticleDataArray();
         $template_obj = $obj_creator->create($article, false, new stdClass(), 1);
-        $this->assertEquals('<h2 class="fsize-24"><span>Unknown</span></h2>', $template_obj['article']['html_title']);
+        $this->assertEquals('<h2 class="fsize-24">Unknown</h2>', $template_obj['article']['html_title']);
     }
 
     function testTemplateObject() {

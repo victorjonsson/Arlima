@@ -250,30 +250,30 @@ $factory = new Arlima_ListFactory();
                                     <div style="display: none">
                                         <div id="post-connect-fancybox">
                                             <p>
-                                                <strong>Connected to:</strong>
+                                                <strong><?php _e('Connected to') ?>:</strong>
                                                 <span class="connection"></span>
                                             </p>
                                             <p>
-                                                <a href="#wp-post" class="button open">Connect to post</a>
-                                                <a href="#external-url" class="button open">Connect to external URL</a>
+                                                <a href="#wp-post" class="button open"><?php _e('Connect to post', 'arlima') ?></a>
+                                                <a href="#external-url" class="button open"><?php _e('Connect to external URL', 'arlima') ?></a>
                                             </p>
                                             <div class="external-url connection-containers">
                                                 <p style="line-height: 220%">
                                                     <strong>URL</strong>
                                                     <input type="text" class="url" style="width: 90%" />
                                                     <br />
-                                                    <strong>Open in a new window?</strong>
+                                                    <strong><?php _e('Open in a new window', 'arlima') ?>?</strong>
                                                     <br />
                                                     <select>
-                                                        <option value="_blank">Yes</option>
-                                                        <option value="">No</option>
+                                                        <option value="_blank"><?php _e('Yes', 'arlima') ?></option>
+                                                        <option value=""><?php _e('No', 'arlima') ?></option>
                                                     </select>
                                                 </p>
                                             </div>
                                             <div class="wp-post connection-containers">
                                                 <p>
                                                     <input type="search" placeholder="Search for title or post ID..." />
-                                                    <a href="#" class="do-search button">Search</a>
+                                                    <a href="#" class="do-search button"><?php _e('Search', 'arlima') ?></a>
                                                     <input type="hidden" class="post-connection" />
                                                 </p>
                                                 <div class="search-result"></div>

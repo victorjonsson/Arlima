@@ -594,9 +594,9 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             }
 
             if($listItem.has('ul')) {
-                var self = this;
+                var _self = this;
                 $('ul li', $listItem).each(function() {
-                    article.children.push(self.serializeArticle($(this), sanitizeEntryWord));
+                    article.children.push(_self.serializeArticle($(this), sanitizeEntryWord));
                 });
             }
             return article;
@@ -609,7 +609,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         edit : function($listItem, list) {
 
             Manager.setFocusedList(list);
-            var self = this;
+            var _self = this;
             var doShowArticlePreview = this.isShowingPreview();
             this.clear();
             this.currentlyEditedList = list;
@@ -627,10 +627,10 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             if( !$formContainer.is(':visible') ) {
                 this._isSlidingForm = true;
                 $formContainer.slideDown('100', function() {
-                    self._isSlidingForm = false;
-                    if(typeof self._formSlidingCallback == 'function') {
-                        self._formSlidingCallback();
-                        self._formSlidingCallback = null;
+                    _self._isSlidingForm = false;
+                    if(typeof _self._formSlidingCallback == 'function') {
+                        _self._formSlidingCallback();
+                        _self._formSlidingCallback = null;
                     }
                 });
             }
@@ -649,7 +649,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
             // Store article data in form
             $.each(article, function(key, value) {
-                $("[name='" + key + "']", self._$form).not(':radio').val(value);
+                $("[name='" + key + "']", _self._$form).not(':radio').val(value);
             });
 
             // Disable admin lock
@@ -692,7 +692,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             if(article.options) {
 
                 $.each(article.options, function(key, value) {
-                    $("[name='options-" + key + "']", self._$form).val(value);
+                    $("[name='options-" + key + "']", _self._$form).val(value);
                 });
 
                 if(article.options.streamer)
@@ -733,7 +733,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     // It takes some time before image is loaded
                     ArticleEditor._$imgContainer.find('img').one('load', function() {
                         setTimeout(function() {
-                            self.toggleEditorBlocker(true);
+                            _self.toggleEditorBlocker(true);
                         }, 100);
                     });
                 }
@@ -836,8 +836,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          * edited article (This will only have effect in WP version >= 3.5)
          */
         removeImageVersions : function() {
-            var attachId = $('#arlima-article-image-attach_id').val();
-            if( attachId ) {
+            var attachId = parseInt($('#arlima-article-image-attach_id').val(), 10);
+            if( !isNaN(attachId) && attachId ) {
                 Backend.removeImageVersions(attachId);
             }
         },
@@ -1061,7 +1061,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             $('.arlima-button').removeClass('checked');
             $('#arlima-article-image').html('');
             $('#arlima-article-image-options').removeData('image_options').hide();
-            $('#arlima-article-connected-post').html('');
             $('#arlima-article-connected-post-change').show();
             $('#arlima-article-post_id').hide();
             $('#arlima-edit-article-options-streamer-content').hide();
@@ -1085,7 +1084,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         _$postIdInput : false,
         _$targetInput : false,
         _$info : false,
-        _$editorButton : false,
+        _$tinyMCEMediaButton : false,
         _$futureNotice : false,
         $fancyBox : false,
 
@@ -1095,7 +1094,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         init : function($f) {
             // todo: change from id to classes
             this._$info = $('#arlima-article-connected-post', $f);
-            this._$editorButton = $('#tinyMCE-add_media', $f);
+            this._$tinyMCEMediaButton = $('#tinyMCE-add_media', $f);
             this._$openButton = $('#arlima-article-connected-post-open', $f);
             this._$urlInput = $f.find('input[name="options-overriding_url"]');
             this._$targetInput = $f.find('input[name="options-target"]');
@@ -1114,25 +1113,42 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
             if(article.post_id) {
                 this._$info.html('');
-                this._$editorButton.attr('href', 'media-upload.php?post_id=' + article.post_id + '&type=image&TB_iframe=1&send=true');
+                this._$tinyMCEMediaButton.attr('href', 'media-upload.php?post_id=' + article.post_id + '&type=image&TB_iframe=1&send=true');
                 Backend.getPost(article.post_id, function(json) {
                     _self._setConnectionLabel('(post #'+json.ID+') '+json.post_title, json.post_title);
                 });
             }
             else {
-                this._$editorButton.attr('href', 'media-upload.php?type=image&TB_iframe=1&send=true');
-                this._setConnectionLabel(article.url, article.url);
+                this._$tinyMCEMediaButton.attr('href', 'media-upload.php?type=image&TB_iframe=1&send=true');
+                var url = article.options.overriding_url || '';
+                this._setConnectionLabel(url, url);
             }
+
+            this._toggleOpenLink(article);
 
             this._$openButton.unbind('click');
             this._$openButton.bind('click', function() {
                 if( article.post_id ) {
                     window.open('post.php?post=' + article.post_id + '&action=edit');
                 } else {
-                    window.open(article.url);
+                    var url = article.options.overriding_url || false;
+                    if( url )
+                        window.open(url);
                 }
                 return false;
             });
+        },
+
+        /**
+         * @param articleData
+         * @private
+         */
+        _toggleOpenLink : function(articleData) {
+            if( articleData.post_id || articleData.options.overriding_url ) {
+                $('#arlima-article-connected-post-open').show();
+            } else {
+                $('#arlima-article-connected-post-open').hide();
+            }
         },
 
         /**
@@ -1205,6 +1221,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     ArticleEditor.updateArticle(true, false);
                 }
             }
+
+            this._toggleOpenLink(articleData);
         }
     };
 
@@ -1342,11 +1360,11 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 this._lists[id].jQuery.effect("shake", { times:4, distance: 10 }, 500);
             }
             else {
-                var self = this;
+                var _self = this;
                 Backend.loadListData(id, '', function(json) {
                     if(json && json.exists) { // it may have been removed
-                        var list = ArlimaList.create(id, json, self._$element, position);
-                        self._lists[id] = list;
+                        var list = ArlimaList.create(id, json, _self._$element, position);
+                        _self._lists[id] = list;
                         list.jQuery.find('.arlima-list').hide().slideDown('fast', function() {
                             list.jQuery.trigger('init-list-container');
                         });
@@ -1429,14 +1447,14 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     ArticleEditor.hideForm();
                 }
 
-                var self = this;
+                var _self = this;
                 this._lists[id].jQuery.slideUp('fast', function() {
                     if(this._focusedList && this._focusedList.id == id) {
                         ArticleEditor.clear();
                         this._focusedList = false;
                     }
 
-                    delete self._lists[id];
+                    delete _self._lists[id];
                 });
             }
             else {
@@ -1696,13 +1714,19 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             _self.previewWindow.resizeTo($parentWin.width(), $parentWin.height());
                         }
 
-                        setTimeout(function() {
-                            if(_self.previewWindow.document && _self.previewWindow.jQuery) {
+                        var saveButtonTries = 0;
+                        var saveButtonInterval = setInterval(function() {
+                            saveButtonTries++;
+                            if( saveButtonTries > 4 || !_self.previewWindow ) {
+                                clearInterval(saveButtonInterval);
+                            }
+                            else if(_self.previewWindow.document && _self.previewWindow.jQuery) {
+                                clearInterval(saveButtonInterval);
                                 _self.previewWindow.jQuery(_self.previewWindow.document).ready(function() {
                                     _self._addPreviewWindowListeners(_self.previewWindow.jQuery( _self.previewWindow.document ), list);
                                 });
                             }
-                        }, 1000);
+                        }, 500);
 
                         _self.previewWindow.focus();
                     }
@@ -1777,12 +1801,12 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     .appendTo($div);
             });
 
-            var self = this;
+            var _self = this;
             $winDoc.keydown(function(e) {
                 var key = e.keyCode ? e.keyCode : e.which;
                 if(key == 83 && (e.ctrlKey || e.metaKey)) {
-                    self.saveFocusedList();
-                    self.previewWindow.close();
+                    _self.saveFocusedList();
+                    _self.previewWindow.close();
                     window.focus();
                     e.preventDefault();
                     return false;
@@ -1900,9 +1924,9 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * @param {Boolean} applyListBehavior - Optional whether or not to add nestedSortable or dragger functionality to list, default is true
      */
     ArlimaList.prototype.fill = function(articles, $parentElement, applyListBehavior) {
-        if(applyListBehavior == undefined)
+        if(applyListBehavior === undefined)
             applyListBehavior = true;
-        var self = this;
+        var _self = this;
         var $itemContainer = $parentElement ? $parentElement : this.jQuery.find('.arlima-list');
         $itemContainer.html('');
         $.each(articles, function ( idx, article ) {
@@ -1919,7 +1943,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             if(article.children.length > 0) {
                 var $sublist = $('<ul />');
                 $listItem.append($sublist);
-                self.fill(article.children, $sublist, false);
+                _self.fill(article.children, $sublist, false);
             }
 
             $itemContainer.append($listItem);
@@ -1938,7 +1962,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         $listItem.find('.arlima-listitem-remove')
             .click(function(e) {
                 var $item = $(this).parent().parent();
-                Manager.getList($item).removeListItem($item);
+                Manager.getList($item).removeListItem($item, e.metaKey);
                 e.stopPropagation();
                 return false;
             });
@@ -1965,8 +1989,9 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
     /**
      * Remove given item from list
      * @param {jQuery} $listItem
+     * @param {Boolean} [force]
      */
-    ArlimaList.prototype.removeListItem = function($listItem) {
+    ArlimaList.prototype.removeListItem = function($listItem, force) {
 
         var articleData = $listItem.data('article');
         if(articleData.options && articleData.options.admin_lock && !ArlimaJS.is_admin) {
@@ -1974,31 +1999,31 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             return;
         }
 
-        if( !confirm(ArlimaJS.lang.wantToRemove + $('span', $listItem).text() + ArlimaJS.lang.fromList) )
-            return;
+        if(force || confirm(ArlimaJS.lang.wantToRemove + $('span', $listItem).text() + ArlimaJS.lang.fromList) ) {
 
-        this.toggleUnsavedState(true);
-        Manager.setFocusedList(this.id);
+            this.toggleUnsavedState(true);
+            Manager.setFocusedList(this.id);
 
-        var _self = this;
-        $listItem.fadeOut('fast', function(){
-            var itemIsCurrentlyEdited = $listItem.hasClass('edited');
-            $(this).remove();
-            _self.rePositionStickyArticles('insertAfter');
+            var _self = this;
+            $listItem.fadeOut('fast', function(){
+                var itemIsCurrentlyEdited = $listItem.hasClass('edited');
+                $(this).remove();
+                _self.rePositionStickyArticles('insertAfter');
 
-            if( ArticleEditor.isEditingList(Manager.getFocusedList().id) ) {
+                if( ArticleEditor.isEditingList(Manager.getFocusedList().id) ) {
 
-                // Remove from form and hide form if we're looking att the article while removing it
-                if(itemIsCurrentlyEdited) {
-                    ArticleEditor.clear();
-                    ArticleEditor.hideForm();
+                    // Remove from form and hide form if we're looking att the article while removing it
+                    if(itemIsCurrentlyEdited) {
+                        ArticleEditor.clear();
+                        ArticleEditor.hideForm();
+                    }
+                    else {
+                        // This may not be necessary, just in case we're removing a child article from an article that we have in preview
+                        ArticleEditor.updatePreview();
+                    }
                 }
-                else {
-                    // This may not be necessary, just in case we're removing a child article from an article that we have in preview
-                    ArticleEditor.updatePreview();
-                }
-            }
-        });
+            });
+        }
     };
 
     /**
@@ -2214,28 +2239,25 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             // Click on reload button
             $(".arlima-refresh-list", this).click( function(e) {
                 var reloadList = true;
-                if(list.isUnsaved) {
+                if(!e.metaKey && list.isUnsaved) {
                     reloadList = confirm(ArlimaJS.lang.hasUnsavedChanges);
                 }
                 if(reloadList)
                     Manager.reloadList(list);
 
-                e.preventDefault();
                 return false;
             });
 
             // Remove list from page
-            $(".arlima-list-container-remove", this).click( function(e) {
-                e.preventDefault();
+            $(".arlima-list-container-remove", this).click(function(e) {
                 var removeList = true;
-                if(list.isUnsaved) {
+                if(!e.metaKey && list.isUnsaved) {
                     removeList = confirm(ArlimaJS.lang.hasUnsavedChanges);
                 }
                 if(removeList) {
                     Manager.removeList(list.id);
                 }
 
-                e.preventDefault();
                 return false;
             });
 
@@ -2248,21 +2270,19 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         return false;
                     Manager.setFocusedList(list.id);
                     Manager.saveFocusedList();
-                    e.preventDefault();
                     return false;
                 });
 
                 // Click preview button
                 $(".arlima-preview-list", this).click(function(e) {
                     Manager.previewList(list);
-                    e.preventDefault();
                     return false;
                 });
 
                 // Change version
-                $(".arlima-list-version-ddl", this).change( function() {
+                $(".arlima-list-version-ddl", this).change(function(e) {
                     var loadVersion = true;
-                    if(list.isUnsaved) {
+                    if(!e.metaKey && list.isUnsaved) {
                         loadVersion = confirm(ArlimaJS.lang.hasUnsavedChanges);
                     }
                     if(loadVersion) {
@@ -2275,7 +2295,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     $('.arlima-list-version-info', this).hide();
                     $('.arlima-list-version-select', this).show();
                     e.stopPropagation();
-                    e.preventDefault();
                     return false;
                 });
             }
@@ -2322,9 +2341,9 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         };
 
         if( !this.isImported ) {
-            var self = this;
+            var _self = this;
             var $ul = this.jQuery.find('ul:first');
-            if(!$ul.hasClass('ui-sortable')) { // don't apply nestedSortable more than once
+            if(!$ul.hasClass('ui-sortable')) { // don't apply nestedSortable more than once, the error in this logic lays else where but this is a quick fix
                 $ul.nestedSortable({
                     items: 'li',
                     listType: 'ul',
@@ -2394,7 +2413,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
                             // Change article in editor if we are looking at this copy of this article
                             if( (!ArlimaList.copyFromList || hasUIDragClass) && $draggedItem[0] == ArticleEditor.$item[0] ) {
-                                ArticleEditor.edit($newItem, self);
+                                ArticleEditor.edit($newItem, _self);
                             }
                         }
                     },
@@ -2457,7 +2476,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             });
                         }
 
-                        // move sticky articles in place
+                        // move sticky articles back in place
                         if( !$item.hasClass('sticky') ) {
                             $.each(ArlimaList.listsInolvedInTransaction, function(i, listId) {
                                 var list = Manager.getList(listId);

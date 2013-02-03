@@ -10,7 +10,7 @@ class Arlima_Page_Settings extends Arlima_AbstractAdminPage {
     function scripts()
     {
         return array(
-            'arlima_js' => array('url' =>ARLIMA_PLUGIN_URL . 'js/page-settings.js', 'deps'=>array('jquery'))
+            'arlima-js' => array('url' =>ARLIMA_PLUGIN_URL . 'js/page-settings.js', 'deps'=>array('jquery'))
         );
     }
 

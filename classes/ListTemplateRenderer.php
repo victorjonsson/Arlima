@@ -313,8 +313,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                                 $article_template
                             );
 
-            $template_data['container']['attr'] = '';
-            $template_data['container']['class'] = 'teaser small' . ($is_child_split ? ' teaser-split' : '') . ($count % 2 == 0 ? ' first' : ' last');
+            $template_data['container']['class'] .= $count%2 == 0 ? ' first' : ' last';
 
             $sub_articles .= $this->generateTemplateOutput($jQueryTmpl_df, $template_factory, $template_data);
             $count++;

@@ -358,10 +358,10 @@ msgid "URL"
 msgstr "Webbadress"
 
 msgid "You can export your lists in RSS format by adding ?format=rss to the URL."
-msgstr "Du kan även exportera listorna i RSS-format genom att lägga till ?format=rss på listans webbadress. "
+msgstr "Du kan även exportera listorna i RSS-format genom att lägga till<br /> ?format=rss på listans webbadress. "
 
 msgid "Import list"
-msgstr "Importera lista"
+msgstr "Importera"
 
 msgid "Imported lists"
 msgstr "Importerade listor"
@@ -513,14 +513,14 @@ msgstr " i "
 msgid "Quick Edit"
 msgstr "Snabbredigering"
 
-msgid "This is an experimental feature that makes it possible to edit articles directly on your front page. (<a href='https://github.com/victorjonsson/Arlima/wiki' target='_blank'>Read more</a>)."
-msgstr "Den här funktionen gör det möjligt att redigera artiklar direkt på startsidan (<a href='https://github.com/victorjonsson/Arlima/wiki' target='_blank'>läs mer</a>)."
+msgid "This is an experimental feature that makes it possible to edit articles directly on your front page."
+msgstr "Den här funktionen gör det möjligt att redigera artiklar direkt på startsidan."
 
 msgid "Streamer Colors"
 msgstr "Bakgrundsfärger (streamers)"
 
-msgid "Use this tool to define colors that should be available as background colors for your <a href='https://github.com/victorjonsson/Arlima/wiki/Custom-streamers' target='_blank'>&quot;streamers&quot;</a>."
-msgstr "Här definerar du vilka bakgrundsfärger man kan välja bland för <a href='https://github.com/victorjonsson/Arlima/wiki/Custom-streamers' target='_blank'>&quot;streamers&quot;</a>."
+msgid "Use this tool to define colors that should be available as background colors for your"
+msgstr "Här definerar du vilka bakgrundsfärger man kan välja bland för"
 
 msgid "Image Quality"
 msgstr "Bildkvalitet"
@@ -530,3 +530,42 @@ msgstr "Kvaliteten på bildversioner skapade av Arlima"
 
 msgid "Not a valid color!"
 msgstr "Färgkoden är inte giltig!"
+
+msgid "Settings"
+msgstr "Inställningar"
+
+msgid "Enabled"
+msgstr "Aktivterad"
+
+msgid "Disabled"
+msgstr "Inaktivterad"
+
+msgid "Read more"
+msgstr "Läs mer"
+
+msgid "With this tool you can import RSS-feeds and articles lists from remote websites. Once a list is imported it will be available in the list manager."
+msgstr "Med detta verktyg kan du importera RSS-flöden och artikellistor från externa webbplatser."
+
+msgid "This URL seems to be invalid"
+msgstr "Ogiltig webbadress"
+
+msgid "Connect to post"
+msgstr "Koppla till inlägg"
+
+msgid "Connect to external URL"
+msgstr "Koppla till extern URL"
+
+msgid "Open in a new window"
+msgstr "Öppna i nytt föntster"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nej"
+
+msgid "Connected to"
+msgstr "Kopplad till"
+
+msgid "Nothing found..."
+msgstr "Inget hittades..."

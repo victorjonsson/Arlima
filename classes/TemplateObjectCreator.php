@@ -185,48 +185,12 @@ class Arlima_TemplateObjectCreator
     }
 
     /**
-     * @param array $article
-     * @return string
-     */
-    private function getTitleHtml($article)
-    {
-
-        if ( $article['title'] == '' ) {
-            return '';
-        }
-
-        $title = str_replace('__', '<br />', $article['title']);
-
-        if ( !empty($article['options']['pre_title']) ) {
-            $title = '<span class="arlima-pre-title">' . $article['options']['pre_title'] . '</span> ' . $title;
-        }
-
-        $title_html = '';
-
-        $start_tag = $this->before_title_html;
-        if ( $this->add_title_font_size ) {
-            if ( stristr($start_tag, 'class') !== false ) {
-                $start_tag = str_replace('class="', 'class="fsize-' . $article['title_fontsize'] . ' ', $start_tag);
-            } else {
-                $start_tag = str_replace('>', ' class="fsize-' . $article['title_fontsize'] . '">', $start_tag);
-            }
-        }
-
-        if ( !empty($article['url']) ) {
-            $title_html .= '<a href="' . $article['url'] . '">' . $title . '</a>';
-        } else {
-            $title_html .= '<span>' . $title . '</span>';
-        }
-
-        return $start_tag . $title_html . $this->after_title_html;
-    }
-
-    /**
      * @param $article
      * @param $is_empty
      * @param $post
      * @param $article_counter
      * @param bool $load_related_articles
+     * @param null $template_name
      * @return array
      */
     public function create(
@@ -247,7 +211,7 @@ class Arlima_TemplateObjectCreator
         $obj['container']['id'] = 'teaser-' . (is_numeric($post_id) ? $post_id : $url);
         $obj['container']['class'] = 'teaser' . ($is_empty ? ' empty' : '');
         $obj['article']['title'] = isset($article['title']) ? $article['title'] : '';
-        $obj['article']['html_title'] = $is_empty ? '' : $this->getTitleHtml($article);
+        $obj['article']['html_title'] = $is_empty ? '' : Arlima_List::getTitleHtml($article, array('before_title'=>$this->before_title_html, 'after_title'=>$this->after_title_html));
         $obj['article']['url'] = $url;
         $obj['article']['publish_date'] = $article['publish_date'];
         $obj['is_child'] = $this->is_child;
@@ -286,6 +250,14 @@ class Arlima_TemplateObjectCreator
         // Add article end content
         if ($this->article_end_callback !== false) {
             $obj['article_end'] = call_user_func($this->article_end_callback, $article_counter, $article, $post, $this->list);
+        }
+
+        // child classes
+        if( $this->is_child ) {
+            $obj['container']['class'] .= ' teaser-child';
+        }
+        if( $this->is_child_split ) {
+            $obj['container']['class'] .= ' teaser-split'; // is one aout of many children
         }
 
         $filter_suffix = Arlima_FilterApplier::getFilterSuffix(); 

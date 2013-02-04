@@ -61,9 +61,13 @@ class Arlima_Plugin
         }
 
         // Add filters that makes content editable in context
-        if( is_user_logged_in() && $this->getSetting('in_context_editing') ) {
-            $editor = new Arlima_InContextEditor($this);
-            $editor->apply();
+        if( is_user_logged_in() ) {
+            if( is_arlima_preview() ) {
+                wp_enqueue_script('jquery'); // The list manager uses the jQuery object on this page
+            } elseif( $this->getSetting('in_context_editing') ) {
+                $editor = new Arlima_InContextEditor($this);
+                $editor->apply();
+            }
         }
     }
 

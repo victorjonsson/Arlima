@@ -42,7 +42,7 @@ var fs = require('fs'),
     ],
     filesToMinify = {
         js: ['js/arlima/arlima.js', 'js/arlima/template-loader.js', 'js/jquery/jquery.ui.nestedSortable.js', 'js/jquery/jquery.hotkeys.js',
-            'js/jquery/colourpicker/jquery.colourpicker.js', 'js/page-main.js', 'js/arlima/plupload-init.js', 'js/in-context-editor.js'],
+            'js/jquery/colourpicker/jquery.colourpicker.js', 'js/page-main.js', 'js/arlima/plupload-init.js'],
         css: ['css/admin.css']
     },
     buildFile = function(path, versionSplit) {
@@ -134,7 +134,8 @@ exec('mval ./readme.txt', function(error, stdout, stderr) {
                             // Remove files we don't wont to end up on wordpress repo
 
                             var remove = ['node_modules/', 'vendor/', 'composer.json', 'README.md',
-                                'build', '.gitignore', 'composer.lock', 'test.php', '.git/'];
+                                'build', '.gitignore', 'composer.lock', 'category-arlima-example.php',
+                                'test.php', '.git/'];
 
                             remove.every(function(file) {
                                 try {

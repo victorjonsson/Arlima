@@ -30,6 +30,7 @@ the list that you created on step 2.
 - [Publishing article lists](https://github.com/victorjonsson/Arlima/wiki/Publishing-article-lists)
 - [Interface walkthrough](https://github.com/victorjonsson/Arlima/wiki/Interface-walkthrough)
 - [Keyboard shortcuts in the list manager](https://github.com/victorjonsson/Arlima/wiki/Keyboard-shortcuts)
+- ["Quick edit" — Edit articles directly on your front page](https://github.com/victorjonsson/Arlima/wiki/Quick-Edit)
 - Importing article lists from remote websites
 - Importing RSS-feeds
 

@@ -68,7 +68,7 @@ class Arlima_ExportManager
         }
 
         if( $page_slug ) {
-            $page = get_page_by_title(str_replace('-', ' ', $page_slug));
+            $page = $this->getPageBySlug($page_slug);
         } else {
             $page = get_post(get_option('page_on_front', 0));
         }
@@ -104,6 +104,25 @@ class Arlima_ExportManager
         }
 
         die(0);
+    }
+
+    /**
+     * @param $slug
+     * @return bool|mixed
+     */
+    private function getPageBySlug( $slug ) {
+        $page_id = wp_cache_get('arlima_slug_2_page_'.$slug, 'arlima');
+        if( !$page_id ) {
+            /* @var wpdb $wpdb */
+            global $wpdb;
+            $page = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_type FROM $wpdb->posts WHERE post_name = %s ", $slug ) );
+            if ( !empty($page) && in_array($page[0]->post_type, array('page', 'post')) ) {
+                $page_id = $page[0]->ID;
+                wp_cache_set('arlima_slug_2_page_'.$slug, $page_id, 'arlima', 60);
+            }
+        }
+
+        return $page_id ? get_post($page_id):false;
     }
 
     /**

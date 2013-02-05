@@ -1078,7 +1078,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * @property {Object}
      */
     ArticleEditor.PostConnector = {
-        
+
         _$openButton : false,
         _$urlInput : false,
         _$postIdInput : false,
@@ -1935,7 +1935,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             $listItem
                 .addClass('listitem')
                 .html('<div><span class="arlima-listitem-title"></span>'+
-                        '<img class="arlima-listitem-remove" alt="remove" src="' + ArlimaJS.imageurl + 'close-icon.png" /></div>');
+                    '<img class="arlima-listitem-remove" alt="remove" src="' + ArlimaJS.imageurl + 'close-icon.png" /></div>');
 
             ArlimaList.bindArticleItemEvents($listItem);
             ArlimaList.prepareArticleForListTransactions($listItem, article);
@@ -2411,11 +2411,21 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                                 ArlimaList.uploadExternalImage(articleData.image_options.url, $newItem);
                             }
 
+                            // Sideload images for child articles
+                            if(list && list.isImported && !$.isEmptyObject(articleData.children) ) {
+                                $.each(articleData.children, function(i, obj) {
+                                    if( obj.image_options && obj.image_options.url ) {
+                                        ArlimaList.uploadExternalImage(obj.image_options.url, $newItem.find('.listitem').eq(i));
+                                    }
+                                });
+                            }
+
                             // Change article in editor if we are looking at this copy of this article
                             if( (!ArlimaList.copyFromList || hasUIDragClass) && $draggedItem[0] == ArticleEditor.$item[0] ) {
                                 ArticleEditor.edit($newItem, _self);
                             }
                         }
+
                     },
                     update: function(event, ui) {
                         var $item = $(ui.item);
@@ -2522,6 +2532,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * @param {jQuery} $item
      */
     ArlimaList.uploadExternalImage = function(url, $item) {
+
+        console.log(url);
 
         ArticleEditor._$imgContainer.addClass('ajax-loader-icon');
 

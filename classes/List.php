@@ -568,8 +568,14 @@ class Arlima_List
     public static function linkWrap($article, $content)
     {
         if( !empty($article['url']) ) {
-            $target = !empty($article['options']['target']) ? ' target="'.$article['options']['target'].'"' : '';
-            return '<a href="' . $article['url'] . '"'.$target.'>' . $content . '</a>';
+            $opts = $article['options'];
+            return sprintf(
+                '<a href="%s"%s%s>%s</a>',
+                $article['url'],
+                empty($opts['target']) ? '':' target="'.$opts['target'].'"',
+                empty($classes) ? '' : ' class="'.implode(' ', $classes).'"',
+                $content
+            );
         }
         return $content;
     }

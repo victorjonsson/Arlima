@@ -84,7 +84,7 @@ class Arlima_ExportManager
             if ( empty($relation) ) {
                 $arlima_slug = get_post_meta($page->ID, 'arlima', true);
                 if( empty($arlima_slug) ) {
-                    $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '400 Bad Request', $format);
+                    $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '404 Bad Request', $format);
                     die;
                 }
                 else {

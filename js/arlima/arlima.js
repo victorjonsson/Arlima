@@ -2407,18 +2407,24 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             }
 
                             // Side load image from imported list
-                            if(list && list.isImported && articleData.image_options.url && !articleData.image_options.attach_id) {
-                                ArlimaList.uploadExternalImage(articleData.image_options.url, $newItem);
-                            }
-
-                            // Sideload images for child articles
+                            var childImages = [];
                             if(list && list.isImported && !$.isEmptyObject(articleData.children) ) {
                                 $.each(articleData.children, function(i, obj) {
                                     if( obj.image_options && obj.image_options.url ) {
-                                        ArlimaList.uploadExternalImage(obj.image_options.url, $newItem.find('.listitem').eq(i));
+                                        childImages.push([obj.image_options.url, $newItem.find('.listitem').eq(i)]);
                                     }
                                 });
                             }
+                            if(list && list.isImported && articleData.image_options.url && !articleData.image_options.attach_id) {
+                                ArlimaList.uploadExternalImage(articleData.image_options.url, $newItem, function() {
+                                    if( childImages.length > 0 )
+                                        ArlimaList.uploadExternalImage(childImages);
+                                });
+                            } else if( childImages.length > 0) {
+                                ArlimaList.uploadExternalImage(childImages);
+                            }
+
+
 
                             // Change article in editor if we are looking at this copy of this article
                             if( (!ArlimaList.copyFromList || hasUIDragClass) && $draggedItem[0] == ArticleEditor.$item[0] ) {
@@ -2528,33 +2534,67 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
     };
 
     /**
-     * @param {String} url
-     * @param {jQuery} $item
+     * Can create an attachment from given url and relate it to the article contained byt given item.
+     * It can also take an array with urls and items.
+     * @param {String|Array} url
+     * @param {jQuery} [$item]
+     * @param {Function} [callback]
      */
-    ArlimaList.uploadExternalImage = function(url, $item) {
-
-        console.log(url);
+    ArlimaList.uploadExternalImage = function(url, $item, callback) {
 
         ArticleEditor._$imgContainer.addClass('ajax-loader-icon');
 
-        Backend.plupload(url, '', function(json) {
+        var updateArticleWithCreatedAttachmen = function(json, $item) {
+            if($item[0] == ArticleEditor.$item[0]) {
+                ArticleEditor.updateArticleImage({ html : json.html, size : 'full', attach_id : json.attach_id });
+            }
+            else {
+                var articleData = $item.data('article');
+                articleData.image_options = ArticleEditor.createArlimaArticleImageObject(json.html, 'aligncenter', 'full', json.attach_id, 0, '');
+                $item.data('article', articleData);
+                Manager.getList($item).toggleUnsavedState(true);
+            }
+        };
 
-            ArticleEditor._$imgContainer.removeClass('ajax-loader-icon');
+        if( $.isArray(url) ) {
 
-            if(json) {
-                if($item[0] == ArticleEditor.$item[0]) {
-                    ArticleEditor.updateArticleImage({ html : json.html, size : 'full', attach_id : json.attach_id });
+            var loadNextURL = function() {
+                if( url.length == 0 ) {
+                    ArticleEditor._$imgContainer.removeClass('ajax-loader-icon');
+                    if(typeof callback == 'function')
+                        callback();
                 }
                 else {
-                    var articleData = $item.data('article');
-                    articleData.image_options = ArticleEditor.createArlimaArticleImageObject(json.html, 'aligncenter', 'full', json.attach_id, 0, '');
-                    $item.data('article', articleData);
-                    Manager.getList($item).toggleUnsavedState(true);
+                    var urlData = url.splice(0,1)[0];
+                    Backend.plupload(urlData[0], '', function(json) {
+                        if(json) {
+                            updateArticleWithCreatedAttachmen(json, urlData[1]);
+                        } else {
+                            log('Unable to upload external image', 'error');
+                        }
+
+                        loadNextURL();
+                    });
                 }
-            }
-            else
-                log('Unable to upload external image', 'error');
-        });
+            };
+
+            loadNextURL(); // Start uploading images
+        }
+        else {
+            Backend.plupload(url, '', function(json) {
+
+                ArticleEditor._$imgContainer.removeClass('ajax-loader-icon');
+
+                if(json) {
+                    updateArticleWithCreatedAttachmen(json, $item);
+                } else {
+                    log('Unable to upload external image', 'error');
+                }
+
+                if(typeof callback == 'function')
+                    callback();
+            });
+        }
     };
 
     /**

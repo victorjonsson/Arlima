@@ -85,22 +85,30 @@ class Arlima_ListConnector {
         return array();
     }
 
+    /**
+     * Returns an array with info about widgets that's related to the list
+     * @return array
+     */
     public function loadRelatedWidgets()
     {
         global $wp_registered_widgets;
         $related = array();
-        $list_id = $this->list->id();
-        $prefix_len = strlen(Arlima_Widget::WIDGET_PREFIX);
-        foreach(wp_get_sidebars_widgets() as $sidebar => $widgets) {
-            $index = 0;
-            foreach( $widgets as $widget_id ) {
-                $index++;
-                if( substr($widget_id, 0, $prefix_len) == Arlima_Widget::WIDGET_PREFIX && !empty($wp_registered_widgets[$widget_id])) {
-                    $widget = $this->findWidgetObject($wp_registered_widgets[$widget_id]);
-                    if( $widget_id !== null) {
-                        $settings = current( array_slice($widget->get_settings(), -1) );
-                        if( $settings['list'] ==  $list_id )
-                            $related[] = array('sidebar' => $sidebar, 'index' => $index, 'width' => $settings['width']);
+        $sidebars = wp_get_sidebars_widgets();
+
+        if( is_array($sidebars) && is_array($wp_registered_widgets) ) {
+            $list_id = $this->list->id();
+            $prefix_len = strlen(Arlima_Widget::WIDGET_PREFIX);
+            foreach($sidebars as $sidebar => $widgets) {
+                $index = 0;
+                foreach( $widgets as $widget_id ) {
+                    $index++;
+                    if( substr($widget_id, 0, $prefix_len) == Arlima_Widget::WIDGET_PREFIX && !empty($wp_registered_widgets[$widget_id])) {
+                        $widget = $this->findWidgetObject($wp_registered_widgets[$widget_id]);
+                        if( $widget_id !== null) {
+                            $settings = current( array_slice($widget->get_settings(), -1) );
+                            if( $settings['list'] ==  $list_id )
+                                $related[] = array('sidebar' => $sidebar, 'index' => $index, 'width' => $settings['width']);
+                        }
                     }
                 }
             }

@@ -250,7 +250,7 @@ $factory = new Arlima_ListFactory();
                                     <div style="display: none">
                                         <div id="post-connect-fancybox">
                                             <p>
-                                                <strong><?php _e('Connected to') ?>:</strong>
+                                                <strong><?php _e('Connected to', 'arlima') ?>:</strong>
                                                 <span class="connection"></span>
                                             </p>
                                             <p>
@@ -272,7 +272,7 @@ $factory = new Arlima_ListFactory();
                                             </div>
                                             <div class="wp-post connection-containers">
                                                 <p>
-                                                    <input type="search" placeholder="Search for title or post ID..." />
+                                                    <input type="search" placeholder="<?php _e('Search for title or post ID...', 'arlima') ?>" />
                                                     <a href="#" class="do-search button"><?php _e('Search', 'arlima') ?></a>
                                                     <input type="hidden" class="post-connection" />
                                                 </p>

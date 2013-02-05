@@ -29,7 +29,7 @@ if( isset($_POST['settings']) ) {
         }
     }
 
-    $message = 'Settings was successfully updated';
+    $message = __('Settings was successfully updated', 'arlima');
 }
 
 

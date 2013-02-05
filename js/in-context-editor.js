@@ -1,11 +1,19 @@
 (function($, ArlimaJSAdmin) {
 
-    var $currentlyEdited = false;
+    'use strict';
 
+    /**
+     * @param {String} str
+     * @returns {String}
+     */
     var sanitize = function(str) {
         return str.replace(/\&nbsp\;/g, '');
     };
 
+    /**
+     * @param $el
+     * @returns {Number}
+     */
     var findArticleID = function( $el ) {
         var id = false;
         var classes = $el.closest('.arlima-editable-article').attr('class');
@@ -21,6 +29,10 @@
         return id;
     };
 
+    /**
+     * @param {Object} update
+     * @param {Object} data
+     */
     var updateArticle = function(update, data) {
         if( !$.isEmptyObject( update ) ) {
 
@@ -41,7 +53,6 @@
                         if( !json || json.error ) {
                             throw new Error( json.error );
                         }
-                        console.log(json);
                     }
                 });
             }
@@ -51,15 +62,16 @@
         }
     };
 
+    /**
+     * @param {String} querySelector Elements that should be editable
+     * @param {String} elemType Either 'title' or 'body'
+     */
     var makeEditable = function(querySelector, elemType) {
         $(querySelector)
             .editable({
-                event: 'dblclick',
+                event: 'none',
                 toggleFontSize : elemType == 'title',
                 callback : function( data ) {
-
-                    $currentlyEdited = false;
-
                     if( elemType == 'title' ) {
                         var update = {};
                         if( data.content ) {
@@ -73,6 +85,11 @@
                     else if( data.content ) {
                         updateArticle({text : sanitize(data.content)}, data);
                     }
+
+                    data.$el
+                        .removeAttr('data-about-to-edit')
+                        .css('cursor', data.$el.get(0).nodeName == 'A' ? 'pointer':'default')
+                        .css('background', data.$el.attr('data-default-bg'));
                 }
             })
             .bind('mousemove', function(e) {
@@ -80,32 +97,36 @@
                 if( (e.ctrlKey || e.metaKey) &&
                     $elem.attr('data-about-to-edit') === undefined &&
                     !$elem.is(':editing')
-                ) {
+                    ) {
 
                     $elem
+                        .attr('data-default-bg', $elem.css('background'))
                         .attr('data-about-to-edit', 1)
+                        .css('cursor', 'url('+ArlimaJSAdmin.imageurl+'/pen-icon.png), url('+ArlimaJSAdmin.imageurl+'/pen-icon.png), auto')
                         .css('background-color', 'lightyellow');
                 }
             })
             .bind('mouseleave', function() {
-                $(this)
-                    .removeAttr('data-about-to-edit')
-                    .css('background', 'none');
+                var $elem = $(this);
+                if( $elem.attr('data-about-to-edit') ) {
+                    $elem
+                        .removeAttr('data-about-to-edit')
+                        .css('cursor', this.nodeName == 'A' ? 'pointer':'default')
+                        .css('background', $elem.attr('data-default-bg'));
+                }
             })
             .bind('mousedown', function(e) {
-                if( e.ctrlKey || e.metaKey ) {
+                var $this = $(this);
+                if( $this.attr('data-about-to-edit') ) {
 
-                    var $this = $(this);
-                    $currentlyEdited = $this;
                     $this.editable('open');
-
-                    $this.removeAttr('data-about-to-edit');
                     $this.find('textarea')
                         .css({
                             background:'none',
                             width: '100%',
                             display :'inline-block'
                         });
+
                     $this.trigger('mouseleave');
 
                     return false;

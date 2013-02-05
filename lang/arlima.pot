@@ -279,12 +279,8 @@ msgid "Hide related"
 msgstr "Dölj relaterade"
 
 #: pages/main.php:171
-msgid "Connected to article:"
-msgstr "Kopplad till artikel:"
-
-#: pages/main.php:171
 msgid "[change]"
-msgstr "[Byt]"
+msgstr "[byt]"
 
 #: pages/main.php:185
 msgid "Articles"
@@ -338,15 +334,6 @@ msgstr "Artikelmallar"
 
 msgid "Last modified %s a go"
 msgstr "Ändrades för %s sedan"
-
-msgid "Export settings saved successfully"
-msgstr "Inställningar för export har sparats"
-
-msgid "Imported list successfully removed"
-msgstr "Den importade listan är nu raderad"
-
-msgid "Web Service"
-msgstr "Externa tjänster"
 
 msgid "Choose which article lists that should be available for export"
 msgstr "Välja vilka listor som ska vara tillgängliga för export"
@@ -569,3 +556,12 @@ msgstr "Kopplad till"
 
 msgid "Nothing found..."
 msgstr "Inget hittades..."
+
+msgid "Settings was successfully updated"
+msgstr "Nya inställningar har sparats"
+
+msgid "[open]"
+msgstr "[öppna]"
+
+msgid "Search for title or post ID..."
+msgstr "Sök på rubrik eller ID..."

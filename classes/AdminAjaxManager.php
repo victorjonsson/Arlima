@@ -82,13 +82,13 @@ class Arlima_AdminAjaxManager
     private function isSavingEditedImage()
     {
         return isset($_POST['action']) &&
-                isset($_POST['postid']) &&
-                isset($_POST['do']) &&
-                isset($_POST['context']) &&
-                $_POST['action'] == 'image-editor' &&
-                $_POST['do'] == 'save' &&
-                $_POST['context'] == 'edit-attachment' &&
-                basename($_SERVER['PHP_SELF']) == 'admin-ajax.php';
+            isset($_POST['postid']) &&
+            isset($_POST['do']) &&
+            isset($_POST['context']) &&
+            $_POST['action'] == 'image-editor' &&
+            $_POST['do'] == 'save' &&
+            $_POST['context'] == 'edit-attachment' &&
+            basename($_SERVER['PHP_SELF']) == 'admin-ajax.php';
     }
 
     /**
@@ -214,42 +214,45 @@ class Arlima_AdminAjaxManager
 
         // Make it possible for theme to override templates
         $templates = apply_filters('arlima_teaser_templates', $templates);
+        foreach($templates as $key => $data) {
+            $templates[$key] = Arlima_ListFactory::createArticleDataArray($data);
+        }
 
         ob_start();
         ?>
-    <table class="widefat">
-        <thead>
-        <tr>
-            <th>&nbsp;</th>
-            <th><?php _e('Title', 'arlima') ?></th>
-        </tr>
-        </thead>
-        <tfoot>
-        <tr>
-            <th>&nbsp;</th>
-            <th><?php _e('Title', 'arlima') ?></th>
-        </tr>
-        </tfoot>
-        <tbody>
+        <table class="widefat">
+            <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th><?php _e('Title', 'arlima') ?></th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <th>&nbsp;</th>
+                <th><?php _e('Title', 'arlima') ?></th>
+            </tr>
+            </tfoot>
+            <tbody>
             <?php $i = 0; foreach ($templates as $template): $i++; ?>
-        <tr>
-            <td>
-                <li id="dragger_template_<?php echo $i; ?>" class="dragger listitem" style="z-index: 49;">
-                    <div>
+                <tr>
+                    <td>
+                        <li id="dragger_template_<?php echo $i; ?>" class="dragger listitem" style="z-index: 49;">
+                            <div>
                         <span class="arlima-listitem-title"><img
                                 src="<?php echo ARLIMA_PLUGIN_URL . '/images/arrow.png'; ?>" class="handle" alt="move"
                                 height="16" width="16"/></span>
-                        <img class="arlima-listitem-remove" alt="remove"
-                             src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
-                    </div>
-                </li>
-            </td>
-            <td><?php echo $template['name']; ?></td>
-        </tr>
+                                <img class="arlima-listitem-remove" alt="remove"
+                                     src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
+                            </div>
+                        </li>
+                    </td>
+                    <td><?php echo $template['name']; ?></td>
+                </tr>
             <?php endforeach; ?>
-        </tbody>
-    </table>
-    <?php
+            </tbody>
+        </table>
+        <?php
         $html = ob_get_contents();
         ob_end_clean();
         $data = array("html" => $html, "articles" => $templates);
@@ -639,7 +642,7 @@ class Arlima_AdminAjaxManager
                 </a>
 
                 <div class="arlima-list-version"><span class="arlima-list-version-select"><select
-                        class="arlima-list-version-ddl" name="list-version"></select></span><span
+                            class="arlima-list-version-ddl" name="list-version"></select></span><span
                         class="arlima-list-version-info tooltip"></span></div>
             </div>
             <!-- .arlima-list-footer-buttons -->
@@ -682,36 +685,36 @@ class Arlima_AdminAjaxManager
         );
         ob_start();
         ?>
-    <div class="arlima-list-header">
-        <a href="#" class="arlima-list-container-remove">
-            <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
-        </a>
+        <div class="arlima-list-header">
+            <a href="#" class="arlima-list-container-remove">
+                <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
+            </a>
             <span>
                 <?php echo $list->getTitle(); ?>
             </span>
-    </div>
-    <div class="arlima-list-scroller">
-        <ul class="arlima-list imported" id="arlima-list-<?php echo $list->id(); ?>"></ul>
-        <!-- .arlima-list -->
-    </div>
-    <div class="arlima-list-footer">
-        <div class="arlima-list-footer-buttons">
+        </div>
+        <div class="arlima-list-scroller">
+            <ul class="arlima-list imported" id="arlima-list-<?php echo $list->id(); ?>"></ul>
+            <!-- .arlima-list -->
+        </div>
+        <div class="arlima-list-footer">
+            <div class="arlima-list-footer-buttons">
                 <span class="last-mod arlima-list-version-info">
                 <?php echo $version_info; ?>
                 </span>
-            <a class="arlima-refresh-list" id="arlima-refresh-list-<?php echo $list->id(); ?>" alt="Uppdatera"
-               title="Uppdatera">
-                <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/reload-icon-16.png'; ?>"/>
-            </a>
-            <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/ajax-loader-trans.gif'; ?>" class="ajax-loader"/>
+                <a class="arlima-refresh-list" id="arlima-refresh-list-<?php echo $list->id(); ?>" alt="Uppdatera"
+                   title="Uppdatera">
+                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/reload-icon-16.png'; ?>"/>
+                </a>
+                <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/ajax-loader-trans.gif'; ?>" class="ajax-loader"/>
+            </div>
+            <!-- .arlima-list-footer-buttons -->
         </div>
-        <!-- .arlima-list-footer-buttons -->
-    </div>
-    <input type="hidden" name="arlima-list-id" id="arlima-list-id-<?php echo $list->id(); ?>" class="arlima-list-id"
-           value="<?php echo $list->id; ?>"/>
-    <input type="hidden" name="arlima-version-id" id="arlima-version-id-<?php echo $list->id(); ?>"
-           class="arlima-version-id" value="<?php echo $list->getVersionAttribute('id'); ?>"/>
-    <?php
+        <input type="hidden" name="arlima-list-id" id="arlima-list-id-<?php echo $list->id(); ?>" class="arlima-list-id"
+               value="<?php echo $list->id; ?>"/>
+        <input type="hidden" name="arlima-version-id" id="arlima-version-id-<?php echo $list->id(); ?>"
+               class="arlima-version-id" value="<?php echo $list->getVersionAttribute('id'); ?>"/>
+        <?php
         $html = ob_get_contents();
         ob_end_clean();
         $data = array(
@@ -853,106 +856,106 @@ class Arlima_AdminAjaxManager
         $articles = array();
         ob_start();
         ?>
-    <table class="widefat">
-        <thead>
-        <tr>
-            <th>&nbsp;</th>
-            <th>Id</th>
-            <th><?php _e('Title', 'arlima') ?></th>
-            <th><?php _e('Author', 'arlima') ?></th>
-            <th><?php _e('Date', 'arlima') ?></th>
-        </tr>
-        </thead>
-        <tfoot>
-        <tr>
-            <th>
-                <?php if ( $offset > 0 ) { ?> <a href="" alt="<?php echo (int)$offset - 10; ?>"
-                                                 class="arlima-get-posts-paging">&laquo; <?php _e(
-                'Previous',
-                'arlima'
-            ) ?></a> <?php } ?>
-            </th>
-            <th colspan="3"></th>
-            <th style="text-align:right;">
-                <?php if ( sizeof($posts) >= 10 ) { ?> <a href="" alt="<?php echo (int)$offset + 10; ?>"
-                                                          class="arlima-get-posts-paging"><?php _e(
-                'Next',
-                'arlima'
-            ) ?> &raquo;</a> <?php } ?>
-            </th>
-        </tr>
-        </tfoot>
-        <tbody>
+        <table class="widefat">
+            <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>Id</th>
+                <th><?php _e('Title', 'arlima') ?></th>
+                <th><?php _e('Author', 'arlima') ?></th>
+                <th><?php _e('Date', 'arlima') ?></th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <th>
+                    <?php if ( $offset > 0 ) { ?> <a href="" alt="<?php echo (int)$offset - 10; ?>"
+                                                     class="arlima-get-posts-paging">&laquo; <?php _e(
+                            'Previous',
+                            'arlima'
+                        ) ?></a> <?php } ?>
+                </th>
+                <th colspan="3"></th>
+                <th style="text-align:right;">
+                    <?php if ( sizeof($posts) >= 10 ) { ?> <a href="" alt="<?php echo (int)$offset + 10; ?>"
+                                                              class="arlima-get-posts-paging"><?php _e(
+                            'Next',
+                            'arlima'
+                        ) ?> &raquo;</a> <?php } ?>
+                </th>
+            </tr>
+            </tfoot>
+            <tbody>
             <?php foreach ($posts as $post):
-            setup_postdata($post);
-            $GLOBALS['post'] = $post; // Soemhting is removing post from global, even though we call setup_postdata
+                setup_postdata($post);
+                $GLOBALS['post'] = $post; // Soemhting is removing post from global, even though we call setup_postdata
 
-            if ( function_exists('vk_get_preamble') ) {
-                $text = vk_get_preamble();
-            } else {
-                // weird, "get_the_excerpt" should return the manual excerpt but does not seem to do this in the admin context
-                $text = !empty($post->post_excerpt) ? $post->post_excerpt : get_the_excerpt();
-            }
-            if ( stristr($text, '<p>') === false ) {
-                $text = '<p>' . $text . '</p>';
-            }
+                if ( function_exists('vk_get_preamble') ) {
+                    $text = vk_get_preamble();
+                } else {
+                    // weird, "get_the_excerpt" should return the manual excerpt but does not seem to do this in the admin context
+                    $text = !empty($post->post_excerpt) ? $post->post_excerpt : get_the_excerpt();
+                }
+                if ( stristr($text, '<p>') === false ) {
+                    $text = '<p>' . $text . '</p>';
+                }
 
-            $url = get_permalink($post->ID);
-            $article = array(
-                'post_id' => $post->ID,
-                'title' => $post->post_title,
-                'text' => $text,
-                'url' => $url,
-                'title_fontsize' => 24,
-                'content' => apply_filters('the_content', $post->post_content),
-                'publish_date' => strtotime($post->post_date_gmt)
-            );
-
-            if ( function_exists('has_post_thumbnail') && has_post_thumbnail($post->ID) ) {
-                $attach_id = get_post_thumbnail_id($post->ID);
-                $article['image'] = wp_get_attachment_url($attach_id);
-                $article['image_options'] = array(
-                    'html' => get_the_post_thumbnail($post->ID, 'large'),
-                    'url' => wp_get_attachment_url($attach_id),
-                    'attach_id' => $attach_id,
-                    'size' => 'full',
-                    'alignment' => 'aligncenter',
-                    'connected' => true
+                $url = get_permalink($post->ID);
+                $article = array(
+                    'post_id' => $post->ID,
+                    'title' => $post->post_title,
+                    'text' => $text,
+                    'url' => $url,
+                    'title_fontsize' => 24,
+                    'content' => apply_filters('the_content', $post->post_content),
+                    'publish_date' => strtotime($post->post_date_gmt)
                 );
-            }
-            $articles[] = $article;
-            ?>
-        <tr>
-            <td>
-                <li id="dragger_<?php echo $post->ID; ?>" class="dragger listitem">
-                    <div>
+
+                if ( function_exists('has_post_thumbnail') && has_post_thumbnail($post->ID) ) {
+                    $attach_id = get_post_thumbnail_id($post->ID);
+                    $article['image'] = wp_get_attachment_url($attach_id);
+                    $article['image_options'] = array(
+                        'html' => get_the_post_thumbnail($post->ID, 'large'),
+                        'url' => wp_get_attachment_url($attach_id),
+                        'attach_id' => $attach_id,
+                        'size' => 'full',
+                        'alignment' => 'aligncenter',
+                        'connected' => true
+                    );
+                }
+                $articles[] = $article;
+                ?>
+                <tr>
+                    <td>
+                        <li id="dragger_<?php echo $post->ID; ?>" class="dragger listitem">
+                            <div>
                         <span class="arlima-listitem-title"><img
                                 src="<?php echo ARLIMA_PLUGIN_URL . '/images/arrow.png'; ?>" class="handle" alt="move"
                                 height="16" width="16"/></span>
-                        <img class="arlima-listitem-remove" alt="remove"
-                             src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
-                    </div>
-                </li>
-            </td>
-            <td><?php echo $post->ID; ?></td>
-            <td width="220"><?php edit_post_link(
-                $post->post_title,
-                '',
-                '',
-                $post->ID
-            ); ?><?php if ( $post->post_status == 'future' ) {
-                echo '<br /><em>(' . __(
-                    'unpublished',
-                    'arlima'
-                ) . ')</em> ';
-            } ?></td>
-            <td><?php the_author_meta('user_login', $post->post_author); ?></td>
-            <td><?php echo date('Y-m-d H:i', strtotime($post->post_date)); ?></td>
-        </tr>
+                                <img class="arlima-listitem-remove" alt="remove"
+                                     src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
+                            </div>
+                        </li>
+                    </td>
+                    <td><?php echo $post->ID; ?></td>
+                    <td width="220"><?php edit_post_link(
+                            $post->post_title,
+                            '',
+                            '',
+                            $post->ID
+                        ); ?><?php if ( $post->post_status == 'future' ) {
+                            echo '<br /><em>(' . __(
+                                'unpublished',
+                                'arlima'
+                            ) . ')</em> ';
+                        } ?></td>
+                    <td><?php the_author_meta('user_login', $post->post_author); ?></td>
+                    <td><?php echo date('Y-m-d H:i', strtotime($post->post_date)); ?></td>
+                </tr>
             <?php endforeach; ?>
-        </tbody>
-    </table>
-    <?php
+            </tbody>
+        </table>
+        <?php
         $html = ob_get_contents();
         ob_end_clean();
         $data = array("html" => $html, "posts" => $articles);

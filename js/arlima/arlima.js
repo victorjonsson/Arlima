@@ -973,9 +973,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     this._$preview.hide();
                 }
             }
-            else {
-                log('Trying to toggle preview but no article is edited', 'warn');
-            }
         },
 
         /**
@@ -1307,8 +1304,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         },
 
         /**
-         * Load custom templates from backend and dispaly
-         * them on page
+         * Load custom templates from backend
          */
         loadCustomTemplates : function() {
             Backend.loadCustomTemplateData(function(json) {
@@ -1804,7 +1800,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             var _self = this;
             $winDoc.keydown(function(e) {
                 var key = e.keyCode ? e.keyCode : e.which;
-                if(key == 83 && (e.ctrlKey || e.metaKey)) {
+                if(key == 83 && hasMetaKeyPressed(e)) {
                     _self.saveFocusedList();
                     _self.previewWindow.close();
                     window.focus();
@@ -1962,7 +1958,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         $listItem.find('.arlima-listitem-remove')
             .click(function(e) {
                 var $item = $(this).parent().parent();
-                Manager.getList($item).removeListItem($item, e.metaKey);
+                Manager.getList($item).removeListItem($item, hasMetaKeyPressed(e));
                 e.stopPropagation();
                 return false;
             });
@@ -2101,6 +2097,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * Changes the presentation of the list item depending on the
      * data of the article it's referring to
      * @param {jQuery} $item
+     * @param {Object} data
      * @return {Boolean}
      */
     ArlimaList.applyItemPresentation = function($item, data) {
@@ -2239,7 +2236,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             // Click on reload button
             $(".arlima-refresh-list", this).click( function(e) {
                 var reloadList = true;
-                if(!e.metaKey && list.isUnsaved) {
+                if(!hasMetaKeyPressed(e) && list.isUnsaved) {
                     reloadList = confirm(ArlimaJS.lang.hasUnsavedChanges);
                 }
                 if(reloadList)
@@ -2251,7 +2248,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             // Remove list from page
             $(".arlima-list-container-remove", this).click(function(e) {
                 var removeList = true;
-                if(!e.metaKey && list.isUnsaved) {
+                if(!hasMetaKeyPressed(e) && list.isUnsaved) {
                     removeList = confirm(ArlimaJS.lang.hasUnsavedChanges);
                 }
                 if(removeList) {
@@ -2282,7 +2279,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 // Change version
                 $(".arlima-list-version-ddl", this).change(function(e) {
                     var loadVersion = true;
-                    if(!e.metaKey && list.isUnsaved) {
+                    if(!hasMetaKeyPressed(e) && list.isUnsaved) {
                         loadVersion = confirm(ArlimaJS.lang.hasUnsavedChanges);
                     }
                     if(loadVersion) {
@@ -2359,7 +2356,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     start : function(e, ui) {
                         ArlimaList.copyFromList = false;
                         ArlimaList.listsInolvedInTransaction = [];
-                        if(e.ctrlKey || e.metaKey) {
+                        if( hasMetaKeyPressed(e) ) {
                             ArlimaList.copyFromList = parseInt( $(this).parent().parent().attr('data-list-id') );
                             if($.inArray(ArlimaList.copyFromList, ArlimaList.listsInolvedInTransaction) == -1) {
                                 ArlimaList.listsInolvedInTransaction.push(ArlimaList.copyFromList);
@@ -2368,7 +2365,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     },
                     helper: function(e, $li) {
 
-                        if(e.ctrlKey || e.metaKey) {
+                        if( hasMetaKeyPressed(e) ) {
                             var $helper = $($li.clone(true).insertAfter($li));
                             _copyArticleData($helper, $li);
                             if($helper.hasClass('edited'))
@@ -2379,7 +2376,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         return $li.clone();
                     },
                     receive: function(event, ui) {
-
                         var $draggedItem = $(ui.item);
                         var hasDragClass = $draggedItem.hasClass('dragger');
                         var hasUIDragClass = $draggedItem.hasClass('ui-draggable'); // coming from imported list
@@ -2389,7 +2385,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             var $newItem = $(this).find('.'+itemClass + ':first');
                             _copyArticleData($newItem, $draggedItem);
                             var articleData = $newItem.data('article');
-                            $newItem.removeClass( itemClass );
+                            $newItem.removeClass( 'dragger' );
+                            $newItem.removeClass('ui-draggable');
 
                             // Update item title and ad timestamp if article comes from search or is a template
                             if(hasDragClass) {
@@ -2425,7 +2422,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             }
 
 
-
                             // Change article in editor if we are looking at this copy of this article
                             if( (!ArlimaList.copyFromList || hasUIDragClass) && $draggedItem[0] == ArticleEditor.$item[0] ) {
                                 ArticleEditor.edit($newItem, _self);
@@ -2437,7 +2433,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         var $item = $(ui.item);
                         var $itemParent = $item.parent().parent();
                         var articleData = $item.data('article');
-                        if( $itemParent.hasClass('listitem') ) {
+                        if( $itemParent && $itemParent.hasClass('listitem') ) {
                             articleData.parent = $itemParent.prevAll().length;
                         }
                         else {
@@ -2635,6 +2631,15 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             return str.substr(0, len-3)+'...';
         }
         return str;
+    }
+
+    /**
+     * Tells whether or not cmd or ctrl key is pushed down
+     * @param {Object} e
+     * @returns {Boolean}
+     */
+    function hasMetaKeyPressed(e) {
+        return e.ctrlKey || e.metaKey;
     }
 
     /**

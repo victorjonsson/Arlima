@@ -102,7 +102,7 @@
                     $elem
                         .attr('data-default-bg', $elem.css('background'))
                         .attr('data-about-to-edit', 1)
-                        .css('cursor', 'url('+ArlimaJSAdmin.imageurl+'/pen-icon.png), url('+ArlimaJSAdmin.imageurl+'/pen-icon.png), auto')
+                        .css('cursor', 'url('+ArlimaJSAdmin.imageurl+'/pen-icon.png?upd=2), url('+ArlimaJSAdmin.imageurl+'/pen-icon.png?upd=2), auto')
                         .css('background-color', 'lightyellow');
                 }
             })
@@ -115,7 +115,7 @@
                         .css('background', $elem.attr('data-default-bg'));
                 }
             })
-            .bind('mousedown', function(e) {
+            .bind('mousedown', function() {
                 var $this = $(this);
                 if( $this.attr('data-about-to-edit') ) {
 

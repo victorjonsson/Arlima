@@ -70,7 +70,7 @@ var ArlimaUploader = (function($, window, Arlima, ArlimaJS, plupload) {
             uploader.bind('FileUploaded', function(up, file, res) {
                 _self.removeNotifier();
                 var json = $.parseJSON(res.response);
-                var args = { html : json.html, size : 'full', attach_id : json.attach_id };
+                var args = { html : json.html, size : 'full', attach_id : json.attach_id, connected:1 };
                 Arlima.ArticleEditor.updateArticleImage(args);
                 Arlima.ArticleEditor.updateArticle();
 

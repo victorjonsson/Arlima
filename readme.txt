@@ -1,7 +1,3 @@
-
-
-
-
 === Article List Manager (arlima) ===
 
 Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
@@ -45,6 +41,10 @@ the list that you created on step 2.
 
 
 == Changelog ==
+
+= 2.7.10 =
+
+- Image post connection now works as supposed to
 
 = 2.7.7 =
 

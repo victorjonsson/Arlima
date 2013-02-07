@@ -873,7 +873,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     $attachId.val(args.attach_id);
                 if(args.updated)
                     $updated.val(args.updated);
-                if(args.connected)
+                if(args.connected !== undefined)
                     $connected.val(args.connected);
             }
 
@@ -889,7 +889,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             }
 
             var $disconnect = $('#arlima-article-image-disconnect');
-            if($connected.val() == 'true') {
+            if($connected.val() == 1 || $connected.val() == 'true') { // string 'true' is for backwards compat
                 $disconnect.show();
             }
             else {
@@ -1077,6 +1077,22 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          */
         isEditingArticle : function() {
             return this.$item !== false;
+        },
+
+
+        /**
+         * Get data value for currently edited article
+         * @param {String} arg
+         * @returns {*}
+         */
+        data : function(arg) {
+            if( !this.isEditingArticle() ) {
+                log('Trying to get article data but no article is being edited', 'warn');
+                return false;
+            }
+            else {
+                return this.$item.data('article')[arg];
+            }
         }
     };
 

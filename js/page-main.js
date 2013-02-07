@@ -320,15 +320,14 @@ jQuery(function($) {
     $('#arlima-article-image')
         .click(function(e) {
             e.preventDefault();
-            var postId = $('#arlima-article-post_id').val();
+            var postId = Arlima.ArticleEditor.data('post_id');
 
             if( !$.isNumeric(postId) ) {
                 alert(ArlimaJS.lang.noImages);
             }
             else {
+
                 $('#arlima-article-attachments').html('');
-
-
                 Arlima.Backend.getPostAttachments(postId, function(json) {
                     var $attachmentConatiner = $('#arlima-article-attachments');
                     $.each(json, function(idx, img) {
@@ -337,6 +336,7 @@ jQuery(function($) {
                             .html(img.thumb)
                             .on('click', function() {
                                 var imgData = Arlima.ArticleEditor.createArlimaArticleImageObject(img.large, 'center', 'full', img.attach_id);
+                                imgData.connected = 1;
                                 Arlima.ArticleEditor.updateArticleImage(imgData);
                                 $('#fancybox-close').trigger('click');
                             })
@@ -558,7 +558,7 @@ jQuery(function($) {
         if($.isNumeric(attachId)) {
             Arlima.Backend.duplicateImage(attachId, function(json) {
                 if(json) {
-                    var args = {attach_id: json.attach_id, html: json.html, connected: 'false', updated : Math.round(new Date().getTime() / 1000) };
+                    var args = {attach_id: json.attach_id, html: json.html, connected: 0, updated : Math.round(new Date().getTime() / 1000) };
                     Arlima.ArticleEditor.updateArticleImage(args, true);
                 }
             });

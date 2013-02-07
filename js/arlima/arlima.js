@@ -1701,7 +1701,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 alert(ArlimaJS.lang.missingPreviewPage);
             }
             else if( !list.isUnsaved ) {
-                alert(ArlimaJS.lang.isSaved);
+                window.open(previewPage);
             }
             else {
                 list.toggleAjaxLoader(true);

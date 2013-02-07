@@ -46,6 +46,7 @@ class Arlima_AdminAjaxManager
         add_action('wp_ajax_arlima_import_arlima_list', array($this, 'importList'));
         add_action('wp_ajax_arlima_remove_image_versions', array($this, 'removeImageVersions'));
         add_action('wp_ajax_arlima_update_article', array($this, 'updateArticle'));
+        add_action('wp_ajax_arlima_connect_attach_to_post', array($this, 'connectAttachmentToPost'));
 
         // The following action is not possible to hook into wtf???
         // add_action('wp_ajax_image-editor', array($this, 'removeImageVersions'));
@@ -781,7 +782,35 @@ class Arlima_AdminAjaxManager
         }
 
         echo json_encode($images);
-        die();
+        die;
+    }
+
+    /**
+     * Connect wordpress attachment to post
+     */
+    function connectAttachmentToPost()
+    {
+        $this->initAjaxRequest();
+
+        if( empty($_POST['attachment']) ) {
+            die(json_encode( array('error'=>'Argument attachment missing') ));
+        }
+        if( empty($_POST['post']) || !is_numeric($_POST['post']) || !$_POST['post'] ) {
+            die(json_encode( array('error'=>'Argument post_id missing') ));
+        }
+
+        $attach = get_post($_POST['attachment']);
+        if( !$attach || $attach->post_type != 'attachment' ) {
+            die(json_encode( array('error'=>'Argument attachment is not referring to an attachment') ));
+        }
+
+        wp_update_post(array(
+                'ID' => $attach->ID,
+                'post_parent' => $_POST['post']
+            ));
+
+        echo json_encode(array('success'=>1));
+        die;
     }
 
     function getScissors()

@@ -73,6 +73,12 @@ var ArlimaUploader = (function($, window, Arlima, ArlimaJS, plupload) {
                 var args = { html : json.html, size : 'full', attach_id : json.attach_id };
                 Arlima.ArticleEditor.updateArticleImage(args);
                 Arlima.ArticleEditor.updateArticle();
+
+                // Connect attachment to post
+                var post = Arlima.ArticleEditor.$item.data('article').post_id;
+                if( post ) {
+                    Arlima.Backend.connectAttachmentToPost(post, json.attach_id);
+                }
             });
 
             uploader.bind('FilesAdded', function(up, files) {

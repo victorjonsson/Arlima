@@ -565,7 +565,7 @@ class Arlima_List
      * @param string $content
      * @return string
      */
-    public static function linkWrap($article, $content)
+    public static function linkWrap($article, $content, $classes = array())
     {
         if( !empty($article['url']) ) {
             $opts = $article['options'];

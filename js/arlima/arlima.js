@@ -59,6 +59,15 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         },
 
         /**
+         * @param {Number} postId
+         * @param {Number} attachId
+         * @param {Function} [callback]
+         */
+        connectAttachmentToPost : function(postId, attachId, callback) {
+            this._ajax('arlima_connect_attach_to_post', {attachment:attachId, post:postId}, callback);
+        },
+
+        /**
          * @param {Number} listId
          * @param {Array|Object} articles
          * @param {Function} [callback]

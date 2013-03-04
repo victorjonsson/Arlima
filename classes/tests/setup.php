@@ -27,5 +27,5 @@ require_once __DIR__.'/../../vendor/autoload.php';
 if( !class_exists('Arlima_Plugin') ) {
     require_once __DIR__.'/../../constants.php';
     require_once __DIR__.'/../Plugin.php';
-    spl_autoload_register('Arlima_Plugin::classLoader');
+    require_once __DIR__.'/../../arlima.php';
 }

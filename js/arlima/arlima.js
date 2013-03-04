@@ -1713,9 +1713,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     _self.previewWindow.close();
                 }
 
-                var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
-                var winSize = isChrome ? '':',width=10,height=10';
-                _self.previewWindow = window.open(null, 'arlimaPreviewWindow', 'toolbar=1,scrollbars=1' + winSize );
+                _self.previewWindow = window.open(null, 'arlimaPreviewWindow', 'toolbar=1,scrollbars=1,width=10,height=10');
 
                 var _openPreviewWindow = function() {
 
@@ -1729,11 +1727,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         url += '='+list.id;
 
                         _self.previewWindow.document.location = url;
-
-                        if( !isChrome ) {
-                            var $parentWin = $(window);
-                            _self.previewWindow.resizeTo($parentWin.width(), $parentWin.height());
-                        }
+                        var $parentWin = $(window);
+                        _self.previewWindow.resizeTo($parentWin.width(), $parentWin.height());
 
                         var saveButtonTries = 0;
                         var saveButtonInterval = setInterval(function() {

@@ -866,7 +866,7 @@ class Arlima_AdminAjaxManager
         }
 
         $args['post_status'] = array('publish', 'future');
-        $args['post_type'] = array('post', 'usernews');
+        $args['post_type'] = apply_filters('arlima_search_post_types', array('post', 'page'));
 
         // Possibly modified by other plugins or the theme (take a look at readme.txt for more info)
         $args = Arlima_PostSearchModifier::filterWPQuery($args, $_POST);

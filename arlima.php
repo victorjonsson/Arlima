@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.7.14
+Version: 2.7.16
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -193,34 +193,37 @@ function arlima_edit_link($list=false, $message=false) {
  * @return bool
  */
 function has_arlima_list() {
-    return get_arlima_list() !== false;
+    global $post;
+    $list_data = get_arlima_list(false);
+    return $post && $list_data['post'] == $post->ID;
 }
 
 /**
  * Get arlima list of currently visited page
- * @return Arlima_List|bool
+ * @param bool $list_only
+ * @return Arlima_List|array|bool
  */
-function get_arlima_list() {
+function get_arlima_list($list_only = true) {
     static $current_arlima_list = null;
     if( $current_arlima_list === null ) {
-        $current_arlima_list = false;
+        $current_arlima_list = array('list'=>false, 'post'=>false);
         if( is_page() ) {
-            global $post;
+            global $wp_query;
             $connector = new Arlima_ListConnector();
-            $relation = $connector->getRelationData($post->ID);
+            $relation = $connector->getRelationData($wp_query->post->ID);
             if( $relation !== false ) {
                 $list_factory = new Arlima_ListFactory();
-                $relation = $connector->getRelationData($post->ID);
+                $relation = $connector->getRelationData($wp_query->post->ID);
                 $is_requesting_preview = is_arlima_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $relation['id'];
                 $version = $is_requesting_preview ? 'preview' : '';
                 $list = $list_factory->loadList($relation['id'], $version, $is_requesting_preview);
                 if( $list->exists() ) {
-                    $current_arlima_list = $list;
+                    $current_arlima_list = array('list'=>$list, 'post'=>$wp_query->post->ID);
                 }
             }
         }
     }
-    return $current_arlima_list;
+    return $list_only ? $current_arlima_list['list'] : $current_arlima_list;
 }
 
 /**

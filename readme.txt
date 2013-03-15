@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.7.14
+Stable tag: 2.7.16
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,11 +42,18 @@ the list that you created on step 2.
 
 == Changelog ==
 
+= 2.7.x =
+
+- Fixed preview window bug in chrome.
+- Now possible to filter which post types that should be included in the post search (arlima_search_post_types).
+- Now possible to set whether or not related posts should be displayed or hidden by default.
+- Fixed important bug that sometimes caused article lists to get rendered multiple times on one page.
+
 = 2.7.10 =
 
-- Previewing a list that doesn't have any unsaved changes now opens the page its related to
-- The connection between article images and posts now works as supposed to
-- Some other minor bugs fixed
+- Previewing a list that doesn't have any unsaved changes now opens the page its related to.
+- The connection between article images and posts now works as supposed to.
+- Some other minor bugs fixed.
 
 = 2.7.7 =
 

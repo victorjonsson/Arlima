@@ -227,7 +227,6 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray() ), 1);
         $list = self::$factory->loadList($list_id);
 
-        $this->assertEquals(array('arlima_list_props_'.$list_id, 'arlima_list_articles_data_'.$list_id), $file_cache->log['get']);
         $this->assertEquals(array('arlima_list_articles_data_'.$list_id), $file_cache->log['set']);
         $this->assertEquals(array('arlima_list_articles_data_'.$list_id), $file_cache->log['delete']);
         $file_cache->resetLog();

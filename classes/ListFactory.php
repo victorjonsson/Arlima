@@ -282,6 +282,9 @@ class Arlima_ListFactory {
             }
         }
 
+        // Reload list
+        $list = $this->loadList($list->id(), false, true);
+
         if( !$preview ) {
             $this->cache->delete('arlima_list_articles_data_'.$list->id());
             $this->doSaveListAction($list);

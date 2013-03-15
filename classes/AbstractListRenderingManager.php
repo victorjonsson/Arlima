@@ -192,6 +192,9 @@ abstract class Arlima_AbstractListRenderingManager
                 $is_post = true;
             }
         }
+        else {
+            $GLOBALS['post'] = false;
+        }
 
         $is_empty = false;
         if ( empty($article['text']) && empty($article['title']) && empty($article['image']) ) {

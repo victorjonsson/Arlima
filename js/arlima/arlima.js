@@ -698,6 +698,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 return true;
             });
 
+            var $hideRelated = $("[name='options-hiderelated']", this._$form);
+
             if(article.options) {
 
                 $.each(article.options, function(key, value) {
@@ -716,9 +718,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 else
                     $('#arlima-edit-article-options-streamer-text div', this._$form).css('background', '#000');
 
-                if(article.options.hiderelated) {
-                    $("[name='options-hiderelated']", this._$form).prop('checked', true);
+                $hideRelated.prop('checked', false);
+
+                if($hideRelated.length > 0 && article.options.hiderelated) {
+                    $hideRelated.prop('checked', true);
                 }
+            } else if($hideRelated.length > 0 && $hideRelated.attr('data-default') == 'checked') {
+                $hideRelated.prop('checked', true);
             }
 
             this.updateArticleImage(article.image_options, false);

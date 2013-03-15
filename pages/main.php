@@ -6,6 +6,7 @@
  * @since 1.0
  */
 $factory = new Arlima_ListFactory();
+$arlima_plugin = new Arlima_Plugin();
 ?>
 <div id="col-container">
 
@@ -161,7 +162,7 @@ $factory = new Arlima_ListFactory();
 
                             <li>
                                 <?php
-                                $settings = array(
+                                $editor_settings = array(
                                     'wpautop' => true,
                                     'media_buttons' => true,
                                     'textarea_rows' => 90,
@@ -171,7 +172,7 @@ $factory = new Arlima_ListFactory();
                                     )
                                 );
 
-                                wp_editor( '', 'tinyMCE', $settings );
+                                wp_editor( '', 'tinyMCE', $editor_settings );
 
                                 ?>
                             </li>
@@ -197,7 +198,8 @@ $factory = new Arlima_ListFactory();
                                             </td>
                                             <?php if( Arlima_Plugin::isWPRelatedPostsInstalled() ): ?>
                                             <td>
-                                                <input type="checkbox" id="arlima-edit-article-options-hiderelated" name="options-hiderelated" value="1" />
+                                                <input type="checkbox" id="arlima-edit-article-options-hiderelated" name="options-hiderelated"
+                                                       value="1" data-default="<?php echo $arlima_plugin->getSetting('hide_related_posts_default') == '1' ? 'checked':'' ?>" />
                                                 <label for="arlima-edit-article-options-hiderelated"><?php _e('Hide related', 'arlima') ?></label>
                                             </td>
                                             <?php endif; ?>

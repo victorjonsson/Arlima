@@ -137,6 +137,33 @@ if( isset($message) ): ?>
             </div>
         <?php endif; ?>
 
+        <?php if( Arlima_Plugin::isWPRelatedPostsInstalled() ): ?>
+
+            <div class="arlima-postbox">
+                <h3><?php _e('Related posts', 'arlima'); ?></h3>
+                <div class="inside">
+                    <table>
+                        <tr>
+                            <td>
+                                <?php _e('Hide related posts by default.','arlima') ?>
+                            </td>
+                            <td>
+                                <select name="settings[hide_related_posts_default]">
+                                    <option value="1"<?php echo $this->getPlugin()->getSetting('hide_related_posts_default') == '1' ? ' selected="selected"':'' ?>>
+                                        <?php _e('Yes', 'arlima') ?>
+                                    </option>
+                                    <option value="0"<?php echo $this->getPlugin()->getSetting('hide_related_posts_default') != '1' ? ' selected="selected"':'' ?>>
+                                        <?php _e('No', 'arlima') ?>
+                                    </option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        <?php endif; ?>
+
         <div class="arlima-postbox">
             <h3><?php _e('Export', 'arlima') ?></h3>
             <div class="inside">

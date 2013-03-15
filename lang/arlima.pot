@@ -565,3 +565,9 @@ msgstr "[öppna]"
 
 msgid "Search for title or post ID..."
 msgstr "Sök på rubrik eller ID..."
+
+msgid "Hide related posts by default."
+msgstr "Dölj relaterade inlägg (default)"
+
+msgid "Related posts"
+msgstr "Relaterade inlägg"

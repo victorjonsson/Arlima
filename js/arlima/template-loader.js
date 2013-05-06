@@ -102,7 +102,6 @@ var ArlimaTemplateLoader = (function($) {
                     callback( content );
                 },
                 error : function() {
-                    alert('Unable to load template '+template);
                     throw new Error('Unable to load template '+template);
                 }
             });

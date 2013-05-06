@@ -719,11 +719,52 @@ class Arlima_Plugin
     }
 
     /**
-     * Will enqueue the css for the presentation of articles in an arlima list
+     * Will enqueue the css for the presentation of articles in an arlima list.
+     * There is two ways to add the template CSS.
+     *  Old way:    return URL to css file in filter arlima_template_css. The css
+     *              file will be added to the header in arlima admin
+     *  New way:    return array with URL´s to stylesheets that will be added to
+     *              iframe in arlima admin
      */
     function addTemplateCSS()
     {
-        wp_enqueue_style('arlima_template_css', self::getTemplateCSS(), array(), null);
+        $style_sheets = $this->getTemplateStylesheets();
+        if( empty($style_sheets) ) {
+            // Old way
+            $css = self::getTemplateCSS();
+            if( !empty($css) ) {
+                wp_enqueue_style('arlima_template_css', $css, array(), null);
+            }
+            else {
+                // theme has not applied any css, neither the old nor the new way
+                // then let the plugin add the css
+                if( is_admin() ) {
+                    add_filter('arlima_template_stylesheets', array($this, 'templateCSSFilter'));
+                } else {
+                    wp_enqueue_style('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css', array(), ARLIMA_FILE_VERSION);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $files
+     * @return array
+     */
+    public function templateCSSFilter($files)
+    {
+        $files[] = ARLIMA_PLUGIN_URL . 'css/template-typo.css';
+        $files[] = ARLIMA_PLUGIN_URL . 'css/template.css';
+        return $files;
+    }
+
+    /**
+     * @return array
+     */
+    function getTemplateStylesheets()
+    {
+        $style_sheets = apply_filters('arlima_template_stylesheets', array());
+        return is_array($style_sheets) ? $style_sheets : array();
     }
 
     /**
@@ -734,7 +775,7 @@ class Arlima_Plugin
      */
     public static function getTemplateCSS()
     {
-        return apply_filters('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css?v='.ARLIMA_FILE_VERSION);
+        return apply_filters('arlima_template_css', '');
     }
 
     /**

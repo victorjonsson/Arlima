@@ -1,0 +1,35 @@
+/**
+* Default CSS for template typography.
+* This file is loaded into the iframe where the article
+* preview is rendered, in arlima admin.
+* (this file will also be loaded into tinymce editor)
+*/
+
+body {
+    background: #FFF;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    color: #333;
+}
+
+a:link, a:visited {
+    color:#333;
+    text-decoration: none;
+}
+
+a:hover, a:active {
+    color: #555;
+}
+
+p {
+    padding: 0;
+    margin: 0;
+    line-height: 140%;
+}
+
+.teaser-entryword {
+    background: url(../images/arrow-right.gif) no-repeat left center;
+    font-weight: bold;
+    padding-left: 7px;
+    text-decoration: none;
+}

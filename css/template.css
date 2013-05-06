@@ -1,6 +1,5 @@
 /**
 * Default CSS file used to style arlima articles.
-* (Note: This file is also loaded into tinyMCE editor)
 */
 
 /* Article teaser */
@@ -31,18 +30,6 @@
     clear: none;
 }
 
-/* wp-admin only (none responsive). In case the list is related to
- a page the width set on the list in wp-admin will be add to style
- attribute by the list manager */
-#arlima-preview .tmpl-article,
-#arlima-preview .tmpl-article:first-child,
-#arlima-preview .tmpl-article:last-child {
-    width: 480px;
-    margin:0;
-    padding:0;
-    border-bottom: 0;
-}
-
 #arlima-preview {
     background: #FFF;
     padding: 12px;
@@ -54,17 +41,9 @@
  TMPL typography
 * * * * * * * * * * * * * * */
 
-/* Genreal typo */
-.tmpl-article,
-body.mceContentBody {
-    font-family: Tahoma, Arial, sans-serif;
-    font-size: 10.5pt;
-    color:#333;
-}
 
 /* links */
-.tmpl-article a,
-body.mceContentBody a {
+.tmpl-article a {
     text-decoration: none;
     color:#333;
     cursor: pointer;
@@ -100,8 +79,7 @@ body.mceContentBody a {
 }
 
 .teaser-entryword,
-a.teaser-entryword,
-body.mceContentBody .teaser-entryword {
+a.teaser-entryword {
     background: url(../images/arrow-right.gif) no-repeat left center;
     font-weight: bold;
     padding-left: 7px;

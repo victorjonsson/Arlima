@@ -16,10 +16,13 @@
     display: none;
     top: 60px;
     padding: 0px;
-    /*min-height: 300px;*/
     z-index: 50;
     background: #fff;
     right: 610px;
+}
+
+#arlima-preview iframe {
+    border: #FFF solid 10px;
 }
 
 .ajax-loader {

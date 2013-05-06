@@ -90,7 +90,13 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         if ( !function_exists('tdav_css') ) {
             function tdav_css($wp)
             {
-                $wp .= ',' . Arlima_Plugin::getTemplateCSS();
+                $arlima_plugin = new Arlima_Plugin();
+                $styles = $arlima_plugin->getTemplateStylesheets();
+                if( empty($styles) ) {
+                    $wp .= ',' . Arlima_Plugin::getTemplateCSS();
+                } else {
+                    $wp .= ','.$styles[0];
+                }
                 return $wp;
             }
         }
@@ -125,6 +131,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
     function addTemplateLoadingJS()
     {
         $tmpl_resolver = new Arlima_TemplatePathResolver();
+        $style_sheets = $this->plugin->getTemplateStylesheets();
         ?>
         <script>
             var tmpls = [];
@@ -135,9 +142,16 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
             <?php if ( !empty($_GET['open_list']) ): ?>
             var loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
             <?php endif; ?>
+            <?php if( is_array($style_sheets) && !empty($style_sheets) ): ?>
+                var arlimaTemplateStylesheets = [];
+                <?php foreach($style_sheets as $style): ?>
+                    arlimaTemplateStylesheets.push('<?php echo $style ?>');
+                <?php endforeach; ?>
+            <?php endif; ?>
         </script>
     <?php
     }
+
 
     /**
      * @param $buttons

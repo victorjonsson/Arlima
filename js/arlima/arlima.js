@@ -285,6 +285,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          */
         _formSlidingCallback : false,
 
+        _$previewIframe : false,
+
         /**
          * Setup for article editor
          */
@@ -305,6 +307,24 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             if( typeof $.fn.effect == 'undefined' ) {
                 log('This wordpress application is outdated. Please update to the newest version', 'warn');
                 $.fn.effect = function() {};
+            }
+
+            // Create preview iframe document
+            if( typeof arlimaTemplateStylesheets != 'undefined' ) {
+                this._$preview.html('<iframe style="width:100%; height: 200px; overflow: hidden" border="0" frameborder="0"></iframe>');
+                this._$previewIframe = $(this._$preview.find('iframe').eq(0).contents());
+                var _self = this;
+                $.each(arlimaTemplateStylesheets, function(i, styleSheet) {
+                    _self._$previewIframe.find('head').append('<link rel="stylesheet" type="text/css" href="'+styleSheet+'" />');
+                });
+                this._$previewIframe.find('body')
+                    .addClass('arlima-preview-iframe')
+                    .css({
+                        border: 0,
+                        padding: 0,
+                        margin: 0,
+                        overflow : 'hidden'
+                    });
             }
 
             this.PostConnector.init(this._$form);
@@ -501,8 +521,20 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         templateArgs.image = {
                             src : $(unescape(article.image_options.html)).attr('src'),
                             image_class : article.image_options.alignment,
-                            image_size : article.image_options.size
+                            image_size : article.image_options.size,
+                            width : 'auto'
                         };
+                        switch(article.image_options.size) {
+                            case 'half':
+                                templateArgs.image.width = '50%';
+                                break;
+                            case 'third':
+                                templateArgs.image.width = '33%';
+                                break;
+                            case 'fourth':
+                                templateArgs.image.width = '25%';
+                                break;
+                        }
                         templateArgs.container['class'] += ' img-'+article.image_options.size;
                     }
                 }
@@ -570,7 +602,22 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             }
             // TODO: this function gets called twice when previewing an article!!
 
-            _buildPreviewTeaser(this._$preview, article, false);
+            var $element = this._$preview;
+            if( this._$previewIframe !== false ) {
+                $element = this._$previewIframe.find('body');
+            }
+
+            _buildPreviewTeaser($element, article, false);
+
+            if( this._$previewIframe !== false ) {
+                var _self = this;
+                var updateIframeHeight = function() {
+                    var elementHeight = $element.children().eq(0).outerHeight();
+                    _self._$preview.find('iframe').eq(0).height(elementHeight);
+                };
+                setTimeout(updateIframeHeight, 50);
+                $element.find('img').bind('load', updateIframeHeight);
+            }
 
             var previewPageWidth = $('.arlima-list-previewpage-width', Manager.getFocusedList().jQuery).val();
             if( previewPageWidth ) {

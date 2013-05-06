@@ -60,6 +60,7 @@ the list that you created on step 2.
 - http://www.vk.se/
 - http://www.folkbladet.nu/
 - http://www.dalademokraten.se/
+- http://tidningenelektrikern.se/
 - http://www.utryckning.se/
 - http://www.victorjonsson.se/
 

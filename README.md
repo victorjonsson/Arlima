@@ -32,7 +32,7 @@ the list that you created on step 2.
 - [Keyboard shortcuts in the list manager](https://github.com/victorjonsson/Arlima/wiki/Keyboard-shortcuts)
 - ["Quick edit" — Edit articles directly on your front page](https://github.com/victorjonsson/Arlima/wiki/Quick-Edit)
 - Importing article lists from remote websites
-- [Importing RSS-feeds](https://github.com/victorjonsson/Arlima/wiki//Importing-RSS-feeds)
+- [Importing RSS-feeds](https://github.com/victorjonsson/Arlima/wiki/Importing-RSS-feeds)
 
 #### Developer manual
 

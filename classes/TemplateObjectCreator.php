@@ -310,14 +310,14 @@ class Arlima_TemplateObjectCreator
         if ( $has_streamer ) {
             $data['streamer']['type'] = $article['options']['streamer_type'];
             switch ($data['streamer']['type']) {
-                case 'text' :
-                    $data['streamer']['content'] = $article['options']['streamer_content'];
+                case 'extra' :
+                    $data['streamer']['content'] = 'EXTRA';
                     break;
                 case 'image' :
                     $data['streamer']['content'] = '<img src="' . $article['options']['streamer_image'] . '" alt="Streamer" />';
                     break;
                 default :
-                    $data['streamer']['content'] = 'EXTRA';
+                    $data['streamer']['content'] = $article['options']['streamer_content'];
             }
 
             $data['streamer']['style'] = !empty($article['options']['streamer_color']) && $data['streamer']['type'] == 'text' ? 'background: #' . $article['options']['streamer_color'] : '';

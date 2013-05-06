@@ -39,13 +39,17 @@ $arlima_plugin = new Arlima_Plugin();
             <div id="arlima-edit-article-options-streamer-content" >
 
                 <select name="options-streamer_type" id="arlima-edit-article-options-streamer-type">
-                    <option value="extra"><?php _e('Extra', 'arlima') ?></option>
-                    <option value="text"><?php _e('Custom', 'arlima') ?></option>
+                        <option value="extra"><?php _e('Extra', 'arlima') ?></option>
+                    <?php if( apply_filters('arlima_support_text_streamers', true) === true ): ?>
+                        <option value="text"><?php _e('Custom', 'arlima') ?></option>
+                    <?php endif; ?>
                     <option value="image"><?php _e('Image', 'arlima') ?></option>
+                    <?php foreach( apply_filters('arlima_streamer_classes', array()) as $streamer_class => $label ): ?>
+                        <option value="text-<?php echo $streamer_class ?>"><?php echo $label ?></option>
+                    <?php endforeach; ?>
                 </select>
 
                 <div style="display:none;" class="arlima-edit-article-options-streamer-choice" id="arlima-edit-article-options-streamer-text">
-
                     <input type="text" name="options-streamer_content" />
                     <select name="options-streamer_color" id="arlima-edit-article-options-streamer-color">
                         <?php Arlima_Plugin::loadStreamerColors(); ?>

@@ -831,11 +831,20 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 }else{
                     $('#arlima-edit-article-options-streamer-image-link').html(ArlimaJS.lang.chooseImage);
                 }
-                $('#arlima-edit-article-options-streamer-content').show(0);
-                $('.arlima-edit-article-options-streamer-choice').not('#arlima-edit-article-options-streamer-' + type).hide(0);
-                $('#arlima-edit-article-options-streamer-' + type).show(0);
+                $('#arlima-edit-article-options-streamer-content').show();
+                $('.arlima-edit-article-options-streamer-choice').not('#arlima-edit-article-options-streamer-' + type).hide();
+                if( type.indexOf('text-') == 0 ) {
+                    $('#arlima-edit-article-options-streamer-text')
+                        .show()
+                        .find('div:last').hide(); // color choices
+                } else {
+                    $('#arlima-edit-article-options-streamer-' + type).show();
+                    $('#arlima-edit-article-options-streamer-text')
+                        .find('div:last').show(); // color choices
+                }
+
             }else{
-                $('#arlima-edit-article-options-streamer-content').hide(0);
+                $('#arlima-edit-article-options-streamer-content').hide();
             }
         },
 

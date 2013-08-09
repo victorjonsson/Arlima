@@ -65,10 +65,11 @@ class Arlima_List
      * @var array
      */
     public $options = array(
-        // 'previewpage' => '/', // Deprecated...
-        //  'previewtemplate' => 'article', Depre
+        'pagestopurge' => '', // deprecated
         'template' => 'article',
-        'pagestopurge' => '',
+        'pages_to_purge' => '',
+        'supports_sections' => "0", // translates to bool false
+        'allows_template_switching' => "1",
         'before_title' => '<h2>',
         'after_title' => '</h2>'
     );
@@ -123,6 +124,15 @@ class Arlima_List
     }
 
     /**
+     * @return array
+     */
+    public static function getDefaultListOptions()
+    {
+        $self = new self();
+        return $self->options;
+    }
+
+    /**
      * Tells whether or not this arlima list exists in the database
      * @return bool
      */
@@ -148,6 +158,22 @@ class Arlima_List
     public function isPreview()
     {
         return $this->getStatus() == self::STATUS_PREVIEW;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSupportingSections()
+    {
+        return !empty($this->options['supports_sections']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSupportingEditorTemplateSwitch()
+    {
+        return $this->getOption('allows_template_switching') === null || $this->getOption('allows_template_switching');
     }
 
     /**
@@ -200,8 +226,8 @@ class Arlima_List
      */
     public function getOption($name)
     {
+        // Backward compatibility. todo: Remove when moving up to version 3.0
         if( $name == 'template' ) {
-            // Backward compatibility. todo: Remove when moving up to version 3.0
             if( isset($this->options['template']) )
                 return $this->options['template'];
             elseif( isset($this->options['previewtemplate']) )
@@ -209,6 +235,14 @@ class Arlima_List
             else
                 return null;
         }
+        if( $name == 'pages_to_purge' && empty($this->options[$name]) && !empty($this->options['pagestopurge']) ) {
+            return $this->options['pagestopurge'];
+        }
+        if( $name == 'pagestopurge' && empty($this->options[$name]) && !empty($this->options['pages_to_purge']) ) {
+            Arlima_Plugin::warnAboutUseOfDeprecatedFunction('Arlima_List::getOption', 2.8, 'The option &quot;pagestopurge&quot; is deprecated, use &quot;pages_to_purge&quot; instead');
+            return $this->options['pages_to_purge'];
+        }
+
         return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 
@@ -218,6 +252,10 @@ class Arlima_List
      */
     public function setOption($name, $val)
     {
+        if( $name == 'pagestopurge' ) {
+            Arlima_Plugin::warnAboutUseOfDeprecatedFunction('Arlima_List::setOption', 2.8, 'The option &quot;pagestopurge&quot; is deprecated, use &quot;pages_to_purge&quot; instead');
+            $name = 'pages_to_purge';
+        }
         $this->options[$name] = $val;
     }
 

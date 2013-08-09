@@ -39,7 +39,7 @@ $arlima_plugin = new Arlima_Plugin();
             <div id="arlima-edit-article-options-streamer-content" >
 
                 <select name="options-streamer_type" id="arlima-edit-article-options-streamer-type">
-                        <option value="extra"><?php _e('Extra', 'arlima') ?></option>
+                    <option value="extra"><?php _e('Extra', 'arlima') ?></option>
                     <?php if( apply_filters('arlima_support_text_streamers', true) === true ): ?>
                         <option value="text"><?php _e('Custom', 'arlima') ?></option>
                     <?php endif; ?>
@@ -141,23 +141,24 @@ $arlima_plugin = new Arlima_Plugin();
                     <?php endforeach; ?>
                 </select>
             <?php endif; ?>
-
+            <span id="template-switcher">
             <?php
             _e('Template', 'arlima');
             $hidden = apply_filters('arlima_hidden_templates', array());
             ?>
-            <select  id="arlima-edit-article-options-template" name="options-template">
-                <option value=""><?php _e('Default', 'arlima') ?></option>
-                <?php
-                $path_resolver = new Arlima_TemplatePathResolver();
-                foreach($path_resolver->getTemplateFiles() as $file):
-                    if( in_array($file['name'], $hidden) )
-                        continue; ?>
-                    <option value="<?php echo $file['name'] ?>">
-                        <?php echo $file['label']; ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+                <select  id="arlima-edit-article-options-template" name="options-template">
+                    <option value=""><?php _e('Default', 'arlima') ?></option>
+                    <?php
+                    $path_resolver = new Arlima_TemplatePathResolver();
+                    foreach($path_resolver->getTemplateFiles() as $file):
+                        if( in_array($file['name'], $hidden) )
+                            continue; ?>
+                        <option value="<?php echo $file['name'] ?>">
+                            <?php echo $file['label']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </span>
         </div>
         <input id="arlima-edit-article-title" name="title" value="" placeholder="<?php _e('Title', 'arlima') ?>" />
         <input type="text" style="width:28px" id="arlima-edit-article-title-fontsize" class="arlima-title-fontsize" name="title_fontsize" value="14" />
@@ -185,20 +186,20 @@ $arlima_plugin = new Arlima_Plugin();
             <table>
                 <tr>
                     <td>
-                                                <span id="post-connection">
-                                                    <?php _e('Connected to', 'arlima') ?>:
-                                                    <span id="arlima-article-connected-post"></span>
-                                                    <a  href="#post-connect-fancybox" id="arlima-article-connected-post-change">
-                                                        <?php _e('[change]', 'arlima') ?>
-                                                    </a>
-                                                    <a href="#" id="arlima-article-connected-post-open">
-                                                        <?php _e('[open]', 'arlima') ?>
-                                                    </a>
-                                                    <input type="hidden" name="post_id" />
-                                                    <input type="hidden" name="options-overriding_url" />
-                                                    <input type="hidden" name="options-target" />
-                                                    <em id="future-notice">(<?php _e('Future post', 'arlima') ?>)</em>
-                                                </span>
+                        <span id="post-connection">
+                            <?php _e('Connected to', 'arlima') ?>:
+                            <span id="arlima-article-connected-post"></span>
+                            <a  href="#post-connect-fancybox" id="arlima-article-connected-post-change">
+                                <?php _e('[change]', 'arlima') ?>
+                            </a>
+                            <a href="#" id="arlima-article-connected-post-open">
+                                <?php _e('[open]', 'arlima') ?>
+                            </a>
+                            <input type="hidden" name="post_id" />
+                            <input type="hidden" name="options-overriding_url" />
+                            <input type="hidden" name="options-target" />
+                            <em id="future-notice">(<?php _e('Future post', 'arlima') ?>)</em>
+                        </span>
                     </td>
                     <?php if( Arlima_Plugin::isWPRelatedPostsInstalled() ): ?>
                         <td>
@@ -215,6 +216,7 @@ $arlima_plugin = new Arlima_Plugin();
             <div class="arlima-button cupid-green">
                 <input type="checkbox" value="1" name="options-sticky" id="arlima-option-sticky" />
                 <input type="hidden" value="" name="options-sticky_pos" id="arlima-option-sticky-pos" />
+                <input type="hidden" value="" name="options-section_divider" />
                 <label for="arlima-option-sticky"><?php _e('Sticky', 'arlima') ?></label>
             </div>
 

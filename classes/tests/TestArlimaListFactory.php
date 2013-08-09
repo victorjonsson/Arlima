@@ -79,7 +79,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $list = $this->createList();
         $list->setMaxlength(1);
         $list->setOption('google', 'test1');
-        $list->setOption('pagestopurge', 'test2');
+        $list->setOption('pages_to_purge', 'test2');
         $list->setSlug('hejpa');
         $list->setTitle('Jodå');
 
@@ -89,8 +89,8 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $reloaded_list->getMaxlength());
         $this->assertEquals('Jodå', $reloaded_list->getTitle());
         $this->assertEquals('hejpa', $reloaded_list->getSlug());
-        $this->assertEquals('test2', $reloaded_list->getOption('pagestopurge'));
-        $this->assertEquals('test1', $reloaded_list->getOption('google'));
+        $this->assertEquals('test2', $reloaded_list->getOption('pages_to_purge'));
+        $this->assertEquals(null, $reloaded_list->getOption('google')); // Is not an option defined in Arlima_List::getDefaultOptions() and is therefor removed
         $this->assertEquals(Arlima_List::STATUS_EMPTY, $reloaded_list->getStatus());
         $this->assertEquals(array(), $reloaded_list->getVersions());
         $this->assertFalse($reloaded_list->isPreview());

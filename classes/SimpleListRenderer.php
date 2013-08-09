@@ -55,15 +55,6 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
     }
 
     /**
-     * Do we have a list? Does the list have articles?
-     * @return bool
-     */
-    function havePosts()
-    {
-        return $this->list->numArticles() > 0 && $this->list->numArticles() >= $this->getOffset();
-    }
-
-    /**
      * Note that no callbacks will be fired except display_post()
      * @see Arlima_SimpleListRendered::setDisplayPostCallback()
      * @param bool $output
@@ -73,7 +64,7 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
     {
         $content = '';
         $article_counter = 0;
-        foreach (array_slice($this->list->getArticles(), $this->getOffset()) as $article) {
+        foreach ($this->getArticlesToRender() as $article) {
             list($post, $article) = $this->setup($article);
             if ( !empty($article_data['publish_date']) && $article_data['publish_date'] > time() ) {
                 continue;

@@ -14,7 +14,6 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $this->executed_actions = 0;
     }
 
-
     /**
      * @return Arlima_List
      */

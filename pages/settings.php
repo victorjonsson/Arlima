@@ -3,9 +3,10 @@
  * @var Arlima_AbstractAdminPage $this
  */
 
-$settings = $this->getPlugin()->loadSettings();
-$export_manager = new Arlima_ExportManager($this->getPlugin());
-$import_manager = new Arlima_ImportManager($this->getPlugin());
+$arlima_plugin = $this->getPlugin();
+$settings = $arlima_plugin->loadSettings();
+$export_manager = new Arlima_ExportManager($arlima_plugin);
+$import_manager = new Arlima_ImportManager($arlima_plugin);
 $list_factory = new Arlima_ListFactory();
 $connector = new Arlima_ListConnector();
 
@@ -15,12 +16,11 @@ if( isset($_POST['settings']) ) {
     $settings = array_merge($settings, $_POST['settings']);
     if( !isset($_POST['settings']['streamer_colors']) )
         $settings['streamer_colors'] = array();
-    $this->getPlugin()->saveSettings($settings);
+    $arlima_plugin->saveSettings($settings);
 
     // Save approved for export
     $approved = empty($_POST['approved']) ? array() : $_POST['approved'];
     $export_manager->setListsAvailableForExport($approved);
-    $message = __('Export settings saved successfully', 'arlima');
 
     // Remove imported lists
     if( !empty($_POST['remove_imported']) ) {
@@ -149,10 +149,10 @@ if( isset($message) ): ?>
                             </td>
                             <td>
                                 <select name="settings[hide_related_posts_default]">
-                                    <option value="1"<?php echo $this->getPlugin()->getSetting('hide_related_posts_default') == '1' ? ' selected="selected"':'' ?>>
+                                    <option value="1"<?php echo $arlima_plugin->getSetting('hide_related_posts_default') == '1' ? ' selected="selected"':'' ?>>
                                         <?php _e('Yes', 'arlima') ?>
                                     </option>
-                                    <option value="0"<?php echo $this->getPlugin()->getSetting('hide_related_posts_default') != '1' ? ' selected="selected"':'' ?>>
+                                    <option value="0"<?php echo $arlima_plugin->getSetting('hide_related_posts_default') != '1' ? ' selected="selected"':'' ?>>
                                         <?php _e('No', 'arlima') ?>
                                     </option>
                                 </select>

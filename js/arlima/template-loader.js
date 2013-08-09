@@ -5,6 +5,14 @@ var ArlimaTemplateLoader = (function($) {
 
     'use strict';
 
+
+    var _dirname = function(path) {
+        if( path.substr(path.length-1, 1) == '/' ) {
+            path = path.substr(0, path.length-1);
+        }
+        return path.substr(0, path.lastIndexOf('/'));
+    };
+
     return {
 
         isRequestingTemplate : false,
@@ -30,22 +38,16 @@ var ArlimaTemplateLoader = (function($) {
             }
             else if(this._templatesToLoad.length > 0) {
                 var template = this._templatesToLoad.splice(0,1)[0];
-                var baseURL;
                 if( template.length == 3) {
                     // included template
-                    baseURL = template[2];
                     template = template[1];
                 }
-                else {
-                    baseURL = template.substr(0, template.lastIndexOf('/')) +'/';
-                }
 
-                this._loadTemplate(template, function(content) {
+                this._loadTemplate(template, function(content, baseURL) {
                     _self._templateParts[template] = content;
-                    var includes = _self.parseIncludes(content, baseURL);
-                    for( var i=0; i < includes.length; i++ ) {
-                        _self._templatesToLoad.push(includes[i]);
-                    }
+                    $.each(_self.parseIncludes(content, baseURL), function(i, templateData) {
+                        _self._templatesToLoad.push(templateData);
+                    });
                     _self.loadNextTemplate();
                 });
             }
@@ -58,14 +60,32 @@ var ArlimaTemplateLoader = (function($) {
         parseIncludes : function(content, baseURL) {
             var includes = content.match(/\{\{include [0-9a-z\/A-Z\-\_\.]*\}\}/g);
             if( includes ) {
-                for(var i=0; i < includes.length; i++) {
-                    var includeData = includes[i];
-                    includes[i] = [includeData, baseURL + includeData.replace('{{include ', '').replace('}}', ''), baseURL];
-                }
+                var _self = this;
+                $.each(includes, function(i, includeTag) {
+                    var path = includeTag.replace('{{include ', '').replace('}}', '');
+                    includes[i] = [includeTag, _self.makeTemplateURL(baseURL, path), baseURL];
+                });
                 return includes;
             } else {
                 return [];
             }
+        },
+
+        makeTemplateURL : function(baseURL, path) {
+            var url = baseURL + path;
+            if( url.indexOf('../') > -1 ) {
+                var parts = url.substr(url.indexOf('://')+3).split('/');
+                var newPath = [];
+                $.each(parts, function(i, dir) {
+                    if( dir == '..' ) {
+                        newPath.splice(-1);
+                    } else {
+                        newPath.push(dir);
+                    }
+                });
+                return url.substr(0, url.indexOf('://')) +'://'+ newPath.join('/');
+            }
+            return url;
         },
 
         buildTemplates : function() {
@@ -99,7 +119,7 @@ var ArlimaTemplateLoader = (function($) {
                 url : template,
                 success : function(content) {
                     _self.isRequestingTemplate = false;
-                    callback( content );
+                    callback( content, _dirname(template)+'/' );
                 },
                 error : function() {
                     throw new Error('Unable to load template '+template);

@@ -576,7 +576,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 }
 
                 var templateName = ArticleEditor.articleTemplate(article);
-
                 var tmpl = ArlimaTemplateLoader.templates[templateName];
                 if(typeof tmpl == 'undefined')   {
                     tmpl = ArlimaTemplateLoader.templates['article'];
@@ -619,9 +618,9 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 $element.find('img').bind('load', updateIframeHeight);
             }
 
-            var previewPageWidth = $('.arlima-list-previewpage-width', Manager.getFocusedList().jQuery).val();
-            if( previewPageWidth ) {
-                ArticleEditor._$preview.children().eq(0).css('width', previewPageWidth+'px');
+            var previewWidth = $('.article-preview-width', Manager.getFocusedList().jQuery).val();
+            if( previewWidth ) {
+                ArticleEditor._$preview.children().eq(0).css('width', previewWidth+'px');
             }
 
             Manager.triggerEvent('previewUpdate', this.$item);
@@ -854,11 +853,33 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          * @param {String} templateName
          */
         toggleEditorFeatures : function(templateName) {
+
+            var isSectionDivider = this.data('options').section_divider ? true:false;
+
+            // Nothing but title for section dividers
+            if( isSectionDivider ) {
+                $('.arlima-streamer').hide();
+                $('#arlima-article-wp-connection').hide();
+                $('#wp-tinyMCE-wrap').hide();
+                $('#arlima-article-image-container').hide();
+                $('#arlima-article-settings').hide();
+                $('#arlima-edit-article-title-fontsize').hide();
+                $('#arlima-edit-article-title-fontsize-slider').hide();
+            } else  {
+                $('.arlima-streamer').show();
+                $('#arlima-article-wp-connection').show();
+                $('#wp-tinyMCE-wrap').show();
+                $('#arlima-article-image-container').show();
+                $('#arlima-article-settings').show();
+                $('#arlima-edit-article-title-fontsize').show();
+                $('#arlima-edit-article-title-fontsize-slider').show();
+            }
+
             if( templateName == '' )
                 templateName = this.currentlyEditedList.defaultTemplate();
 
             var tmpl = ArlimaTemplateLoader.templates[templateName];
-            if( tmpl !== undefined ) {
+            if( tmpl !== undefined && !isSectionDivider ) {
 
                 // Streamer
                 var $streamerButton = $('.arlima-streamer');
@@ -897,6 +918,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 else {
                     $('#arlima-edit-article-title-fontsize-slider').hide();
                     $('#arlima-edit-article-title-fontsize').hide();
+                }
+
+                // Template switcher
+                if( Manager.getFocusedList().getOption('allows_template_switching') ) {
+                    $('#template-switcher').show();
+                } else {
+                    $('#template-switcher').hide();
                 }
             }
         },
@@ -1493,6 +1521,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             Manager.removeList(list.id);
                         }
                         else {
+                            list.jQuery.find('.arlima-list').html('');
                             list.fill(json.articles, false, true);
                             list.displayVersionInfo(json.version, json.versioninfo, json.versions);
                             list.jQuery.find('.arlima-list').fadeIn('fast');
@@ -1857,7 +1886,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     })
                     .appendTo($winDoc.find('body'));
 
-
+                // Add save by key short cut
                 var ctrlKey = navigator.userAgent.indexOf('Mac') == -1 ? 'ctrl':'cmd';
                 $('<div></div>')
                     .text(ctrlKey+' + s '+ArlimaJS.lang.savePreview+' "'+list.getDisplayName()+'"')
@@ -1877,6 +1906,10 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         boxShadow : '0 0 7px #333'
                     })
                     .appendTo($div);
+
+                // Remove admin bar
+                $winDoc.find('#wpadminbar').remove();
+                $winDoc.find('body').css('margin-top', '-28px');
             });
 
             var _self = this;
@@ -1943,12 +1976,19 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * @param {String} titleElement
      * @constructor
      */
-    function ArlimaList(id, $element, imported, titleElement) {
+    function ArlimaList(id, $element, imported, titleElement, options) {
         this.jQuery = $element;
         this.id = id;
         this.isImported = imported;
         this.isUnsaved = false;
         this.titleElement = titleElement;
+        this.options = options;
+        var _self = this;
+        $.each(this.options, function(name, val) {
+            if($.isNumeric(val)) {
+                _self.options[name] = parseInt(val, 10); // we're doing this so that '1' and '0' can be used as boolean flags
+            }
+        });
     }
 
     /**
@@ -1964,10 +2004,34 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
     };
 
     /**
+     * @param name
+     * @returns {*}
+     */
+    ArlimaList.prototype.getOption = function(name) {
+        return this.options[name];
+    };
+
+    /**
      * @returns {String}
      */
     ArlimaList.prototype.defaultTemplate = function() {
         return $('.arlima-list-previewtemplate', this.jQuery).val();
+    };
+
+    /**
+     * Insert an article that servers as section divider
+     */
+    ArlimaList.prototype.addSectionDivider = function() {
+        var articleData = {
+            title : 'Section divider',
+            text : '',
+            url : '',
+            options : {
+                section_divider : '1'
+            }
+        };
+        this.fill([articleData], false, true);
+        this.toggleUnsavedState(true);
     };
 
     /**
@@ -2006,7 +2070,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             applyListBehavior = true;
         var _self = this;
         var $itemContainer = $parentElement ? $parentElement : this.jQuery.find('.arlima-list');
-        $itemContainer.html('');
         $.each(articles, function ( idx, article ) {
 
             var $listItem = $('<li />');
@@ -2018,7 +2081,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             ArlimaList.bindArticleItemEvents($listItem);
             ArlimaList.prepareArticleForListTransactions($listItem, article);
 
-            if(article.children.length > 0) {
+            if(article.children && article.children.length > 0) {
                 var $sublist = $('<ul />');
                 $listItem.append($sublist);
                 _self.fill(article.children, $sublist, false);
@@ -2184,11 +2247,20 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      */
     ArlimaList.applyItemPresentation = function($item, data) {
 
+        if( data.options.section_divider ) {
+            $item.addClass('section-divider');
+            return false;
+        }
+
         // FUTURE
         if(data.publish_date) {
             if( isFutureDate(data.publish_date) ) {
+                var publishTime = new Date(data.publish_date * 1000).getTime();
+                var utcOffset = new Date().getTimezoneOffset();
+                publishTime -= utcOffset * 60000;
+
                 $item.addClass('future');
-                $item.attr('title', new Date(data.publish_date * 1000));
+                $item.attr('title', new Date(publishTime));
             }
             else {
                 $item.removeAttr('title');
@@ -2224,20 +2296,21 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * @return {String}
      */
     ArlimaList.getArticleTitleHTML = function(articleData) {
-        var title = '';
+        var title = '',
+            opts = articleData.options || {};
 
         if(articleData.title)
             title = articleData.title.replace(/__/g, '');
         else if(articleData.text)
             title += '[' + articleData.text.replace(/(<.*?>)/ig,"").replace(/__/g, '').substring(0,30) +'...]';
 
-        if(articleData.options && articleData.options.pre_title) {
-            title = articleData.options.pre_title + ' ' + title;
+        if(opts.pre_title) {
+            title = opts.pre_title + ' ' + title;
         }
 
-        if(articleData.options && articleData.options.streamer) {
+        if(opts.streamer) {
             var color;
-            switch (articleData.options.streamer_type) {
+            switch (opts.streamer_type) {
                 case 'extra':
                     color = 'black';
                     break;
@@ -2254,7 +2327,10 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             title = '<span class="arlima-streamer-indicator" style="background:'+color+'"></span> '+title ;
         }
 
-        if(articleData.options && articleData.options.sticky)
+        if( opts.section_divider )
+            title = '&ndash;&ndash;&ndash; '+title+'  ';
+
+        if(opts.sticky)
             title = '<span class="sticky-icon">'+title+'</span>';
 
         return title;
@@ -2340,6 +2416,12 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 return false;
             });
 
+            // Add new section divider
+            $('.arlima-add-section-div', this).click(function() {
+                list.addSectionDivider();
+                return false;
+            });
+
             // Add events for list that isn't imported
             if(!list.isImported) {
 
@@ -2379,7 +2461,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             }
         });
 
-        var list = new ArlimaList(id, $element, data.is_imported, data.title_element);
+        var list = new ArlimaList(id, $element, data.is_imported, data.title_element, data.options);
         list.fill(data.articles, false, false);
         list.displayVersionInfo(data.version, data.versioninfo, data.versions);
 
@@ -2697,7 +2779,12 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             return false;
         if( !$.isNumeric(ts) )
             ts = ts.publish_date;
-        return ts && (ts*1000) > new Date().getTime();
+
+        var nowUTCZero = new Date().getTime();
+        var utcOffset = new Date().getTimezoneOffset();
+        nowUTCZero += utcOffset * 60000;
+
+        return ts && (ts*1000) > nowUTCZero;
     }
 
     /**

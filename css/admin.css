@@ -256,9 +256,10 @@ li.dragger {
     border: 2px solid #ff5b5b;
 }
 
-.arlima-list-container-remove {
+.arlima-list-container-remove,
+.arlima-add-section-div {
     float: right;
-    margin: 2px 5px 0 0;
+    margin: 2px 4px 0 -1px;
 }
 
 .arlima-list-header {
@@ -385,6 +386,15 @@ li.dragger {
 .listitem.future {
     opacity: 0.75;
     font-style: italic;
+}
+
+.listitem.section-divider div {
+    padding: 3px 5px 0;
+    background: #6C8DA3;
+    color: #FFF;
+    font-size: 90%;
+    font-weight: normal !important;
+    text-shadow: rgba(0, 0, 0, .4) 0 1px 0;
 }
 
 .listitem.sticky,
@@ -563,6 +573,10 @@ li.dragger {
 
 #arlima-lists ul li:hover {
     background: #eee;
+}
+
+.content-relations a {
+    margin-right: 4px;
 }
 
 #col-left {

@@ -50,8 +50,8 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $this->stripRootPathsFromFiles($files);
 
         $this->assertEquals(array(
-                'deep-include'=> array('file'=>'arlima/classes/tests/test-templates/deep-include.tmpl', 'url' => 'arlima/classes/tests/test-templates/deep-include.tmpl', 'label' => 'Deep-include', 'name'=>'deep-include'),
-                'some-template'=> array('file'=>'arlima/classes/tests/test-templates/some-template.tmpl', 'url' => 'arlima/classes/tests/test-templates/some-template.tmpl', 'label' => 'Some-template', 'name'=>'some-template'),
+                'deep-include'=> array('file'=>'arlima/classes/tests/test-templates/deep-include.tmpl', 'url' => 'arlima/classes/tests/test-templates/deep-include.tmpl', 'label' => 'Deep include', 'name'=>'deep-include'),
+                'some-template'=> array('file'=>'arlima/classes/tests/test-templates/some-template.tmpl', 'url' => 'arlima/classes/tests/test-templates/some-template.tmpl', 'label' => 'Some template', 'name'=>'some-template'),
                 'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'Article', 'name'=>'article'),
                 'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'Giant', 'name'=>'giant'),
                 'widget'=> array('file'=>'arlima/templates/widget.tmpl', 'url' => 'arlima/templates/widget.tmpl', 'label' => 'Widget', 'name'=>'widget'),
@@ -68,7 +68,7 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $this->stripRootPathsFromFiles($files);
 
         $this->assertEquals(array(
-                'deep-include'=> array('file'=>'arlima/classes/tests/test-templates/deep-include.tmpl', 'url' => 'arlima/classes/tests/test-templates/deep-include.tmpl', 'label' => 'Deep-include', 'name'=>'deep-include'),
+                'deep-include'=> array('file'=>'arlima/classes/tests/test-templates/deep-include.tmpl', 'url' => 'arlima/classes/tests/test-templates/deep-include.tmpl', 'label' => 'Deep include', 'name'=>'deep-include'),
                 'some-template'=> array('file'=>'arlima/classes/tests/test-templates/some-template.tmpl', 'url' => 'arlima/classes/tests/test-templates/some-template.tmpl', 'label' => 'APA', 'name'=>'some-template'),
                 'article'=> array('file'=>'arlima/templates/article.tmpl', 'url' => 'arlima/templates/article.tmpl', 'label' => 'Article', 'name'=>'article'),
                 'giant'=> array('file'=>'arlima/templates/giant.tmpl', 'url' => 'arlima/templates/giant.tmpl', 'label' => 'Giant', 'name'=>'giant'),

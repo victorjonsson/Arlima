@@ -70,15 +70,6 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     }
 
     /**
-     * Do we have a list? Does the list have articles?
-     * @return bool
-     */
-    function havePosts()
-    {
-        return $this->list->numArticles() > 0 && $this->list->numArticles() >= $this->getOffset();
-    }
-
-    /**
      * Will render all articles in the arlima list using jQuery templates. The template to be
      * used is an option in the article list object (Arlima_List). If no template exists in declared
      * template paths we will fall back on default templates (plugins/arlima/template/[name].tmpl)
@@ -103,9 +94,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         // Setup tmpl object creator
         $this->setupObjectCreator();
 
-        $articles = array_slice($this->list->getArticles(), $this->getOffset());
-
-        foreach ($articles as $article_data) {
+        foreach ($this->getArticlesToRender() as $article_data) {
             list($article_counter, $article_content) = $this->outputArticle(
                 $article_data,
                 $jQueryTmpl_df,
@@ -174,13 +163,19 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                             $article_template
                         );
 
+        $has_child_articles = !empty($article['children']) && is_array($article['children']);
+
         // load sub articles if there's any
-        if ( !empty($article['children']) && is_array($article['children']) ) {
+        if ( $has_child_articles ) {
             $template_data['sub_articles'] = $this->renderSubArticles($article['children'], $jQueryTmpl_df);
         }
 
         // output the article
-        $content = $this->generateTemplateOutput($jQueryTmpl_df, $template_factory, $template_data);
+        if( empty($post) && empty($article['title']) && empty($article['text']) && !$has_child_articles ) {
+            $content = ''; // empty article, don't render!
+        } else {
+            $content = $this->generateTemplateOutput($jQueryTmpl_df, $template_factory, $template_data);
+        }
 
         return array($article_counter + 1, $content);
     }

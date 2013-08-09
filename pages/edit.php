@@ -136,22 +136,52 @@ $available_lists = $factory->loadListSlugs();
                                             $tmpl = new Arlima_TemplatePathResolver();
                                             foreach($tmpl->getTemplateFiles() as $file) {
                                                 $selected = $file['name'] == $list->getOption('template') ? ' selected="selected"':'';
-                                                echo sprintf('<option value="%s"%s>%s</option>', $file['name'], $selected, $file['label']);
+                                                printf(
+                                                    '<option value="%s"%s>%s</option>',
+                                                    $file['name'],
+                                                    $selected, $file['label'] . ($file['name'] != $file['label'] ? ' ('.$file['name'].'.tmpl)':'')
+                                                );
                                             }
                                             ?>
                                         </select>
                                     </td>
 								</tr>
                                 <tr valign="top">
+                                    <th scope="row"><label for="allows_switch"><?php _e('Allow editors to switch template on articles in the list manager', 'arlima') ?></label></th>
+                                    <td>
+                                        <select id="allows_switch" name="options[allows_template_switching]">
+                                            <option value="1"<?php if( $list->isSupportingEditorTemplateSwitch() ) echo ' selected="selected"' ?>>
+                                                <?php _e('Yes', 'arlima') ?>
+                                            </option>
+                                            <option value="0"<?php if( !$list->isSupportingEditorTemplateSwitch() ) echo ' selected="selected"' ?>>
+                                                <?php _e('No', 'arlima') ?>
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr valign="top">
+                                    <th scope="row"><label for="supports_sections"><?php _e('Should this list support sections (read wiki for more info)', 'arlima') ?></label></th>
+                                    <td>
+                                        <select id="supports_sections" name="options[supports_sections]">
+                                            <option value="1"<?php if( $list->isSupportingSections() ) echo ' selected="selected"' ?>>
+                                                <?php _e('Yes', 'arlima') ?>
+                                            </option>
+                                            <option value="0"<?php if( !$list->isSupportingSections() ) echo ' selected="selected"' ?>>
+                                                <?php _e('No', 'arlima') ?>
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr valign="top">
                                     <th scope="row"><label for="pagestopurge"><?php _e('Pages to purge', 'arlima') ?></label></th>
-                                    <td><input id="pagestopurge" name="options[pagestopurge]" class="regular-text" value="<?php echo $list->options['pagestopurge']; ?>" />
+                                    <td><input id="pagestopurge" name="options[pages_to_purge]" class="regular-text" value="<?php echo $list->getOption('page_to_purge'); ?>" />
                                         <br /><span class="description"><?php _e('Comma separated list of URL\'s where this list will be displayed (for caching control only)', 'arlima') ?></span></td>
                                 </tr>
 								<tr valign="top">
 									<th scope="row"><?php _e('Title HTML-tags', 'arlima') ?></th>
 									<td>
-										<input name="options[before_title]" style="width:80%" class="regular-text" type="text" value="<?php echo htmlentities(  $list->options['before_title']  ); ?>" /> <label><?php _e('Before', 'arlima') ?></label> <br />
-										<input name="options[after_title]" style="width:80%" class="regular-text" type="text" value="<?php echo htmlentities(  $list->options['after_title']  ); ?>" /> <label><?php _e('After', 'arlima') ?></label><br />
+										<input name="options[before_title]" style="width:80%" class="regular-text" type="text" value="<?php echo htmlentities( $list->getOption('before_title') ); ?>" /> <label><?php _e('Before', 'arlima') ?></label> <br />
+										<input name="options[after_title]" style="width:80%" class="regular-text" type="text" value="<?php echo htmlentities( $list->getOption('after_title') ); ?>" /> <label><?php _e('After', 'arlima') ?></label><br />
 									<span class="description"><?php _e('Default &lt;h2&gt;, &lt;/h2&gt;', 'arlima') ?></span></td>
 								</tr>
 								</tbody>

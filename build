@@ -90,7 +90,7 @@ exec('mval ./readme.txt', function(error, stdout, stderr) {
     }
 
     tests.every(function(file) {
-        exec('phpunit.phar '+file, function (error, stdout, stderr) {
+        exec('phpunit.phar  --no-globals-backup '+file, function (error, stdout, stderr) {
 
             if( testsFailed )
                 return;

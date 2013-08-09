@@ -571,3 +571,9 @@ msgstr "Dölj relaterade inlägg (default)"
 
 msgid "Related posts"
 msgstr "Relaterade inlägg"
+
+msgid "Should this list support sections (read wiki for more info)"
+msgstr "Ska listan stödja blockindelning?"
+
+msgid "Allow editors to switch template on articles in the list manager"
+msgstr "Tillåt redaktörer att byta mall på enskilda artiklar"

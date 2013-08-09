@@ -41,4 +41,8 @@ class Arlima_Page_Edit extends Arlima_AbstractAdminPage {
     {
         return 'arlima-main';
     }
+
+    public function capability() {
+        return 'manage_options';
+    }
 }

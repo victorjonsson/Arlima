@@ -59,7 +59,7 @@ class Arlima_TemplatePathResolver
                 if ( empty($templates[$name]) ) {
                     $templates[$name] = array(
                                         'file' => $file,
-                                        'label' => empty($labels[$name]) ? ucfirst($name) : $labels[$name],
+                                        'label' => empty($labels[$name]) ? str_replace('-', ' ', ucfirst($name)) : $labels[$name],
                                         'name' => $name,
                                         'url' => $this->fileToUrl($file)
                                     );

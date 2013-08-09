@@ -597,23 +597,25 @@ class Arlima_AdminAjaxManager
         $connector = new Arlima_ListConnector($list);
         $preview_page = current($connector->loadRelatedPages());
         $preview_url = '';
-        $preview_page_width = '';
+        $preview_width = '';
 
         // Get article width from a related page
         if( $preview_page ) {
             $preview_url = get_permalink($preview_page->ID);
             $relation = $connector->getRelationData($preview_page->ID);
-            $preview_page_width = $relation['attr']['width'];
+            $preview_width = $relation['attr']['width'];
         }
 
         // Get article width form a widget where the list is used
         elseif( $widget = current($connector->loadRelatedWidgets()) ) {
-            $preview_page_width = $widget['width'];
+            $preview_width = $widget['width'];
         }
 
         if( empty($preview_url) ) {
             $preview_url = apply_filters('arlima_preview_url', '', $list);
         }
+
+        $preview_width = apply_filters('arlima_tmpl_width', $preview_width, $list);
 
         ?>
         <div class="arlima-list-header">
@@ -621,6 +623,11 @@ class Arlima_AdminAjaxManager
                 <a href="#" class="arlima-list-container-remove">
                     <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
                 </a>
+                <?php if( $list->isSupportingSections() && current_user_can('manage_options') ): ?>
+                    <a href="#" class="arlima-add-section-div">
+                        <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/plus-icon.png'; ?>"/>
+                    </a>
+                <?php endif; ?>
                 <?php echo $list->getTitle(); ?>
             </span>
         </div>
@@ -652,8 +659,8 @@ class Arlima_AdminAjaxManager
                value="<?php echo $list->id(); ?>"/>
         <input type="hidden" name="arlima-list-previewpage" id="arlima-list-previewpage-<?php echo $list->id(); ?>"
                class="arlima-list-previewpage" value="<?php echo $preview_url ?>"/>
-        <input type="hidden" name="arlima-list-previewpage" id="arlima-list-previewpage-<?php echo $list->id(); ?>"
-               class="arlima-list-previewpage-width" value="<?php echo $preview_page_width ?>"/>
+        <input type="hidden" name="article-preview-width"
+               class="article-preview-width" value="<?php echo $preview_width ?>"/>
         <input type="hidden" name="arlima-version-id" id="arlima-version-id-<?php echo $list->id(); ?>"
                class="arlima-version-id" value="<?php echo $list->getVersionAttribute('id'); ?>"/>
         <input type="hidden" name="arlima-list-template" id="arlima-list-previewtemplate-<?php echo $list->id(); ?>"
@@ -669,7 +676,8 @@ class Arlima_AdminAjaxManager
             'versions' => $list->getVersions(),
             'title_element' => $list->getTitleElement(),
             'is_imported' => 0,
-            'exists' => $list->exists()
+            'exists' => $list->exists(),
+            'options' => $list->getOptions()
         );
         echo json_encode($data);
     }

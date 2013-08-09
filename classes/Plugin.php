@@ -62,7 +62,7 @@ class Arlima_Plugin
 
         // Add filters that makes content editable in context
         if( is_user_logged_in() ) {
-            if( is_arlima_preview() ) {
+            if( arlima_is_preview() ) {
                 wp_enqueue_script('jquery'); // The list manager uses the jQuery object on this page
             } elseif( $this->getSetting('in_context_editing') ) {
                 $editor = new Arlima_InContextEditor($this);
@@ -75,15 +75,15 @@ class Arlima_Plugin
      */
     function displayArlimaList($content)
     {
-        if( has_arlima_list() ) {
+        if( arlima_has_list() ) {
             global $post;
             $connector = new Arlima_ListConnector();
             $relation = $connector->getRelationData($post->ID);
             if( isset($relation['attr']['position']) && $relation['attr']['position'] == 'after') {
                 $relation['attr']['echo'] = false;
-                $content .= arlima_render_list(get_arlima_list(), $relation['attr']);
+                $content .= arlima_render_list(arlima_get_list(), $relation['attr']);
             } else {
-                arlima_render_list(get_arlima_list(), isset($relation['attr']) ?  $relation['attr'] : array());
+                arlima_render_list(arlima_get_list(), isset($relation['attr']) ?  $relation['attr'] : array());
             }
         }
 

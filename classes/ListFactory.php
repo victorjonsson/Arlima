@@ -14,17 +14,6 @@ class Arlima_ListFactory {
     const DB_VERSION = '1.7';
 
     /**
-     * Default options for an article list
-     * @var array
-     */
-    private $options = array(
-        'template' => 'article',
-        'before_title' => '<h2>',
-        'after_title' => '</h2>',
-        'pagestopurge' => ''
-    );
-
-    /**
      * @var wpdb
      */
     private $wpdb;
@@ -63,7 +52,7 @@ class Arlima_ListFactory {
      */
     public function createList($title, $slug, $options=array(), $max_length=50)
     {
-        $options = array_merge($this->options, $options);
+        $options = array_merge(Arlima_List::getDefaultListOptions(), $options);
 
         $insert_data = array(
             time(),
@@ -107,7 +96,7 @@ class Arlima_ListFactory {
             $list->getTitle(),
             $list->getSlug(),
             $list->getMaxlength(),
-            serialize( $list->getOptions() ),
+            serialize( self::sanitizeListOptions($list->getOptions()) ),
             (int)$list->id()
         );
 
@@ -557,7 +546,7 @@ class Arlima_ListFactory {
                 $list->setTitle($list_data['title']);
                 $list->setSlug($list_data['slug']);
                 $list->setMaxlength($list_data['maxlength']);
-                $list->setOptions(unserialize($list_data['options']));
+                $list->setOptions( self::sanitizeListOptions(unserialize($list_data['options'])) );
                 $this->cache->set('arlima_list_props_'.$id, $list);
             }
         }
@@ -639,6 +628,7 @@ class Arlima_ListFactory {
 
         // Remove future posts
         if( !$include_future_posts ) {
+
             foreach( $articles as $i => $article ) {
                 if( $article['publish_date'] && ( $article['publish_date'] > time() ) ) {
                     unset( $articles[$i] );
@@ -907,16 +897,11 @@ class Arlima_ListFactory {
      */
     protected static function sanitizeListOptions($options)
     {
-        $default_options = array(
-            'template' => 'article',
-            'before_title' => '<h2>',
-            'after_title' => '</h2>',
-            'pagestopurge' => ''
-        );
+        $default_options = Arlima_List::getDefaultListOptions();
 
         // Override default options
         foreach($default_options as $name => $val) {
-            if(empty($options[$name]))
+            if( !isset($options[$name]) )
                 $options[$name] = $val;
         }
 
@@ -948,7 +933,7 @@ class Arlima_ListFactory {
             'streamer_content' => '',
             'streamer_image' => '',
             'streamer_type' => 'extra',
-            'hiderelated' => false,
+            'hiderelated' => false, // todo: make depr, use underscore between words
             'template' => '',
             'format' => '',
             'overriding_url' => '',
@@ -965,7 +950,7 @@ class Arlima_ListFactory {
             'status' => 1,
             'text' => '',
             'title' => 'Unknown',
-            'title_fontsize' => 24,
+            'title_fontsize' => 24, // todo: make depr, use underscore between words
             'created' => 0,
             'publish_date' => 0
         );

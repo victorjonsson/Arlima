@@ -74,6 +74,15 @@ abstract class Arlima_AbstractListRenderingManager
      */
     private $limit = -1;
 
+    /**
+     * @var bool|int|string
+     */
+    private $section = false;
+
+    /**
+     * @var bool|array
+     */
+    private $articles_to_render = false;
 
     /**
      * Class constructor
@@ -85,10 +94,7 @@ abstract class Arlima_AbstractListRenderingManager
     }
 
 
-
     /* * * * * * * * * * * * LIST CALLBACKS * * * * * * * * * * */
-
-
 
     /**
      * Makes it possible to add content that is supposed to be put in
@@ -152,14 +158,35 @@ abstract class Arlima_AbstractListRenderingManager
 
     /* * * * * * * * * * * * LIST RENDERING FUNCTIONS * * * * * * * * * * * * * */
 
-
+    /**
+     * @return array
+     */
+    protected function getArticlesToRender()
+    {
+        if( $this->articles_to_render === false ) {
+            if( $this->section !== false ) {
+                $this->articles_to_render = $this->extractSectionArticles($this->list->getArticles(), $this->section);
+            } else {
+                $articles = array();
+                foreach($this->list->getArticles() as $art) {
+                    if( empty($art['options']['section_divider']) )
+                        $articles[] = $art;
+                }
+                $this->articles_to_render = array_slice($articles, $this->getOffset());
+            }
+        }
+        return $this->articles_to_render;
+    }
 
     /**
      * Do we have a list? Does the list have articles?
-     * @abstract
      * @return bool
      */
-    abstract function havePosts();
+    function havePosts()
+    {
+        $this->getArticlesToRender(); // collect articles
+        return !empty($this->articles_to_render);
+    }
 
     /**
      * Render the list of articles
@@ -206,12 +233,73 @@ abstract class Arlima_AbstractListRenderingManager
         return array($post, $article, $is_post, $is_empty);
     }
 
+    /**
+     * Extract articles that's located in the section that's meant
+     * to be rendered
+     * @see AbstractListRenderingManager::setSection()
+     * @param array $articles
+     * @param string|int $section
+     * @return array
+     */
+    function extractSectionArticles($articles, $section)
+    {
+        $offset = $this->getOffset();
+        $wants_indexed_section = is_numeric($section);
+        $start_collecting_articles = false;
+        $section_index = -1;
+        $extracted_articles = array();
 
+        foreach($articles as $art) {
+
+            $is_section_divider = !empty($art['options']['section_divider']);
+
+            if( $start_collecting_articles ) {
+                if( $is_section_divider ) {
+                    // next section begins, we're done!
+                    break;
+                }
+                if( $offset > 1 ) {
+                    $offset--;
+                } else {
+                    $extracted_articles[] = $art;
+                }
+            }
+
+            elseif( $is_section_divider ) {
+                $section_index++;
+                if( $wants_indexed_section && $section_index == $section ) {
+                    $start_collecting_articles = true;
+                } elseif( !$wants_indexed_section && strcasecmp($section, $art['options']['section_divider']) == 0) {
+                    $start_collecting_articles = true;
+                }
+            }
+        }
+        return $extracted_articles;
+    }
 
 
     /* * * * * * * * * * * * SETTERS ´n GETTERS * * * * * * * * * * * * */
 
 
+    /**
+     * - Set to false if you want to render entire list (default)
+     * - Set to a string if you want to render a section with given name
+     * - Set to a number if you want to render the section at given index
+     * @param int|bool|string $section
+     */
+    function setSection($section)
+    {
+        $this->articles_to_render = false; // recollect articles
+        $this->section = $section;
+    }
+
+    /**
+     * @return bool|int|string
+     */
+    function getSection()
+    {
+        return $this->section;
+    }
 
     /**
      * @param string $img_size_name_sub_article_full
@@ -303,6 +391,7 @@ abstract class Arlima_AbstractListRenderingManager
      */
     public function setOffset($offset)
     {
+        $this->articles_to_render = false; // recollect articles
         $this->offset = (int)$offset;
     }
 

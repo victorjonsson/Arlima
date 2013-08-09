@@ -134,20 +134,22 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         $style_sheets = $this->plugin->getTemplateStylesheets();
         ?>
         <script>
-            var tmpls = [];
-            <?php foreach ($tmpl_resolver->getTemplateFiles() as $tmpl): ?>
-            tmpls.push('<?php echo $tmpl['url']; ?>?v=5');
-            <?php endforeach; ?>
-            ArlimaTemplateLoader.load(tmpls);
-            <?php if ( !empty($_GET['open_list']) ): ?>
-            var loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
-            <?php endif; ?>
-            <?php if( is_array($style_sheets) && !empty($style_sheets) ): ?>
-                var arlimaTemplateStylesheets = [];
-                <?php foreach($style_sheets as $style): ?>
-                    arlimaTemplateStylesheets.push('<?php echo $style ?>');
+            (function(win) {
+                var tmpls = [];
+                <?php foreach ($tmpl_resolver->getTemplateFiles()as $tmpl): ?>
+                    tmpls.push('<?php echo $tmpl['url']; ?>?v=7');
                 <?php endforeach; ?>
-            <?php endif; ?>
+                win.ArlimaTemplateLoader.load(tmpls);
+                <?php if ( !empty($_GET['open_list']) ): ?>
+                    win.loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
+                <?php endif; ?>
+                <?php if( is_array($style_sheets) && !empty($style_sheets) ): ?>
+                    win.arlimaTemplateStylesheets = [];
+                    <?php foreach($style_sheets as $style): ?>
+                        win.arlimaTemplateStylesheets.push('<?php echo $style ?>');
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            })(window);
         </script>
     <?php
     }

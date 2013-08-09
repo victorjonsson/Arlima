@@ -43,7 +43,7 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
     function testOffsetAndLimit() {
 
         $renderers = array(
-            'Arlima_ListTemplateRenderer' => 'Failed using Arlima_ListTemplateRenderer',
+           // 'Arlima_ListTemplateRenderer' => 'Failed using Arlima_ListTemplateRenderer',
             'Arlima_SimpleListRenderer' => 'Failed using Arlima_SimpleListRenderer'
         );
 

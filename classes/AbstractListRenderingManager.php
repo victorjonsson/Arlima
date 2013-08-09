@@ -161,7 +161,7 @@ abstract class Arlima_AbstractListRenderingManager
     /**
      * @return array
      */
-    protected function getArticlesToRender()
+    public function getArticlesToRender()
     {
         if( $this->articles_to_render === false ) {
             if( $this->section !== false ) {
@@ -241,8 +241,13 @@ abstract class Arlima_AbstractListRenderingManager
      * @param string|int $section
      * @return array
      */
-    function extractSectionArticles($articles, $section)
+    protected function extractSectionArticles($articles, $section)
     {
+        $extract_all = false;
+        if( substr($section, 0, 2) == '>=' ) {
+            $section = substr($section, 2);
+            $extract_all = true;
+        }
         $offset = $this->getOffset();
         $wants_indexed_section = is_numeric($section);
         $start_collecting_articles = false;
@@ -254,7 +259,7 @@ abstract class Arlima_AbstractListRenderingManager
             $is_section_divider = !empty($art['options']['section_divider']);
 
             if( $start_collecting_articles ) {
-                if( $is_section_divider ) {
+                if( $is_section_divider && !$extract_all ) {
                     // next section begins, we're done!
                     break;
                 }
@@ -269,7 +274,7 @@ abstract class Arlima_AbstractListRenderingManager
                 $section_index++;
                 if( $wants_indexed_section && $section_index == $section ) {
                     $start_collecting_articles = true;
-                } elseif( !$wants_indexed_section && strcasecmp($section, $art['options']['section_divider']) == 0) {
+                } elseif( !$wants_indexed_section && strcasecmp($section, $art['title']) == 0) {
                     $start_collecting_articles = true;
                 }
             }
@@ -285,6 +290,7 @@ abstract class Arlima_AbstractListRenderingManager
      * - Set to false if you want to render entire list (default)
      * - Set to a string if you want to render a section with given name
      * - Set to a number if you want to render the section at given index
+     * - Set to eg. >2 if you want to render all articles, starting from the second section
      * @param int|bool|string $section
      */
     function setSection($section)

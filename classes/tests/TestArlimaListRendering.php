@@ -40,6 +40,58 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         $this->assertEquals('root -> include1 -> include2 -> article1', $list_content);
     }
 
+    function testSectionDividers() {
+        $list = $this->createList(11);
+        $list->setOption('supports_sections', 1);
+        $articles = $list->getArticles();
+
+        $articles[0]['options']['section_divider'] = 1;
+        $articles[3]['options']['section_divider'] = 1;
+        $articles[3]['title'] = 'secundo';
+        $articles[9]['options']['section_divider'] = 1;
+        $list->setArticles($articles);
+
+        $renderer = new Arlima_ListTemplateRenderer($list);
+
+        $renderer->setSection(0);
+        $articles = $renderer->getArticlesToRender();
+
+        $this->assertEquals(2, count($articles));
+        $this->assertEquals('article2', $articles[0]['title']);
+        $this->assertEquals('article3', $articles[1]['title']);
+
+        $renderer->setSection(1);
+        $articles = $renderer->getArticlesToRender();
+
+        $this->assertEquals(5, count($articles));
+        $this->assertEquals('article5', $articles[0]['title']);
+        $this->assertEquals('article6', $articles[1]['title']);
+        $this->assertEquals('article7', $articles[2]['title']);
+
+        $renderer->setSection('secundo');
+        $articles = $renderer->getArticlesToRender();
+        $this->assertEquals(5, count($articles));
+        $this->assertEquals('article5', $articles[0]['title']);
+        $this->assertEquals('article6', $articles[1]['title']);
+        $this->assertEquals('article7', $articles[2]['title']);
+
+        $renderer->setSection('>=1');
+        $articles = $renderer->getArticlesToRender();
+
+        $this->assertEquals(7, count($articles));
+        $this->assertEquals('article5', $articles[0]['title']);
+        $this->assertEquals('article6', $articles[1]['title']);
+        $this->assertEquals('article11', $articles[ count($articles)-1 ]['title']);
+
+        $renderer->setSection('>=secundo');
+        $articles = $renderer->getArticlesToRender();
+
+        $this->assertEquals(7, count($articles));
+        $this->assertEquals('article5', $articles[0]['title']);
+        $this->assertEquals('article6', $articles[1]['title']);
+        $this->assertEquals('article11', $articles[ count($articles)-1 ]['title']);
+    }
+
     function testOffsetAndLimit() {
 
         $renderers = array(

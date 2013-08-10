@@ -285,8 +285,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          */
         _formSlidingCallback : false,
 
-        _$previewIframe : false,
-
         /**
          * Setup for article editor
          */
@@ -310,24 +308,35 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             }
 
             // Create preview iframe document
-            if( typeof arlimaTemplateStylesheets != 'undefined' ) {
-                this._$preview.html('<iframe style="width:100%; height: 200px; overflow: hidden" border="0" frameborder="0"></iframe>');
-                this._$previewIframe = $(this._$preview.find('iframe').eq(0).contents());
-                var _self = this;
-                $.each(arlimaTemplateStylesheets, function(i, styleSheet) {
-                    _self._$previewIframe.find('head').append('<link rel="stylesheet" type="text/css" href="'+styleSheet+'" />');
-                });
-                this._$previewIframe.find('body')
-                    .addClass('arlima-preview-iframe')
-                    .css({
-                        border: 0,
-                        padding: 0,
-                        margin: 0,
-                        overflow : 'hidden'
+            if( window.arlimaTemplateStylesheets !== undefined ) {
+                this._$preview.html('<iframe name="arlima-preview-iframe" id="arlima-preview-iframe" style="width:100%; height: 200px; overflow: hidden" border="0" frameborder="0"></iframe>');
+
+                // This has to be done in a timeout for it to work in firefox
+                setTimeout(function() {
+                    $.each(window.arlimaTemplateStylesheets, function(i, styleSheet) {
+                        ArticleEditor._previewIframe().find('head').append('<link rel="stylesheet" type="text/css" href="'+styleSheet+'" />');
                     });
+                    ArticleEditor._previewIframe()
+                        .addClass('arlima-preview-iframe')
+                        .css({
+                            border: 0,
+                            padding: 0,
+                            margin: 0,
+                            overflow : 'hidden'
+                        });
+
+                }, 500);
             }
 
             this.PostConnector.init(this._$form);
+        },
+
+        /**
+         * @returns {jQuery}
+         * @private
+         */
+        _previewIframe : function() {
+            return this._$preview.find('iframe').contents();
         },
 
         /**
@@ -488,7 +497,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     templateArgs.article.html_title = '<'+el+' style="font-size:'+article.title_fontsize+'px">'+title+'</'+el+'>';
                 }
 
-
                 if( article.options ) {
 
                     // Format class
@@ -588,11 +596,9 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 // Don't let jquery-tmpl insert image sources, it will generate 404
                 tmpl = tmpl.replace(/{{html image.src}}/g, templateArgs.image.src ? templateArgs.image.src:'');
 
-                var tmplHTML = $('<div>'+tmpl+'</div>').tmpl( templateArgs );
-
                 $container
                     .empty()
-                    .append( tmplHTML );
+                    .append( $('<div>'+tmpl+'</div>').tmpl( templateArgs ) );
             }
 
             var article = this.serializeArticle(this.$item, true);
@@ -602,16 +608,19 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             // TODO: this function gets called twice when previewing an article!!
 
             var $element = this._$preview;
-            if( this._$previewIframe !== false ) {
-                $element = this._$previewIframe.find('body');
+            if( this._previewIframe() ) {
+                $element = this._previewIframe().find('body');
             }
 
             _buildPreviewTeaser($element, article, false);
 
-            if( this._$previewIframe !== false ) {
+            if( this._previewIframe() ) {
                 var _self = this;
                 var updateIframeHeight = function() {
                     var elementHeight = $element.children().eq(0).outerHeight();
+                    if( !elementHeight )
+                        elementHeight = 400;
+
                     _self._$preview.find('iframe').eq(0).height(elementHeight);
                 };
                 setTimeout(updateIframeHeight, 50);

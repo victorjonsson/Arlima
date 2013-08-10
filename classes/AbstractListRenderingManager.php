@@ -260,7 +260,7 @@ abstract class Arlima_AbstractListRenderingManager
 
             if( $start_collecting_articles ) {
                 if( $is_section_divider && !$extract_all ) {
-                    // next section begins, we're done!
+                    // next section begins and we're not intending to collect all articles == we're done!
                     break;
                 }
                 if( $offset > 1 ) {
@@ -290,7 +290,7 @@ abstract class Arlima_AbstractListRenderingManager
      * - Set to false if you want to render entire list (default)
      * - Set to a string if you want to render a section with given name
      * - Set to a number if you want to render the section at given index
-     * - Set to eg. >2 if you want to render all articles, starting from the second section
+     * - Set to eg. >=2 if you want to render all articles, starting from the second section
      * @param int|bool|string $section
      */
     function setSection($section)

@@ -751,6 +751,7 @@ class Arlima_AdminAjaxManager
         if ( is_object($post) && $post->post_type == 'post' && $post->post_status != 'deleted' && $post->post_status != 'trash' ) {
             $post->url = get_permalink($post->ID);
             $post->publish_date = strtotime($post->post_date_gmt);
+            $post = apply_filters('arlima_wp_post', $post);
             echo json_encode((array)$post);
             die;
         }

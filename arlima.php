@@ -229,15 +229,17 @@ function arlima_get_list($list_only = true) {
 /**
  * Load an arlima list
  * @param string|int $id_or_slug
+ * @param string|bool|int $version - Omit this argument to get latest public version. Set argument
+ * to a number to get a specific version. Set this argument to 'preview' to get latest preview version of the list
  * @param bool $include_future_post
  * @return Arlima_List
  */
-function arlima_load_list($id_or_slug, $include_future_post=false) {
+function arlima_load_list($id_or_slug, $version=false, $include_future_post=false) {
     $factory = new Arlima_ListFactory();
     if( is_numeric($id_or_slug) ) {
-        return $factory->loadList($id_or_slug, false, $include_future_post);
+        return $factory->loadList($id_or_slug, $version, $include_future_post);
     } else {
-        return $factory->loadListBySlug($id_or_slug, false, $include_future_post);
+        return $factory->loadListBySlug($id_or_slug, $version, $include_future_post);
     }
 }
 

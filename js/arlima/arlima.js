@@ -252,6 +252,11 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         _$preview : null,
 
         /**
+         * @property {Boolean}
+         */
+        hasPreviewIframe : false,
+
+        /**
          * @property {ArlimaList}
          */
         currentlyEditedList : false,
@@ -309,6 +314,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
             // Create preview iframe document
             if( window.arlimaTemplateStylesheets !== undefined ) {
+
+                this.hasPreviewIframe = true;
                 this._$preview.html('<iframe name="arlima-preview-iframe" id="arlima-preview-iframe" style="width:100%; height: 200px; overflow: hidden" border="0" frameborder="0"></iframe>');
 
                 // This has to be done in a timeout for it to work in firefox
@@ -608,13 +615,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             // TODO: this function gets called twice when previewing an article!!
 
             var $element = this._$preview;
-            if( this._previewIframe() ) {
+            if( this.hasPreviewIframe ) {
                 $element = this._previewIframe().find('body');
             }
 
             _buildPreviewTeaser($element, article, false);
 
-            if( this._previewIframe() ) {
+            if( this.hasPreviewIframe ) {
                 var _self = this;
                 var updateIframeHeight = function() {
                     var elementHeight = $element.children().eq(0).outerHeight();
@@ -1092,6 +1099,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         },
 
         /**
+         * @returns {jQuery}
+         */
+        previewElement : function() {
+            return this.hasPreviewIframe ? this._previewIframe() : this._$preview;
+        },
+
+        /**
          * Add or remove editor blocker which makes it impossible to edit
          * the article form
          * @param {Boolean} toggle
@@ -1207,6 +1221,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         _$info : false,
         _$tinyMCEMediaButton : false,
         _$futureNotice : false,
+        currentPost : false,
         $fancyBox : false,
 
         /**
@@ -1236,7 +1251,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 this._$info.html('');
                 this._$tinyMCEMediaButton.attr('href', 'media-upload.php?post_id=' + article.post_id + '&type=image&TB_iframe=1&send=true');
                 Backend.getPost(article.post_id, function(json) {
-                    _self._setConnectionLabel('(post #'+json.ID+') '+json.post_title, json.post_title);
+                    if( json.url ) {
+                        Manager.triggerEvent('postLoaded', json);
+                        _self.currentPost = json;
+                        _self._setConnectionLabel('(post #'+json.ID+') '+json.post_title, json.post_title);
+                    } else {
+                        _self.currentPost = false;
+                    }
                 });
             }
             else {
@@ -1317,11 +1338,14 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     var _self = this;
                     Backend.getPost(arg, function(json) {
                         if(json && json.url) {
+                            _self.currentPost = json;
+                            Manager.triggerEvent('postLoaded', json);
                             $('#arlima-edit-article-url').val(json.url);
                             articleData.publish_date = json.publish_date;
                             _self._setConnectionLabel('(post #'+json.ID+') '+json.post_title, json.post_title);
                         }
                         else {
+                            _self.currentPost = false;
                             articleData.publish_date = 3;
                             alert('This post has been removed'); // this should never happen
                         }
@@ -2255,6 +2279,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * @return {Boolean}
      */
     ArlimaList.applyItemPresentation = function($item, data) {
+
+        data.options = data.options || {};
 
         if( data.options.section_divider ) {
             $item.addClass('section-divider');

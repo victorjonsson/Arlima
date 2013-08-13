@@ -259,14 +259,17 @@ abstract class Arlima_AbstractListRenderingManager
             $is_section_divider = !empty($art['options']['section_divider']);
 
             if( $start_collecting_articles ) {
-                if( $is_section_divider && !$extract_all ) {
-                    // next section begins and we're not intending to collect all articles == we're done!
-                    break;
-                }
-                if( $offset > 1 ) {
-                    $offset--;
+                if( $is_section_divider ) {
+                    if( !$extract_all ) {
+                        // next section begins and we're not intending to collect all articles == we're done!
+                        break;
+                    }
                 } else {
-                    $extracted_articles[] = $art;
+                    if( $offset > 1 ) {
+                        $offset--;
+                    } else {
+                        $extracted_articles[] = $art;
+                    }
                 }
             }
 

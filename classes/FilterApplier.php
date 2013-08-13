@@ -152,7 +152,8 @@ class Arlima_FilterApplier
         $img_class = '';
         $has_img = !empty($article['image_options']) && !empty($article['image_options']['attach_id']);
         $has_giant_tmpl = !empty($article['options']['template']) && $article['options']['template'] == 'giant';
-        $is_child_article = !empty($article['parent']) && $article['parent'] != -1;
+        $is_child_article = isset($article['parent']) && $article['parent'] != -1;
+
         $article_width = $is_child_article ? round(self::$width / 2) : self::$width;
 
         if ( $has_img && !$has_giant_tmpl && $attach_meta = wp_get_attachment_metadata($article['image_options']['attach_id']) ) {
@@ -254,7 +255,6 @@ class Arlima_FilterApplier
                 $img_url = $attach_url;
             }
         } else {
-
             $version_manager = new Arlima_ImageVersionManager($attach_id, new Arlima_Plugin());
             $img_url = $version_manager->getVersionURL($size[0]);
             if( $img_url === false )
@@ -277,9 +277,10 @@ class Arlima_FilterApplier
 
         if( empty($filtered['content']) && $filtered['content'] !== false) {
             $url = $article['post_id'] ? admin_url('post.php?action=edit&amp;post=' . $post->ID) : $article['url'];
-            $filtered['content'] = '<div class="arlima future-post">
-                        Hey dude, <a href="' . $url . '" target="_blank">&quot;'.$article['title'].'&quot;</a>
-                        will not show up in the list until it\'s published, unless you\'re not previewing the list that is...
+            $filtered['content'] = '<div class="arlima future-post"><p>
+                        Hey dude, <a href="' . $url . '" target="_blank">&quot;'.$article['title'].'&quot;</a> is
+                        connected to a post that isn\'t published yet. The article will become public in '.
+                        human_time_diff(time(), $article['publish_date']).'.</p>
                     </div>';
         }
 

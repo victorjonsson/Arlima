@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.7.20
+Stable tag: 2.7.21
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,17 +44,18 @@ the list that you created on step 2.
 
 = 2.8 =
 
-- Template function {{include}} now support relative paths
-- It's now possible to choose whether or not editors should be able to change template for an article in the list manager
-- Arlima now supports lists which articles is divided in sections (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Article-lists-with-sections)
-- The template functions is_arlima_preview(), get_arlima_list() and has_arlima_list() has become deprecated, replaced with arlima_is_preview(), arlima_get_list() and arlima_has_list()
-- The template function arlima_load_list($slug_or_id) is added to the public api (see wiki for more details https://github.com/victorjonsson/Arlima/wiki/Writing-a-custom-page-template)
-
+- jQuery-tmpl function {{include}} now supports relative paths.
+- A new jQuery-tmpl function named {{image-support}} is introduced (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Custom-jQuery-templates).
+- It's now possible to choose whether or not editors should be able to change template for articles via the list manager.
+- It's now possible to include php files inside articles (see wiki for more info).
+- Arlima now supports lists that has articles divided in sections (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Article-lists-with-sections).
+- The template functions is_arlima_preview(), get_arlima_list() and has_arlima_list() has become deprecated, replaced with arlima_is_preview(), arlima_get_list() and arlima_has_list().
+- The template function arlima_load_list($slug_or_id) is added to the public API (see wiki for more details https://github.com/victorjonsson/Arlima/wiki/Writing-a-custom-page-template).
 
 = 2.7.21 =
 
 - Now possible to add your own streamer classes.
-- Article preview is now rendered in an iframe which makes it easier to write custom CSS without overwriting the CSS in wp-admin
+- Article preview is now rendered in an iframe which makes it easier to write custom CSS without overwriting the CSS in wp-admin.
 
 = 2.7.17 =
 

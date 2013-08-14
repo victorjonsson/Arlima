@@ -78,7 +78,7 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         $renderer->setSection('>=1');
         $articles = $renderer->getArticlesToRender();
 
-        $this->assertEquals(7, count($articles));
+        $this->assertEquals(6, count($articles));  // Minus the section divider
         $this->assertEquals('article5', $articles[0]['title']);
         $this->assertEquals('article6', $articles[1]['title']);
         $this->assertEquals('article11', $articles[ count($articles)-1 ]['title']);
@@ -86,7 +86,7 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         $renderer->setSection('>=secundo');
         $articles = $renderer->getArticlesToRender();
 
-        $this->assertEquals(7, count($articles));
+        $this->assertEquals(6, count($articles));
         $this->assertEquals('article5', $articles[0]['title']);
         $this->assertEquals('article6', $articles[1]['title']);
         $this->assertEquals('article11', $articles[ count($articles)-1 ]['title']);

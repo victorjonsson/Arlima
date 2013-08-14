@@ -870,10 +870,11 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          */
         toggleEditorFeatures : function(templateName) {
 
-            var isSectionDivider = this.data('options').section_divider ? true:false;
+            var isSectionDivider = this.data('options').section_divider ? true:false,
+                fileInclude = this.data('options').file_include;
 
             // Nothing but title for section dividers
-            if( isSectionDivider ) {
+            if( isSectionDivider || fileInclude ) {
                 $('.arlima-streamer').hide();
                 $('#arlima-article-wp-connection').hide();
                 $('#wp-tinyMCE-wrap').hide();
@@ -894,8 +895,16 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             if( templateName == '' )
                 templateName = this.currentlyEditedList.defaultTemplate();
 
-            var tmpl = ArlimaTemplateLoader.templates[templateName];
-            if( tmpl !== undefined && !isSectionDivider ) {
+            var tmpl = ArlimaTemplateLoader.templates[templateName],
+                $fileIncludeInfo = $('#file-include-info');
+
+            if( fileInclude ) {
+                $fileIncludeInfo.show();
+                $fileIncludeInfo.find('.file').text( fileInclude.split('/wp-content')[1] || fileInclude);
+            }
+            else if( tmpl !== undefined && !isSectionDivider ) {
+
+                $fileIncludeInfo.hide();
 
                 // Streamer
                 var $streamerButton = $('.arlima-streamer');
@@ -942,6 +951,18 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 } else {
                     $('#template-switcher').hide();
                 }
+
+                // Image settings
+                var imgSupport = ArlimaTemplateLoader.templateSupport(templateName, 'image-support');
+                var $sizeOpts = $('#arlima-article-image-size option');
+                if( imgSupport && imgSupport.size ) {
+                    $sizeOpts.attr('disabled', 'disabled');
+                    $.each( imgSupport.size.split(','), function(i, size) {
+                        $sizeOpts.filter('[value="'+ $.trim(size) +'"]').removeAttr('disabled');
+                    });
+                } else {
+                    $sizeOpts.removeAttr('disabled');
+                }
             }
         },
 
@@ -967,14 +988,18 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             var $attachId = $('#arlima-article-image-attach_id');
             var $updated = $('#arlima-article-image-updated');
             var $connected = $('#arlima-article-image-connected_to_post_thumbnail');
+            var imgSize = $size.val();
+            var imgSupport = ArlimaTemplateLoader.templateSupport( this.currentArticleTemplate() , 'image-support');
 
             if(args) {
                 if(args.html)
                     this._$imgContainer.html( unescape( args.html ) ).removeClass('empty');
                 if(args.alignment)
                     $alignment.filter('[value=' + args.alignment +  ']').prop('checked', true);
-                if(args.size)
+                if(args.size) {
                     $size.val( args.size );
+                    imgSize = args.size;
+                }
                 if(args.attach_id)
                     $attachId.val(args.attach_id);
                 if(args.updated)
@@ -983,13 +1008,22 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     $connected.val(args.connected);
             }
 
-            if($size.val() == 'full') {
+            if( imgSupport && imgSupport.size ) {
+                if( imgSupport.size.indexOf(imgSize) == -1 ) {
+                    imgSize = $.trim( imgSupport.size.split(',')[0] );
+                    $size.find('option').removeAttr('selected');
+                    $size.find('option[value="'+imgSize+'"]').attr('selected', 'selected');
+                }
+            }
+
+            if(imgSize == 'full') {
                 $alignment.filter('[value=aligncenter]').prop('checked', true);
                 $alignment.parent().hide();
             }
             else {
                 $alignment.parent().show();
-                if( $alignment.filter(':checked').val() == 'aligncenter' ) {
+                var align = $alignment.filter(':checked').val() || false;
+                if( !align || align == 'aligncenter' ) {
                     $alignment.filter('[value=alignleft]').prop('checked', true);
                 }
             }
@@ -1472,6 +1506,29 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             revert:'invalid'
                         });
                 }
+            });
+        },
+
+        setupFileIncludes : function() {
+            $('#arlima-article-file-includes .dragger').each(function() {
+                var $fileInclude = $(this);
+                ArlimaList.prepareArticleForListTransactions($fileInclude, {
+                        title : $fileInclude.attr('data-label'),
+                        text : '',
+                        url : '',
+                        title_fontsize : 20,
+                        options : {
+                            file_include : $fileInclude.attr('data-file')
+                        }
+                    });
+
+                $fileInclude.draggable({
+                    helper:'clone',
+                    sender:'postlist',
+                    handle:'.handle',
+                    connectToSortable:'.arlima-list',
+                    revert:'invalid'
+                });
             });
         },
 
@@ -2007,6 +2064,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
      * @param {jQuery} $element
      * @param {Boolean} imported
      * @param {String} titleElement
+     * @param {Object} options
      * @constructor
      */
     function ArlimaList(id, $element, imported, titleElement, options) {
@@ -2015,7 +2073,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         this.isImported = imported;
         this.isUnsaved = false;
         this.titleElement = titleElement;
-        this.options = options;
+        this.options = $.isPlainObject(options) ? options:{};
         var _self = this;
         $.each(this.options, function(name, val) {
             if($.isNumeric(val)) {

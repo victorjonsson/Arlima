@@ -127,6 +127,26 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      */
     protected function outputArticle($article_data, jQueryTmpl_Data_Factory $jQueryTmpl_df, $article_counter)
     {
+        // File include
+        if ( !empty($article_data['options']) && !empty($article_data['options']['file_include']) ) {
+
+            // Make some variables available for the file
+            $renderer = $this;
+            $args = array();
+            if( !empty($article_data['options']['file_args']) ) {
+                parse_str($article_data['options']['file_args'], $args);
+            }
+
+            // Include file and capture output
+            ob_start();
+            include $article_data['options']['file_include'];
+            $content = ob_get_contents();
+            ob_end_clean();
+
+            // We're done, go on pls!
+            return array($article_counter + 1, $content);
+        }
+
 
         // Sticky article
         if ( !empty($article_data['options']) && !empty($article_data['options']['sticky']) ) {
@@ -376,8 +396,11 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      */
     private function createTemplate($template_file, $jQueryTmpl, $jQueryTmpl_Markup_Factory)
     {
+        // Load template content
         $template_content = file_get_contents($template_file);
-        preg_match_all('(\{\{include [0-9a-z\/A-Z\-\_\.]*\}\})', $template_content, $sub_parts);
+
+        // Merge with includes
+        preg_match_all('(\{\{include .*[^ ]\}\})', $template_content, $sub_parts);
         while ( !empty($sub_parts) && !empty($sub_parts[0]) ) {
 
             $template_path = dirname($template_file) . '/';
@@ -397,6 +420,10 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             preg_match_all('(\{\{include [0-9a-z\/A-Z\-\_\.]*\}\})', $template_content, $sub_parts);
         }
 
+        // Remove image support declarations
+        $template_content = preg_replace('(\{\{image-support .*\}\})', '', $template_content);
+
+        // Create and return jQuery template
         $jQueryTmpl->template('tpl', $jQueryTmpl_Markup_Factory->createFromString($template_content));
         return $jQueryTmpl;
     }

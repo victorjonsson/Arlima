@@ -163,10 +163,21 @@ $arlima_plugin = new Arlima_Plugin();
         <input id="arlima-edit-article-title" name="title" value="" placeholder="<?php _e('Title', 'arlima') ?>" />
         <input type="text" style="width:28px" id="arlima-edit-article-title-fontsize" class="arlima-title-fontsize" name="title_fontsize" value="14" />
         <div id="arlima-edit-article-title-fontsize-slider" style="width:120px;display:inline-block"> </div>
+        <div id="file-include-info">
+            <p>
+                <strong><?php _e('File', 'arlima') ?>:</strong><br />
+                <span class="file"></span>
+            </p>
+            <p>
+                <strong><?php _e('Arguments (query string)', 'arlima'); ?></strong><br />
+                <input type="text" name="options-file_args" />
+            </p>
+        </div>
     </li>
 
     <li>
         <?php
+
         $editor_settings = array(
             'wpautop' => true,
             'media_buttons' => true,
@@ -217,6 +228,7 @@ $arlima_plugin = new Arlima_Plugin();
                 <input type="checkbox" value="1" name="options-sticky" id="arlima-option-sticky" />
                 <input type="hidden" value="" name="options-sticky_pos" id="arlima-option-sticky-pos" />
                 <input type="hidden" value="" name="options-section_divider" />
+                <input type="hidden" value="" name="options-file_include" />
                 <label for="arlima-option-sticky"><?php _e('Sticky', 'arlima') ?></label>
             </div>
 
@@ -352,6 +364,49 @@ $arlima_plugin = new Arlima_Plugin();
         </div><!-- .inside -->
 
     </div><!-- #arlima-custom-templates -->
+
+    <?php if( $file_includes = apply_filters('arlima_article_includes', array()) ): ?>
+        <div id="arlima-article-file-includes" class="arlima-postbox">
+            <div class="handlediv"><br /></div><h3><span><?php _e('File includes', 'arlima') ?></span></h3>
+            <div class="inside" style="display:none;">
+                <table class="widefat">
+                    <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th><?php _e('File', 'arlima') ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach( $file_includes as $label => $file ): if( is_numeric($label) ) $label = basename($file); ?>
+                            <tr>
+                                <td>
+                                    <li class="dragger listitem" data-file="<?php echo $file; ?>" data-label="<?php echo $label ?>">
+                                        <div>
+                                                <span class="arlima-listitem-title"><img
+                                                        src="<?php echo ARLIMA_PLUGIN_URL . '/images/arrow.png'; ?>" class="handle" alt="move"
+                                                        height="16" width="16"/></span>
+                                            <img class="arlima-listitem-remove" alt="remove"
+                                                 src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
+                                        </div>
+                                    </li>
+                                </td>
+                                <td>
+                                    <?php echo $label; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th><?php _e('File', 'arlima') ?></th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div><!-- .inside -->
+
+        </div><!-- #arlima-article-functions -->
+    <?php endif; ?>
 
     </div><!-- .col-wrap -->
 

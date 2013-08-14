@@ -14,6 +14,9 @@ jQuery(function($) {
     // Load custom templates
     Arlima.Manager.loadCustomTemplates();
 
+    // Setup file includes
+    Arlima.Manager.setupFileIncludes();
+
     // Cast boolean telling us if current user is admin
     if( ArlimaJS.is_admin && $.isNumeric(ArlimaJS.is_admin) ) {
         ArlimaJS.is_admin = parseInt(ArlimaJS.is_admin);
@@ -287,6 +290,19 @@ jQuery(function($) {
 
     /* * * * * * * * * Event handlers * * * * * * * */
 
+    // Sanitize file include query string
+    $('#file-include-info input').bind('change', function() {
+        if( this.value.indexOf('?') === 0 ) {
+            this.value = this.value.substr(1);
+        }
+        this.value = this.value.replace(/ \& /g, '&');
+        this.value = this.value.replace(/\& /g, '&');
+        this.value = this.value.replace(/ \&/g, '&');
+        this.value = this.value.replace(/ \= /g, '=');
+        this.value = this.value.replace(/\= /g, '=');
+        this.value = this.value.replace(/ \=/g, '=');
+        this.value = $.trim(this.value);
+    });
 
     // Toggle available formats when changing template
     $('#arlima-edit-article-options-template').change(function() {

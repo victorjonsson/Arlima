@@ -304,6 +304,14 @@ li.dragger {
     color: #777;
 }
 
+#file-include-info p {
+    line-height: 150%;
+}
+
+#file-include-info input {
+    width: 80%;
+}
+
 .arlima-list-footer .arlima-list-footer-buttons img {
     margin-right: 5px;
     vertical-align: middle;

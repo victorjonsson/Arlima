@@ -577,3 +577,9 @@ msgstr "Ska listan stödja blockindelning?"
 
 msgid "Allow editors to switch template on articles in the list manager"
 msgstr "Tillåt redaktörer att byta mall på enskilda artiklar"
+
+msgid "File includes"
+msgstr "Inkludera filer"
+
+msgid "File"
+msgstr "Fil"

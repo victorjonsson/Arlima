@@ -13,7 +13,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         $scripts = array(
             'qtip'              => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.qtip.min.js',
             'colourpicker'      => ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/jquery.colourpicker.js',
-            'fancybox'          => ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox-1.3.4.pack.js',
+            'fancybox'          => ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox.js',
             'ui-nestedsortable' => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.nestedSortable.js',
             'pluploadfull'      => ARLIMA_PLUGIN_URL . 'js/misc/plupload.full.js',
             'jquery-tmpl'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.tmpl.min.js',
@@ -52,7 +52,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
             'arlima_css' => array('url'=>ARLIMA_PLUGIN_URL . 'css/admin.css', 'deps'=>array()),
             'jquery_ui_css' => array('url'=>'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css', 'deps'=>array()),
             'colourpicker_css' => array('url'=>ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/colourpicker.css', 'deps'=>array()),
-            'fancy_css' => array('url'=>ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox-1.3.4.css', 'deps'=>array()),
+            'fancy_css' => array('url'=>ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox.css', 'deps'=>array()),
         );
     }
 
@@ -102,9 +102,20 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         }
         add_filter('mce_css', 'tdav_css');
 
-        // Deregister scripts we need to override
+// Deregister scripts we need to override
         wp_deregister_script('jquery-hotkeys');
+        wp_deregister_script('jquery-ui-core');
+        wp_deregister_script('jquery-ui-draggable');
+        wp_deregister_script('jquery-ui-droppable');
+        wp_deregister_script('jquery-ui-mouse');
+        wp_deregister_script('jquery-ui-widget');
         wp_deregister_script('jquery-ui-sortable');
+        
+        wp_register_script('jquery-ui-core', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.core.min-1.92.js', 12, true);
+        wp_register_script('jquery-ui-draggable', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.draggable.min-1.92.js', 12, true);
+		wp_register_script('jquery-ui-droppable', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.droppable.min-1.92.js', 12, true);
+        wp_register_script('jquery-ui-mouse', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.mouse.min-1.92.js', 12, true);        
+        wp_register_script('jquery-ui-widget', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.widget.min-1.92.js', 12, true);
 
         // Replace jquery.ui.sortable with old version of the same function
         wp_register_script('jquery-ui-sortable', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.sortable-1.82.js', array('jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), 12, true);
@@ -134,22 +145,20 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         $style_sheets = $this->plugin->getTemplateStylesheets();
         ?>
         <script>
-            (function(win) {
-                var tmpls = [];
-                <?php foreach ($tmpl_resolver->getTemplateFiles()as $tmpl): ?>
-                    tmpls.push('<?php echo $tmpl['url']; ?>?v=7');
+            var tmpls = [];
+            <?php foreach ($tmpl_resolver->getTemplateFiles() as $tmpl): ?>
+            tmpls.push('<?php echo $tmpl['url']; ?>?v=5');
+            <?php endforeach; ?>
+            ArlimaTemplateLoader.load(tmpls);
+            <?php if ( !empty($_GET['open_list']) ): ?>
+            var loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
+            <?php endif; ?>
+            <?php if( is_array($style_sheets) && !empty($style_sheets) ): ?>
+                var arlimaTemplateStylesheets = [];
+                <?php foreach($style_sheets as $style): ?>
+                    arlimaTemplateStylesheets.push('<?php echo $style ?>');
                 <?php endforeach; ?>
-                win.ArlimaTemplateLoader.load(tmpls);
-                <?php if ( !empty($_GET['open_list']) ): ?>
-                    win.loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
-                <?php endif; ?>
-                <?php if( is_array($style_sheets) && !empty($style_sheets) ): ?>
-                    win.arlimaTemplateStylesheets = [];
-                    <?php foreach($style_sheets as $style): ?>
-                        win.arlimaTemplateStylesheets.push('<?php echo $style ?>');
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            })(window);
+            <?php endif; ?>
         </script>
     <?php
     }

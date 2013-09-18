@@ -4,699 +4,328 @@
  *
  * @todo Fix all insufficient use of jQuery
  */
-jQuery(function($) {
 
-    // Initiate Arlima and plupload
-    Arlima.Manager.init('#arlima-container-area');
-    Arlima.ArticleEditor.init();
-    ArlimaUploader.init();
-
-    // Load custom templates
-    Arlima.Manager.loadCustomTemplates();
-
-    // Setup file includes
-    Arlima.Manager.setupFileIncludes();
-
-    // Cast boolean telling us if current user is admin
-    if( ArlimaJS.is_admin && $.isNumeric(ArlimaJS.is_admin) ) {
-        ArlimaJS.is_admin = parseInt(ArlimaJS.is_admin);
-    }
-
-    // Load setup (the lists user has on page when page loaded)
-    Arlima.Manager.loadSetup(function() {
-        // List requested with url parameter on page
-        if(typeof loadArlimListOnLoad != 'undefined') {
-            Arlima.Manager.addList(loadArlimListOnLoad);
-        }
-    });
-
-    // Hax the height of tinyMCE, setting the height as you're supposed
-    // to makes it look messed up for some reason...
-    setTimeout(function() {
-        $('#tinyMCE_ifr').css('height', '120px');
-    }, 800);
-
-    // Convert all title attributes to tooltips
-    $('[title].tooltip').qtip({
+function arlimaTinyMCEChanged() {
+    Arlima.ArticleEditor.updateArticle()
+}
+jQuery(function (t) {
+    Arlima.Manager.init("#arlima-container-area"), Arlima.ArticleEditor.init(), ArlimaUploader.init(), Arlima.Manager.loadCustomTemplates(), ArlimaJS.is_admin && t.isNumeric(ArlimaJS.is_admin) && (ArlimaJS.is_admin = parseInt(ArlimaJS.is_admin)), Arlima.Manager.loadSetup(function () {
+        "undefined" != typeof loadArlimListOnLoad && Arlima.Manager.addList(loadArlimListOnLoad)
+    }), setTimeout(function () {
+        t("#tinyMCE_ifr").css("height", "120px")
+    }, 800), t("[title].tooltip").qtip({
         position: {
-            my: 'left top',
-            at: 'center right'
+            my: "left top",
+            at: "center right"
         },
         style: Arlima.qtipStyle
-    });
-    $('[title].tooltip-left').qtip({
+    }), t("[title].tooltip-left").qtip({
         position: {
             corner: {
-                tooltip: 'bottomLeft',
-                target: 'topLeft'
+                tooltip: "bottomLeft",
+                target: "topLeft"
             }
         },
         style: Arlima.qtipStyle
+    }), t(".fancybox").fancybox({
+        speedIn: 300,
+        speedOut: 300,
+        titlePosition: "over"
     });
-
-    // initiate fancy boxes
-    $('.fancybox').fancybox( {
-        speedIn		:	300,
-        speedOut	: 	300,
-        titlePosition :	'over'
-    });
-
-    // Initiate scissors fancy box popup
-    var $imgOptions = $('#arlima-article-image-options');
-    $('#arlima-article-image-scissors-popup').fancybox( {
-        autoDimensions :	true,
-        speedIn		:	300,
-        speedOut	: 	300,
-        titlePosition :	'over',
-        onComplete	:	function() { },
-        onClosed	:	function( ) {
-            $('#arlima-article-image-container')
-                .removeClass('arlima-fancybox media-item-info')
-                .addClass('media-item-info');
-
-            $('#arlima-article-image img').removeClass('thumbnail');
-            $('#arlima-article-image-scissors').html('').hide();
-            Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)});
-            Arlima.ArticleEditor.removeImageVersions(); // todo: make sure scissors actually did any changes to the image
+    var e = t("#arlima-article-image-options");
+    t("#arlima-article-image-scissors-popup").fancybox({
+        autoResize: 1,
+        fitToView: 1,
+        margin: new Array(40,0,0,0),
+        speedIn: 300,
+        speedOut: 300,
+        titlePosition: "over",
+        afterClose: function () {
+        t("#arlima-article-image-container").removeClass("arlima-fancybox media-item-info"),
+            t("#arlima-article-image-container").addClass("media-item-info"), 
+            t("#arlima-article-image-container").removeAttr("style"), 
+            t("#arlima-article-image img").removeClass("thumbnail"), 
+            t("#arlima-article-image-scissors").html("").hide(), 
+            Arlima.ArticleEditor.updateArticleImage({
+                updated: Math.round((new Date).getTime() / 1e3)
+            }), Arlima.ArticleEditor.removeImageVersions()                
         },
-        onStart : function(){
-            var imgOptions = $imgOptions.data('image_options');
-            Arlima.Backend.loadScissorsHTML(imgOptions.attach_id, function(html) {
-                if(html) {
-                    $('#arlima-article-image-scissors').html(html).show();
-                }
-            });
-            $('#arlima-article-image-container').addClass('arlima-fancybox media-item-info');
-            $('#arlima-article-image img')
-                .addClass('thumbnail')
-                .removeAttr('width')
-                .removeAttr('height');
+        beforeClose: function () {
+   	
+        },
+        beforeLoad: function () {
+            var i = e.data("image_options");
+            Arlima.Backend.loadScissorsHTML(i.attach_id, function (e) {
+                e && t("#arlima-article-image-scissors").html(e).show()
+            }), t("#arlima-article-image-container").addClass("arlima-fancybox media-item-info"), t("#arlima-article-image img").addClass("thumbnail").removeAttr("width").removeAttr("height")
         }
     });
-
-
-    //
-    // Post connection fancy box
-    //
-    var $postConnectionBox = Arlima.ArticleEditor.PostConnector.$fancyBox;
-    var $connectionButtons = $postConnectionBox.find('.button');
-    var hasChangedConnection = false;
-    $('#arlima-article-connected-post-change').fancybox({
-        autoDimensions :	true,
-        speedIn		:	300,
-        speedOut	: 	300,
-        titlePosition :	false,
-        onComplete	:	function() {},
-        onClosed	:	function( ) {
-            if( hasChangedConnection !== false ) {
-                var target = undefined;
-                var connection = '';
-                if( hasChangedConnection === 'external' ) {
-                    target = $postConnectionBox.find('select').val();
-                    connection = $postConnectionBox.find('input.url').val();
-                } else {
-                    connection = $postConnectionBox.find('input.post-connection').val();
-                }
-
-                Arlima.ArticleEditor.PostConnector.connect(connection, target);
-                hasChangedConnection = false;
+    var i = Arlima.ArticleEditor.PostConnector.$fancyBox,
+        a = i.find(".button"),
+        r = !1;
+    t("#arlima-article-connected-post-change").fancybox({
+        autoResize: 1,
+        fitToView: 1,
+        speedIn: 300,
+        speedOut: 300,
+        titlePosition: !1,
+        beforeClose: function () {},
+        afterClose: function () {
+            if (r !== !1) {
+                var t = void 0,
+                    e = "";
+                "external" === r ? (t = i.find("select").val(), e = i.find("input.url").val()) : e = i.find("input.post-connection").val(), Arlima.ArticleEditor.PostConnector.connect(e, t), r = !1
             }
         },
-        onStart : function() {
-            var connector = Arlima.ArticleEditor.PostConnector;
-            var articleData = Arlima.ArticleEditor.$item.data('article');
-            hasChangedConnection = false;
-            $postConnectionBox.find('.connection').text(connector.getConnectionLabel());
-            $postConnectionBox.find('.invalid-info').remove();
-            $postConnectionBox.find('.connection-containers').hide();
-            $connectionButtons.filter('.open').css('opacity', 1);
-            $postConnectionBox.find('input,select').val('');
-            $postConnectionBox.find('option').removeAttr('selected');
-            if( !articleData.post_id ) {
-                $postConnectionBox.find('.url').val(articleData.options.overriding_url || '');
-                var target = articleData.options.target;
-                if( target ) {
-                    $postConnectionBox.find('option[value="'+target+'"]').attr('selected', 'selected');
-                }
+        beforeLoad: function () {
+            var t = Arlima.ArticleEditor.PostConnector,
+                e = Arlima.ArticleEditor.$item.data("article");
+            if (r = !1, i.find(".connection").text(t.getConnectionLabel()), i.find(".invalid-info").remove(), i.find(".connection-containers").hide(), a.filter(".open").css("opacity", 1), i.find("input,select").val(""), i.find("option").removeAttr("selected"), !e.post_id) {
+                i.find(".url").val(e.options.overriding_url || "");
+                var s = e.options.target;
+                s && i.find('option[value="' + s + '"]').attr("selected", "selected")
             }
         }
-    });
-    $connectionButtons.filter('.open').click(function() {
-        $connectionButtons.filter('.open').css('opacity', 1);
-        this.style.opacity = '0.6';
-        $postConnectionBox.find('.connection-containers').hide();
-        $postConnectionBox.find('.'+this.href.split('#')[1]).show();
-        return false;
-    });
-    $postConnectionBox.find('input,select').bind('change', function() {
-        hasChangedConnection = $postConnectionBox.find('.external-url').is(':visible') ? 'external':'post-id';
-        var $in = $(this);
-        // warn if url invalid
-        if( $in.hasClass('url') ) {
-            var url = $in.val();
-            if( url.indexOf('#') !== 0 &&
-                url != '' &&
-                url.toLowerCase().indexOf('javascript: ') !== 0 &&
-                !url.match(/(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/gi)) {
-                $in.after('<em style="color:darkred" class="invalid-info"><br />'+ArlimaJS.lang.invalidURL+'</em>');
-            }
+    }), a.filter(".open").click(function () {
+        return a.filter(".open").css("opacity", 1), this.style.opacity = "0.6", i.find(".connection-containers").hide(), i.find("." + this.href.split("#")[1]).show(), !1
+    }), i.find("input,select").bind("change", function () {
+        r = i.find(".external-url").is(":visible") ? "external" : "post-id";
+        var e = t(this);
+        if (e.hasClass("url")) {
+            var a = e.val();
+            0 === a.indexOf("#") || "" == a || 0 === a.toLowerCase().indexOf("javascript: ") || a.match(/(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/gi) ? e.parent().find(".invalid-info").remove() : e.after('<em style="color:darkred" class="invalid-info"><br />' + ArlimaJS.lang.invalidURL + "</em>")
+        }
+    }), i.find(".do-search").click(function () {
+        var e = t.trim(i.find('input[type="search"]').val());
+        return Arlima.Backend.queryPosts({
+            search: e
+        }, function (e) {
+            var a = i.find(".search-result");
+            if (0 == e.posts.length) a.html("<p>" + ArlimaJS.lang.nothingFound + "</p>");
             else {
-                $in.parent().find('.invalid-info').remove();
+                var s = "";
+                t.each(e.posts, function (t, e) {
+                    s += '<p><a href="#" data-post="' + e.post_id + '">' + e.title + "</a></p>"
+                }), a.html(s), a.find("a").click(function () {
+                    return r = "post-id", i.find(".post-connection").val(t(this).attr("data-post")), t("#fancybox-close").click(), !1
+                })
             }
-        }
-    });
-    $postConnectionBox.find('.do-search').click(function() {
-        var search = $.trim($postConnectionBox.find('input[type="search"]').val());
-        Arlima.Backend.queryPosts({search:search}, function(data) {
-            var $resultContainer = $postConnectionBox.find('.search-result');
-            if( data.posts.length == 0 ) {
-                $resultContainer.html('<p>'+ArlimaJS.lang.nothingFound+'</p>');
-            }
-            else {
-                var result = '';
-                $.each(data.posts, function(i, post) {
-                    result += '<p><a href="#" data-post="'+post.post_id+'">'+post.title+'</a></p>';
-                });
-
-                $resultContainer.html(result);
-                $resultContainer.find('a').click(function() {
-                    hasChangedConnection = 'post-id';
-                    $postConnectionBox.find('.post-connection').val($(this).attr('data-post'));
-                    $('#fancybox-close').click();
-                    return false;
-                });
-            }
-        });
-        return false;
-    });
-
-
-    //
-    // Sticky interval picker
-    //
-    $('.sticky-interval-fancybox').fancybox({
-        autoDimensions :	true,
-        speedIn		:	300,
-        speedOut	: 	300,
-        titlePosition :	false,
-        onComplete	:	function() { },
-        onClosed	:	function( ) {
-            var data = Arlima.ArticleEditor.$item.data('article');
-            var currentInterval = data.options.sticky_interval;
-            var $container = $('#sticky-interval-fancybox');
-            var _findCheckedValued = function(className) {
-                var values = '*';
-                var $inputs = $container.find('.'+className);
-                if($inputs.filter(':checked').length != $inputs.length) {
-                    values = '';
-                    $inputs.filter(':checked').each(function() {
-                        values += ','+ this.value;
-                    });
-                    if(values == '')
-                        values = '*';
-                    else
-                        values = values.substr(1);
-                }
-                return values;
-            };
-
-            var newInterval = _findCheckedValued('day') +':'+ _findCheckedValued('hour');
-            if(newInterval != currentInterval) {
-                data.options.sticky_interval = newInterval;
-                Arlima.ArticleEditor.$item.data('article', data);
-                $('#arlima-interval').val(data.options.sticky_interval);
-                Arlima.ArticleEditor.updateArticle(true, false);
-            }
+        }), !1
+    }), t(".sticky-interval-fancybox").fancybox({
+        autoResize: 1,
+        fitToView: 1,
+        speedIn: 300,
+        speedOut: 300,
+        titlePosition: !1,
+        beforeClose: function () {},
+        afterClose: function () {
+            var e = Arlima.ArticleEditor.$item.data("article"),
+                i = e.options.sticky_interval,
+                a = t("#sticky-interval-fancybox"),
+                r = function (t) {
+                    var e = "*",
+                        i = a.find("." + t);
+                    return i.filter(":checked").length != i.length && (e = "", i.filter(":checked").each(function () {
+                        e += "," + this.value
+                    }), e = "" == e ? "*" : e.substr(1)), e
+                }, s = r("day") + ":" + r("hour");
+            s != i && (e.options.sticky_interval = s, Arlima.ArticleEditor.$item.data("article", e), t("#arlima-interval").val(e.options.sticky_interval), Arlima.ArticleEditor.updateArticle(!0, !1))
         },
-        onStart : function(){
-            var articleData = Arlima.ArticleEditor.$item.data('article');
-            var $inputs = $('#sticky-interval-fancybox').find('input');
-            $inputs.removeAttr('checked');
-            $.each(articleData.options.sticky_interval.split(':'), function(i, interval) {
-                if($.trim(interval) == '*') {
-                    var className = i == 0 ? '.day':'.hour';
-                    $inputs.filter(className).attr('checked', 'checked');
-                }
-                else {
-                    $.each(interval.split(','), function(i, val) {
-                        $inputs.filter('[value="'+val+'"]').attr('checked', 'checked');
-                    });
-                }
+        beforeLoad: function () {
+            var e = Arlima.ArticleEditor.$item.data("article"),
+                i = t("#sticky-interval-fancybox").find("input");
+            i.removeAttr("checked"), t.each(e.options.sticky_interval.split(":"), function (e, a) {
+                if ("*" == t.trim(a)) {
+                    var r = 0 == e ? ".day" : ".hour";
+                    i.filter(r).attr("checked", "checked")
+                } else t.each(a.split(","), function (t, e) {
+                    i.filter('[value="' + e + '"]').attr("checked", "checked")
+                })
             })
         }
     });
-
-    // Generate sticky hours
-    var $stickyHours = $('#sticky-hour-container').children().eq(0);
-    for(var i=1; i < 25; i++) {
-        var val = i < 10 ? '0'+i : i;
-        var br = i % 8 === 0 ? '<br />':'';
-        $('<label><input type="checkbox" class="hour" value="'+val+'" /> '+val+'</label>'+br).insertBefore($stickyHours);
+    for (var s = t("#sticky-hour-container").children().eq(0), n = 1; 25 > n; n++) {
+        var o = 10 > n ? "0" + n : n,
+            l = 0 === n % 8 ? "<br />" : "";
+        t('<label><input type="checkbox" class="hour" value="' + o + '" /> ' + o + "</label>" + l).insertBefore(s)
     }
-
-    // Initiate font size slider in article editor
-    var hasSliderFocus = false;
-    var $fontSizeInput = $("#arlima-edit-article-title-fontsize");
-    var $fontSizeSlider = $("#arlima-edit-article-title-fontsize-slider").slider({
-        value:18,
-        min: 8,
-        max: 100,
-        slide: function( event, ui ) {
-            hasSliderFocus = true;
-            $fontSizeInput.val( ui.value );
-            Arlima.ArticleEditor.updateArticle();
-        }
-    })
-    .mousedown(function() {
-        hasSliderFocus = true;
-    });
-
-
-    // Initiate colour picker in article editor
-    $('#arlima-edit-article-options-streamer-color').colourPicker({
-        ico:    '',
-        title:    false
-    });
-
-    // Refresh imported lists every 90 second
-    setInterval(function() {
-        Arlima.Manager.iterateLists(function(list) {
-            if(list.isImported && !Arlima.ArticleEditor.isEditingList(list.id))
-                Arlima.Manager.reloadList(list);
+    var c = !1,
+        d = t("#arlima-edit-article-title-fontsize"),
+        p = t("#arlima-edit-article-title-fontsize-slider").slider({
+            value: 18,
+            min: 8,
+            max: 100,
+            slide: function (t, e) {
+                c = !0, d.val(e.value), Arlima.ArticleEditor.updateArticle()
+            }
+        }).mousedown(function () {
+            c = !0
         });
-    }, 90000);
-
-
-
-    /* * * * * * * * * Event handlers * * * * * * * */
-
-    // Sanitize file include query string
-    $('#file-include-info input').bind('change', function() {
-        if( this.value.indexOf('?') === 0 ) {
-            this.value = this.value.substr(1);
+    t("#arlima-edit-article-options-streamer-color").colourPicker({
+        ico: "",
+        title: !1
+    }), setInterval(function () {
+        Arlima.Manager.iterateLists(function (t) {
+            t.isImported && !Arlima.ArticleEditor.isEditingList(t.id) && Arlima.Manager.reloadList(t)
+        })
+    }, 9e4), t("#arlima-edit-article-options-template").change(function () {
+        Arlima.ArticleEditor.toggleAvailableFormats(this.value), Arlima.ArticleEditor.toggleEditorFeatures(this.value), Arlima.ArticleEditor.updatePreview(), Arlima.Manager.triggerEvent("templateChange")
+    }), t("#arlima-search-lists").arlimaListSearch("#arlima-lists .arlima-list-link"), t(".arlima-list-link").on("click", function () {
+        Arlima.Manager.addList(t(this).attr("data-alid"))
+    }), t("#arlima-refresh-all-lists").click(function (t) {
+        var e = !0;
+        return !t.metaKey && Arlima.Manager.getUnsavedLists().length > 0 && (e = confirm(ArlimaJS.lang.unsaved)), e && Arlima.Manager.iterateLists(function (t) {
+            Arlima.Manager.reloadList(t)
+        }), !1
+    }), t("#arlima-article-image").click(function (e) {
+        e.preventDefault();
+        var i = Arlima.ArticleEditor.data("post_id");
+        t.isNumeric(i) ? (t("#arlima-article-attachments").html(""), Arlima.Backend.getPostAttachments(i, function (e) {
+            var i = t("#arlima-article-attachments");
+            t.each(e, function (e, a) {
+                t("<div></div>").addClass("arlima-article-attachment").html(a.thumb).on("click", function () {
+                    var e = Arlima.ArticleEditor.createArlimaArticleImageObject(a.large, "center", "full", a.attach_id);
+                    e.connected = 1, Arlima.ArticleEditor.updateArticleImage(e), t("#fancybox-close").trigger("click")
+                }).appendTo(i)
+            })
+        }), t.fancybox({
+            minHeight: 200,
+            href: "#arlima-article-attachments"
+        })) : alert(ArlimaJS.lang.noImages)
+    }), t("#arlima-toggle-preview").click(function () {
+        return Arlima.ArticleEditor.togglePreview(), !1
+    }), t("#arlima-preview-active-list").click(function () {
+        return Arlima.Manager.previewFocusedList(), !1
+    }), t("#arlima-save-active-list").click(function () {
+        return Arlima.Manager.saveFocusedList(), !1
+    }), t("#arlima-add-list-btn").click(function () {
+        var e = t("#arlima-add-list-select").val();
+        return e && Arlima.Manager.addList(e), !1
+    }), t(".time-checkbox-toggler").on("click", function () {
+        var e = t(this).parent().parent().find("input[type=checkbox]");
+        return 0 == e.filter("*:checked").length ? e.attr("checked", "checked") : e.removeAttr("checked"), !1
+    }), t("html").click(function () {
+        t(".arlima-list-version-select").hide(), t(".arlima-list-version-info").show(), c = !1
+    }), window.onbeforeunload = function () {
+        return Arlima.Manager.previewWindow && Arlima.Manager.previewWindow.close(), Arlima.Manager.getUnsavedLists().length > 0 ? ArlimaJS.lang.unsaved : void 0
+    }, t("#arlima-save-setup-btn").click(function () {
+        Arlima.Manager.saveSetup()
+    }), t("#arlima-edit-article-form").change(function (e) {
+        var i = t(e.target),
+            a = i.attr("name");
+        if ("image_align" != a && "post_id" != a && "arlima-article-image-size" != i.attr("id")) {
+            var r = -1 == t.inArray(a, ["title", "options-pre_title", "options-streamer_content", "options-hiderelated", "url"]);
+            Arlima.ArticleEditor.updateArticle(!0, r)
         }
-        this.value = this.value.replace(/ \& /g, '&');
-        this.value = this.value.replace(/\& /g, '&');
-        this.value = this.value.replace(/ \&/g, '&');
-        this.value = this.value.replace(/ \= /g, '=');
-        this.value = this.value.replace(/\= /g, '=');
-        this.value = this.value.replace(/ \=/g, '=');
-        this.value = $.trim(this.value);
+    }).find("input").bind("keyup", function () {
+        t.inArray(this.name, ["title", "options-pre_title", "options-streamer_content", "post_id", "url"]) > -1 && Arlima.ArticleEditor.updateArticle(this, -1 == t.inArray(this.name, ["post_id", "url"]))
+    }), e.find("input").click(function () {
+        Arlima.ArticleEditor.updateArticleImage({
+            updated: Math.round((new Date).getTime() / 1e3)
+        })
+    }), e.find("select").change(function () {
+        Arlima.ArticleEditor.updateArticleImage({
+            updated: Math.round((new Date).getTime() / 1e3)
+        })
+    }), t("#arlima-article-image-remove").click(function () {
+        t(".hide-if-no-image").hide(), Arlima.ArticleEditor.removeArticleImage()
+    }), t("#arlima-edit-article-options-streamer-image-list img").click(function () {
+        t("[name='options-streamer_image']").val(t(this).attr("alt")), Arlima.ArticleEditor.updateArticle(), t.fancybox.close()
+    }), t('.arlima-button input[type="checkbox"]').on("change", function () {
+        var e = t(this);
+        e.is(":checked") ? e.parent().addClass("checked") : e.parent().removeClass("checked")
+    }), t("#arlima-option-sticky").on("change", function () {
+        var e = t(this).is(":checked"),
+            i = Arlima.ArticleEditor.$item.data("article");
+        e ? (i.options.sticky_pos = Arlima.ArticleEditor.$item.prevAll().length, t("#arlima-option-sticky-pos").val(i.options.sticky_pos)) : i.options && i.options.sticky_pos && (t("#arlima-option-sticky-pos").val(""), i.options.sticky_pos = ""), Arlima.ArticleEditor.$item.data("article", i)
+    }), t(window).bind("resize", function () {
+        var t = Arlima.Manager.getFocusedList();
+        t && t.isImported && Arlima.ArticleEditor.isEditingArticle() && Arlima.ArticleEditor.toggleEditorBlocker(!0)
+    }), t(".handlediv").click(function () {
+        t(this).parent().find(".inside").slideToggle(200)
+    }), t("#arlima-post-search").submit(function () {
+        return Arlima.Manager.searchWordpressPosts(0), !1
     });
-
-    // Toggle available formats when changing template
-    $('#arlima-edit-article-options-template').change(function() {
-        Arlima.ArticleEditor.toggleAvailableFormats( this.value );
-        Arlima.ArticleEditor.toggleEditorFeatures( this.value );
-        Arlima.ArticleEditor.updatePreview();
-        Arlima.Manager.triggerEvent('templateChange');
+    var h = t(document);
+    h.on("click", ".arlima-get-posts-paging", function () {
+        return Arlima.Manager.searchWordpressPosts(t(this).attr("alt")), !1
     });
-
-    // Make arlima list searchable
-    $('#arlima-search-lists').arlimaListSearch('#arlima-lists .arlima-list-link');
-    $('.arlima-list-link').on('click', function() {
-        Arlima.Manager.addList($(this).attr('data-alid'));
-    });
-
-    // Reload all lists on page
-    $('#arlima-refresh-all-lists').click(function(e) {
-        var doReload = true;
-        if(!e.metaKey && Arlima.Manager.getUnsavedLists().length > 0) {
-            doReload = confirm(ArlimaJS.lang.unsaved);
-        }
-        if(doReload) {
-            Arlima.Manager.iterateLists(function(list) {
-                Arlima.Manager.reloadList(list);
+    var m = setInterval(function () {
+        if (void 0 !== tinyMCE && (clearInterval(m), tinyMCE.editors && tinyMCE.editors.length > 0)) {
+            t(tinyMCE.editors[0].getDoc()).contents().find("body").focus(function () {
+                Arlima.Manager.setFocusedList(Arlima.ArticleEditor.currentlyEditedList)
             });
-        }
-        return false;
-    });
-
-    // Choose an article image from post attachments
-    $('#arlima-article-image')
-        .click(function(e) {
-            e.preventDefault();
-            var postId = Arlima.ArticleEditor.data('post_id');
-
-            if( !$.isNumeric(postId) ) {
-                alert(ArlimaJS.lang.noImages);
-            }
-            else {
-
-                $('#arlima-article-attachments').html('');
-                Arlima.Backend.getPostAttachments(postId, function(json) {
-                    var $attachmentConatiner = $('#arlima-article-attachments');
-                    $.each(json, function(idx, img) {
-                        $('<div></div>')
-                            .addClass('arlima-article-attachment')
-                            .html(img.thumb)
-                            .on('click', function() {
-                                var imgData = Arlima.ArticleEditor.createArlimaArticleImageObject(img.large, 'center', 'full', img.attach_id);
-                                imgData.connected = 1;
-                                Arlima.ArticleEditor.updateArticleImage(imgData);
-                                $('#fancybox-close').trigger('click');
-                            })
-                            .appendTo($attachmentConatiner);
-                    });
-                });
-
-                $.fancybox({
-                    'href' : '#arlima-article-attachments'
-                });
-            }
-        });
-
-    // Show article preview
-    $('#arlima-toggle-preview').click(function() {
-        Arlima.ArticleEditor.togglePreview();
-        return false;
-    });
-
-    // Preview focused list
-    $('#arlima-preview-active-list').click(function() {
-        Arlima.Manager.previewFocusedList();
-        return false;
-    });
-
-    // Publish focused list
-    $('#arlima-save-active-list').click(function() {
-        Arlima.Manager.saveFocusedList();
-        return false;
-    });
-
-    // Add new list
-    $('#arlima-add-list-btn').click(function(e) {
-        var id = $('#arlima-add-list-select').val();
-        if(id)
-            Arlima.Manager.addList(id);
-        return false;
-    });
-
-    // Time checkbox toggle
-    $('.time-checkbox-toggler').on('click', function() {
-        var $inputs = $(this).parent().parent().find('input[type=checkbox]');
-        if( $inputs.filter('*:checked').length == 0) {
-            $inputs.attr('checked', 'checked');
-        }
-        else {
-            $inputs.removeAttr('checked');
-        }
-        return false;
-    });
-
-    // Make it possible to reset certain things when changing "focus". Since most element
-    // does not have a real focus/blur event we try to solve this by hiding elements that
-    // may be looked at when clicking somewhere on page...
-    $('html').click(function() {
-        $('.arlima-list-version-select').hide();
-        $('.arlima-list-version-info').show();
-        hasSliderFocus = false;
-    });
-
-    // Make sure we're not reloading page while having unsaved lists
-    // and close possibly opened preview window
-    window.onbeforeunload = function(){
-        if(Arlima.Manager.previewWindow) {
-            Arlima.Manager.previewWindow.close();
-        }
-        if(Arlima.Manager.getUnsavedLists().length > 0)
-            return ArlimaJS.lang.unsaved;
-    };
-
-    // Save list setup (the lists loaded on page load)
-    $("#arlima-save-setup-btn").click(function() {
-        Arlima.Manager.saveSetup();
-    });
-
-    // Update article and preview when changing data in article form
-    $('#arlima-edit-article-form').change( function(e) {
-        var $target = $(e.target);
-        var changedInput = $target.attr('name');
-
-        // Some inputs will update article in another function when changed
-        if( changedInput != 'image_align' && changedInput != 'post_id' && $target.attr('id') != 'arlima-article-image-size' ) {
-
-            // Some inputs doesn't require that we update the preview
-            var updatePreview = $.inArray(changedInput, ['title', 'options-pre_title', 'options-streamer_content',
-                                            'options-hiderelated', 'url']) == -1;
-
-            Arlima.ArticleEditor.updateArticle(true, updatePreview);
-        }
-    })
-
-    // Update some inputs immediately when they get changed (http://wordpress.org/support/topic/manage-list-issue)
-    .find('input').bind('keyup', function() {
-        if($.inArray(this.name, ['title', 'options-pre_title', 'options-streamer_content', 'post_id', 'url']) > -1) {
-            Arlima.ArticleEditor.updateArticle( this, $.inArray(this.name, ['post_id', 'url']) == -1 ); // update article with only that is changed in this input
-        }
-    });
-
-    // Update article when doing changes to the image
-    $imgOptions.find('input').click(function() { Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)}); });
-    $imgOptions.find('select').change(function() { Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)}); });
-    $('#arlima-article-image-remove').click(function() {
-        $('.hide-if-no-image').hide();
-        Arlima.ArticleEditor.removeArticleImage();
-    });
-
-    // Update article when doing changes to the streamer
-    $('#arlima-edit-article-options-streamer-image-list img').click( function() {
-        $("[name='options-streamer_image']").val($(this).attr('alt'));
-        Arlima.ArticleEditor.updateArticle();
-        $.fancybox.close();
-    });
-
-    // Change button appearance when checking check boxes (streamer button, sticky button)
-    $('.arlima-button input[type="checkbox"]').on('change', function() {
-        var $input = $(this);
-        if($input.is(':checked'))
-            $input.parent().addClass('checked');
-        else
-            $input.parent().removeClass('checked');
-    });
-
-    // Remember where sticky articles should stick
-    $('#arlima-option-sticky').on('change', function() {
-        var stick = $(this).is(':checked');
-        var articleData = Arlima.ArticleEditor.$item.data('article');
-        if(stick) {
-            articleData.options.sticky_pos = Arlima.ArticleEditor.$item.prevAll().length;
-            $('#arlima-option-sticky-pos').val(articleData.options.sticky_pos);
-        }
-        else if(articleData.options && articleData.options.sticky_pos) {
-            $('#arlima-option-sticky-pos').val('');
-            articleData.options.sticky_pos = '';
-        }
-
-        Arlima.ArticleEditor.$item.data('article', articleData);
-    });
-
-    // Put editor blocker back into place when resizing the window
-    $(window).bind('resize', function() {
-        var list = Arlima.Manager.getFocusedList();
-        if( list && list.isImported && Arlima.ArticleEditor.isEditingArticle() ) {
-            Arlima.ArticleEditor.toggleEditorBlocker(true);
-        }
-    });
-
-    // Toggle editor, search and custom templates
-    $('.handlediv').click( function() {
-        $(this).parent().find('.inside').slideToggle(200);
-    });
-
-    // Search wordpress posts
-    $('#arlima-post-search').submit( function() {
-        Arlima.Manager.searchWordpressPosts(0);
-        return false;
-    });
-
-    // paging wordpress search
-    var $doc = $(document);
-    $doc.on('click', '.arlima-get-posts-paging', function() {
-        Arlima.Manager.searchWordpressPosts($(this).attr('alt'));
-        return false;
-    });
-
-    // tinyMCe events (update, focus, preview). This will not work
-    // when loading the page with tinyMCE being in HTML mode, therefor
-    // we put the initiation in a interval that runs until visual mode
-    // is activated
-    var tinyMCEEventInterval = setInterval(function() {
-        if(tinyMCE !== undefined) {
-            clearInterval(tinyMCEEventInterval);
-
-            if(tinyMCE.editors && tinyMCE.editors.length > 0) {
-
-                // Set focus on list when editor is focused
-                $(tinyMCE.editors[0].getDoc()).contents().find('body').focus(function(){
-                    Arlima.Manager.setFocusedList(Arlima.ArticleEditor.currentlyEditedList);
-                });
-
-                // listen to keyboard short cuts
-                var numSpaceBarClicks = 1;
-                tinyMCE.editors[0].onKeyDown.add(function(editor, e) {
-                    var key = e.keyCode ? e.keyCode : e.which;
-                    switch (key) {
-                        case 80: // p
-                            if(e.ctrlKey || e.metaKey) {
-                                Arlima.ArticleEditor.togglePreview();
-                                e.preventDefault();
-                                return false;
-                            }
-                            break;
-                        case 32: // space, update preview every third time
-                            if(numSpaceBarClicks % 3 === 0) {
-                                arlimaTinyMCEChanged();
-                                numSpaceBarClicks = 1;
-                            }
-                            else {
-                                numSpaceBarClicks++;
-                            }
-                            break;
-                        case 76: // l
-                            if(e.ctrlKey || e.metaKey) {
-                                Arlima.Manager.previewFocusedList();
-                                e.preventDefault();
-                                return false;
-                            }
-                            break;
-                        // no point in trying to listen to ctrl + s ... it never gets triggered for some reason, probably
-                        // a collision with some other javascript
-                    }
-                });
-            }
+            var e = 1;
+            tinyMCE.editors[0].onKeyDown.add(function (t, i) {
+                var a = i.keyCode ? i.keyCode : i.which;
+                switch (a) {
+                case 80:
+                    if (i.ctrlKey || i.metaKey) return Arlima.ArticleEditor.togglePreview(), i.preventDefault(), !1;
+                    break;
+                case 32:
+                    0 === e % 3 ? (arlimaTinyMCEChanged(), e = 1) : e++;
+                    break;
+                case 76:
+                    if (i.ctrlKey || i.metaKey) return Arlima.Manager.previewFocusedList(), i.preventDefault(), !1
+                }
+            })
         }
     }, 500);
-
-    // Disconnect post image
-    $('#arlima-article-image-disconnect').click( function(e) {
-        var attachId = $('#arlima-article-image-attach_id').val();
-        if($.isNumeric(attachId)) {
-            Arlima.Backend.duplicateImage(attachId, function(json) {
-                if(json) {
-                    var args = {attach_id: json.attach_id, html: json.html, connected: 0, updated : Math.round(new Date().getTime() / 1000) };
-                    Arlima.ArticleEditor.updateArticleImage(args, true);
-                }
-            });
-        }
-        else {
-            throw new Error('Trying to disconnect image that is not connected');
-        }
-        return false;
+    t("#arlima-article-image-disconnect").click(function () {
+        var e = t("#arlima-article-image-attach_id").val();
+        if (!t.isNumeric(e)) throw Error("Trying to disconnect image that is not connected");
+        return Arlima.Backend.duplicateImage(e, function (t) {
+            if (t) {
+                var e = {
+                    attach_id: t.attach_id,
+                    html: t.html,
+                    connected: 0,
+                    updated: Math.round((new Date).getTime() / 1e3)
+                };
+                Arlima.ArticleEditor.updateArticleImage(e, !0)
+            }
+        }), !1
     });
-
-
-    // Listen for scissors startup, and uncheck the aspect ratio checkbox
-    var modifyScissorsSettings = function(event) {
-        var $elem = $(event.target);
-        var elemID = $elem.attr('id');
-
-        // Cropped image
-        if ( elemID && elemID.indexOf('scissorsCrop') == 0 ) {
-
-            var attachmentID = $('#arlima-article-image-attach_id').val();
-
-            /**
-             * @param {String} name
-             * @param {Number} rx
-             * @param {Number} ry
-             */
-            var createRatioButton = function(name, rx, ry) {
-                $('<button></button>')
-                    .html(name)
-                    .addClass('button')
-                    .appendTo('#scissorsCropPane-' + attachmentID)
-                    .bind('click', function() {
-                        $('#scissorsLockBox-' + attachmentID).prop("checked", true);
-                        scissorsAspectChange(attachmentID);
-                        $('#scissorsLockX-' + attachmentID).val(rx);
-                        $('#scissorsLockY-' + attachmentID).val(ry);
-                        scissorsManualAspectChange(attachmentID);
-                        return false;
-                    });
-            };
-
-            // Create ratio buttons
-            createRatioButton('Widescreen', 16, 9);
-            createRatioButton('Cinema', 21, 9);
-            createRatioButton('Square', 666, 666);
-
-            // Modify settings in crop form
-            $elem.find('input[type="checkbox"]').each(function() {
-                if(this.id && this.id.indexOf('scissorsLockBox') == 0){
-                    $(this).prop("checked", false);
-                }
-            });
-            $elem.find('div').each(function() {
-                if (this.id && this.id.indexOf('scissorsReir') == 0) {
-                    $('#'+ this.id).hide();
-                }
-            });
-        }
-
-        else if ( elemID && elemID.indexOf('scissorsWatermark') === 0 ) {
-            $elem.find('input[type="checkbox"]').each(function() {
-                if( this.id && this.id.indexOf('scissors_watermark_target') == 0 ) {
-                    var split = this.id.split("_");
-                    if( split[3] !== undefined ) {
-                        split = split[3].split("-");
-                        $(this).prop("checked", true);
-                        scissorsWatermarkStateChanged( split[split.length-1], split[0] );
-                    }
-                }
-            });
-        }
+    var u = function (e) {
+        var i = t(e.target),
+            a = i.attr("id");
+        if (a && 0 == a.indexOf("scissorsCrop")) {
+            var r = t("#arlima-article-image-attach_id").val(),
+                s = function (e, i, a) {
+                    t("<button></button>").html(e).addClass("button").appendTo("#scissorsCropPane-" + r).bind("click", function () {
+                        return t("#scissorsLockBox-" + r).prop("checked", !0), scissorsAspectChange(r), t("#scissorsLockX-" + r).val(i), t("#scissorsLockY-" + r).val(a), scissorsManualAspectChange(r), !1
+                    })
+                };
+            s("Widescreen", 16, 9), s("Cinema", 21, 9), s("Square", 666, 666), i.find('input[type="checkbox"]').each(function () {
+                this.id && 0 == this.id.indexOf("scissorsLockBox") && t(this).prop("checked", !1)
+            }), i.find("div").each(function () {
+                this.id && 0 == this.id.indexOf("scissorsReir") && t("#" + this.id).hide()
+            })
+        } else a && 0 === a.indexOf("scissorsWatermark") && i.find('input[type="checkbox"]').each(function () {
+            if (this.id && 0 == this.id.indexOf("scissors_watermark_target")) {
+                var e = this.id.split("_");
+                void 0 !== e[3] && (e = e[3].split("-"), t(this).prop("checked", !0), scissorsWatermarkStateChanged(e[e.length - 1], e[0]))
+            }
+        })
     };
-    document.addEventListener("DOMNodeInserted", modifyScissorsSettings);
-
-
-    /* * * * * Keyboard short cuts using jquery.hotkeys plugin * * * * * */
-
-
-    $doc.bind('keydown', function(e) {
-        var key = e.keyCode ? e.keyCode : e.which;
-
-        if((e.ctrlKey || e.metaKey) && $.inArray(key, [80, 83, 76]) > -1) {
-
-            switch (key) {
-                case 80: // p
-                    Arlima.ArticleEditor.togglePreview();
-                    break;
-                case 83: // s
-                    Arlima.Manager.saveFocusedList();
-                    break;
-                case 76: // l
-                    Arlima.Manager.previewFocusedList();
-                    break;
+    document.addEventListener("DOMNodeInserted", u), h.bind("keydown", function (e) {
+        var i = e.keyCode ? e.keyCode : e.which;
+        if ((e.ctrlKey || e.metaKey) && t.inArray(i, [80, 83, 76]) > -1) {
+            switch (i) {
+            case 80:
+                Arlima.ArticleEditor.togglePreview();
+                break;
+            case 83:
+                Arlima.Manager.saveFocusedList();
+                break;
+            case 76:
+                Arlima.Manager.previewFocusedList()
             }
-
-            return false;
+            return !1
         }
-
-        // Increase font size, this should be taken care of by jquery-ui but
-        // for some reason we have to create this feature
-        else if( $.inArray(key, [39,37]) > -1 && hasSliderFocus ) {
-            if( Arlima.ArticleEditor.isEditingArticle() ) {
-                var size = parseInt($fontSizeInput.val(), 10);
-                size += key == 37 ? -1:1;
-                $fontSizeSlider.slider('value', size);
-                $fontSizeInput.val(size);
-                Arlima.ArticleEditor.updateArticle();
-                return false;
-            }
+        if (t.inArray(i, [39, 37]) > -1 && c && Arlima.ArticleEditor.isEditingArticle()) {
+            var a = parseInt(d.val(), 10);
+            return a += 37 == i ? -1 : 1, p.slider("value", a), d.val(a), Arlima.ArticleEditor.updateArticle(), !1
         }
-    });
+    })
 });
-
-
-
-/* * * * * * * tinyMCE functions that needs to be in global scope * * * * * * */
-
-/**
- * Event callback used in tinyMCE when update of article is needed.
- * This function is applied to tinyMCE event onchange_callback and
- * every third time the space bar i pressed in the editor
- */
-function arlimaTinyMCEChanged() {
-    Arlima.ArticleEditor.updateArticle();
-}

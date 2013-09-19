@@ -128,8 +128,8 @@ abstract class Arlima_AbstractAdminPage {
 
         // enqueue scripts/links
         if( $this->requestedAdminPage() === $this->slug() ) {
-            add_action('admin_print_scripts-' . $page_ref, array($this, 'enqueueScripts'));
-            add_action('admin_print_styles-' . $page_ref, array($this, 'enqueueStyles'));
+            add_action('admin_enqueue_scripts', array($this, 'enqueueScripts'));
+            add_action('admin_enqueue_scripts', array($this, 'enqueueStyles'));
         }
     }
 

@@ -1,11 +1,10 @@
 <?php
 
 /**
- * Applies wordpress filters on callback functions invoked
- * when rendering a Arlima list
+ * Class that can include php files in article lists
  *
  * @package Arlima
- * @since 2.5
+ * @since 2.8
  */
 class Arlima_FileInclude {
 

@@ -39,7 +39,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     /**
      * Class constructor
      * @param Arlima_List|stdClass $list
-     * @param string $template_path - Optional path to directory where templates should exists (see readme.txt about how to add your own template paths from the theme)
+     * @param string $template_path - Optional path to directory where templates should exists
      */
     function __construct($list, $template_path = null)
     {
@@ -50,7 +50,8 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
     /**
      * Prepares the template object creator. All callbacks must be added to this class
-     * before running this function. An callback added after this function is called will not be triggered
+     * before running this function. A callback added after this function is called
+     * will not be triggered
      */
     protected function setupObjectCreator()
     {

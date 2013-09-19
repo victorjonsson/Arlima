@@ -181,6 +181,14 @@ a.teaser-entryword:hover {
     padding: 0;
     border: 0;
     overflow: visible;
+    margin-bottom: 18px;
+    clear: both;
+}
+
+.teaser-children .tmpl-article.img-half,
+.teaser-children .tmpl-article.img-third,
+.teaser-children .tmpl-article.img-fourth {
+    overflow: auto;
 }
 
 .teaser-children .tmpl-article.teaser-split.first,
@@ -192,6 +200,10 @@ a.teaser-entryword:hover {
 
 .teaser-children .tmpl-article.teaser-split.last {
     float: right;
+}
+
+.teaser-children .tmpl-article:last-child {
+    margin-bottom: 0;
 }
 
 
@@ -477,7 +489,7 @@ current list in wp-admin
     .tmpl-article h3,
     .tmpl-article h4,
     .tmpl-article h5 {
-        font-size: 16px !important;
+        font-size: 24px !important;
         line-height: normal !important;
     }
 

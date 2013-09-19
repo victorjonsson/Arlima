@@ -148,7 +148,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
             (function(win) {
                 var tmpls = [];
                 <?php foreach ($tmpl_resolver->getTemplateFiles()as $tmpl): ?>
-                    tmpls.push('<?php echo $tmpl['url']; ?>?v=7');
+                    tmpls.push('<?php echo $tmpl['url']; ?>?v=8');
                 <?php endforeach; ?>
                 win.ArlimaTemplateLoader.load(tmpls);
                 <?php if ( !empty($_GET['open_list']) ): ?>

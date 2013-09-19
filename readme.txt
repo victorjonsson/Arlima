@@ -44,7 +44,7 @@ the list that you created on step 2.
 
 = 2.8 =
 
-- Plugin now compatible with 3.6.1 (big thanks to [Johan Fredriksson](https://github.com/DUAB-Johan))
+- Arlima is now compatible with 3.6.1 (big thanks to [Johan Fredriksson](https://github.com/DUAB-Johan))
 - jQuery-tmpl function {{include}} now supports relative paths.
 - A new jQuery-tmpl function named {{image-support}} is introduced (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Custom-jQuery-templates).
 - It's now possible to choose whether or not editors should be able to change template for articles via the list manager.
@@ -52,6 +52,9 @@ the list that you created on step 2.
 - Arlima now supports lists that has articles divided in sections (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Article-lists-with-sections).
 - The template functions is_arlima_preview(), get_arlima_list() and has_arlima_list() has become deprecated, replaced with arlima_is_preview(), arlima_get_list() and arlima_has_list().
 - The template function arlima_load_list($slug_or_id) is added to the public API (see wiki for more details https://github.com/victorjonsson/Arlima/wiki/Writing-a-custom-page-template).
+- Image filter "arlima_generate_image_version" added. By using this filter you can replace the image manipulation function in Arlima with a function of your own (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Filters-and-actions).
+- The CSS for child articles has changed. If you have custom CSS for your arlima articles you should take a look at the section for child articles in css/template.css.
+
 
 = 2.7.21 =
 

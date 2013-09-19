@@ -3,8 +3,8 @@
 Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
-Tested up to: 3.5
-Stable tag: 2.7.21
+Tested up to: 3.6.1
+Stable tag: 2.7.24
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,10 +44,11 @@ the list that you created on step 2.
 
 = 2.8 =
 
+- Plugin now compatible with 3.6.1 (big thanks to [Johan Fredriksson](https://github.com/DUAB-Johan))
 - jQuery-tmpl function {{include}} now supports relative paths.
 - A new jQuery-tmpl function named {{image-support}} is introduced (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Custom-jQuery-templates).
 - It's now possible to choose whether or not editors should be able to change template for articles via the list manager.
-- It's now possible to include php files inside articles (see wiki for more info).
+- It's now possible to include php files inside articles (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/File-includes).
 - Arlima now supports lists that has articles divided in sections (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Article-lists-with-sections).
 - The template functions is_arlima_preview(), get_arlima_list() and has_arlima_list() has become deprecated, replaced with arlima_is_preview(), arlima_get_list() and arlima_has_list().
 - The template function arlima_load_list($slug_or_id) is added to the public API (see wiki for more details https://github.com/victorjonsson/Arlima/wiki/Writing-a-custom-page-template).

@@ -1,4 +1,4 @@
-<div id="${container.id}" class="${container.class} tmpl-article">
+<div data-post="${article.post_id}" class="${container.class} tmpl-article">
 <article>
 
     {{if streamer}}
@@ -41,9 +41,9 @@
 
 </article>
 
-{{if sub_articles}}
+{{if child_articles}}
     <div class="teaser-children">
-        {{html sub_articles}}
+        {{html child_articles}}
     </div>
 {{/if}}
 

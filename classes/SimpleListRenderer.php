@@ -62,6 +62,7 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
      */
     function renderList($output = true)
     {
+        $current_global_post = $GLOBALS['post'];
         $content = '';
         $article_counter = 0;
         foreach ($this->getArticlesToRender() as $article) {
@@ -85,7 +86,7 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
         }
 
         // unset global post data
-        $GLOBALS['post'] = null;
+        $GLOBALS['post'] = $current_global_post;
 
         return $content;
     }

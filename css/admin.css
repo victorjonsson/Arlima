@@ -915,6 +915,10 @@ span.arlima-streamer-indicator {
     padding: 5px 0 0 0;
 }
 
+.fancybox-overlay.fancybox-overlay-fixed {
+    background: rgba(255, 255, 255, .8)
+}
+
 .widefat td {
     vertical-align: middle;
 }

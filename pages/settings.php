@@ -104,7 +104,7 @@ if( isset($message) ): ?>
                             <a href="https://github.com/victorjonsson/Arlima/wiki/Custom-streamers" target="_blank">&quot;streamers&quot;</a>.
                         </td>
                         <td>
-                            <input type="text" id="streamer-color" placeholder="FF0000" />
+                            <input type="color" id="streamer-color" placeholder="FF0000" />
                             <input type="button" value="<?php _e('Add', 'arlima') ?>" id="streamer-button" class="button" />
                             <div id="streamer-wrapper" data-colors="<?php if( !empty($settings['streamer_colors']) ) echo implode(',', $settings['streamer_colors']) ?>"></div>
                         </td>

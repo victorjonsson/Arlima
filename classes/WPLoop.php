@@ -26,6 +26,16 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
     private $header_callback = 'Arlima_WPLoop::defaultHeaderCallback';
 
     /**
+     * @var array
+     */
+    private $default_article_props = array();
+
+    /**
+     * @var bool
+     */
+    private $doApplyFilters = true;
+
+    /**
      * @param string $template_path - Optional path to directory where templates should exists (see readme.txt about how to add your own template paths from the theme)
      * @param null|string $template - Optional name of template file to be used (no extension)
      * @param int $list_width
@@ -38,6 +48,43 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
         $this->list_width = $list_width;
         $this->filter_suffix = $filter_suffix;
         parent::__construct($list, $template_path);
+    }
+
+    public function toggleApplyFilters($toggle)
+    {
+        $this->doApplyFilters = $toggle;
+    }
+
+    /**
+     * @param int $list_width
+     */
+    public function setListWidth($list_width)
+    {
+        $this->list_width = $list_width;
+    }
+
+    /**
+     * @return int
+     */
+    public function getListWidth()
+    {
+        return $this->list_width;
+    }
+
+    /**
+     * @param string $filter_suffix
+     */
+    public function setFilterSuffix($filter_suffix)
+    {
+        $this->filter_suffix = $filter_suffix;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilterSuffix()
+    {
+        return $this->filter_suffix;
     }
 
     /**
@@ -75,6 +122,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
     {
         $article_counter = 0;
         $content = '';
+        $current_global_post = $GLOBALS['post'];
 
         // Create template
         $jQueryTmpl_df = new jQueryTmpl_Data_Factory();
@@ -87,14 +135,13 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
         // Setup tmpl object creatorv
         $this->setup_wp_post_data = false; // prevent this class from overwriting the global post object
 
-        $this->setupObjectCreator();
-
-        if( !empty($this->filter_suffix) ) {
+        if( $this->doApplyFilters ) {
             Arlima_FilterApplier::setFilterSuffix($this->filter_suffix);
+            Arlima_FilterApplier::setArticleWidth($this->list_width);
+            Arlima_FilterApplier::applyFilters($this);
         }
 
-        Arlima_FilterApplier::setArticleWidth($this->list_width);
-        Arlima_FilterApplier::applyFilters($this);
+        $this->setupObjectCreator();
 
         while (have_posts()) {
             if ( $this->getOffset() > $article_counter ) {
@@ -106,6 +153,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
             global $post;
 
             $article_data = $this->extractArticleData($post, $article_counter);
+
             list($article_counter, $article_content) = $this->outputArticle(
                 $article_data,
                 $jQueryTmpl_df,
@@ -125,8 +173,11 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
         }
 
         // Reset
-        $GLOBALS['post'] = null;
-        Arlima_FilterApplier::setFilterSuffix('');
+        $GLOBALS['post'] = $current_global_post;
+
+        if( $this->doApplyFilters ) {
+            Arlima_FilterApplier::setFilterSuffix('');
+        }
 
         return $content;
     }
@@ -138,23 +189,41 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
     protected function extractArticleData($post, $article_counter)
     {
         $date = strtotime($post->post_date_gmt);
-        $article = array(
+        $article = array_merge(array(
             'post_id' => $post->ID,
             'options' => array(
                 'hiderelated' => false
             ),
-            'title' => get_the_title($post->ID),
+            'title' => apply_filters('the_title', $post->post_title, 'arlima-list'),
             'html_title' => '<h2>' . $post->post_title . '</h2>',
             'url' => get_permalink($post->ID),
             'text' => '',
             'created' => $date,
             'publish_date' => $date
-        );
+        ), $this->default_article_props);
 
         $article = Arlima_ListFactory::createArticleDataArray($article);
         $article['title_html'] = call_user_func($this->header_callback, $article_counter, $article, $post, $this->list);
+        $article['text'] = apply_filters('the_content', get_the_content(), 'arlima-list');
         $article['text'] = apply_filters('the_content', get_the_content());
 
-        return $article;
+        if( $img = get_post_thumbnail_id($post->ID) ) {
+            $article['image_options'] = array(
+                'attach_id' => $img,
+                'alignment' => '',
+                'size' => 'full',
+                'url' => wp_get_attachment_url($img)
+            );
+        }
+
+        return apply_filters('arlima_wp_loop_article', $article, $post);
+    }
+
+    /**
+     * @param $arr
+     */
+    public function setDefaultArticleProperties($arr)
+    {
+        $this->default_article_props = $arr;
     }
 }

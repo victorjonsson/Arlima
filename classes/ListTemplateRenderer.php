@@ -49,7 +49,8 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     }
 
     /**
-     * Prepares the template object creator
+     * Prepares the template object creator. All callbacks must be added to this class
+     * before running this function. An callback added after this function is called will not be triggered
      */
     protected function setupObjectCreator()
     {
@@ -128,23 +129,9 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     protected function outputArticle($article_data, jQueryTmpl_Data_Factory $jQueryTmpl_df, $article_counter)
     {
         // File include
-        if ( !empty($article_data['options']) && !empty($article_data['options']['file_include']) ) {
-
-            // Make some variables available for the file
-            $renderer = $this;
-            $args = array();
-            if( !empty($article_data['options']['file_args']) ) {
-                parse_str($article_data['options']['file_args'], $args);
-            }
-
-            // Include file and capture output
-            ob_start();
-            include $article_data['options']['file_include'];
-            $content = ob_get_contents();
-            ob_end_clean();
-
+        if ( $this->isFileIncludeArticle($article_data) ) {
             // We're done, go on pls!
-            return array($article_counter + 1, $content);
+            return array($article_counter + 1, $this->includeArticleFile($article_data));
         }
 
 
@@ -187,7 +174,8 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
         // load sub articles if there's any
         if ( $has_child_articles ) {
-            $template_data['sub_articles'] = $this->renderSubArticles($article['children'], $jQueryTmpl_df);
+            $template_data['child_articles'] = $this->renderChildArticles($article['children'], $jQueryTmpl_df);
+            $template_data['sub_articles'] = $template_data['child_articles']; // todo: remove when moving up to version 3.0
         }
 
         // output the article
@@ -297,19 +285,41 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      * @internal param \jQueryTmpl $jQueryTmpl
      * @return string
      */
-    private function renderSubArticles(array $articles, jQueryTmpl_Data_Factory $jQueryTmpl_df)
+    private function renderChildArticles(array $articles, jQueryTmpl_Data_Factory $jQueryTmpl_df)
     {
-        $sub_articles = '';
+        $child_articles = '';
         $count = 0;
-        $is_child_split = count($articles) > 1;
+        $num_children = count($articles);
+        $has_even_children = $num_children % 2 === 0;
+        $is_child_split = $num_children > 1;
         $image_size = !$is_child_split ? $this->img_size_name_sub_article_full : $this->img_size_name_sub_article;
 
         // Configure object creator for child articles
         $this->template_obj_creator->setImgSize($image_size);
         $this->template_obj_creator->setIsChild(true);
-        $this->template_obj_creator->setIsChildSplit($is_child_split);
 
         foreach ($articles as $article_data) {
+
+            $this->template_obj_creator->setIsChildSplit(false);
+            $first_or_last_class = '';
+
+            if(
+                ($num_children == 4 && ($count == 1 || $count == 2)) ||
+                ($num_children == 6 && ($count != 0 && $count != 3)) ||
+                ($num_children > 1 && $num_children != 4 && $num_children != 6 && ($count != 0 || $has_even_children) )
+            ) {
+                $this->template_obj_creator->setIsChildSplit( true );
+                $first_or_last_class = (($count==1 && $num_children > 2) || ($count==0 && $num_children==2) || $count==3 || ($count==4 && $num_children ==6)? ' first':' last');
+            }
+
+            // File include
+            if( $this->isFileIncludeArticle($article_data) ) {
+                $count++;
+                $child_articles .= '<div class="arlima-file-include teaser '.$first_or_last_class.
+                                    ( $this->template_obj_creator->getIsChildSplit() ? ' teaser-split':'').
+                                    '">'.$this->includeArticleFile($article_data).'</div>';
+                continue;
+            }
 
             list($post, $article, $is_post, $is_empty) = $this->setup($article_data);
 
@@ -328,9 +338,11 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                                 $article_template
                             );
 
-            $template_data['container']['class'] .= $count%2 == 0 ? ' first' : ' last';
+            if( $first_or_last_class ) {
+                $template_data['container']['class'] .= $first_or_last_class;
+            }
 
-            $sub_articles .= $this->generateTemplateOutput($jQueryTmpl_df, $template_factory, $template_data);
+            $child_articles .= $this->generateTemplateOutput($jQueryTmpl_df, $template_factory, $template_data);
             $count++;
         }
 
@@ -339,7 +351,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         $this->template_obj_creator->setIsChildSplit(false);
         $this->template_obj_creator->setImgSize($this->img_size_name);
 
-        return $sub_articles;
+        return $child_articles;
     }
 
     /**
@@ -426,5 +438,29 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         // Create and return jQuery template
         $jQueryTmpl->template('tpl', $jQueryTmpl_Markup_Factory->createFromString($template_content));
         return $jQueryTmpl;
+    }
+
+    /**
+     * @param $article_data
+     * @return string
+     */
+    protected function includeArticleFile($article_data)
+    {
+        $file_include = new Arlima_FileInclude();
+        $args = array();
+        if (!empty($article_data['options']['file_args'])) {
+            parse_str($article_data['options']['file_args'], $args);
+        }
+
+        return $file_include->includeFile($article_data['options']['file_include'], $args, $this, $article_data);
+    }
+
+    /**
+     * @param $article_data
+     * @return bool
+     */
+    protected function isFileIncludeArticle($article_data)
+    {
+        return !empty($article_data['options']) && !empty($article_data['options']['file_include']);
     }
 }

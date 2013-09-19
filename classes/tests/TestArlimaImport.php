@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ .'/setup.php';
-require_once __DIR__.'/ExportImportBase.php';
+require_once __DIR__ . '/setup.php';
+require_once __DIR__ . '/ExportImportBase.php';
 
 
 class TestArlimaImport extends ExportImportBase {

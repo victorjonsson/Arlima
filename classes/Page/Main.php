@@ -102,7 +102,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         }
         add_filter('mce_css', 'tdav_css');
 
-// Deregister scripts we need to override
+        // Deregister scripts we need to override
         wp_deregister_script('jquery-hotkeys');
         wp_deregister_script('jquery-ui-core');
         wp_deregister_script('jquery-ui-draggable');
@@ -145,20 +145,22 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         $style_sheets = $this->plugin->getTemplateStylesheets();
         ?>
         <script>
-            var tmpls = [];
-            <?php foreach ($tmpl_resolver->getTemplateFiles() as $tmpl): ?>
-            tmpls.push('<?php echo $tmpl['url']; ?>?v=5');
-            <?php endforeach; ?>
-            ArlimaTemplateLoader.load(tmpls);
-            <?php if ( !empty($_GET['open_list']) ): ?>
-            var loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
-            <?php endif; ?>
-            <?php if( is_array($style_sheets) && !empty($style_sheets) ): ?>
-                var arlimaTemplateStylesheets = [];
-                <?php foreach($style_sheets as $style): ?>
-                    arlimaTemplateStylesheets.push('<?php echo $style ?>');
+            (function(win) {
+                var tmpls = [];
+                <?php foreach ($tmpl_resolver->getTemplateFiles()as $tmpl): ?>
+                    tmpls.push('<?php echo $tmpl['url']; ?>?v=7');
                 <?php endforeach; ?>
-            <?php endif; ?>
+                win.ArlimaTemplateLoader.load(tmpls);
+                <?php if ( !empty($_GET['open_list']) ): ?>
+                    win.loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
+                <?php endif; ?>
+                <?php if( is_array($style_sheets) && !empty($style_sheets) ): ?>
+                    win.arlimaTemplateStylesheets = [];
+                    <?php foreach($style_sheets as $style): ?>
+                        win.arlimaTemplateStylesheets.push('<?php echo $style ?>');
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            })(window);
         </script>
     <?php
     }

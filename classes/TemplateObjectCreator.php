@@ -124,7 +124,8 @@ class Arlima_TemplateObjectCreator
                 'html_title' => '',
                 'html_text' => false
             ),
-            'sub_articles' => false,
+            'sub_articles' => false, // deprecated
+            'child_articles' => false,
             'streamer' => false,
             'related' => false,
             'before_related' => false,
@@ -208,18 +209,22 @@ class Arlima_TemplateObjectCreator
         $url = isset($article['url']) ? $article['url'] : '';
         $post_id = !empty($article['post_id']) ? $article['post_id'] : '';
 
-        $obj['container']['id'] = 'teaser-' . (is_numeric($post_id) ? $post_id : $url);
+        $obj['container']['id'] = 'teaser-' . (is_numeric($post_id) ? $post_id : $url); // deprecated
         $obj['container']['class'] = 'teaser' . ($is_empty ? ' empty' : '');
         $obj['article']['title'] = isset($article['title']) ? $article['title'] : '';
         $obj['article']['html_title'] = $is_empty ? '' : Arlima_List::getTitleHtml($article, array('before_title'=>$this->before_title_html, 'after_title'=>$this->after_title_html));
         $obj['article']['url'] = $url;
         $obj['article']['publish_date'] = $article['publish_date'];
+        $obj['article']['post'] = $article['post_id'];
         $obj['is_child'] = $this->is_child;
         $obj['is_child_split'] = $this->is_child_split;
 
         if ( !empty($article['options']) && !empty($article['options']['format']) ) {
             $obj['container']['class'] .= ' ' . $article['options']['format'];
             $obj['container']['format'] = $article['options']['format'];
+        }
+        if( $has_streamer ) {
+            $obj['container']['class'] .= ' has-streamer';
         }
 
         // Add article end content
@@ -257,7 +262,7 @@ class Arlima_TemplateObjectCreator
             $obj['container']['class'] .= ' teaser-child';
         }
         if( $this->is_child_split ) {
-            $obj['container']['class'] .= ' teaser-split'; // is one aout of many children
+            $obj['container']['class'] .= ' teaser-split'; // is one out of many children
         }
 
         $filter_suffix = Arlima_FilterApplier::getFilterSuffix(); 
@@ -275,7 +280,8 @@ class Arlima_TemplateObjectCreator
     protected function generateImageData($article, $img_size, $article_counter, &$data, $img_opt_size, $post)
     {
         if( $this->image_callback !== false) {
-            $img = call_user_func($this->image_callback, $article, $article_counter, $post, $this->list, $img_size);
+            $img = call_user_func($this->image_callback, $article, $article_counter, $post, $this->list, $img_size, $this->is_child_split);
+
             if ( $img || !empty($article['image_options']['url']) ) {
 
                 if ( empty($article['image_options']['url']) ) {

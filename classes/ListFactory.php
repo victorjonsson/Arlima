@@ -266,7 +266,7 @@ class Arlima_ListFactory {
             foreach( $articles as $sort => $article ) {
                 $this->saveArticle($version_id, $article, $sort, -1, $count);
                 $count++;
-                if( $count > ( $list->getMaxlength()-1 ) )
+                if( $count >= $list->getMaxlength() )
                     break;
             }
         }
@@ -289,6 +289,12 @@ class Arlima_ListFactory {
      */
     private function saveArticle($version_id, $article, $sort, $parent=-1, $offset)
     {
+        foreach($article as $key => $val) {
+            if( !is_array($val) ) {
+                $article[$key] = str_replace('\\\\', '\\', $val);
+            }
+        }
+
         if( empty($article['options']) || !is_array($article['options']) )
             $article['options'] = array();
         if( empty($article['image_options']) || !is_array($article['image_options']) )
@@ -306,7 +312,7 @@ class Arlima_ListFactory {
             empty($article['created']) ? time():(int)$article['created'],
             empty($article['publish_date']) ? time():(int)$article['publish_date'],
             $version_id,
-            (int)$article[ 'post_id' ],
+            isset($article[ 'post_id' ]) ? (int)$article[ 'post_id' ]:0,
             stripslashes( $article[ 'title' ] ),
             stripslashes( $article[ 'text' ] ),
             (int)$sort,
@@ -834,6 +840,10 @@ class Arlima_ListFactory {
             unset($options['sticky_interval']);
         }
 
+        foreach($options as $key=>$val) {
+            $options[$key] = str_replace('\\\\', '\\', $val);
+        }
+
         return $options;
     }
 
@@ -846,6 +856,7 @@ class Arlima_ListFactory {
     public static function updateArticlePublishDate($post)
     {
         if($post && $post->post_type == 'post') {
+
             /* @var wpdb $wpdb */
             global $wpdb;
 

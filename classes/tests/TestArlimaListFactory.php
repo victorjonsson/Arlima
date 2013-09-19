@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ .'/setup.php';
+require_once __DIR__ . '/setup.php';
 
 
 class TestArlimaListFactory extends PHPUnit_Framework_TestCase {

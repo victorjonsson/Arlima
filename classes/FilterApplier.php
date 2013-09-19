@@ -96,7 +96,7 @@ class Arlima_FilterApplier
      */
     private static function filter($filter, $article_counter, &$article,
                             $post, $list, $img_size=false, $source_url = false,
-                            $resized_url=false, $width=false)
+                            $resized_url=false, $width=false, $dim=false)
     {
         $data = array(
             'article' => $article,
@@ -111,6 +111,9 @@ class Arlima_FilterApplier
             $data['width'] = $width;
             $data['resized'] = $resized_url;
             $data['source'] = $source_url;
+        }
+        if( $dim ) {
+            $data['dimensions'] = $dim;
         }
 
         if( !empty(self::$filter_suffix) )
@@ -142,19 +145,18 @@ class Arlima_FilterApplier
      * @param $article
      * @param $post
      * @param Arlima_List $list
-     * @param $img_size
+     * @param string $img_size
      * @return string
      */
-    public static function imageCallback($article, $article_counter, $post, $list, $img_size)
+    public static function imageCallback($article, $article_counter, $post, $list, $img_size, $is_child_split=false)
     {
         $filtered = array('content'=>'');
         $img_alt = '';
         $img_class = '';
         $has_img = !empty($article['image_options']) && !empty($article['image_options']['attach_id']);
         $has_giant_tmpl = !empty($article['options']['template']) && $article['options']['template'] == 'giant';
-        $is_child_article = isset($article['parent']) && $article['parent'] != -1;
 
-        $article_width = $is_child_article ? round(self::$width / 2) : self::$width;
+        $article_width = $is_child_split ? round(self::$width / 2) : self::$width;
 
         if ( $has_img && !$has_giant_tmpl && $attach_meta = wp_get_attachment_metadata($article['image_options']['attach_id']) ) {
 
@@ -181,6 +183,24 @@ class Arlima_FilterApplier
 
             $img_class = $article['image_options']['size'] . ' ' . $article['image_options']['alignment'];
             $img_alt = htmlspecialchars($article['title']);
+
+            // Let other plugin take over this function entirely
+            $filtered = self::filter(
+                            'arlima_generate_image_version',
+                            $article_counter,
+                            $article,
+                            $post,
+                            $list,
+                            $img_class,
+                            null,
+                            null,
+                            $article_width,
+                            $size
+                        );
+
+            if( !empty($filtered['content']) )
+                return $filtered['content'];
+
             $attach_url = wp_get_attachment_url($article['image_options']['attach_id']);
             $resized_url = self::generateImageVersion(
                                 $attach_meta['file'],
@@ -200,6 +220,7 @@ class Arlima_FilterApplier
                             $resized_url,
                             $article_width
                         );
+
         }
         elseif(!$has_giant_tmpl) {
             // Callback for empty image

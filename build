@@ -146,7 +146,7 @@ exec('mval ./readme.txt', function(error, stdout, stderr) {
                                         fs.unlinkSync(buildDir+'/'+file);
                                     }
                                 } catch(e) {
-                                    console.log(e);
+                                    //console.log(e);
                                 }
                                 return true;
                             });

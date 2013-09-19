@@ -18,14 +18,14 @@ $_SERVER['HTTP_HOST'] = '';
 define('ARLIMA_UNIT_TEST', true);
 
 // Load wp
-require_once __DIR__.'/../../../../../wp-load.php';
+require_once __DIR__ . '/../../../../../wp-load.php';
 
 // Load PHPUnit
 require_once __DIR__.'/../../vendor/autoload.php';
 
 // Setup arlima class loader if plugin not installed
 if( !class_exists('Arlima_Plugin') ) {
-    require_once __DIR__.'/../../constants.php';
-    require_once __DIR__.'/../Plugin.php';
-    require_once __DIR__.'/../../arlima.php';
+    require_once __DIR__ . '/../../constants.php';
+    require_once __DIR__ . '/../Plugin.php';
+    require_once __DIR__ . '/../../arlima.php';
 }

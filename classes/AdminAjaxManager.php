@@ -739,21 +739,38 @@ class Arlima_AdminAjaxManager
     }
 
     /**
-     * Get a wordpress post in json format
+     * @param $post
+     * @return bool|mixed|void
+     */
+    private function setupPostObject($post) {
+        if( is_object($post) && $post->post_type == 'post' && $post->post_status != 'deleted' && $post->post_status != 'trash' ) {
+            $post->url = get_permalink($post->ID);
+            $post->publish_date = strtotime($post->post_date_gmt);
+            return apply_filters('arlima_wp_post', $post);
+        }
+        return false;
+    }
+
+    /**
+     * Get wordpress posts in json format
      */
     function getPost()
     {
         $this->initAjaxRequest();
 
-        $post_id = intval($_POST['postid']);
-        $post = get_post($post_id);
-
-        if ( is_object($post) && $post->post_type == 'post' && $post->post_status != 'deleted' && $post->post_status != 'trash' ) {
-            $post->url = get_permalink($post->ID);
-            $post->publish_date = strtotime($post->post_date_gmt);
-            $post = apply_filters('arlima_wp_post', $post);
-            echo json_encode((array)$post);
-            die;
+        if( strpos($_POST['postid'], ',') !== false) {
+            $posts = array();
+            foreach(explode(',', $_POST['postid']) as $id) {
+                if( $p = $this->setupPostObject(get_post($id)) ) {
+                    $posts[] = $p;
+                }
+            }
+            die(json_encode(array('posts'=>$posts)));
+        } else {
+            $post_id = intval($_POST['postid']);
+            if( $p = $this->setupPostObject(get_post($post_id)) ) {
+                die(json_encode((array)$p));
+            }
         }
 
         die(json_encode(array()));
@@ -945,7 +962,7 @@ class Arlima_AdminAjaxManager
                     'text' => $text,
                     'url' => $url,
                     'title_fontsize' => 24,
-                    'content' => apply_filters('the_content', $post->post_content),
+                    'content' => $post->post_content,
                     'publish_date' => strtotime($post->post_date_gmt)
                 );
 

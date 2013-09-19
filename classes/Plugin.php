@@ -627,6 +627,7 @@ class Arlima_Plugin
                         <td><strong><?php _e('Limit', 'arlima') ?>:</strong></td>
                         <td><input type="number" name="arlima_limit" value="<?php echo $relation_data['attr']['limit'] ?>" style="width:50px"/></td>
                     </tr>
+                    <?php do_action('arlima_meta_box_setup') ?>
                 </table>
             <?php endif; ?>
         </div>
@@ -655,6 +656,8 @@ class Arlima_Plugin
                             'limit' => (int)$_POST['arlima_limit'],
                             'position' => $_POST['arlima_position']
                         ));
+
+                    do_action('arlima_meta_box_save', $post_id);
                 }
             } else {
                 Arlima_ListFactory::updateArticlePublishDate(get_post($post_id));

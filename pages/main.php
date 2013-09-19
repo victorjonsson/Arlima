@@ -365,7 +365,8 @@ $arlima_plugin = new Arlima_Plugin();
 
     </div><!-- #arlima-custom-templates -->
 
-    <?php if( $file_includes = apply_filters('arlima_article_includes', array()) ): ?>
+    <?php if( $file_includes = apply_filters('arlima_article_includes', array()) ):
+        $arlima_file_include = new Arlima_FileInclude(); ?>
         <div id="arlima-article-file-includes" class="arlima-postbox">
             <div class="handlediv"><br /></div><h3><span><?php _e('File includes', 'arlima') ?></span></h3>
             <div class="inside" style="display:none;">
@@ -380,7 +381,10 @@ $arlima_plugin = new Arlima_Plugin();
                         <?php foreach( $file_includes as $label => $file ): if( is_numeric($label) ) $label = basename($file); ?>
                             <tr>
                                 <td>
-                                    <li class="dragger listitem" data-file="<?php echo $file; ?>" data-label="<?php echo $label ?>">
+                                    <li class="dragger listitem <?php echo str_replace(array('/', '\\', '.'), '-', $file) ?>"
+                                        data-args='<?php echo json_encode($arlima_file_include->getFileArgs($file)) ?>'
+                                        data-file="<?php echo $file; ?>"
+                                        data-label="<?php echo $label ?>">
                                         <div>
                                                 <span class="arlima-listitem-title"><img
                                                         src="<?php echo ARLIMA_PLUGIN_URL . '/images/arrow.png'; ?>" class="handle" alt="move"

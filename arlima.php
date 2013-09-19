@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.7.21
+Version: 2.7.24
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -55,14 +55,18 @@ else {
  * @param string $content
  * @param string $url
  * @param bool|string $target
+ * @param string $extra_classes
+ * @param int &$found Whether or not an entry word was linked in given $content
  * @return string
  */
-function arlima_link_entrywords( $content, $url, $target=false) {
+function arlima_link_entrywords( $content, $url, $target=false, $extra_classes='', &$found=null) {
     $pattern = '/(<span)(.*class=\".*teaser-entryword.*\")>(.*)(<\/span>)/isxmU';
     return preg_replace(
                 $pattern,
-                '<a href="'.$url.'" '.($target ? ' target="'.$target.'"':'').'class="teaser-entryword">$3</a>',
-                $content
+                '<a href="'.$url.'" '.($target ? ' target="'.$target.'"':'').'class="teaser-entryword'.$extra_classes.'">$3</a>',
+                $content,
+                -1,
+                $found
             );
 }
 
@@ -248,7 +252,7 @@ function arlima_load_list($id_or_slug, $version=false, $include_future_post=fals
  * @see https://github.com/victorjonsson/Arlima/wiki/Programmatically-insert-lists
  * @param Arlima_List|Arlima_AbstractListRenderingManager|int|string $list
  * @param array $args
- * @return string|void
+ * @return string|bool
  */
 function arlima_render_list($list, $args=array()) {
 
@@ -259,7 +263,7 @@ function arlima_render_list($list, $args=array()) {
                 'echo' => true,
                 'filter_suffix' => '',
                 'section' => false,
-                'no_list_message' => true
+                'no_list_message' => true // True meaning the the message will be displayed
             ), $args);
 
     $factory = new Arlima_ListFactory();
@@ -277,14 +281,16 @@ function arlima_render_list($list, $args=array()) {
         $renderer = new Arlima_ListTemplateRenderer($list);
     }
 
-    if( !$renderer->getList()->exists() && $args['no_list_message'] ) {
+    $list_exist = $renderer->getList()->exists();
+
+    if( !$list_exist && $args['no_list_message'] ) {
         $msg = '<p>'.__('This list does not exist', 'arlima').'</p>';
         if( $args['echo'] )
             echo $msg;
         else
             return $msg;
     }
-    else {
+    elseif( $list_exist ) {
 
         $renderer->setOffset( $args['offset'] );
         $renderer->setLimit( $args['limit'] );
@@ -309,14 +315,40 @@ function arlima_render_list($list, $args=array()) {
 
             do_action('arlima_list_end'.$action_suffix, $renderer, $args);
 
-            return apply_filters('arlima_list_content', $content, $renderer);
+            if( $args['echo'] ) {
+                return true;
+            } else {
+                return apply_filters('arlima_list_content', $content, $renderer);
+            }
         }
     }
 
-    return '';
+    return false;
 }
 
+/**
+ * @param array $default
+ * @return array|bool
+ */
+function arlima_file_args($default) {
+    if( Arlima_FileInclude::isCollectingArgs() ) {
+        Arlima_FileInclude::setCollectedArgs($default);
+        return false;
+    } else {
+        return array_merge($default, Arlima_FileInclude::currentFileArgs());
+    }
+}
 
+/**
+ * Include arlima file outside of arlima list.
+ * @param  string $file
+ * @param  array  $args
+ * @return string
+ */
+function arlima_include_file($file, $args = array()) {
+    $file_include = new Arlima_FileInclude();
+    return $file_include->includeFile($file, $args);
+}
 
 
 /* * * * * * * * * * * * DEPRECATED FUNCTIONS * * * * * * * * * * * * * */
@@ -374,7 +406,7 @@ function arlima_get_version_info( $version ) {
  */
 function arlima_requesting_preview($list_id) {
     Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_requesting_preview()', 2.5, 'Function is removed');
-    return arlima_is() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $list_id;
+    return arlima_is_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $list_id;
 }
 
 /**

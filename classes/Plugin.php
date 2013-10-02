@@ -118,11 +118,7 @@ class Arlima_Plugin
             return sprintf($error_html, 'Short code [arlima] is missing argument &quot;list&quot;');
         }
 
-        if( is_numeric($attr['list']) )
-            $list = $factory->loadList($attr['list']);
-        else
-            $list = $factory->loadListBySlug($attr['list']);
-
+        $list = $factory->loadList($attr['list']);
 
         if ( !$list->exists() ) {
             return sprintf(
@@ -168,7 +164,20 @@ class Arlima_Plugin
                 )
             );
             $factory = new Arlima_ListFactory();
-            foreach ($factory->loadListSlugs() as $list_data) {
+            $lists = $factory->loadListSlugs();
+
+            // Put current list first in navigation
+            if( arlima_has_list() ) {
+                $current_list_slug = arlima_get_list()->getSlug();
+                foreach($lists as $key => $list_data) {
+                    if( $list_data->slug == $current_list_slug ) {
+                        unset($lists[$key]);
+                        array_unshift($lists, $list_data);
+                    }
+                }
+            }
+
+            foreach ($lists as $list_data) {
                 $wp_admin_bar->add_menu(
                     array(
                         'id' => 'arlima-' . $list_data->id,
@@ -438,7 +447,7 @@ class Arlima_Plugin
                 foreach ($pages as $page) {
                     $arlima_slug = get_post_meta($page->ID, 'arlima', true);
                     if ( $arlima_slug ) {
-                        $list = $factory->loadListBySlug($arlima_slug);
+                        $list = $factory->loadList($arlima_slug);
                         if( $list->exists() ) {
                             $connector->setList($list);
                             $connector->relate($page->ID, $list_attr);
@@ -566,6 +575,10 @@ class Arlima_Plugin
         $factory = new Arlima_ListFactory();
         $connector = new Arlima_ListConnector();
         $lists = $factory->loadListSlugs();
+
+        $import_manager = new Arlima_ImportManager( $this );
+        $imported = $import_manager->getImportedLists();
+       
         $relation_data = false;
         if ( $post ) {
             $relation_data = $connector->getRelationData($post->ID);
@@ -597,6 +610,19 @@ class Arlima_Plugin
                                     }
                                     ?>><?php echo $arlima_list->title; ?></option>
                                 <?php endforeach; ?>
+                                <?php if(!empty($imported)): ?>
+                                    <optgroup label="<?php _e('Imported lists', 'arlima') ?>">
+                                        <?php foreach($imported as $list_data): ?>
+                                            <option value="<?php echo $list_data['url'] ?>"<?php
+                                                // may be either slug or id
+                                                if ( $relation_data['id'] == $list_data['url']  ){
+                                                    echo ' selected="selected"';
+                                                }
+                                                ?>><?php echo $list_data['title'] ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </optgroup>
+                                <?php endif ?>
                             </select>
                             <a href="" style="display: none" target="_blank" id="arlima-edit">[<?php _e('edit', 'arlima') ?>]</a>
                         </td>
@@ -656,9 +682,10 @@ class Arlima_Plugin
                             'limit' => (int)$_POST['arlima_limit'],
                             'position' => $_POST['arlima_position']
                         ));
-
-                    do_action('arlima_meta_box_save', $post_id);
                 }
+
+                do_action('arlima_meta_box_save', $post_id);
+
             } else {
                 Arlima_ListFactory::updateArticlePublishDate(get_post($post_id));
             }

@@ -100,6 +100,7 @@ class Arlima_ImportManager
     }
 
     /**
+     * Save an array with all the lists that we use to import
      */
     private function saveImportedLists()
     {
@@ -118,6 +119,7 @@ class Arlima_ImportManager
     }
 
     /**
+     * Load a Arlima list or RSS feed from a remote website and convert to Arlima list object
      * @param string $url
      * @return Arlima_List
      */

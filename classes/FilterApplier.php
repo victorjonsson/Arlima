@@ -222,6 +222,26 @@ class Arlima_FilterApplier
                         );
 
         }
+        elseif( empty($article['image_options']['attach_id']) && !empty($article['image_options']['external_attach_id']) ) {
+            //external images, just try to fit them
+            switch ($article['image_options']['size']) {
+                case 'half':
+                    $size = array(round($article_width * 0.5));
+                    break;
+                case 'third':
+                    $size = array(round($article_width * 0.33));
+                    break;
+                case 'quarter':
+                    $size = array(round($article_width * 0.25));
+                    break;
+                default:
+                    $size = array($article_width);
+                    break;
+            }
+            $img_class = $article['image_options']['size'] . ' ' . $article['image_options']['alignment'];
+            $img_alt = htmlspecialchars($article['title']);
+            $filtered['resized'] = $article['image_options']['url'];
+        }
         elseif(!$has_giant_tmpl) {
             // Callback for empty image
             $filtered = self::filter(
@@ -236,7 +256,7 @@ class Arlima_FilterApplier
                 $article_width
             );
         }
-
+        
         if( empty($filtered['content']) && !empty($filtered['resized']) && $filtered['content'] !== false) {
             $filtered['content'] = sprintf(
                 '<img src="%s" %s alt="%s" class="%s" />',

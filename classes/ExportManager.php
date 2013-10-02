@@ -82,13 +82,15 @@ class Arlima_ExportManager
             $relation = $connector->getRelationData($page->ID);
 
             if ( empty($relation) ) {
+                // This logic is here only for backward compatibility
+                // todo: Remove when moving to version 3.0
                 $arlima_slug = get_post_meta($page->ID, 'arlima', true);
                 if( empty($arlima_slug) ) {
                     $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '404 Bad Request', $format);
                     die;
                 }
                 else {
-                    $list = $factory->loadListBySlug($arlima_slug);
+                    $list = $factory->loadList($arlima_slug);
                 }
             } else {
                 $list = $factory->loadList($relation['id'], false, true);

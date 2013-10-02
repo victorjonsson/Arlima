@@ -3,8 +3,8 @@
 Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
-Tested up to: 3.6.1
-Stable tag: 2.7.24
+Tested up to: 3.6
+Stable tag: 2.7.25
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,7 +46,7 @@ the list that you created on step 2.
 
 - Arlima is now compatible with 3.6.1 (big thanks to [Johan Fredriksson](https://github.com/DUAB-Johan))
 - jQuery-tmpl function {{include}} now supports relative paths.
-- A new jQuery-tmpl function named {{image-support}} is introduced (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Custom-jQuery-templates).
+- A new jQuery-tmpl function named {{image-support}} is introduced (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Custom-jQuery-templates#image-support).
 - It's now possible to choose whether or not editors should be able to change template for articles via the list manager.
 - It's now possible to include php files inside articles (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/File-includes).
 - Arlima now supports lists that has articles divided in sections (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Article-lists-with-sections).
@@ -54,6 +54,8 @@ the list that you created on step 2.
 - The template function arlima_load_list($slug_or_id) is added to the public API (see wiki for more details https://github.com/victorjonsson/Arlima/wiki/Writing-a-custom-page-template).
 - Image filter "arlima_generate_image_version" added. By using this filter you can replace the image manipulation function in Arlima with a function of your own (see wiki for more info https://github.com/victorjonsson/Arlima/wiki/Filters-and-actions).
 - The CSS for child articles has changed. If you have custom CSS for your arlima articles you should take a look at the section for child articles in css/template.css.
+- Arlima_ListFactory::loadListBySlug() is deprecated. Use Arlima_ListFactory::loadList() instead, it can now handle both id number, slug name and URL of external list or RSS feed
+- Now you can publish Arlima lists and RSS-feeds from remote website directly on a page via Arlima's meta box.
 
 
 = 2.7.21 =

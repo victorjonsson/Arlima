@@ -72,7 +72,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
 
         $test_list_content($this, $this->createList());
         $test_list_content($this, self::$factory->loadList(1));
-        $test_list_content($this, self::$factory->loadListBySlug('test'));
+        $test_list_content($this, self::$factory->loadList('test'));
     }
 
     function testUpdateListProps() {
@@ -102,7 +102,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
 
     function testLoadMissingList() {
         $this->assertFalse( self::$factory->loadList(12)->exists() );
-        $this->assertFalse( self::$factory->loadListBySlug('yoyo')->exists() );
+        $this->assertFalse( self::$factory->loadList('yoyo')->exists() );
         $this->assertFalse( self::$factory->loadList(12, 193)->exists() );
     }
 
@@ -154,7 +154,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(14, $latest_ver->getVersionAttribute('user_id'));
         $this->assertEquals(10, count($latest_ver->getVersions()));
 
-        $oldest_ver = self::$factory->loadListBySlug($list->getSlug(), array_slice($latest_ver->getVersions(), -1));
+        $oldest_ver = self::$factory->loadList($list->getSlug(), array_slice($latest_ver->getVersions(), -1));
         $this->assertEquals(5, $oldest_ver->getVersionAttribute('user_id'));
     }
 

@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.7.24
+Version: 2.7.25
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -232,19 +232,14 @@ function arlima_get_list($list_only = true) {
 
 /**
  * Load an arlima list
- * @param string|int $id_or_slug
- * @param string|bool|int $version - Omit this argument to get latest public version. Set argument
- * to a number to get a specific version. Set this argument to 'preview' to get latest preview version of the list
- * @param bool $include_future_post
+ * @param int|string $id_or_slug Either list id, list slug or URL to external list or RSS-feed
+ * @param mixed $version Omit this argument, or set it to false, if you want to load the latest published version of the list. This argument won't have any effect if you're loading an external list/feed
+ * @param bool $include_future_post Whether or not the list should include future posts. This argument won't have any effect if you're loading an external list/feed
  * @return Arlima_List
  */
 function arlima_load_list($id_or_slug, $version=false, $include_future_post=false) {
     $factory = new Arlima_ListFactory();
-    if( is_numeric($id_or_slug) ) {
-        return $factory->loadList($id_or_slug, $version, $include_future_post);
-    } else {
-        return $factory->loadListBySlug($id_or_slug, $version, $include_future_post);
-    }
+    return $factory->loadList($id_or_slug, $version, $include_future_post);
 }
 
 /**
@@ -268,16 +263,11 @@ function arlima_render_list($list, $args=array()) {
 
     $factory = new Arlima_ListFactory();
 
-    if( is_numeric($list) ) {
+    if( is_numeric($list) || is_string($list) ) {
         $renderer = new Arlima_ListTemplateRenderer( $factory->loadList($list) );
-    }
-    elseif( is_string($list) ) {
-        $renderer = new Arlima_ListTemplateRenderer( $factory->loadListBySlug($list) );
-    }
-    elseif( $list instanceof Arlima_AbstractListRenderingManager ) {
+    } elseif( $list instanceof Arlima_AbstractListRenderingManager ) {
         $renderer = $list;
-    }
-    else {
+    } else {
         $renderer = new Arlima_ListTemplateRenderer($list);
     }
 
@@ -297,7 +287,7 @@ function arlima_render_list($list, $args=array()) {
         $renderer->setSection( $args['section'] );
 
         if( $renderer->havePosts() ) {
-
+            
             $action_suffix = '';
             if( !empty($args['filter_suffix']) ) {
                 Arlima_FilterApplier::setFilterSuffix($args['filter_suffix']);

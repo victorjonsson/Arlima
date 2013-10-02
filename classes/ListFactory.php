@@ -401,13 +401,34 @@ class Arlima_ListFactory {
      * should contain future posts as well. Setting $include_future_posts to true will how ever
      * disable the caching of the article data
      *
-     * @param $id
-     * @param mixed $version - Omit this argument, or set it to false, if you want to load the latest published version of the list
-     * @param bool $include_future_posts
+     * @param int|string $id Either list id, list slug or URL to external list or RSS-feed
+     * @param mixed $version Omit this argument, or set it to false, if you want to load the latest published version of the list. This argument won't have any effect if you're loading an external list/feed
+     * @param bool $include_future_posts Whether or not the list should include future posts. This argument won't have any effect if you're loading an external list/feed
      * @return Arlima_List
      */
     public function loadList($id, $version=false, $include_future_posts=false)
     {
+        if( !is_numeric( $id ) && substr( $id, 0, 7 ) == 'http://' ) {
+            // Import list
+            $cache_key = 'external_list_'.$id;
+            if( $list = wp_cache_get($cache_key, 'arlima') ) {
+                return $list;
+            } else {
+                $import_manager = new Arlima_ImportManager(new Arlima_Plugin());
+                $list = $import_manager->loadList( $id );
+                wp_cache_set($cache_key, $list, 'arlima', 180);
+                return $list;
+            }
+        }
+        elseif( !is_numeric($id) ) {
+            // Get id by slug
+            $id = $this->getListId($id);
+            if( !$id ) {
+                // Not found, return empty list
+                return new Arlima_List();
+            }
+        }
+
         $list = $this->queryList($id);
         if( !$list->exists() )
             return $list;
@@ -558,23 +579,6 @@ class Arlima_ListFactory {
         }
 
         return $list;
-    }
-
-    /**
-     * Load lists preferably by id number using loadList()
-     * @see Arlima_ListFactory::loadList()
-     * @param string $slug
-     * @param bool $version
-     * @param bool $include_future_posts
-     * @return Arlima_List
-     */
-    public function loadListBySlug($slug, $version=false, $include_future_posts=false)
-    {
-        $id = $this->getListId($slug);
-        if( $id )
-            return $this->loadList($id, $version, $include_future_posts);
-
-        return new Arlima_List(false);
     }
 
     /**
@@ -1020,6 +1024,22 @@ class Arlima_ListFactory {
 
     /* * * * * * * * * * * * * * * * * DEPRECATED FUNCTIONS  * * * * * * * * * * * * * * * * * */
 
+    /**
+     * @deprecated
+     * @see Arlima_ListFactory::loadList()
+     * @return Arlima_List
+     */
+    public function loadListBySlug($slug, $version=false, $include_future_posts=false)
+    {
+
+        Arlima_Plugin::warnAboutUseOfDeprecatedFunction(
+            'Arlima_ListFactory::loadListBySlug(slug, version, include_future_post)',
+            2.8,
+            'Arlima_ListFactory::loadList(slug|id|url, version, include_future_post)'
+        );
+
+        return $this->loadList($slug, $version, $include_future_posts);
+    }
 
     /**
      * @deprecated
@@ -1053,11 +1073,7 @@ class Arlima_ListFactory {
     public static function load($slug_or_id, $version='')
     {
         $factory = new self();
-        if( is_numeric($slug_or_id) ) {
-            return $factory->loadList($slug_or_id, $version === '' ? false:$version);
-        } else {
-            return $factory->loadListBySlug($slug_or_id, $version === '' ? false:$version);
-        }
+        return $factory->loadList($slug_or_id, $version === '' ? false:$version);
     }
 
     /**

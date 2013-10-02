@@ -129,6 +129,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      */
     protected function outputArticle($article_data, jQueryTmpl_Data_Factory $jQueryTmpl_df, $article_counter)
     {
+
         // File include
         if ( $this->isFileIncludeArticle($article_data) ) {
             // We're done, go on pls!
@@ -170,7 +171,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                             true,
                             $article_template
                         );
-
+    
         $has_child_articles = !empty($article['children']) && is_array($article['children']);
 
         // load sub articles if there's any

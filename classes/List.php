@@ -124,15 +124,6 @@ class Arlima_List
     }
 
     /**
-     * @return array
-     */
-    public static function getDefaultListOptions()
-    {
-        $self = new self();
-        return $self->options;
-    }
-
-    /**
      * Tells whether or not this arlima list exists in the database
      * @return bool
      */
@@ -161,6 +152,7 @@ class Arlima_List
     }
 
     /**
+     * Whether or not admins can create "sections" in the list
      * @return bool
      */
     public function isSupportingSections()
@@ -169,6 +161,8 @@ class Arlima_List
     }
 
     /**
+     * Whether or not editors is allowed to switch template
+     * on specific articles in the list
      * @return bool
      */
     public function isSupportingEditorTemplateSwitch()
@@ -495,7 +489,7 @@ class Arlima_List
     }
 
     /**
-     * Magic method that makes it possible to request previously public
+     * Magic method that makes it possible to set previously public
      * member variables (considered deprecated).
      * @param string $name
      * @param mixed $val
@@ -583,6 +577,8 @@ class Arlima_List
 
 
     /**
+     * Use the overriding url if it exists, otherwise the permalink of the post that
+     * the article is connected to
      * @param $article
      * @return null|string
      */
@@ -593,7 +589,7 @@ class Arlima_List
         } elseif( !empty($article['post_id']) ) {
             return get_permalink($article['post_id']);
         }
-        return null;
+        return '';
     }
 
 
@@ -619,6 +615,14 @@ class Arlima_List
     }
 
 
+    /**
+     * @return array
+     */
+    public static function getDefaultListOptions()
+    {
+        $self = new self();
+        return $self->options;
+    }
 
 
     /* * * * * * * * * * * * * * * * DEPRECATED FUNCTIONS * * * * * * * * */

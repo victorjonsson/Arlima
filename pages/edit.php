@@ -173,8 +173,8 @@ $available_lists = $factory->loadListSlugs();
                                     </td>
                                 </tr>
                                 <tr valign="top">
-                                    <th scope="row"><label for="pagestopurge"><?php _e('Pages to purge', 'arlima') ?></label></th>
-                                    <td><input id="pagestopurge" name="options[pages_to_purge]" class="regular-text" value="<?php echo $list->getOption('page_to_purge'); ?>" />
+                                    <th scope="row"><label for="pages_to_purge"><?php _e('Pages to purge', 'arlima') ?></label></th>
+                                    <td><input id="pages_to_purge" name="options[pages_to_purge]" class="regular-text" value="<?php echo $list->getOption('pages_to_purge'); ?>" />
                                         <br /><span class="description"><?php _e('Comma separated list of URL\'s where this list will be displayed (for caching control only)', 'arlima') ?></span></td>
                                 </tr>
 								<tr valign="top">

@@ -1518,14 +1518,19 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         /**
          * @param {String} evt either 'listLoaded', 'articleUpdate', 'articleDropped'
          * @param {Function} func
+         * @param {Boolean} [addToBeginning]
          */
-        addEventListener : function(evt, func) {
+        addEventListener : function(evt, func, addToBeginning) {
             this.removeEventListener(evt, func);
             if( this._events[evt] === undefined ) {
                 this._events[evt] = [];
             }
 
-            this._events[evt].push(func);
+            if( addToBeginning ) {
+                this._events[evt].unshift(func);
+            } else {
+                this._events[evt].push(func);
+            }
         },
 
         /**
@@ -1957,6 +1962,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 window.open(previewPage);
             }
             else {
+
+                var currentlyEditedPostId = null;
+                if( ArticleEditor.isEditingArticle() ) {
+                    if( ArticleEditor.$item.data().article.post_id )
+                        currentlyEditedPostId = ArticleEditor.$item.data().article.post_id;
+                }
+         
                 list.toggleAjaxLoader(true);
 
                 var _self = this;
@@ -1992,7 +2004,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             else if(_self.previewWindow.document && _self.previewWindow.jQuery) {
                                 clearInterval(saveButtonInterval);
                                 _self.previewWindow.jQuery(_self.previewWindow.document).ready(function() {
-                                    _self._addPreviewWindowListeners(_self.previewWindow.jQuery( _self.previewWindow.document ), list);
+                                    _self._addPreviewWindowListeners(_self.previewWindow.jQuery( _self.previewWindow.document ), list, currentlyEditedPostId);
                                 });
                             }
                         }, 500);
@@ -2035,7 +2047,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          * @param {ArlimaList} list
          * @private
          */
-        _addPreviewWindowListeners : function($winDoc, list) {
+        _addPreviewWindowListeners : function($winDoc, list, currentlyEditedPostId) {
             $winDoc.ready(function() {
                 var $div = $('<div></div>');
                 $div
@@ -2072,6 +2084,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 // Remove admin bar
                 $winDoc.find('#wpadminbar').remove();
                 $winDoc.find('body').css('margin-top', '-28px');
+
+                if( currentlyEditedPostId ) {
+                    var $editedArticle = $winDoc.find("[data-post='" + currentlyEditedPostId + "']").first();
+                    if( $editedArticle.length > 0 )
+                        // Add 80px to prevent the "save by ctrl + s"-bar covering the teaser
+                        $winDoc.scrollTop( $editedArticle.position().top - 80);
+                }
             });
 
             var _self = this;

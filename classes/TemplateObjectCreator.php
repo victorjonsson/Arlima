@@ -209,7 +209,8 @@ class Arlima_TemplateObjectCreator
         $url = isset($article['url']) ? $article['url'] : '';
         $post_id = !empty($article['post_id']) ? $article['post_id'] : '';
 
-        $obj['container']['id'] = 'teaser-' . (is_numeric($post_id) ? $post_id : $url); // deprecated
+        //$obj['container']['id'] = 'teaser-' . (is_numeric($post_id) ? $post_id : $url); // deprecated
+        $obj['container']['id'] = $article['id'];
         $obj['container']['class'] = 'teaser' . ($is_empty ? ' empty' : '');
         $obj['article']['title'] = isset($article['title']) ? $article['title'] : '';
         $obj['article']['html_title'] = $is_empty ? '' : Arlima_List::getTitleHtml($article, array('before_title'=>$this->before_title_html, 'after_title'=>$this->after_title_html));

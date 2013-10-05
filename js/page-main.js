@@ -74,8 +74,8 @@ jQuery(function($) {
         afterClose	:	function( ) {
             $('#arlima-article-image-container')
                 .removeClass('arlima-fancybox media-item-info')
-                .addClass('media-item-info');
-
+                .addClass('media-item-info')
+				.removeAttr("style");
             $('#arlima-article-image img').removeClass('thumbnail');
             $('#arlima-article-image-scissors').html('').hide();
             Arlima.ArticleEditor.updateArticleImage({updated : Math.round(new Date().getTime() / 1000)});

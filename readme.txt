@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.6
-Stable tag: 2.7.25
+Stable tag: 2.8
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -56,7 +56,7 @@ the list that you created on step 2.
 - The CSS for child articles has changed. If you have custom CSS for your arlima articles you should take a look at the section for child articles in css/template.css.
 - Arlima_ListFactory::loadListBySlug() is deprecated. Use Arlima_ListFactory::loadList() instead, it can now handle both id number, slug name and URL of external list or RSS feed
 - Now you can publish Arlima lists and RSS-feeds from remote website directly on a page via Arlima's meta box.
-- When previewing a list the preview window will scroll down to currently edited article
+- When previewing a list the preview window will scroll down to currently edited article.
 
 
 = 2.7.21 =

@@ -216,7 +216,6 @@ class Arlima_ImportManager
                     // Back compat
                     $url = isset($list_data['articles'][$key]['url']) ? $list_data['articles'][$key]['url'] : $list_data['articles'][$key]['external_url'];
                     $list_data['articles'][$key]['options']['overriding_url'] = $url;
-                   # var_dump($list_data['articles'][$key]['options']);
                 }
             }
         }

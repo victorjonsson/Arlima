@@ -42,6 +42,12 @@ the list that you created on step 2.
 
 == Changelog ==
 
+= 2.8.x =
+
+- Fixed bug that caused articles only containing an image not to be rendered
+- Sticky articles now works in lists with support for sections
+- It's now possible to hide templates for particular lists in the list manager
+
 = 2.8 =
 
 - Arlima is now compatible with 3.6.1 (big thanks to [Johan Fredriksson](https://github.com/DUAB-Johan))

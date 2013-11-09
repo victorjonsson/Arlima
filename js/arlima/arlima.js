@@ -758,22 +758,29 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 });
             }
 
+            // Hide default template from template list
+            var defaultTemplate = this.currentlyEditedList.defaultTemplate();
+            var $tmplOptions = $('#arlima-edit-article-options-template');
+            $tmplOptions
+                .find('option')
+                .removeAttr('disabled')
+                .each(function() {
+                    if(this.value == defaultTemplate) {
+                        $(this).attr('disabled', 'disabled');
+                        return false;
+                    }
+                    return true;
+                });
+
+            // Hide templates that is hidden for this particular list
+            $.each( Manager.getFocusedList().options.hidden_templates || [], function(i, templateName) {
+                $tmplOptions.find('option[value="'+templateName+'"]').attr('disabled', 'disabled');
+            });
+
             // Disable formats
             var tmplName = this.articleTemplate(article);
             this.toggleAvailableFormats( tmplName );
             this.toggleEditorFeatures( tmplName );
-
-            // Hide default template from template list
-            var defaultTemplate = this.currentlyEditedList.defaultTemplate();
-            var $tmplOptions = $('#arlima-edit-article-options-template option');
-            $tmplOptions.show();
-            $tmplOptions.each(function() {
-                if(this.value == defaultTemplate) {
-                    $(this).hide();
-                    return false;
-                }
-                return true;
-            });
 
             var $hideRelated = $("[name='options-hiderelated']", this._$form);
 
@@ -888,9 +895,10 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             var isSectionDivider = this.data('options').section_divider ? true:false,
                 fileInclude = this.data('options').file_include;
 
+            $('.arlima-streamer').show();
+
             // Nothing but title for section dividers
             if( isSectionDivider || fileInclude ) {
-                $('.arlima-streamer').hide();
                 $('#arlima-article-wp-connection').hide();
                 $('#wp-tinyMCE-wrap').hide();
                 $('#arlima-article-image-container').hide();
@@ -899,9 +907,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 $('#arlima-edit-article-title-fontsize-slider').hide();
                 $('#file-include-info').hide();
             } else  {
-                $('.arlima-streamer').show();
                 $('#arlima-article-wp-connection').show();
-                $('#wp-tinyMCE-wrap').show();
                 $('#arlima-article-image-container').show();
                 $('#arlima-article-settings').show();
                 $('#arlima-edit-article-title-fontsize').show();
@@ -2219,26 +2225,66 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
     /**
      * Goes through all sticky items in the list and makes sure
      * they're in the correct place
-     * @param {String} [insertFunc]
      */
-    ArlimaList.prototype.rePositionStickyArticles = function(insertFunc) {
-        if(insertFunc === undefined)
-            insertFunc = 'insertBefore';
-        var _self = this;
+    ArlimaList.prototype.rePositionStickyArticles = function() {
+       // if(!insertFunc)
+         //   insertFunc = 'insertBefore';
+        var insertFunc = 'insertBefore',
+            _self = this;
+
         this.jQuery.find('.sticky').each(function() {
             var $item = $(this);
             var currentPos = $item.prevAll().length;
             var stickyPos = $item.data('article').options.sticky_pos;
-            if(stickyPos != currentPos) {
-                var $allItems = _self.jQuery.find('.listitem:not(ul ul > *)');
-                $item[insertFunc]( stickyPos > $allItems.length ? $allItems.eq( $allItems.length - 1 ) : $allItems.eq(stickyPos) );
-                if( $item.prevAll().length != stickyPos ) {
-                    // This happens when chosen insertFunc is incorrect... whats up with this?
-                    stickyPos++;
+
+            // Adjust sticky position for section divider
+            if( typeof $item.data('article').indexFromLastSectionDivider != 'undefined' ) {
+                // Only make sure it has the correct distance to previous section divider
+                var $sibling = $item.prev();
+                while( $sibling.length && !$sibling.hasClass('section-divider') ) {
+                    $sibling = $sibling.prev();
+                }
+                if( $sibling.length ) {
+                    $item.insertBefore( $item.siblings().eq( $sibling.index() + $item.data('article').indexFromLastSectionDivider));
+                }
+
+            } else {
+                if(stickyPos != currentPos) {
+                    var $allItems = _self.jQuery.find('.listitem:not(ul ul > *)');
                     $item[insertFunc]( stickyPos > $allItems.length ? $allItems.eq( $allItems.length - 1 ) : $allItems.eq(stickyPos) );
+                    if( $item.prevAll().length != stickyPos ) {
+                        stickyPos++;
+                        $item[insertFunc]( stickyPos > $allItems.length ? $allItems.eq( $allItems.length - 1 ) : $allItems.eq(stickyPos) );
+                    }
                 }
             }
         });
+    };
+
+    /**
+     * Function called when a sticky item is moved to tell the item how
+     * close it is to a section divider. This parameter is later used when
+     * repositioning the item
+     * @param {jQuery} $item
+     */
+    ArlimaList.prototype.addIndexFromLastSectionDivider = function($item) {
+        if( this.options.supports_sections ) {
+            var indexFromSectionDivider = false,
+                currentIndex = $item.index(),
+                i = currentIndex,
+                $children = $item.parent().children();
+
+            while( i >= 0) {
+                i--;
+                if( $children.eq(i).hasClass('section-divider') ) {
+                    indexFromSectionDivider = currentIndex - i;
+                    break;
+                }
+            }
+            if( indexFromSectionDivider !== false ) {
+                $item.data('article').indexFromLastSectionDivider = indexFromSectionDivider;
+            }
+        }
     };
 
     /**
@@ -2327,11 +2373,17 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             this.toggleUnsavedState(true);
             Manager.setFocusedList(this.id);
 
-            var _self = this;
+            var _self = this,
+                isSectionDivider = $listItem.hasClass('section-divider');
+
             $listItem.fadeOut('fast', function(){
                 var itemIsCurrentlyEdited = $listItem.hasClass('edited');
                 $(this).remove();
-                _self.rePositionStickyArticles('insertAfter');
+
+                _self.rePositionStickyArticles();
+                if( isSectionDivider ) {
+                    _self.setupStickyIndexes();
+                }
 
                 if( ArticleEditor.isEditingList(Manager.getFocusedList().id) ) {
 
@@ -2648,8 +2700,19 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         var list = new ArlimaList(id, $element, data.is_imported, data.title_element, data.options);
         list.fill(data.articles, false, false);
         list.displayVersionInfo(data.version, data.versioninfo, data.versions);
+        list.setupStickyIndexes();
 
         return list;
+    };
+
+    /**
+     * Go through all stickys and give them their distance to the last section divider
+     */
+    ArlimaList.prototype.setupStickyIndexes = function() {
+        var _list = this;
+        this.jQuery.find('.sticky').each(function() {
+            _list.addIndexFromLastSectionDivider($(this));
+        });
     };
 
     /**
@@ -2837,25 +2900,38 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                         }
 
                         // move sticky articles back in place
-                        if( !$item.hasClass('sticky') ) {
+
+                        if( !$item.hasClass('sticky') &&
+                            !$item.hasClass('section-divider') ) {
+
                             $.each(ArlimaList.listsInolvedInTransaction, function(i, listId) {
                                 var list = Manager.getList(listId);
                                 if(!list.isImported) {
+                                    var index = $item.index();
+                                    if( $item.data('article').parent > -1 ) {
+                                        index = $item.parent().parent().index();
+                                    }
+
                                     list.rePositionStickyArticles();
                                 }
                             });
                         }
+
                         // Change sticky position
-                        else {
+                        if($item.hasClass('sticky')) {
                             articleData.options.sticky_pos = $item.prevAll().length;
                             if(ArticleEditor.$item[0] == $item[0]) {
                                 $('#arlima-option-sticky-pos').val(articleData.options.sticky_pos);
                             }
                             $item.data('article', articleData);
+                            _self.addIndexFromLastSectionDivider($item);
+                        }
+
+                        if( $item.hasClass('section-divider') ) {
+                            _self.setupStickyIndexes();
                         }
 
                         Manager.triggerEvent('articleDropped', $item);
-
                         ArlimaList.listsInolvedInTransaction.length = 0;
                     }
                 });

@@ -69,6 +69,24 @@ class Arlima_FileInclude {
     {
         self::$current_file_args = $args;
 
+        $cache_ttl = 0;
+        $cache_name = '';
+
+        if( !self::$is_collecting_args ) {
+            $cache_ttl = apply_filters('arlima_file_include_cache_ttl', 0, $file);
+            if( $cache_ttl ) {
+                $cache_name = 'arlima_fileinc_'.basename($file).implode('_', $args);
+                $cached_content = Arlima_CacheManager::loadInstance()->get($cache_name);
+                if( $cached_content ) {
+                    if( $cached_content['expires'] < time() ) {
+                        Arlima_CacheManager::loadInstance()->delete($cache_name);
+                    } else {
+                        return $cached_content['content'];
+                    }
+                }
+            }
+        }
+
         // Include file and capture output
         ob_start();
         include $file;
@@ -76,6 +94,11 @@ class Arlima_FileInclude {
         ob_end_clean();
 
         self::$current_file_args = false;
+
+        if( $cache_ttl ) {
+            $content = "<!-- arlima file cache $cache_name ( ".date('Y-m-d H:i:s')." ttl: $cache_ttl )  -->\n".$content;
+            Arlima_CacheManager::loadInstance()->set($cache_name, array('expires' => time()+$cache_ttl, 'content'=>$content));
+        }
 
         return $content;
     }

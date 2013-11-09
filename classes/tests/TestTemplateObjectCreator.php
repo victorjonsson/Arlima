@@ -47,6 +47,7 @@ class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
                 "html_title" => '<i class="fsize-24"><a href="http://google.se">Howdy</a></i>',
                 "html_text" => "content",
                 "publish_date" => 0,
+                'post' => 0,
                 "html_content" => "content"
             ), $template_obj['article']);
 
@@ -55,6 +56,14 @@ class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
         $this->assertEquals('related', $template_obj['related']);
         $this->assertEquals('begin', $template_obj['article_begin']);
         $this->assertEquals('end', $template_obj['article_end']);
+    }
+
+    function testUnderScoreToBreakInTitle()
+    {
+        $article = Arlima_ListFactory::createArticleDataArray(array('url'=>'http://google.se', 'title'=>'Howdy__there', 'id'=>99));
+        $obj_creator = new Arlima_TemplateObjectCreator();
+        $tmpl_object = $obj_creator->create($article, false, new stdClass(), 1);
+        $this->assertEquals('<h2 class="fsize-24"><a href="http://google.se">Howdy<br />there</a></h2>', $tmpl_object['article']['html_title'], 'Could not convert double underscore to break tag');
     }
 
     function testNotCrashingWithoutCallbacks() {

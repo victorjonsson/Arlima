@@ -193,6 +193,17 @@ class Arlima_ImportManager
     }
 
     /**
+     * @param array $article_data
+     * @return array
+     */
+    private function moveURLToOverridingURL( $article_data )
+    {
+        $url = !empty($article_data['url']) ? $article_data['url'] : $article_data['external_url'];
+        $article_data['overriding_url'] =  $url;
+        return $article_data;
+    }
+
+    /**
      * @param string $str
      * @param string $response_type
      * @return array|mixed
@@ -213,9 +224,12 @@ class Arlima_ImportManager
             }
             if( !empty($list_data['articles']) ) {
                 foreach($list_data['articles'] as $key => $data) {
-                    // Back compat
-                    $url = isset($list_data['articles'][$key]['url']) ? $list_data['articles'][$key]['url'] : $list_data['articles'][$key]['external_url'];
-                    $list_data['articles'][$key]['options']['overriding_url'] = $url;
+                    $list_data['articles'][$key] = $this->moveURLToOverridingURL($data);
+                    if( !empty($data['children']) ) {
+                        foreach($data['children'] as $child_key => $child_article) {
+                            $list_data['articles'][$key]['children'][$child_key] = $this->moveURLToOverridingURL($child_article);
+                        }
+                    }
                 }
             }
         }

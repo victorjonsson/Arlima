@@ -686,6 +686,30 @@ class Arlima_ListFactory {
         return false;
     }
 
+    /**
+     * Loads all lists that have teasers that are linked to the post with $post_id
+     * @param  int $post_id 
+     * @return array
+     */
+    public function loadListsByArticleId($post_id) {
+        $sql = sprintf("
+                select distinct(al_id), al_options
+                from %s al
+                inner join (
+                    select max(alv_id) as latestversion, alv_al_id
+                    from %s
+                    where alv_status = 1
+                    group by alv_al_id
+                ) alv on al.al_id = alv.alv_al_id
+                INNER JOIN %s ala ON ala.ala_alv_id = alv.latestversion
+                WHERE ala.ala_post_id = %d",
+                $this->dbTable(),
+                $this->dbTable('_version'),
+                $this->dbTable('_article'),
+                $post_id
+                );
+        return $this->executeSQLQuery('get_results', $sql);
+    }
 
 
     /* * * * * * * * * * * * * * * * * INSTALL / UNINSTALL  * * * * * * * * * * * * * * * * * */

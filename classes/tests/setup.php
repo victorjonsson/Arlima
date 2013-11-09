@@ -15,6 +15,7 @@ ini_set('display_errors', 'On');
 $_SERVER['DOCUMENT_ROOT'] = getcwd();
 $_SERVER['SERVER_PROTOCOL'] = '';
 $_SERVER['HTTP_HOST'] = '';
+$_SERVER['REQUEST_METHOD'] = 'GET';
 define('ARLIMA_UNIT_TEST', true);
 
 // Load wp

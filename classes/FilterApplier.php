@@ -160,25 +160,11 @@ class Arlima_FilterApplier
 
         if ( $has_img && !$has_giant_tmpl && $attach_meta = wp_get_attachment_metadata($article['image_options']['attach_id']) ) {
 
-            switch ($article['image_options']['size']) {
-                case 'half':
-                    $width = round($article_width * 0.5);
-                    $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
-                    break;
-                case 'third':
-                    $width = round($article_width * 0.33);
-                    $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
-                    break;
-                case 'quarter':
-                    $width = round($article_width * 0.25);
-                    $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
-                    break;
-                default:
-                    $size = array(
-                        $article_width,
-                        round($attach_meta['height'] * ($article_width / $attach_meta['width']))
-                    );
-                    break;
+            $size = self::getNewImageDimensions($article, $article_width, $attach_meta, $article['image_options']['attach_id']);
+
+            if( !$size ) {
+                // For some reason unable to calculate new image dimensions, more info in error log
+                return '';
             }
 
             $img_class = $article['image_options']['size'] . ' ' . $article['image_options']['alignment'];
@@ -364,5 +350,46 @@ class Arlima_FilterApplier
         }
 
         return $filtered['content'];
+    }
+
+    /**
+     * @param $article
+     * @param $article_width
+     * @param $attach_meta
+     * @param int $attach_id
+     * @return array
+     */
+    private static function getNewImageDimensions($article, $article_width, $attach_meta, $attach_id)
+    {
+        if( empty($attach_meta['height']) || empty($attach_meta['width']) ) {
+            error_log('PHP Warning: Have to regenerate height and width for '.$attach_meta['file']);
+            list($width, $height) = getimagesize($attach_meta['file']);
+            $attach_meta['height'] = $height;
+            $attach_meta['width'] = $width;
+            wp_update_attachment_metadata($attach_id, $attach_meta);
+            return false;
+        }
+
+        switch ($article['image_options']['size']) {
+            case 'half':
+                $width = round($article_width * 0.5);
+                $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
+                break;
+            case 'third':
+                $width = round($article_width * 0.33);
+                $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
+                break;
+            case 'quarter':
+                $width = round($article_width * 0.25);
+                $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
+                break;
+            default:
+                $size = array(
+                    $article_width,
+                    round($attach_meta['height'] * ($article_width / $attach_meta['width']))
+                );
+                break;
+        }
+        return $size;
     }
 }

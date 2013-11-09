@@ -472,6 +472,16 @@ class Arlima_Plugin
      */
     function loadExportFeed()
     {
+        // Make sure URL always ends with slash
+        $path = explode('?', $_SERVER['REQUEST_URI']);
+        if( substr($path[0], -1) != '/' ) {
+            $new_url = $path[0] .'/';
+            if( isset($path[1]) )
+                $new_url .= '?'.$path[1];
+            header('Location: '.$new_url);
+            die;
+        }
+
         global $wp_query;
         $format = isset($_REQUEST['format']) ? $_REQUEST['format'] : Arlima_ExportManager::DEFAULT_FORMAT;
         $page_slug = !empty($wp_query->query_vars['pagename']) ? $wp_query->query_vars['pagename'] : '';

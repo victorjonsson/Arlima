@@ -224,13 +224,28 @@ abstract class Arlima_AbstractListRenderingManager
         }
 
         $is_empty = false;
-        if ( empty($article['text']) && empty($article['title']) && empty($article['image']) ) {
+        $has_image = !empty($article['image_options']) && (isset($article['image_options']['attach_id']) || isset($article['image_options']['url']));
+
+        if ( empty($article['text']) && empty($article['title']) && !$has_image ) {
             $is_empty = true;
         }
 
         $article['url'] = Arlima_List::resolveURL($article);
 
         return array($post, $article, $is_post, $is_empty);
+    }
+
+    /**
+     * @var bool
+     */
+    static $current_section_divider = false;
+
+    /**
+     * @return bool
+     */
+    public static function getCurrentSectionDivider()
+    {
+        return self::$current_section_divider;
     }
 
     /**
@@ -243,6 +258,7 @@ abstract class Arlima_AbstractListRenderingManager
      */
     protected function extractSectionArticles($articles, $section)
     {
+        self::$current_section_divider = false;
         $extract_all = false;
         if( substr($section, 0, 2) == '>=' ) {
             $section = substr($section, 2);
@@ -279,6 +295,10 @@ abstract class Arlima_AbstractListRenderingManager
                     $start_collecting_articles = true;
                 } elseif( !$wants_indexed_section && strcasecmp($section, $art['title']) == 0) {
                     $start_collecting_articles = true;
+                }
+
+                if( $start_collecting_articles ) {
+                    self::$current_section_divider = $art;
                 }
             }
         }

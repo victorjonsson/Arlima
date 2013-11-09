@@ -95,8 +95,11 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
         // Setup tmpl object creator
         $this->setupObjectCreator();
+        $articles = $this->getArticlesToRender();
 
-        foreach ($this->getArticlesToRender() as $article_data) {
+        do_action('arlima_rendering_init');
+
+        foreach ($articles as $article_data) {
             list($article_counter, $article_content) = $this->outputArticle(
                 $article_data,
                 $jQueryTmpl_df,
@@ -181,7 +184,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         }
 
         // output the article
-        if( empty($post) && empty($article['title']) && empty($article['text']) && !$has_child_articles ) {
+        if( $is_empty && !$has_child_articles ) {
             $content = ''; // empty article, don't render!
         } else {
             $content = $this->generateTemplateOutput($jQueryTmpl_df, $template_factory, $template_data);

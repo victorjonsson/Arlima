@@ -145,6 +145,7 @@ var ArlimaTemplateLoader = (function($) {
             this.isRequestingTemplate = true;
             var _self = this;
             $.ajax({
+                dataType : 'text',
                 url : template,
                 success : function(content) {
                     _self.isRequestingTemplate = false;

@@ -370,6 +370,7 @@ class Arlima_List
      */
     public function getOptions()
     {
+        $this->options['hidden_templates'] = apply_filters('arlima_hidden_templates', array(), $this);
         return $this->options;
     }
 

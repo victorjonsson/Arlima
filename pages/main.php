@@ -144,7 +144,7 @@ $arlima_plugin = new Arlima_Plugin();
             <span id="template-switcher">
             <?php
             _e('Template', 'arlima');
-            $hidden = apply_filters('arlima_hidden_templates', array());
+            $hidden = apply_filters('arlima_hidden_templates', array(), false);
             ?>
                 <select  id="arlima-edit-article-options-template" name="options-template">
                     <option value=""><?php _e('Default', 'arlima') ?></option>

@@ -152,6 +152,7 @@ class Arlima_AdminAjaxManager
             if( !$url )
                 die;
 
+            /** @var WP_Error|string $tmp */
             $tmp = download_url($url);
             $file_array = array(
                 'name' => basename($url),
@@ -160,25 +161,34 @@ class Arlima_AdminAjaxManager
 
             // Check for download errors
             if ( is_wp_error($tmp) ) {
-                @unlink($file_array['tmp_name']);
-                return $tmp;
+                if( file_exists($file_array['tmp_name']) ) {
+                    @unlink($file_array['tmp_name']);
+                }
+                echo json_encode(
+                    array(
+                        'attach_id' => -1,
+                        'html' => '',
+                        'error' => $tmp->get_error_message()
+                    )
+                );
             }
+            else {
+                $attach_id = media_handle_sideload($file_array, 0);
 
-            $attach_id = media_handle_sideload($file_array, 0);
+                // Check for handle sideload errors.
+                if ( is_wp_error($attach_id) ) {
+                    @unlink($file_array['tmp_name']);
+                    return $attach_id;
+                }
 
-            // Check for handle sideload errors.
-            if ( is_wp_error($attach_id) ) {
-                @unlink($file_array['tmp_name']);
-                return $attach_id;
+                echo json_encode(
+                    array(
+                        'attach_id' => $attach_id,
+                        'html' => wp_get_attachment_image($attach_id, 'large'),
+                        'error' => false
+                    )
+                );
             }
-
-            echo json_encode(
-                array(
-                    'attach_id' => $attach_id,
-                    'html' => wp_get_attachment_image($attach_id, 'large'),
-                    'error' => false
-                )
-            );
         }
 
         die();

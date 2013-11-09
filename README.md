@@ -45,6 +45,8 @@ the list that you created on step 2.
 - [Article formats](https://github.com/victorjonsson/Arlima/wiki/Custom-formats)
 - [Cache management](https://github.com/victorjonsson/Arlima/wiki/Cache-management)
 - [How to modify the post search](https://github.com/victorjonsson/Arlima/wiki/Modified-search)
+- [Include PHP files in articles](https://github.com/victorjonsson/Arlima/wiki/File-includes)
+- [Article list sections](https://github.com/victorjonsson/Arlima/wiki/Article-list-sections)
 - Using jQuery templates in the ordinary category loop
 - Modifying the behavior of the article form in the list manager (js events)
 

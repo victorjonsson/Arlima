@@ -185,7 +185,7 @@ class Arlima_ExportManager
         // RSS export
         if ( $format == self::FORMAT_RSS ) {
             $base_url = get_bloginfo('url');
-            $rss = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel>
+            $rss = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel>
                 <title><![CDATA[' . $list->getTitle() . ' (' . $list->getSlug() . ')]]></title>
                 <description>RSS export feed for Arlima article list</description>
                 <link>' . $base_url . '</link>
@@ -259,7 +259,17 @@ class Arlima_ExportManager
     {
         $img = '';
         if ( isset($article['image_options']) && !empty($article['image_options']['url']) ) {
-            $img = '<enclosure url="' . $article['image_options']['url'] . '" length="1" type="image/jpg"  />';
+            $node_type = defined('ARLIMA_RSS_IMG_TAG') ? ARLIMA_RSS_IMG_TAG : 'enclosure';
+            $img_type = pathinfo($article['image_options']['url'], PATHINFO_EXTENSION);
+            $img_type = 'image/'. current(explode('?', $img_type));
+
+            if( $node_type == 'media:content' ) {
+                $img = '<media:content url="'.$article['image_options']['url'].'" type="'.$img_type.'" />';
+            } elseif( $node_type == 'image' ) {
+                $img = '<image>' . $article['image_options']['url'] . '</image>';
+            } else {
+                $img = '<enclosure url="' . $article['image_options']['url'] . '" length="1" type="'.$img_type.'"  />';
+            }
         }
 
         $guid = $article['url'];

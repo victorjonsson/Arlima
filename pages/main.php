@@ -268,7 +268,7 @@ $arlima_plugin = new Arlima_Plugin();
             </div>
 
             <div style="display: none">
-                <div id="post-connect-fancybox">
+                <div id="post-connect-fancybox" style="width: 400px; height: 300px">
                     <p>
                         <strong><?php _e('Connected to', 'arlima') ?>:</strong>
                         <span class="connection"></span>

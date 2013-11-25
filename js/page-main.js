@@ -184,7 +184,8 @@ jQuery(function($) {
                 $resultContainer.find('a').click(function() {
                     hasChangedConnection = 'post-id';
                     $postConnectionBox.find('.post-connection').val($(this).attr('data-post'));
-                    $('#fancybox-close').click();
+                    $('.fancybox-close').click();
+                    $('#fancybox-close').click(); // old fancy box
                     return false;
                 });
             }

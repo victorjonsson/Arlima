@@ -47,6 +47,8 @@ the list that you created on step 2.
 - Fixed bug that caused articles only containing an image not to be rendered
 - Sticky articles now works in lists with support for sections
 - It's now possible to hide templates for particular lists in the list manager
+- Fancybox used to connect articles to posts is now larger
+- Fixed bug affecting article connected to future posts
 
 = 2.8 =
 

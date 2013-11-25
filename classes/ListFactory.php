@@ -252,16 +252,6 @@ class Arlima_ListFactory {
                 }
             }
 
-            if( !empty($post_id_map) ) {
-                $sql = "SELECT post_date_gmt, ID FROM %sposts WHERE ID in (%s)";
-                $sql = sprintf($sql, $this->wpdb->prefix, implode(',', $post_id_map));
-                foreach($this->executeSQLQuery('get_results', $sql) as $row) {
-                    foreach( array_keys($post_id_map, $row->ID) as $key ) {
-                        $articles[$key]['publish_date'] = strtotime($row->post_date_gmt);
-                    }
-                }
-            }
-
             $count = 0;
             foreach( $articles as $sort => $article ) {
                 $this->saveArticle($version_id, $article, $sort, -1, $count);
@@ -687,7 +677,7 @@ class Arlima_ListFactory {
     }
 
     /**
-     * Loads all lists that have teasers that are linked to the post with $post_id
+     * Loads an array with objects containing list id and options that have teasers that are linked to the post with $post_id
      * @param  int $post_id 
      * @return array
      */

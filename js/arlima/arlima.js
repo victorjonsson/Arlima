@@ -2492,9 +2492,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         if(data.publish_date) {
             if( isFutureDate(data.publish_date) ) {
                 var publishTime = new Date(data.publish_date * 1000).getTime();
-                var utcOffset = new Date().getTimezoneOffset();
-                publishTime -= utcOffset * 60000;
-
                 $item.addClass('future');
                 $item.attr('title', new Date(publishTime));
             }
@@ -3042,12 +3039,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         else
             ts = parseInt(ts, 10);
 
-        var nowUTCZero = new Date().getTime();
-        var utcOffset = new Date().getTimezoneOffset();
-        nowUTCZero -= utcOffset * 60000;
-        window.nowUTCZero = nowUTCZero;
-
-        return ts && (ts*1000) > nowUTCZero;
+        return ts && (ts*1000) > new Date().getTime();
     }
 
     /**

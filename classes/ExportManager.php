@@ -276,13 +276,13 @@ class Arlima_ExportManager
         $post_id = intval($article['external_post_id']);
         if ( $post_id ) {
             $guid = '/?p=' . $post_id;
-            $date = date('r', strtotime(get_post($post_id)->post_date_gmt));
+            $date = date('r', strtotime(get_post($post_id)->post_date));
         } else {
             $date = date('r', $last_mod);
         }
 
         return '<item>
-                    <title><![CDATA[' . $article['title'] . ']]></title>
+                    <title><![CDATA[' . str_replace('__', '', $article['title']) . ']]></title>
                     <description><![CDATA[' . strip_tags($article['text']) . ']]></description>
                     <link>' . $article['external_url'] . '</link>
                     <guid isPermaLink="false">' . $guid . '</guid>

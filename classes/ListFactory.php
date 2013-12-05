@@ -878,7 +878,7 @@ class Arlima_ListFactory {
             /* @var wpdb $wpdb */
             global $wpdb;
 
-            $date = strtotime($post->post_date_gmt);
+            $date = strtotime($post->post_date);
             $prep_statement = $wpdb->prepare('UPDATE '.$wpdb->prefix.'arlima_articlelist_article SET ala_publish_date=%d WHERE ala_post_id=%d AND ala_publish_date != %d', $date, (int)$post->ID, $date);
 
             $wpdb->query($prep_statement);

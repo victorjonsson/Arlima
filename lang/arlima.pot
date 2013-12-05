@@ -250,6 +250,12 @@ msgstr "Tredjedelsspalt"
 msgid "25% wide"
 msgstr "Fjärdedelsspalt"
 
+msgid "20% wide"
+msgstr "Femtedelsspalt"
+
+msgid "15% wide"
+msgstr "Sjättedelsspalt"
+
 #: pages/main.php:111
 msgid "Align left"
 msgstr "Vänsterjusterad "

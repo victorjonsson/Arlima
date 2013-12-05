@@ -48,10 +48,11 @@ class TestArlimaImport extends ExportImportBase {
         $this->assertEquals(1, $imported->numArticles());
 
         $article = current($imported->getArticles());
+        var_dump($article);
         $this->assertEquals(self::$some_post_id, $article['external_post_id']);
         $this->assertTrue( isset($article['post_id']) && empty($article['post_id']) );
 
-        $this->assertEquals(get_permalink(self::$some_post_id), $article['options']['overriding_url']);
+        $this->assertEquals($article['options']['overriding_url'], get_permalink(self::$some_post_id));
     }
 
     function testImportRSS() {

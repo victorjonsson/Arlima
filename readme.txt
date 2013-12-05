@@ -4,7 +4,7 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
 Tested up to: 3.6
-Stable tag: 2.8
+Stable tag: 2.8.3
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,7 @@ the list that you created on step 2.
 - It's now possible to hide templates for particular lists in the list manager
 - Fancybox used to connect articles to posts is now larger
 - Fixed bug affecting article connected to future posts
+- Added support for two more image versions (fifth and sixth) that can be enabled using template tag <a href="https://github.com/victorjonsson/Arlima/wiki/Custom-jQuery-templates#image-support">image-support</a>
 
 = 2.8 =
 

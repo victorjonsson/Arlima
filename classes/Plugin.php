@@ -8,7 +8,7 @@
  */
 class Arlima_Plugin
 {
-    const VERSION = 2.7;
+    const VERSION = 2.8;
     const EXPORT_FEED_NAME = 'arlima-export';
     const PLUGIN_SETTINGS_OPT = 'arlima_plugin_settings';
 

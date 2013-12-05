@@ -294,6 +294,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     {
         $child_articles = '';
         $count = 0;
+        $has_open_child_wrapper = false;
         $num_children = count($articles);
         $has_even_children = $num_children % 2 === 0;
         $is_child_split = $num_children > 1;
@@ -315,6 +316,10 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             ) {
                 $this->template_obj_creator->setIsChildSplit( true );
                 $first_or_last_class = (($count==1 && $num_children > 2) || ($count==0 && $num_children==2) || $count==3 || ($count==4 && $num_children ==6)? ' first':' last');
+                if( $first_or_last_class == ' first' ) {
+                    $child_articles .= '<div class="arlima child-wrapper">';
+                    $has_open_child_wrapper = true;
+                }
             }
 
             // File include
@@ -329,6 +334,10 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             list($post, $article, $is_post, $is_empty) = $this->setup($article_data);
 
             if ( is_object($post) && $post->post_status == 'future' ) {
+                if( $has_open_child_wrapper  && $first_or_last_class == ' last' ) {
+                    $child_articles .= '</div>';
+                    $has_open_child_wrapper = false;
+                }
                 continue;
             }
 
@@ -348,8 +357,16 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             }
 
             $child_articles .= $this->generateTemplateOutput($jQueryTmpl_df, $template_factory, $template_data);
+
             $count++;
+            if( $has_open_child_wrapper && $first_or_last_class == ' last') {
+                $child_articles .= '</div>';
+                $has_open_child_wrapper = false;
+            }
         }
+
+        if( $has_open_child_wrapper )
+            $child_articles .= '</div>';
 
         // Reset configuration for child articles
         $this->template_obj_creator->setIsChild(false);

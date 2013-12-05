@@ -203,7 +203,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $expected = 'hellohellochildA_IS_SPLIT_hellochildB_IS_SPLIT_';
+        $expected = 'hello<div class="arlima child-wrapper">hellochildA_IS_SPLIT_hellochildB_IS_SPLIT_</div>';
 
         $this->assertEquals($expected, $content);
     }

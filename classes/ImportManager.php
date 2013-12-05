@@ -199,7 +199,7 @@ class Arlima_ImportManager
     private function moveURLToOverridingURL( $article_data )
     {
         $url = !empty($article_data['url']) ? $article_data['url'] : $article_data['external_url'];
-        $article_data['overriding_url'] =  $url;
+        $article_data['options']['overriding_url'] =  $url;
         return $article_data;
     }
 

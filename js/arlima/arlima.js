@@ -556,6 +556,12 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             case 'quarter':
                                 templateArgs.image.width = '25%';
                                 break;
+                            case 'fifth':
+                                templateArgs.image.width = '20%';
+                                break;
+                            case 'sixth':
+                                templateArgs.image.width = '15%';
+                                break;
                         }
                         templateArgs.container['class'] += ' img-'+article.image_options.size;
                     }
@@ -566,6 +572,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     var numChildren = article.children.length;
                     if( numChildren > 0 ) {
                         var $childContainer = $('<div />'),
+                            hasOpenChildWrapper = false,
+                            childHTML = '',
                             hasEvenChildren = article.children.length % 2 === 0;
 
                         $childContainer
@@ -574,8 +582,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
                         $.each(article.children, function(i, childArticle) {
                             //epic variable name
-                            var $childTeaser = $('<div />');
-                            var extraClasses = '';
+                            var $childTeaser = $('<div />'),
+                                extraClasses = '';
 
                             if(
                                 (numChildren == 4 && (i == 1 || i == 2)) ||
@@ -587,6 +595,11 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
 
                             }
 
+                            if( extraClasses.indexOf(' first') > -1 ) {
+                                childHTML += '<div class="arlima child-wrapper">';
+                                hasOpenChildWrapper = true;
+                            }
+
                             // render child article
                             _buildPreviewTeaser(
                                 $childTeaser,
@@ -596,9 +609,22 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                                 numChildren > 1
                             );
 
-                            // append child article to document
-                            $childContainer.append( $childTeaser.html() );
+                            childHTML += $childTeaser.html();
+
+                            if( hasOpenChildWrapper && extraClasses.indexOf(' last') > -1  ) {
+                                childHTML += '</div>';
+                                hasOpenChildWrapper = false;
+                            }
+
                         });
+
+                        if( hasOpenChildWrapper ) {
+                            childHTML += '</div>';
+                            hasOpenChildWrapper = false;
+                        }
+
+                        // append child article to document
+                        $childContainer.append( childHTML );
 
                         templateArgs.child_articles = $childContainer.html();
                         templateArgs.sub_articles = templateArgs.child_articles; // todo: remove when moving up to version 3.0
@@ -999,7 +1025,12 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                     } else if( !isChildArticle && imgSupport['size'] && imgSupport['size'] != '*' ) {
                         $sizeOpts.attr('disabled', 'disabled');
                         $.each( imgSupport['size'].split(','), function(i, size) {
-                            $sizeOpts.filter('[value="'+ $.trim(size) +'"]').removeAttr('disabled');
+                            var $opt = $sizeOpts.filter('[value="'+ $.trim(size) +'"]');
+                            if( $opt.length == 0 ) {
+                                $sizeOpts.parent().append('<option value="'+size+'">'+size+'</option>');
+                            } else {
+                                $opt.removeAttr('disabled');
+                            }
                         });
                     }
                 }

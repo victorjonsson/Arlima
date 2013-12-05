@@ -90,6 +90,8 @@ $arlima_plugin = new Arlima_Plugin();
                 <option value="half"><?php _e('50% wide', 'arlima') ?></option>
                 <option value="third"><?php _e('33% wide', 'arlima') ?></option>
                 <option value="quarter"><?php _e('25% wide', 'arlima') ?></option>
+                <option value="fifth"><?php _e('20% wide', 'arlima') ?></option>
+                <option value="sixth"><?php _e('15% wide', 'arlima') ?></option>
             </select>
             <div id="arlima-article-image-alignment" style="display:inline;">
                 <input type="radio" name="image_align" id="image-align-left" value="alignleft" /> <label for="image-align-left"><?php _e('Align left', 'arlima') ?></label>

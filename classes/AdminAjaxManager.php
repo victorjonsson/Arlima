@@ -755,7 +755,7 @@ class Arlima_AdminAjaxManager
     private function setupPostObject($post) {
         if( is_object($post) && $post->post_type == 'post' && $post->post_status != 'deleted' && $post->post_status != 'trash' ) {
             $post->url = get_permalink($post->ID);
-            $post->publish_date = strtotime($post->post_date_gmt);
+            $post->publish_date = strtotime($post->post_date);
             return apply_filters('arlima_wp_post', $post);
         }
         return false;
@@ -973,7 +973,7 @@ class Arlima_AdminAjaxManager
                     'url' => $url,
                     'title_fontsize' => 24,
                     'content' => $post->post_content,
-                    'publish_date' => strtotime($post->post_date_gmt)
+                    'publish_date' => strtotime($post->post_date)
                 );
 
                 if ( function_exists('has_post_thumbnail') && has_post_thumbnail($post->ID) ) {

@@ -248,6 +248,8 @@ class Arlima_ExportManager
                 $this->prepareArticleForExport($article_data['children'][$key], $base_url);
             }
         }
+
+        $article_data = apply_filters('arlima_prepare_article_for_export', $article_data);
     }
 
     /**

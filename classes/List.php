@@ -15,6 +15,11 @@ class Arlima_List
     const QUERY_ARG_PREVIEW = 'arlima-preview';
 
     /**
+     * @var bool|array
+     */
+    private $post_ids = false;
+
+    /**
      * @var int
      */
     private $id = 0;
@@ -262,11 +267,41 @@ class Arlima_List
     }
 
     /**
+     * Returns a list with id numbers of the posts that has a connection
+     * to one or more articles in this list
+     * @return array
+     */
+    public function getContainingPosts()
+    {
+        if( $this->post_ids === false ) {
+            $this->post_ids = array();
+            foreach($this->getArticles() as $article) {
+                if( !empty($article['post_id']) ) {
+                    $this->post_ids[] = $article['post_id'];
+                }
+            }
+        }
+        return $this->post_ids;
+    }
+
+    /**
+     * Tells whether or not this list contains one or more articles connected
+     * to the post with given id
+     * @param int $post_id
+     * @return bool
+     */
+    public function containsPost($post_id)
+    {
+        return in_array($post_id, $this->getContainingPosts());
+    }
+
+    /**
      * @param array $articles
      */
     public function setArticles($articles)
     {
         $this->articles = $articles;
+        $this->post_ids = false;
     }
 
     /**

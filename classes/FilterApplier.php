@@ -220,6 +220,12 @@ class Arlima_FilterApplier
                 case 'quarter':
                     $size = array(round($article_width * 0.25));
                     break;
+                case 'fifth':
+                    $size = array(round($article_width * 0.20));
+                    break;
+                case 'sixth':
+                    $size = array(round($article_width * 0.15));
+                    break;
                 default:
                     $size = array($article_width);
                     break;
@@ -381,6 +387,14 @@ class Arlima_FilterApplier
                 break;
             case 'quarter':
                 $width = round($article_width * 0.25);
+                $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
+                break;
+            case 'fifth':
+                $width = round($article_width * 0.20);
+                $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
+                break;
+            case 'sixth':
+                $width = round($article_width * 0.15);
                 $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));
                 break;
             default:

@@ -168,6 +168,14 @@ a.teaser-entryword:hover {
     max-width: 25%;
 }
 
+.tmpl-article img.fifth {
+    max-width: 20%;
+}
+
+.tmpl-article img.sixth {
+    max-width: 15%;
+}
+
 /* * * * * * * * * * *
  TMPL child articles
 * * * * * * * * * * * */
@@ -204,6 +212,10 @@ a.teaser-entryword:hover {
 
 .teaser-children .tmpl-article:last-child {
     margin-bottom: 0;
+}
+
+.arlima.child-wrapper {
+    clear: both;
 }
 
 

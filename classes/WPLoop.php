@@ -11,6 +11,11 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
 {
 
     /**
+     * @var array
+     */
+    private $exclude_posts = array();
+
+    /**
      * @var string
      */
     private $filter_suffix;
@@ -53,6 +58,22 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
     public function toggleApplyFilters($toggle)
     {
         $this->doApplyFilters = $toggle;
+    }
+
+    /**
+     * @param array $exclude_posts
+     */
+    public function setExcludePosts($exclude_posts)
+    {
+        $this->exclude_posts = $exclude_posts;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExcludePosts()
+    {
+        return $this->exclude_posts;
     }
 
     /**
@@ -152,19 +173,22 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
             the_post();
             global $post;
 
-            $article_data = $this->extractArticleData($post, $article_counter);
+            $article_data = apply_filters('arlima_wp_lopp_article', $this->extractArticleData($post, $article_counter));
 
-            list($article_counter, $article_content) = $this->outputArticle(
-                $article_data,
-                $jQueryTmpl_df,
-                $article_counter
-            );
+            if( $article_data && !in_array($post->ID, $this->exclude_posts) ) {
 
-            if ( $output ) {
-                echo $article_content;
+                list($article_counter, $article_content) = $this->outputArticle(
+                    $article_data,
+                    $jQueryTmpl_df,
+                    $article_counter
+                );
 
-            } else {
-                $content .= $article_content;
+                if ( $output ) {
+                    echo $article_content;
+
+                } else {
+                    $content .= $article_content;
+                }
             }
 
             if ( $article_counter >= 50 || ($this->getLimit() > -1 && $this->getLimit() <= $article_counter) ) {
@@ -188,7 +212,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
      */
     protected function extractArticleData($post, $article_counter)
     {
-        $date = strtotime($post->post_date_gmt);
+        $date = strtotime($post->post_date);
         $article = array_merge(array(
             'post_id' => $post->ID,
             'options' => array(

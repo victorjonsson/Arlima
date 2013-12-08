@@ -468,6 +468,8 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
          */
         updatePreview : function() {
 
+            var _self = this;
+
             function _buildPreviewTeaser($container, article, isChildArticle, extraClasses, isChildSplit) {
                 if(!ArlimaTemplateLoader.finishedLoading) {
                     // templates not yet loaded
@@ -580,20 +582,12 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             .addClass('teaser-children children-' + numChildren)
                             .appendTo($container);
 
+                        var $parentItem =
+
                         $.each(article.children, function(i, childArticle) {
                             //epic variable name
                             var $childTeaser = $('<div />'),
-                                extraClasses = '';
-
-                            if(
-                                (numChildren == 4 && (i == 1 || i == 2)) ||
-                                (numChildren == 6 && (i != 0 && i != 3)) ||
-                                (numChildren > 1 && numChildren != 4 && numChildren != 6 && (i != 0 || hasEvenChildren) )
-                            ) {
-                                extraClasses += ' teaser-split' +
-                                                ((i==1 && numChildren > 2) || (i==0 && numChildren==2) || i==3 || (i==4 && numChildren ==6) ? ' first':' last');
-
-                            }
+                                extraClasses = _self.$topItem.find('.listitem').eq(i).data('extraClasses');
 
                             if( extraClasses.indexOf(' first') > -1 ) {
                                 childHTML += '<div class="arlima child-wrapper">';
@@ -650,8 +644,10 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             }
 
             var article = this.serializeArticle(this.$item, true);
+            this.$topItem = this.$item;
             if(parseInt(article.parent, 10) > -1) {
-                article = this.serializeArticle(this.$item.parent().parent(), true);
+                this.$topItem = this.$item.parent().parent();
+                article = this.serializeArticle(this.$topItem, true);
             }
             // TODO: this function gets called twice when previewing an article!!
 
@@ -1016,13 +1012,13 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 $sizeOpts.removeAttr('disabled');
 
                 if( imgSupport ) {
-                    var isChildArticle = this.isEditingChildArticle();
-                    if( isChildArticle && imgSupport['children-size'] && imgSupport['children-size'] != '*' ) {
+                    var isChildArticleSplit = this.isEditingChildArticle() && this.$item.data('extraClasses').indexOf('teaser-split') > -1;
+                    if( isChildArticleSplit && imgSupport['children-size'] && imgSupport['children-size'] != '*' ) {
                         $sizeOpts.attr('disabled', 'disabled');
                         $.each( imgSupport['children-size'].split(','), function(i, size) {
                             $sizeOpts.filter('[value="'+ $.trim(size) +'"]').removeAttr('disabled');
                         });
-                    } else if( !isChildArticle && imgSupport['size'] && imgSupport['size'] != '*' ) {
+                    } else if( !isChildArticleSplit && imgSupport['size'] && imgSupport['size'] != '*' ) {
                         $sizeOpts.attr('disabled', 'disabled');
                         $.each( imgSupport['size'].split(','), function(i, size) {
                             var $opt = $sizeOpts.filter('[value="'+ $.trim(size) +'"]');
@@ -1087,7 +1083,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
             }
 
             if( imgSupport ) {
-                var sizeAttr = this.isEditingChildArticle() ? 'children-size':'size';
+                var sizeAttr = this.isEditingChildArticle() && this.$item.data('extraClasses').indexOf('teaser-split') > -1 ? 'children-size':'size';
                 if( typeof imgSupport[sizeAttr] == 'string' && imgSupport[sizeAttr] != '*' && imgSupport[sizeAttr].indexOf(imgSize) == -1 ) {
                     imgSize = $.trim( imgSupport[sizeAttr].split(',')[0] );
                     $size.find('option').removeAttr('selected');
@@ -2344,6 +2340,7 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 var $sublist = $('<ul />');
                 $listItem.append($sublist);
                 _self.fill(article.children, $sublist, false);
+                _self.setupChildClasses($listItem);
             }
 
             $itemContainer.append($listItem);
@@ -2352,6 +2349,28 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
         if(applyListBehavior) {
             this.applyListBehavior();
         }
+    };
+
+    ArlimaList.prototype.setupChildClasses = function($parentItem) {
+        var $children = $parentItem.find('ul li'),
+            numChildren = $children.length,
+            hasEvenChildren = numChildren % 2 === 0;
+
+        $children.each(function(i) {
+            var extraClasses = '';
+
+            if(
+                (numChildren == 4 && (i == 1 || i == 2)) ||
+                    (numChildren == 6 && (i != 0 && i != 3)) ||
+                    (numChildren > 1 && numChildren != 4 && numChildren != 6 && (i != 0 || hasEvenChildren) )
+                ) {
+                extraClasses += ' teaser-split' +
+                    ((i==1 && numChildren > 2) || (i==0 && numChildren==2) || i==3 || (i==4 && numChildren ==6) ? ' first':' last');
+
+            }
+
+            $(this).data('extraClasses', extraClasses);
+        });
     };
 
     /**
@@ -2414,6 +2433,10 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                 _self.rePositionStickyArticles();
                 if( isSectionDivider ) {
                     _self.setupStickyIndexes();
+                }
+
+                if( $listItem.parent().parent().hasClass('listitem') ) {
+                    Manager.getFocusedList().setupChildClasses($listItem.parent().parent());
                 }
 
                 if( ArticleEditor.isEditingList(Manager.getFocusedList().id) ) {
@@ -2959,8 +2982,23 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             _self.setupStickyIndexes();
                         }
 
+                        // Setup child classes
+                        $.each(ArlimaList.listsInolvedInTransaction, function(i, listID) {
+                            var list = Manager.getList(listID);
+                            list.jQuery.find('.listitem').each(function() {
+                                var $listItem = $(this);
+                                if( $listItem.find('ul li').length > 0 ) {
+                                    list.setupChildClasses($listItem);
+                                }
+                            });
+                        });
+
                         Manager.triggerEvent('articleDropped', $item);
                         ArlimaList.listsInolvedInTransaction.length = 0;
+
+                        if( ArticleEditor.isEditingArticle() && ArticleEditor.$item.data('article').id == $item.data('article').id ) {
+                            // todo: update article form
+                        }
                     }
                 });
             }

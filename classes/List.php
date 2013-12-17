@@ -279,6 +279,11 @@ class Arlima_List
                 if( !empty($article['post_id']) ) {
                     $this->post_ids[] = $article['post_id'];
                 }
+                foreach ($article['children'] as $child) {
+                    if (!empty($child['post_id'])) {
+                        $this->post_ids[] = $child['post_id'];
+                    }
+                }
             }
         }
         return $this->post_ids;
@@ -569,7 +574,8 @@ class Arlima_List
             return '';
         }
 
-        $title = str_replace('__', '<br />', $article['title']);
+        $underscore_replace = !isset($options['convert_breaks']) || $options['convert_breaks'] ? '<br />':'';
+        $title = str_replace('__', $underscore_replace, $article['title']);
 
         if ( !empty ($article['options']['pre_title']) ) {
             $title = '<span class="arlima-pre-title">' . $article['options']['pre_title'] . '</span> ' . $title;

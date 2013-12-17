@@ -261,16 +261,18 @@ class Arlima_ExportManager
     {
         $img = '';
         if ( isset($article['image_options']) && !empty($article['image_options']['url']) ) {
+
             $node_type = defined('ARLIMA_RSS_IMG_TAG') ? ARLIMA_RSS_IMG_TAG : 'enclosure';
-            $img_type = pathinfo($article['image_options']['url'], PATHINFO_EXTENSION);
+            $img_url = apply_filters('arlima_rss_image', $article['image_options']['url'], $article['image_options']);
+            $img_type = pathinfo($img_url, PATHINFO_EXTENSION);
             $img_type = 'image/'. current(explode('?', $img_type));
 
             if( $node_type == 'media:content' ) {
-                $img = '<media:content url="'.$article['image_options']['url'].'" type="'.$img_type.'" />';
+                $img = '<media:content url="'.$img_url.'" type="'.$img_type.'" />';
             } elseif( $node_type == 'image' ) {
-                $img = '<image>' . $article['image_options']['url'] . '</image>';
+                $img = '<image>' . $img_url . '</image>';
             } else {
-                $img = '<enclosure url="' . $article['image_options']['url'] . '" length="1" type="'.$img_type.'"  />';
+                $img = '<enclosure url="' . $img_url . '" length="1" type="'.$img_type.'"  />';
             }
         }
 

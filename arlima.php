@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.8.3
+Version: 2.8.6
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -132,8 +132,8 @@ function arlima_is_preview() {
 
 /**
  * This function makes it possible to add formats (class names) that will be possible
- * to put on arlima articles in. The format class will be added to the div containing the
- * article using the template variable ${container.class}
+ * to choose for your arlima articles. The format class will be added to the div
+ * containing the article using the template variable ${container.class}
  *
  * @example
  *  arlima_register_format('my-custom-format', 'Cool looking article', array('giant', 'my-other-template'));
@@ -161,8 +161,8 @@ function arlima_deregister_format($format_class, $templates=array()) {
 
 
 /**
- * Function that displays a link to wp-admin where
- * given arlima list can be edited
+ * Function that displays a link to wp-admin where given arlima
+ * list can be edited
  * @param Arlima_List|bool $list
  * @param string|bool $message
  * @return void
@@ -170,10 +170,11 @@ function arlima_deregister_format($format_class, $templates=array()) {
 function arlima_edit_link($list=false, $message=false) {
     if( !($list instanceof Arlima_List) ) {
         $list = arlima_get_list();
-        if( false === $list ) {
-            trigger_error('Trying to get edit link for list that does not exist', E_USER_WARNING);
-            return;
-        }
+    }
+
+    if( !$list ) {
+        trigger_error('Trying to get edit link for list that does not exist', E_USER_WARNING);
+        return;
     }
 
     if( is_user_logged_in() && current_user_can('edit_posts') ) {

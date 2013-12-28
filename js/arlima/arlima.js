@@ -582,8 +582,6 @@ var Arlima = (function($, ArlimaJS, ArlimaTemplateLoader, window) {
                             .addClass('teaser-children children-' + numChildren)
                             .appendTo($container);
 
-                        var $parentItem =
-
                         $.each(article.children, function(i, childArticle) {
                             //epic variable name
                             var $childTeaser = $('<div />'),

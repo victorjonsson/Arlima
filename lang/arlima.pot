@@ -417,7 +417,7 @@ msgid "Your login session seems to have expired, pls reload the page!"
 msgstr "Du verkar ha blivit utloggad och bör därför ladda om den här sidan."
 
 msgid "Sticky"
-msgstr "Låst"
+msgstr "Klistrad"
 
 msgid "Interval"
 msgstr "Intervall"

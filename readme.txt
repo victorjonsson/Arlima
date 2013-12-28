@@ -3,8 +3,8 @@
 Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.0
-Tested up to: 3.6
-Stable tag: 2.8.3
+Tested up to: 3.8
+Stable tag: 2.8.6
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,9 +42,10 @@ the list that you created on step 2.
 
 == Changelog ==
 
-= 2.8.x =
+= 2.8.6 =
 
-- Fixed bug that caused articles only containing an image not to be rendered
+- The plugin is successfully tested with WordPress 3.8
+- Fixed bug that sometimes prevented articles from rendering
 - Sticky articles now works in lists with support for sections
 - It's now possible to hide templates for particular lists in the list manager
 - Fancybox used to connect articles to posts is now larger

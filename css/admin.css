@@ -640,10 +640,6 @@ li.dragger {
     margin-right: 8px;
 }
 
-#arlima-edit-article-options-pre_title {
-    width: 120px;
-}
-
 .arlima-button label {
     display: inline-block;
     padding: 2px 10px 2px 0;
@@ -1037,7 +1033,7 @@ span.arlima-streamer-indicator {
 }
 
 .gray-small {
-    font-size: 11px;
+    font-size: 90%;
     color: #777;
 }
 

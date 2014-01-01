@@ -1,0 +1,44 @@
+{
+    "name": "Arlima WordPress Plugin",
+    "description" : "This package definition lets you install the build tools necessary to create an Arlima release",
+    "devDependencies": {
+        "grunt": "~0.4.2",
+        "wrench": ">=0.1.0",
+        "grunt-contrib-uglify": "~0.2.2"
+    },
+    "gruntConfig" : {
+        "mainScript" : "arlima.php",
+        "phpunit" : [
+            "classes/tests/TestActions.php",
+            "classes/tests/TestArlimaExport.php",
+            "classes/tests/TestArlimaImport.php",
+            "classes/tests/TestArlimaListFactory.php",
+            "classes/tests/TestArlimaListRendering.php",
+            "classes/tests/TestTemplateObjectCreator.php",
+            "classes/tests/TestTemplatePathResolver.php"
+        ],
+        "excludeFromDist" : [
+            "node_modules",
+            "vendor",
+            "dist",
+            "composer.json",
+            "README.md",
+            "build",
+            "package.json",
+            "Gruntfile.js",
+            "composer.lock",
+            "category-arlima-example.php",
+            "test.php",
+            ".git"
+        ],
+        "minify" : [
+            "js/arlima/arlima.js",
+            "js/arlima/template-loader.js",
+            "js/jquery/jquery.ui.nestedSortable.js",
+            "js/jquery/jquery.hotkeys.js",
+            "js/jquery/colourpicker/jquery.colourpicker.js",
+            "js/page-main.js",
+            "js/arlima/plupload-init.js"
+        ]
+    }
+}

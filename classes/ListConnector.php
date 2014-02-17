@@ -100,7 +100,7 @@ class Arlima_ListConnector {
             $prefix_len = strlen(Arlima_Widget::WIDGET_PREFIX);
             foreach($sidebars as $sidebar => $widgets) {
                 $index = 0;
-				if(!empty($widgets))
+                if(!empty($widgets))
                 {
 	                foreach( $widgets as $widget_id ) {
 	                    $index++;

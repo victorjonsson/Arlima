@@ -12,6 +12,7 @@ together has over 200 000 unique visitors per week.*
 ## Getting started
 
 ~~1. Install Arlima via the [WordPress.org plugin directory](http://wordpress.org/extend/plugins/arlima/).~~
+
 1. Download the latest release from github and unzip the folder in your plugin directory
 2. Go to "Article lists" -> "Edit lists" in wp-admin and create your first article list.
 3. Open up a page (or create it) in wp-admin. Down to the right you will see a meta box labeled "Arlima" where you choose

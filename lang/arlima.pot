@@ -45,8 +45,8 @@ msgid " by "
 msgstr " av "
 
 #: arlima.php:359
-msgid "You have one, or more, unsaved article lists"
-msgstr "Du har en, eller flera, osparade listor"
+msgid "You have one, or more, unsaved article lists, do you wish to proceed?"
+msgstr "Du har en, eller flera, osparade listor. Vill du fortsätta?"
 
 #: arlima.php:360
 msgid "It exists an older version of this article list"
@@ -62,7 +62,7 @@ msgstr "Den här artikellistan har fler extra-plattor"
 
 #: arlima.php:363
 msgid "You have made changes to this list, do you want to remove it anyway?"
-msgstr "Du har gjort ändringar i den här artikellistan, vill du fortarande radera den?"
+msgstr "Du har gjort ändringar i den här artikellistan, vill du fortarande ta bort den?"
 
 #: arlima.php:364
 msgid "Do you want to remove \""
@@ -269,8 +269,8 @@ msgid "Align right"
 msgstr "Högerjusterad "
 
 #: pages/main.php:121
-msgid "Title entry word"
-msgstr "Rubrikingång"
+msgid "Entry word"
+msgstr "Ingångsord"
 
 #: pages/main.php:126
 msgid "Style"
@@ -285,8 +285,8 @@ msgid "Hide related"
 msgstr "Dölj relaterade"
 
 #: pages/main.php:171
-msgid "[change]"
-msgstr "[byt]"
+msgid "change"
+msgstr "byt"
 
 #: pages/main.php:185
 msgid "Articles"
@@ -416,8 +416,8 @@ msgstr "Skicka"
 msgid "Your login session seems to have expired, pls reload the page!"
 msgstr "Du verkar ha blivit utloggad och bör därför ladda om den här sidan."
 
-msgid "Sticky"
-msgstr "Låst"
+msgid "Scheduled"
+msgstr "Schemalagd"
 
 msgid "Interval"
 msgstr "Intervall"
@@ -589,3 +589,12 @@ msgstr "Inkludera filer"
 
 msgid "File"
 msgstr "Fil"
+
+msgid "Arguments (query string)"
+msgstr "Argument (query-sträng)"
+
+msgid "No posts found"
+msgstr "Inga artiklar hittades"
+
+msgid "Add to article"
+msgstr "Använd"

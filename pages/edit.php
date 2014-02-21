@@ -62,39 +62,21 @@ $available_lists = $factory->loadListSlugs();
                     </div>
                 <?php endif; ?>
 				<div class="tablenav">
-					<div class="alignleft">
-						
-						<div id="arlima-lists" >
-							<input type="text" name="arlima-search-lists" id="arlima-search-lists" placeholder="<?php _e('Search', 'arlima') ?>..." />
-							<ul>
-								<?php foreach($available_lists as $list_data): ?>
-									<li class="arlima-list-link" id="arlima-list-link_<?php echo $list_data->id; ?>" style="display:none;">
-                                        <a href="admin.php?page=arlima-edit&alid=<?php echo $list_data->id; ?>">
-                                            <?php echo $list_data->id . '. ' . $list_data->title; ?>
-                                        </a>
-                                    </li>
-								<?php endforeach; ?>
-							</ul>
-						</div>
-					
-						<form method="get" action="admin.php" id="arlima-select-list" style="display:inline;margin-right:50px">
-							<input type="hidden" name="page" value="arlima-edit" />
-							<select name="alid" id="arlima-add-list-select" style="margin-left: 50px;">
-								<option value=""><?php _e('Choose article list', 'arlima') ?></option>
-								<?php
-								foreach( $available_lists as $list_data ): ?>
-									<option value="<?php echo $list_data->id; ?>" <?php if( $list_data->id == $list->id() ) echo 'selected="selected"'; ?>>
-                                        <?php echo $list_data->title; ?>
-                                    </option>
-								<?php endforeach; ?>
-							</select>
-						</form>
-						
-						<a href="admin.php?page=arlima-edit">
-                            <input type="button" value="<?php _e('New list', 'arlima') ?>" class="button-secondary action" />
-                        </a>
-
-					</div><!-- .alignleft actions -->
+                    <form method="get" action="admin.php" id="arlima-select-list" style="display: inline; margin-right: 5px">
+                        <input type="hidden" name="page" value="arlima-edit" />
+                        <select name="alid" id="arlima-add-list-select" >
+                            <option value=""><?php _e('Choose article list', 'arlima') ?></option>
+                            <?php
+                            foreach( $available_lists as $list_data ): ?>
+                                <option value="<?php echo $list_data->id; ?>" <?php if( $list_data->id == $list->id() ) echo 'selected="selected"'; ?>>
+                                    <?php echo $list_data->title; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </form>
+                    <a href="admin.php?page=arlima-edit">
+                        <input type="button" value="<?php _e('New list', 'arlima') ?>" class="button-secondary action" />
+                    </a>
 				</div><!-- .tablenav -->
 				
 				<?php
@@ -139,7 +121,7 @@ $available_lists = $factory->loadListSlugs();
                                                 printf(
                                                     '<option value="%s"%s>%s</option>',
                                                     $file['name'],
-                                                    $selected, $file['label'] . ($file['name'] != $file['label'] ? ' ('.$file['name'].'.tmpl)':'')
+                                                    $selected, $file['label'] . ($file['name'] != $file['label'] ? ' ('.$file['name']. $tmpl::TMPL_EXT .')':'')
                                                 );
                                             }
                                             ?>

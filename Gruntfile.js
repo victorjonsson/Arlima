@@ -8,6 +8,8 @@
  *  $ grunt localization    Translates pot files
  *  $ grunt phpunit         Runs php-unit tests
  *  $ grunt validate        Validates the readme file
+ *  $ grunt build-js        Concat and minify all js-files in js/arlima/dev/ into arlima.js
+ *  $ grunt create-release  Copies current source code into the release directory
  *
  * @requirements
  *  - nodejs and npm
@@ -15,6 +17,10 @@
  *  - grunt has to be installed globally  (npm install -g grunt-cli)
  *  - msgfmt and phpunit.phar has to be installed and added to your $PATH
  *
+ * @todo
+ *  - Look into using https://npmjs.org/package/node-gettext instead of msgfmt
+ *  - Make it optional to run unit tests when building release
+ *  - Make the translation task more dynamic, no hardcoded en -> sv
  */
 module.exports = function(grunt) {
 
@@ -33,7 +39,7 @@ module.exports = function(grunt) {
             var versionParts = readFile(config.mainScript).split('Version: ')[1].split('\n')[0].trim().split('.');
             return versionParts.join('.');
         },
-        handleProcessError = function(grunt, stderr, error ) {
+        handleProcessError = function(grunt, stderr, error, stdout) {
             var errorMess = error || stderr;
             if( errorMess ) {
                 grunt.log.write(errorMess).error(stdout);
@@ -43,34 +49,47 @@ module.exports = function(grunt) {
                 return false;
             }
         },
-        config = JSON.parse(readFile('./package.json')).gruntConfig
-        config.distVersion = false;
+        config = JSON.parse(readFile('./package.json')).gruntConfig;
 
+        config.releaseVersion = false;
 
 
     /* * * * * * * * Config * * * * * * * * */
 
-    var filesToMinify = {};
-    config.minify.every(function(file) {
-        var filePath = 'dist/release-<%= config.distVersion %>/' + file;
-        filesToMinify[filePath] = filePath;
-        return true;
-    });
-
     grunt.initConfig({
         config : config,
+        concat: {
+            options: {
+                stripBanners: true,
+                banner: '/*! Arlima v<%= config.releaseVersion %> */\n'
+            },
+            dist: {
+                files: config.filesToConcat
+            }
+        },
         uglify: {
             options: {
-                banner: '/*! Arlima v<%= config.distVersion %> */\n'
+                banner: '/*! Arlima v<%= config.releaseVersion %> */\n'
             },
             build :  {
-                files : filesToMinify
+                files : config.uglifyjs
+            }
+        },
+        less: {
+            development: {
+                options: {
+                    compress: true,
+                    yuicompress: true,
+                    optimization: 2
+                },
+                files: config.lessFiles
             }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
-
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-less');
 
 
     /* * * * * * * * Tasks * * * * * * * * */
@@ -80,7 +99,7 @@ module.exports = function(grunt) {
      * Get current version
      */
     grunt.registerTask('current-version', 'Get current version', function() {
-        console.log(grunt);
+        config.releaseVersion = getCurrentVersion();
         grunt.log.writeln('Current version: ' + getCurrentVersion());
     });
 
@@ -96,8 +115,9 @@ module.exports = function(grunt) {
             var versionParts = currentVersion.split('.');
             var newSubVersion = parseInt(versionParts.splice(versionParts.length-1, 1)[0]) + 1;
             newVersion = versionParts.join('.') + '.' + newSubVersion.toString();
-            config.distVersion = newVersion;
         }
+
+        config.releaseVersion = newVersion;
 
         grunt.log.writeln('* Moving from version '+currentVersion+' to '+newVersion);
 
@@ -105,6 +125,11 @@ module.exports = function(grunt) {
         replaceInFile('readme.txt', 'Stable tag: '+currentVersion, 'Stable tag: '+newVersion);
         replaceInFile('constants.php', "'ARLIMA_FILE_VERSION', '"+currentVersion, "'ARLIMA_FILE_VERSION', '"+newVersion);
     });
+
+    /*
+     * Build javascript
+     */
+    grunt.registerTask('build-js', ['current-version', 'concat', 'uglify']);
 
     /*
      * Run PHP-unit
@@ -115,18 +140,20 @@ module.exports = function(grunt) {
             done = this.async();
 
         config.phpunit.every(function(file) {
-            exec('phpunit.phar  --no-globals-backup '+file, function (error, stdout, stderr) {
-                if( handleProcessError(grunt, stderr, error) ) {
-                    done();
-                } else {
-                    grunt.log.writeln('* Successfully ran php-unit file '+file);
-                }
+            if( file.indexOf('#') !== 0 ) {
+                exec('phpunit  --no-globals-backup '+file, function (error, stdout, stderr) {
+                    if( handleProcessError(grunt, stderr, error, stdout) ) {
+                        done();
+                    } else {
+                        grunt.log.writeln('* Successfully ran php-unit file '+file);
+                    }
 
-                finishedTests++;
-                if( finishedTests == config.phpunit.length ) {
-                    done();
-                }
-            });
+                    finishedTests++;
+                    if( finishedTests == config.phpunit.length ) {
+                        done();
+                    }
+                });
+            }
             return true;
         });
     });
@@ -134,10 +161,12 @@ module.exports = function(grunt) {
     /*
      * Localization
      */
-    grunt.registerTask('localization', function() {
+    grunt.registerTask('localization', 'Translate .pot-files', function() {
         var done = this.async();
         exec('msgfmt -o lang/arlima-sv_SE.mo lang/arlima.pot', function (error, stdout, stderr) {
-            if( !handleProcessError(grunt, stderr, error) ) {
+            if( !handleProcessError(grunt, stderr, error, stdout) ) {
+
+                grunt.log.writeln(stdout);
                 grunt.log.writeln('* Pot-files translated');
             }
             done();
@@ -147,10 +176,10 @@ module.exports = function(grunt) {
     /*
      * Validate the readme file
      */
-    grunt.registerTask('validate', function() {
+    grunt.registerTask('validate', 'Validate readme.txt', function() {
         var done = this.async();
         exec('mval ./readme.txt', function(error, stdout, stderr) {
-            if( !handleProcessError(grunt, stderr, error) ) {
+            if( !handleProcessError(grunt, stderr, error, stdout) ) {
                 grunt.log.writeln('* readme.txt valid');
             }
             done();
@@ -160,37 +189,35 @@ module.exports = function(grunt) {
     /*
      * Create release directory with copy of source code
      */
-    grunt.registerTask('create-dist', function() {
-        if( !config.distVersion ) {
-            config.distVersion = getCurrentVersion();
+    grunt.registerTask('create-release', 'Copy source code to release directory', function() {
+        if( !config.releaseVersion ) {
+            config.releaseVersion = getCurrentVersion();
         }
 
-        var buildDir = 'dist/release-'+config.distVersion;
+        var buildDir = 'release/v-'+config.releaseVersion;
 
-        // Create dist directory
+        // Create release directory
         try {
-            var distStats = fs.statSync('dist');
+            var distStats = fs.statSync('release');
             if( !distStats.isDirectory() ) {
-                fs.mkdirSync('dist');
+                fs.mkdirSync('release');
             }
         } catch(err) {
-            fs.mkdirSync('dist');
+            fs.mkdirSync('release');
         }
 
+        config.excludeFromRelease.push('release');
+
         // Copy files to build dir
-        wrench.copyDirSyncRecursive('../arlima/', buildDir, {
+        wrench.copyDirSyncRecursive(__dirname, buildDir, {
             forceDelete: true,
             excludeHiddenUnix: true,
             preserveFiles: false,
             exclude: function( file ) {
-                return config.excludeFromDist.indexOf(file) > -1;
+                return config.excludeFromRelease.indexOf(file) > -1;
             }
         });
-
-        grunt.log.writeln('* Release directory created '+buildDir);
-
     });
-
 
     /*
      * Default task - creates a new release version
@@ -200,7 +227,8 @@ module.exports = function(grunt) {
         'validate',
         'change-version',
         'localization',
-        'create-dist',
+        'less',
+        'concat',
         'uglify'
     ];
     grunt.registerTask('default', defaultTasks);

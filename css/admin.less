@@ -1,0 +1,180 @@
+
+@blue: #3f8fb4;
+
+.text-wrap() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.opacity(@level) {
+  opacity: @level / 100;
+  filter: alpha(opacity=@level);
+}
+
+.wrap.arlima, select, input, option {
+  font-size: 12px;
+}
+
+body.wait-loading,
+body.wait-loading > *,
+body.wait-loading * {
+  cursor: wait !important;
+}
+
+.wrap.arlima a:link,
+.wrap.arlima a:visited,
+.wrap.arlima a:hover,
+.wrap.arlima a:active {
+  text-decoration: none;
+  text-shadow: none;
+}
+
+.ajax-loader {
+  display: none;
+}
+
+a:link,
+a:active,
+a:focus,
+a:visited,
+:focus {
+  outline: none !important;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight: none;
+  -webkit-focus-ring-color: rgba(0, 0, 0, 0);
+  -webkit-focus-ring-color: transparent;
+  -webkit-focus-ring-color: none;
+}
+
+.fancybox-overlay {
+  background: rgba(0,0,0, .5);
+  z-index: 99999;
+}
+
+
+// --- PAGE TITLES
+.wrap.arlima {
+
+  .arlima-page-title {
+    img {
+      vertical-align: -13px;
+    }
+    span {
+      margin-left: 10px;
+      font-size: 18px;
+      color: #999;
+    }
+  }
+
+}
+.wrap.arlima.arlima-main {
+  .arlima-page-title {
+    margin-bottom: -20px;
+  }
+}
+
+
+/*
+ Arlima settings page
+*/
+#arlima-settings-page table {
+  width: 100%;
+}
+
+#arlima-settings-page table td:first-child {
+  width: 320px;
+  text-align: left;
+  line-height: 140%;
+  padding-right: 12px;
+  vertical-align: top;
+}
+
+#streamer-wrapper div {
+  padding: 5px 2px;
+}
+
+#streamer-wrapper span.color {
+  display: inline-block;
+  height:20px;
+  width: 20px;
+  box-shadow: 0 0 4px #CCC;
+  border-radius: 4px;
+  vertical-align: -5px;
+  margin-right: 4px;
+}
+
+#arlima-settings-page .del {
+  color: red;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 140%;
+  margin-left: 5px;
+}
+
+#imported-lists div {
+  padding: 5px 2px 8px;
+}
+
+#imported-lists div:first-child {
+  padding-top: 14px;
+  margin-top: 10px;
+  border-top: #EEE solid 1px;
+}
+
+#streamer-color {
+  width: 120px;
+}
+
+
+#export-list {
+  background: #F2F2F2;
+  border: #E2E2E2 solid 1px;
+  height: 200px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  max-width: 65%;
+}
+
+#export-list p {
+  padding: 8px 12px;
+  border-bottom: #E2E2E2 solid 1px;
+  border-top: #FFF solid 1px;
+  margin: 0;
+  line-height: 160%;
+}
+
+#export-list p:first-child {
+  border-top: 0;
+}
+
+#export-list p input {
+  margin-right: 4px;
+}
+
+.wrap.arlima.arlima-settings {
+  .gray-small {
+    font-size: 80%;
+    color: #777;
+  }
+}
+
+#export-list .gray-small {
+  display: block;
+}
+
+
+/*
+ EDIT PAGE
+*/
+
+.wrap.arlima.arlima-edit {
+  .tablenav {
+    width: 600px;
+    text-align: right;
+  }
+}
+
+@import "col-left.less";
+@import "col-right.less";

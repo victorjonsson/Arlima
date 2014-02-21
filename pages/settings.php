@@ -71,30 +71,6 @@ if( isset($message) ): ?>
     <form action="admin.php?page=arlima-settings" method="post">
 
         <div class="arlima-postbox">
-            <h3><?php _e('Quick Edit', 'arlima') ?></h3>
-            <div class="inside">
-                <table>
-                    <tr>
-                        <td>
-                            <?php _e('This is an experimental feature that makes it possible to edit articles directly on your front page.', 'arlima') ?>
-                            (<a href="https://github.com/victorjonsson/Arlima/wiki" target="_blank"><?php _e('Read more', 'arlima') ?></a>)
-                        </td>
-                        <td>
-                            <select name="settings[in_context_editing]">
-                                <option value="1"<?php echo $settings['in_context_editing'] ? ' selected="selected"':'' ?>>
-                                    <?php _e('Enabled', 'arlima') ?>
-                                </option>
-                                <option value=""<?php echo !$settings['in_context_editing'] ? ' selected="selected"':'' ?>>
-                                    <?php _e('Disabled', 'arlima') ?>
-                                </option>
-                            </select>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
-        <div class="arlima-postbox">
             <h3><?php _e('Streamer Colors', 'arlima') ?></h3>
             <div class="inside">
                 <table>

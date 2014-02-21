@@ -1,0 +1,398 @@
+#col-left {
+  width: auto;
+}
+
+
+/*
+*  CONTAINER HEADER
+*/
+#list-container-header {
+
+  text-align: right;
+  padding-bottom: 8px;
+
+  .lists {
+    display: inline;
+
+    select {
+      width: 200px;
+    }
+  }
+
+  .list-search {
+    display: inline;
+    position: relative;
+
+    @search-input-width: 140px;
+
+    input {
+      width: @search-input-width;
+    }
+
+    // Search list
+
+    ul {
+      position: absolute;
+      top: 9px;
+      left: 0;
+      margin-left: 1px;
+      z-index: 49;
+      width: @search-input-width;
+    }
+
+    ul li {
+      list-style: none;
+      padding: 3px 0;
+      text-indent: 4px;
+      text-align: left;
+      margin: 0;
+      display: none;
+      cursor: pointer;
+      background: #fff;
+      .text-wrap();
+    }
+
+    ul li:hover {
+      background: #eee;
+    }
+  }
+
+}
+
+/*
+* CONTAINER BODY
+*/
+#list-container-body {
+  height: 800px;
+  padding: 5px;
+  background: #ddd;
+  position: relative;
+  margin: 6px 0;
+
+  .ajax-loader.large {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -40px 0 0 -40px;
+    color: rgba(0,0,0, .3);
+  }
+}
+
+/*
+* CONTAINER FOOTER
+*/
+#list-container-footer {
+
+  .refresh-lists {
+    float: right;
+    line-height: 20px;
+
+    i {
+      margin-left: 3px;
+    }
+  }
+
+}
+
+
+/*
+* ARTICLE LISTS
+*/
+@header-height: 28px;
+@footer-height: 34px;
+.list-inner-margins() {
+  width: 96%;
+  margin: 0 2%;
+}
+
+/* The css for .article can't be nested for drag-drop to work */
+.article {
+  background: rgba(0,0,0, .04);
+  min-height: 28px;
+  padding: 0;
+  margin:0 4px 4px;
+  cursor: pointer;
+  position: relative;
+
+  .article-title-container {
+    .text-wrap();
+    padding: 6px 8px;
+    margin-right: 15px;
+
+    .fa {
+      margin-right: 4px;
+    }
+    .fa.fa-calendar {
+      margin-right: 6px;
+    }
+  }
+
+  .remove {
+    display: none;
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    font-weight: bold;
+    font-size: 170%;
+    color: rgba(0,0,0, .4);
+  }
+
+  .streamer-indicator {
+    display: inline-block;
+    height: 5px;
+    width: 5px;
+    margin-right: 3px;
+    vertical-align: 2px;
+  }
+}
+
+.article.editing,
+.article.editing:hover {
+  background: #6BA6C2;
+  color: #FFF;
+}
+
+.article:hover {
+  background: #F8F8F8;
+  color: #000;
+
+  .remove {
+    display: block;
+  }
+  .remove:hover {
+    color: #111;
+  }
+}
+
+ // Section dividers
+.article.section-divider,
+.article.section-divider.editing,
+.article.section-divider.editing:hover {
+  background: #6C8DA3;
+  padding: 0px;
+  color: rgba(255,255,255, .85) !important;
+  font-weight: bold;
+  min-height: 0;
+
+  .article-title-container {
+    padding: 3px 8px;
+    margin-right: 15px;
+  }
+
+  .remove {
+    top: 3px;
+  }
+}
+
+.article.section-divider.editing,
+.article.section-divider.editing:hover {
+  background: #425664;
+}
+
+// imported
+.imported .article.editing,
+.imported .article.editing:hover {
+  background: #AAA !important;
+}
+
+// Future posts
+.article.future .article-title {
+  font-style: italic;
+  .opacity(90);
+}
+
+.article-list {
+  width: 300px;
+  border-radius: 0;
+  padding: (@header-height+5) 0px (@footer-height+3);
+  border: 3px solid #ddd;
+  margin-bottom: 20px;
+  background: #fff;
+  position: absolute !important;
+  z-index: 1;
+
+  // HEADER
+  .header {
+    color: #fff;
+    background: #608EA3;
+    height: @header-height;
+    line-height: @header-height;
+    width: inherit;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    cursor: move;
+    .text-wrap();
+
+    .remove, .title {
+      margin: 0 8px;
+
+      .dot {
+        float: left;
+        margin-left: 9px;
+        margin-right: -1px;
+        box-shadow: 0 0 5px #fff;
+        background: #FFF;
+        border-radius: 100px;
+        display: inline-block;
+        height: 6px;
+        width: 6px;
+        margin-top: 10px;
+      }
+    }
+
+    .remove, .add-section {
+      font-weight: bold;
+      float: right;
+      font-size: 150%;
+      color: rgba(255,255,255, .6);
+      margin-top: -1px;
+    }
+
+    .add-section {
+      display: none;
+      right: 16px;
+      background: rgba(255,255,255, .1);
+      border-radius: 200px;
+      line-height: 0;
+      margin-top: 7px;
+      padding: 6px 2px 7px;
+    }
+
+    .add-section:hover,
+    .remove:hover {
+      color: #FFF;
+    }
+
+  }
+
+  // BODY
+  .articles {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+   // .list-inner-margins();
+  }
+
+  // FOOTER
+  .footer {
+    height: (@footer-height - 6);
+    padding-top: 4px;
+    position: absolute;
+    bottom: 0;
+    overflow: auto;
+    .list-inner-margins();
+
+    a, .ajax-loader {
+      float: left;
+      margin: 0 4px;
+    }
+
+    a.save, a.disabled {
+      color: #999;
+      cursor: default;
+    }
+
+    .version {
+      display: inline;
+      float: right;
+      color: #888;
+      font-size: 11px;
+      cursor: pointer;
+      margin-right: 3px;
+
+      select {
+        font-size: 10px;
+        padding: 0;
+        height: auto;
+        margin-left: 3px;
+        display: none;
+      }
+    }
+
+    .refresh {
+      float: right;
+      margin-right: 6px;
+    }
+
+  }
+
+  .ui-resizable-handle {
+    .opacity(60);
+  }
+
+}
+
+.article-list.unsaved,
+.article-list.active {
+  background: #F5F9FC;
+
+  .header .title {
+    color: rgba(255,255,255, .9);
+  }
+}
+
+.article-list.unsaved {
+  .header {
+    background: @blue;
+  }
+  .title {
+    text-shadow: 0px 0px 8px rgba(255,255,255, .8);
+    color: #FFF !important;
+  }
+}
+
+// Unsaved article list
+.article-list.unsaved {
+  a.save {
+    color: @blue;
+    cursor: pointer;
+  }
+}
+
+// Imported article list
+.article-list.imported {
+  .header {
+    background: #777;
+  }
+
+  .article {
+    opacity: 0.9;
+  }
+
+  .article.section-divider {
+    background: #555;
+  }
+}
+
+
+/* 
+* SORTABLE STUFF
+*/
+.sortable-placeholder {
+    border-width: 1px;
+    border-style: dashed;
+    margin: 0 4px 4px;
+    min-height: 26px;
+}
+
+.ui-sortable-helper>.children-transport {
+  padding: 4px 0 0 0;
+  margin-right: 0;
+}
+
+@iterations : 10;
+
+.loopingClass (@index) when (@index > 0) {
+  .list-item-depth-@{index} {
+    margin-left: @index*(30px);
+  }
+  .list-item-depth-@{index} .children-transport {
+    margin-left: @index*(-30px);
+  }
+  .loopingClass(@index - 1);
+}
+
+.loopingClass (0) {}
+
+.loopingClass (@iterations);

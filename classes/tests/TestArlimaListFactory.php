@@ -190,28 +190,17 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertFalse( self::$factory->loadList($id)->exists() );
     }
 
-    function testDeprecatedFunctions() {
-
-        $list = $this->createList();
-
-        $this->assertEquals($list->id(), $list->id);
-        $this->assertEquals(true, $list->exists);
-        $this->assertEquals('test', $list->slug);
-        $this->assertEquals('Test list', $list->title);
-
-    }
-
     function testUpdateArticle() {
         $list = $this->createList();
         self::$factory->saveNewListVersion($list, array(Arlima_ListFactory::createArticleDataArray()), 1);
         $latest_version = self::$factory->loadList($list->id());
         $article = current($latest_version->getArticles());
-        self::$factory->updateArticle($article['id'], array('text'=>'Some text', 'title'=>'A title', 'title_fontsize'=>33));
+        self::$factory->updateArticle($article['id'], array('content'=>'Some text', 'title'=>'A title', 'size'=>33));
         $reloaded_version = self::$factory->loadList($list->id());
         $article = current($reloaded_version->getArticles());
-        $this->assertEquals($article['text'], 'Some text');
+        $this->assertEquals($article['content'], 'Some text');
         $this->assertEquals($article['title'], 'A title');
-        $this->assertEquals($article['title_fontsize'], 33);
+        $this->assertEquals($article['size'], 33);
     }
 
     function testCache() {

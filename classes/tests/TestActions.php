@@ -96,7 +96,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
         });
 
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $this->assertEquals('helloBEGINCONTENTEND', $content);
+        $this->assertEquals('hello-BEGIN-CONTENT-END---', $content);
     }
 
     function testSomeFiltersSettingContentToFalse() {
@@ -120,7 +120,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
             });
 
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $this->assertEquals('hello', $content);
+        $this->assertEquals('hello------', $content);
     }
 
     function testSomeFiltersReturningFalse() {
@@ -141,7 +141,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
             });
 
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $this->assertEquals('hello', $content);
+        $this->assertEquals('hello------', $content);
     }
 
     function testSpecifiedFilters() {
@@ -186,7 +186,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
             });
 
         $content = arlima_render_list($renderer, array('echo'=>false, 'filter_suffix'=>$filter_suffix));
-        $this->assertEquals('helloBEGIN-filteredCONTENT-filteredEND-filtered', $content);
+        $this->assertEquals('hello-BEGIN-filtered-CONTENT-filtered-END-filtered---', $content);
     }
 
     public function testChildArticles() {
@@ -203,7 +203,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $expected = 'hello<div class="arlima child-wrapper">hellochildA_IS_SPLIT_hellochildB_IS_SPLIT_</div>';
+        $expected = 'hello------<div class="arlima child-wrapper">hello-----childA--_IS_SPLIT_-hello-----childB--_IS_SPLIT_-</div>';
 
         $this->assertEquals($expected, $content);
     }
@@ -221,7 +221,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $expected = 'hellohellochildA';
+        $expected = 'hello------hello-----childA---';
 
         $this->assertEquals($expected, $content);
     }
@@ -235,13 +235,13 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $expected = 'helloChanged in filter';
+        $expected = 'hello--Changed in filter----';
 
         $this->assertEquals($expected, $content);
     }
 
     public static function templateObjectFilter($obj) {
-        $obj['article']['html_text'] = 'Changed in filter';
+        $obj['html_content'] = 'Changed in filter';
         return $obj;
     }
 }

@@ -14,7 +14,7 @@ ini_set('display_errors', 'On');
 // Setup server vars expected to exist by wordpress
 $_SERVER['DOCUMENT_ROOT'] = getcwd();
 $_SERVER['SERVER_PROTOCOL'] = '';
-$_SERVER['HTTP_HOST'] = '';
+$_SERVER['HTTP_HOST'] = '127.0.0.1';
 $_SERVER['REQUEST_METHOD'] = 'GET';
 define('ARLIMA_UNIT_TEST', true);
 

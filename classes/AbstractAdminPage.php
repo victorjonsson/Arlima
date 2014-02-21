@@ -153,9 +153,20 @@ abstract class Arlima_AbstractAdminPage {
      */
     public function enqueueStyles()
     {
-        foreach($this->styleSheets() as $handle => $data) {
+        $styles = $this->styleSheets();
+        if( ARLIMA_DEV_MODE && !defined('PREVENT_ARLIMA_ADMIN_LESS') ) { // The second constant makes it possible to use the compiled css event though we're in dev-mode
+            unset($styles['arlima_css']);
+            add_action('admin_head', 'Arlima_AbstractAdminPAge::outputLessJS');
+        }
+
+        foreach($styles as $handle => $data) {
             wp_enqueue_style($handle, $data['url'], $data['deps'], ARLIMA_FILE_VERSION, false);
         }
+    }
+
+    public static function outputLessJS() {
+        echo '<link rel="stylesheet/less" type="text/css" href="'.ARLIMA_PLUGIN_URL.'css/admin.less" />
+        <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.6.0/less.min.js"></script>';
     }
 
     /**
@@ -172,14 +183,16 @@ abstract class Arlima_AbstractAdminPage {
             'arlima-js',
             'ArlimaJS',
             array(
-                'ajaxurl' => admin_url('admin-ajax.php'),
+                'ajaxURL' => admin_url('admin-ajax.php'),
                 'arlimaNonce' => wp_create_nonce('arlima-nonce'),
-                'imageurl' => ARLIMA_PLUGIN_URL . 'images/',
-                'baseurl' => get_bloginfo('url'),
-                'is_admin' => current_user_can('manage_options') ? 1 : 0,
-                'preview_query_arg' => Arlima_List::QUERY_ARG_PREVIEW,
+                'imageURL' => ARLIMA_PLUGIN_URL . 'images/',
+                'baseURL' => get_bloginfo('url'),
+                'pluginURL' => ARLIMA_PLUGIN_URL,
+                'hasScissors' => Arlima_Plugin::isScissorsInstalled(),
+                'isAdmin' => current_user_can('manage_options'),
+                'previewQueryArg' => Arlima_List::QUERY_ARG_PREVIEW,
                 'lang' => array( // todo: but these args in a separate .js.php file when this array gets to long
-                    'unsaved' => __('You have one, or more, unsaved article lists', 'arlima'),
+                    'unsaved' => __('You have one, or more, unsaved article lists, do you wish to proceed?', 'arlima'),
                     'laterVersion' => __('It exists an older version of this article list', 'arlima'),
                     'overWrite' => __('Do you still want to save this version of the list?', 'arlima'),
                     'severalExtras' => __('This article list has more than one extra-streamer', 'arlima'),
@@ -187,8 +200,8 @@ abstract class Arlima_AbstractAdminPage {
                     'wantToRemove' => __('Do you want to remove "', 'arlima'),
                     'fromList' => __('" from this article list?', 'arlima'),
                     'chooseImage' => __('Choose image', 'arlima'),
-                    'admin_lock' => __('This article is locked by admin', 'arlima'),
-                    'admin_only' => __('Only administrators can manage article locks', 'arlima'),
+                    'adminLock' => __('This article is locked by admin', 'arlima'),
+                    'adminOnly' => __('Only administrators can manage article locks', 'arlima'),
                     'noList' => __('No list is active!', 'arlima'),
                     'noImages' => __('This article has no related image', 'arlima'),
                     'noConnection' => __('this article is not connected to any post', 'arlima'),
@@ -198,11 +211,18 @@ abstract class Arlima_AbstractAdminPage {
                     'missingPreviewPage' => __('This list is not yet related to any page', 'arlima'),
                     'hasUnsavedChanges' => __('This list has unsaved changes', 'arlima'),
                     'dragAndDrop' => __('Drag images to this container', 'arlima'),
-                    'sticky' => __('Sticky', 'arlima'),
+                    'scheduled' => __('Scheduled', 'arlima'),
                     'loggedOut' => __('Your login session seems to have expired, pls reload the page!', 'arlima'),
                     'notValidColor' => __('Not a valid color!', 'arlima'),
                     'invalidURL' => __('This URL seems to be invalid', 'arlima'),
-                    'nothingFound' => __('Nothing found...', 'arlima')
+                    'nothingFound' => __('Nothing found...', 'arlima'),
+                    'reloadLists' => __('Reload all lists', 'arlima'),
+                    'reload' => __('Reload list', 'arlima'),
+                    'publish' => __('Publish list', 'arlima'),
+                    'preview' => __('Preview list', 'arlima'),
+                    'future' => __('Future post', 'arlima'),
+                    'insertImage' => __('Add to article', 'arlima'),
+                    'noPostsFound' => __('No posts found', 'arlima')
                 )
             )
         );
@@ -214,9 +234,13 @@ abstract class Arlima_AbstractAdminPage {
     function loadPage()
     {
         ?>
-        <div class="wrap">
-            <div id="icon-plugins" class="icon32"></div>
-            <h2><?php echo $this->getName() ?></h2>
+        <div class="wrap arlima <?php echo $this->slug() ?>">
+            <h2 class="arlima-page-title">
+                <img src="<?php echo ARLIMA_PLUGIN_URL.'/images/logo.png' ?>" width="142" alt="Arlima" />
+                <?php if($this->slug() != Arlima_Page_Main::PAGE_SLUG): ?>
+                    <span>| <?php echo $this->getMenuName() ?></span>
+                <?php endif; ?>
+            </h2>
             <?php require ARLIMA_PLUGIN_PATH . '/pages/' . str_replace('arlima-', '', $this->slug()) . '.php'; ?>
         </div>
         <?php

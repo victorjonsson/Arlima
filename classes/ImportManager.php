@@ -110,15 +110,6 @@ class Arlima_ImportManager
     }
 
     /**
-     * @deprecated
-     * @see Arlima_ImportMAnager::loadList()
-     */
-    function loadListContent($url)
-    {
-        return $this->loadList($url);
-    }
-
-    /**
      * Load a Arlima list or RSS feed from a remote website and convert to Arlima list object
      * @param string $url
      * @return Arlima_List
@@ -198,8 +189,10 @@ class Arlima_ImportManager
      */
     private function moveURLToOverridingURL( $article_data )
     {
-        $url = !empty($article_data['url']) ? $article_data['url'] : $article_data['external_url'];
-        $article_data['options']['overriding_url'] =  $url;
+        $external_url = isset($article_data['externalURL']) ? $article_data['externalURL']:$article_data['external_url']; // If loading a list from an installation having Arlima version < 3.0
+        $url = !empty($article_data['url']) ? $article_data['url'] : $external_url;
+        $article_data['options']['overridingURL'] =  $url;
+        $article_data['options']['target'] =  '_blank';
         return $article_data;
     }
 
@@ -224,10 +217,10 @@ class Arlima_ImportManager
             }
             if( !empty($list_data['articles']) ) {
                 foreach($list_data['articles'] as $key => $data) {
-                    $list_data['articles'][$key] = $this->moveURLToOverridingURL($data);
+                    $list_data['articles'][$key] = Arlima_ListFactory::createArticleDataArray($this->moveURLToOverridingURL($data));
                     if( !empty($data['children']) ) {
                         foreach($data['children'] as $child_key => $child_article) {
-                            $list_data['articles'][$key]['children'][$child_key] = $this->moveURLToOverridingURL($child_article);
+                            $list_data['articles'][$key]['children'][$child_key] = Arlima_ListFactory::createArticleDataArray($this->moveURLToOverridingURL($child_article));
                         }
                     }
                 }
@@ -251,16 +244,16 @@ class Arlima_ImportManager
                 'slug' => sanitize_title((string)$xml->channel->title),
                 'articles' => array(),
                 'versions' => array(),
-                'version' => array('id' => 0, 'user_id' => 0, 'created' => strtotime($pub_date))
+                'version' => array('id' => 0, 'user' => 0, 'created' => strtotime($pub_date))
             );
 
             if ( !empty($xml->channel->item) ) {
                 foreach ($xml->channel->item as $item) {
                     $guid = (string)$item->guid;
                     $list_data['articles'][$guid] = $this->itemNodeToArticle($item);
-                    if ( $list_data['articles'][$guid]['publish_date'] > $list_data['version']['created'] ) {
+                    if ( $list_data['articles'][$guid]['published'] > $list_data['version']['created'] ) {
                         // ... when people don't really care about the RSS specs
-                        $list_data['version']['created'] = $list_data['articles'][$guid]['publish_date'];
+                        $list_data['version']['created'] = $list_data['articles'][$guid]['published'];
                     }
                 }
             }
@@ -311,15 +304,14 @@ class Arlima_ImportManager
 
         $art = Arlima_ListFactory::createArticleDataArray(
             array(
-                'image_options' => $img_options,
-                'text' => $description,
+                'image' => $img_options,
+                'content' => $description,
                 'title' => (string)$item->title,
-                'publish_date' => $post_date,
-                'html_title' => '<h2>' . ((string)$item->title) . '</h2>'
+                'published' => $post_date
             )
         );
 
-        $art['options']['overriding_url'] = (string)$item->link;
+        $art['options']['overridingURL'] = (string)$item->link;
 
         return $art;
     }
@@ -332,10 +324,9 @@ class Arlima_ImportManager
     {
         return array(
             'url' => $src,
-            'html' => '<img src="' . $src . '" alt="" class="attachment large" />',
-            'image_class' => 'attachment',
-            'image_size' => 'large',
-            'attach_id' => 0
+            'alignment' => 'alignright',
+            'size' => 'full',
+            'attachment' => 0
         );
     }
 

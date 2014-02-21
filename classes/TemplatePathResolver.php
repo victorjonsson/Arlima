@@ -104,4 +104,21 @@ class Arlima_TemplatePathResolver
     {
         return file_exists($path) && substr($path, -1 * strlen(self::TMPL_EXT)) == self::TMPL_EXT;
     }
+
+    /**
+     * Find the path of a template file with given name
+     * @param string $template_name
+     * @return bool|string
+     */
+    public function find($template_name)
+    {
+        $template_paths = $this->getPaths();
+        foreach ($template_paths as $template_path) {
+            $template_file = $template_path . DIRECTORY_SEPARATOR . $template_name . Arlima_TemplatePathResolver::TMPL_EXT;
+            if ( file_exists($template_file) ) {
+                return $template_file;
+            }
+        }
+        return false;
+    }
 }

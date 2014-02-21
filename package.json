@@ -1,10 +1,13 @@
 {
-    "name": "Arlima WordPress Plugin",
+    "name": "arlima-release-build-tools",
     "description" : "This package definition lets you install the build tools necessary to create an Arlima release",
+    "version" : "1.0.0",
     "devDependencies": {
         "grunt": "~0.4.2",
         "wrench": ">=0.1.0",
-        "grunt-contrib-uglify": "~0.2.2"
+        "grunt-contrib-concat": "~0.3.0",
+        "grunt-contrib-uglify": "~0.2.2",
+        "grunt-contrib-less": "~0.5.0"
     },
     "gruntConfig" : {
         "mainScript" : "arlima.php",
@@ -17,7 +20,7 @@
             "classes/tests/TestTemplateObjectCreator.php",
             "classes/tests/TestTemplatePathResolver.php"
         ],
-        "excludeFromDist" : [
+        "excludeFromRelease" : [
             "node_modules",
             "vendor",
             "dist",
@@ -31,14 +34,38 @@
             "test.php",
             ".git"
         ],
-        "minify" : [
-            "js/arlima/arlima.js",
-            "js/arlima/template-loader.js",
-            "js/jquery/jquery.ui.nestedSortable.js",
-            "js/jquery/jquery.hotkeys.js",
-            "js/jquery/colourpicker/jquery.colourpicker.js",
-            "js/page-main.js",
-            "js/arlima/plupload-init.js"
-        ]
+        "lessFiles" : {
+            "css/admin.css" : "css/admin.less"
+        },
+        "filesToConcat" : {
+            "js/arlima/arlima.js" : [
+                "js/arlima/dev/ArlimaUtils.js",
+                "js/arlima/dev/ArlimaBackend.js",
+                "js/arlima/dev/ArlimaArticleSettingsMenu.js",
+                "js/arlima/dev/ArlimaList.js",
+                "js/arlima/dev/ArlimaArticle.js",
+                "js/arlima/dev/ArlimaArticlePreview.js",
+                "js/arlima/dev/ArlimaArticleForm.js",
+                "js/arlima/dev/ArlimaArticleConnection.js",
+                "js/arlima/dev/ArlimaPostSearch.js",
+                "js/arlima/dev/ArlimaListLoader.js",
+                "js/arlima/dev/ArlimaFormBlocker.js",
+                "js/arlima/dev/ArlimaTemplateLoader.js",
+                "js/arlima/dev/ArlimaVersionManager.js",
+                "js/arlima/dev/ArlimaListContainer.js",
+                "js/arlima/dev/ArlimaKeyBoardShortCuts.js",
+                "js/arlima/dev/ArlimaListPreview.js",
+                "js/arlima/dev/ArlimaNestedSortable.js",
+                "js/arlima/dev/ArlimaImageManager.js",
+                "js/arlima/dev/ArlimaImageUploader.js",
+                "js/arlima/dev/ArlimaFileIncludes.js",
+                "js/arlima/dev/ArlimaScissors.js",
+                "js/arlima/dev/ArlimaArticleTemplates.js",
+                "js/arlima/dev/ArlimaScheduledIntervalPicker.js"
+            ]
+        },
+        "uglifyjs" : {
+            "js/arlima/arlima.js" : "js/arlima/arlima.js"
+        }
     }
 }

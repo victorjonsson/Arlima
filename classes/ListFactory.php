@@ -5,13 +5,12 @@
  * All direct use of wpdb in the Arlima plugin should be placed in this class, at least as long as
  * the database communication is about getting data related to article lists.
  *
- * @todo: Remove deprecated functions when moving up to version 3.0
  * @package Arlima
  * @since 2.0
  */
 class Arlima_ListFactory {
 
-    const DB_VERSION = '1.7';
+    const DB_VERSION = '3.0';
 
     /**
      * @var wpdb
@@ -24,6 +23,11 @@ class Arlima_ListFactory {
     private $cache;
 
     /**
+     * @var string
+     */
+    private $dbTablePrefix;
+
+    /**
      * @param wpdb $db
      * @param null $cache
      */
@@ -31,6 +35,7 @@ class Arlima_ListFactory {
     {
         $this->wpdb = $db === null ? $GLOBALS['wpdb'] : $db;
         $this->cache = $cache === null ? Arlima_CacheManager::loadInstance() : $cache;
+        $this->dbTablePrefix = $this->wpdb->prefix .(defined('ARLIMA_DB_PREFIX') ? ARLIMA_DB_PREFIX:'arlima_');
     }
 
     /**
@@ -164,7 +169,7 @@ class Arlima_ListFactory {
                     $val = array_merge(unserialize($cols['options']), $val);
                     $val = self::sanitizeListOptions($val);
                 }
-                if($col == 'options' || $col == 'image_options')
+                if($col == 'options' || $col == 'image')
                     $val = serialize( $val );
 
                 $sql .= " ala_$col = '".$this->wpdb->escape(stripslashes($val))."', ";
@@ -187,9 +192,9 @@ class Arlima_ListFactory {
      * @param string $type
      * @return string
      */
-    private function dbTable($type='')
+    public function dbTable($type='')
     {
-        return $this->wpdb->prefix.'arlima_articlelist'.$type;
+        return $this->dbTablePrefix.'articlelist'.$type;
     }
 
     /**
@@ -241,24 +246,20 @@ class Arlima_ListFactory {
         $this->executeSQLQuery('query', $sql);
         $version_id = $this->wpdb->insert_id;
 
-        // Save the articles of this verion of the list
-        if( !empty($articles) ) {
-
-            // Update possibly changed published date
-            $post_id_map = array();
-            foreach( $articles as $i => $article ) {
-                if( !empty($article['post_id']) ) {
-                    $post_id_map[$i] = $article['post_id'];
-                }
+        // Update possibly changed published date
+        $post_id_map = array();
+        foreach( $articles as $i => $article ) {
+            if( !empty($article['post']) ) {
+                $post_id_map[$i] = $article['post'];
             }
+        }
 
-            $count = 0;
-            foreach( $articles as $sort => $article ) {
-                $this->saveArticle($version_id, $article, $sort, -1, $count);
-                $count++;
-                if( $count >= $list->getMaxlength() )
-                    break;
-            }
+        $count = 0;
+        foreach( $articles as $sort => $article ) {
+            $this->saveArticle($version_id, $article, $sort, -1, $count);
+            $count++;
+            if( $count >= $list->getMaxlength() )
+                break;
         }
 
         // Reload list
@@ -281,45 +282,61 @@ class Arlima_ListFactory {
     {
         foreach($article as $key => $val) {
             if( !is_array($val) ) {
-                $article[$key] = str_replace('\\\\', '\\', $val);
+                $article[$key] = str_replace('\\', '', $val);
             }
         }
 
-        if( empty($article['options']) || !is_array($article['options']) )
+        if( !isset($article['options']) || !is_array($article['options']) )
             $article['options'] = array();
-        if( empty($article['image_options']) || !is_array($article['image_options']) )
-            $article['image_options'] = array();
+        if( !isset($article['image']) || !is_array($article['image']) )
+            $article['image'] = array();
 
-        $options = serialize( self::cleanArticleOptions($article[ 'options' ]) );
-        $image_options = serialize( $article[ 'image_options' ] );
+        $options = serialize( self::cleanArticleOptions($article['options']) );
+        $image_options = serialize( self::cleanImageData($article['image']) );
 
         $sql = $this->wpdb->prepare(
             "INSERT INTO " . $this->dbTable('_article') . "
-                    (ala_created, ala_publish_date, ala_alv_id, ala_post_id, ala_title,
-                    ala_text, ala_sort, ala_title_fontsize, ala_options,
-                    ala_image, ala_image_options, ala_parent)
-                    VALUES (%d, %d, %d, %d, %s, %s, %d, %d, %s, %s, %s, %d)",
+                    (ala_created, ala_published, ala_alv_id, ala_post, ala_title,
+                    ala_content, ala_sort, ala_size, ala_options,
+                    ala_image, ala_parent)
+                    VALUES (%d, %d, %d, %d, %s, %s, %d, %d, %s, %s, %d)",
             empty($article['created']) ? time():(int)$article['created'],
-            empty($article['publish_date']) ? time():(int)$article['publish_date'],
+            empty($article['published']) ? time():(int)$article['published'],
             $version_id,
-            isset($article[ 'post_id' ]) ? (int)$article[ 'post_id' ]:0,
-            stripslashes( $article[ 'title' ] ),
-            stripslashes( $article[ 'text' ] ),
+            isset($article['post']) ? (int)$article['post']:0,
+            $article['title'],
+            $article['content'],
             (int)$sort,
-            (int)$article[ 'title_fontsize' ],
+            (int)$article['size'],
             $options,
-            isset($article[ 'image' ]) ? $article[ 'image' ]:'',
             $image_options,
             (int)$parent
         );
 
         $this->executeSQLQuery('query', $sql);
 
-        if( !empty( $article[ 'children' ] ) && is_array( $article[ 'children' ]) ) {
-            foreach( $article[ 'children' ] as $sort => $child ) {
+        if( !empty($article['children']) && is_array($article['children']) ) {
+            foreach( $article['children'] as $sort => $child ) {
                 $this->saveArticle($version_id, $child, $sort, $offset, false );
             }
         }
+    }
+
+    /**
+     * @param array $img
+     * @return array
+     */
+    protected static function cleanImageData($img)
+    {
+        // legacy fixes
+        if( !empty($img['attach_id']) ) {
+            $img['attachment'] = $img['attach_id'];
+            unset($img['attach_id']);
+        }
+        if( isset($img['alignment']) && $img['alignment'] == 'aligncenter' ) {
+            $img['alignment'] = 'alignleft';
+        }
+        return $img;
     }
 
     /**
@@ -578,11 +595,6 @@ class Arlima_ListFactory {
      */
     public function loadLatestPreview($id)
     {
-        if( !is_numeric($id) ) {
-            Arlima_Plugin::warnAboutUseOfDeprecatedFunction('Arlima_ListFactory::loadLatestPreview', 2.5, 'Should be called using list id as argument, not slug');
-            $id = $this->getListId($id);
-        }
-
         return $this->loadList($id, 'preview');
     }
 
@@ -593,8 +605,8 @@ class Arlima_ListFactory {
      */
     private function queryListArticles($version, $include_future_posts)
     {
-        $sql = "SELECT ala_id, ala_created, ala_publish_date, ala_post_id, ala_title, ala_text,
-                ala_title_fontsize, ala_options, ala_image, ala_image_options, ala_parent, ala_sort
+        $sql = "SELECT ala_id, ala_created, ala_published, ala_post, ala_title, ala_content,
+                ala_size, ala_options, ala_image, ala_parent, ala_sort
                 FROM " . $this->dbTable('_article') . " %s ORDER BY ala_parent, ala_sort";
 
         $where = '';
@@ -605,24 +617,25 @@ class Arlima_ListFactory {
         $articles = array();
         foreach($this->executeSQLQuery('get_results', sprintf($sql, $where) ) as $row) {
 
-            if( $row->ala_options !== '' ) { // once upon a time this variable could be an empty string
+            if( !empty($row->ala_options) ) { // once upon a time this variable could be an empty string
                 $row->ala_options = unserialize( $row->ala_options );
             } else {
                 $row->ala_options = array();
             }
 
-            if( $row->ala_image_options !== '' ) {
-                $row->ala_image_options = unserialize( $row->ala_image_options );
+            if( !empty($row->ala_image) ) {
+                $row->ala_image = unserialize( $row->ala_image );
             } else {
-                $row->ala_image_options = array();
+                $row->ala_image = array();
             }
 
             $row->children = array();
+            $article = self::legacyFix(self::removePrefix($row, 'ala_'));
 
             if( $row->ala_parent == -1 ) {
-                $articles[] = self::removePrefix( $row, 'ala_' );
+                $articles[] = $article;
             } else {
-                $articles[ $row->ala_parent ]['children'][] = self::removePrefix( $row, 'ala_' );
+                $articles[ $row->ala_parent ]['children'][] = $article;
             }
         }
 
@@ -630,7 +643,7 @@ class Arlima_ListFactory {
         if( !$include_future_posts ) {
 
             foreach( $articles as $i => $article ) {
-                if( $article['publish_date'] && ( $article['publish_date'] > time() ) ) {
+                if( $article['published'] && ( $article['published'] > time() ) ) {
                     unset( $articles[$i] );
                 }
             }
@@ -678,6 +691,7 @@ class Arlima_ListFactory {
 
     /**
      * Loads an array with objects containing list id and options that have teasers that are linked to the post with $post_id
+     * @todo rename to loadListsByPostID
      * @param  int $post_id 
      * @return array
      */
@@ -692,7 +706,7 @@ class Arlima_ListFactory {
                     group by alv_al_id
                 ) alv on al.al_id = alv.alv_al_id
                 INNER JOIN %s ala ON ala.ala_alv_id = alv.latestversion
-                WHERE ala.ala_post_id = %d",
+                WHERE ala.ala_post = %d",
                 $this->dbTable(),
                 $this->dbTable('_version'),
                 $this->dbTable('_article'),
@@ -712,32 +726,30 @@ class Arlima_ListFactory {
      */
     public function install()
     {
+        $version_suffix = (defined('ARLIMA_DB_PREFIX') ? ARLIMA_DB_PREFIX:'');
         $table_name = $this->dbTable();
         if($this->wpdb->get_var("show tables like '$table_name'") != $table_name) {
-            self::createDatabaseTables($this->wpdb);
-            add_option("arlima_db_version", self::DB_VERSION);
+            $this->createDatabaseTables();
+            add_option('arlima_db_version'.$version_suffix, self::DB_VERSION);
         }
 
-        $installed_ver = get_option( "arlima_db_version" );
+        $installed_ver = get_option( 'arlima_db_version'.$version_suffix );
 
         if( $installed_ver != self::DB_VERSION ) {
-            self::createDatabaseTables($this->wpdb);
-            update_option( "arlima_db_version", self::DB_VERSION );
+            $this->databaseUpdates($installed_ver);
+            update_option('arlima_db_version'.$version_suffix, self::DB_VERSION );
         }
     }
 
     /**
      * Executes SQL queries that creates or updates the database tables
      * needed by this plugin
-     *
-     * @static
-     * @param wpdb $wpdb
      */
-    private static function createDatabaseTables($wpdb)
+    private function createDatabaseTables()
     {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-        $table_name = $wpdb->prefix . "arlima_articlelist";
+        $table_name = $this->dbTable();
 
         $sql = "CREATE TABLE " . $table_name . " (
         al_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -753,7 +765,7 @@ class Arlima_ListFactory {
 
         dbDelta($sql);
 
-        $table_name = $wpdb->prefix . "arlima_articlelist_version";
+        $table_name = $this->dbTable('_version');
 
         $sql = "CREATE TABLE " . $table_name . " (
         alv_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -769,21 +781,20 @@ class Arlima_ListFactory {
 
         dbDelta($sql);
 
-        $table_name = $wpdb->prefix . "arlima_articlelist_article";
+        $table_name = $this->dbTable('_article');
 
         $sql = "CREATE TABLE " . $table_name . " (
         ala_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
         ala_created bigint(11) DEFAULT '0' NOT NULL,
-        ala_publish_date bigint(11) DEFAULT '0' NOT NULL,
+        ala_published bigint(11) DEFAULT '0' NOT NULL,
         ala_alv_id bigint(11) NOT NULL,
-        ala_post_id bigint(11) DEFAULT '-1' NOT NULL,
+        ala_post bigint(11) DEFAULT '-1' NOT NULL,
         ala_title varchar(255),
-        ala_text text,
+        ala_content text,
         ala_sort bigint(11) DEFAULT '100' NOT NULL,
-        ala_title_fontsize tinyint(1) DEFAULT '24' NOT NULL,
+        ala_size tinyint(2) DEFAULT '24' NOT NULL,
         ala_options text,
-        ala_image varchar(255),
-        ala_image_options text,
+        ala_image text,
         ala_parent bigint(11) DEFAULT '-1' NOT NULL,
         UNIQUE KEY id (ala_id),
         KEY created (ala_created),
@@ -791,8 +802,8 @@ class Arlima_ListFactory {
         KEY alvid_created (ala_alv_id, ala_created),
         KEY alvid_sort (ala_alv_id, ala_sort),
         KEY alvid_sort_created (ala_alv_id, ala_sort, ala_created),
-        KEY postid (ala_post_id),
-        KEY postpublishdate (ala_publish_date)
+        KEY postid (ala_post),
+        KEY postpublishdate (ala_published)
         );";
 
         dbDelta($sql);
@@ -803,20 +814,32 @@ class Arlima_ListFactory {
         /* @var wpdb $wpdb */
         global $wpdb;
         $wpdb->suppress_errors(true);
+        $factory = new self($wpdb);
+        $article_tbl_name = $factory->dbTable('_article');
+
         if($version < 2.2) {
-            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article ADD ala_publish_date bigint(11) NOT NULL DEFAULT \'0\'');
-            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article ADD INDEX `postpublishdate` (ala_publish_date)');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' ADD ala_publish_date bigint(11) NOT NULL DEFAULT \'0\'');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' ADD INDEX `postpublishdate` (ala_publish_date)');
         }
         elseif($version < 2.5) {
-            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article DROP ala_status');
-            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist DROP al_status');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' DROP ala_status');
+            $wpdb->query('ALTER TABLE '.$factory->dbTable().' DROP al_status');
         }
         elseif($version < 2.6) {
-            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist al_id al_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY');
-            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_version alv_id alv_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY');
-            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_version alv_al_id alv_al_id bigint(11)');
-            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article ala_id ala_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY');
-            $wpdb->query('ALTER TABLE '.$wpdb->prefix.'arlima_articlelist_article ala_alv_id ala_alv_id bigint(11)');
+            $wpdb->query('ALTER TABLE '.$factory->dbTable().' al_id al_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY');
+            $wpdb->query('ALTER TABLE '.$factory->dbTable('_version').' alv_id alv_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY');
+            $wpdb->query('ALTER TABLE '.$factory->dbTable('_version').' alv_al_id alv_al_id bigint(11)');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' ala_id ala_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' ala_alv_id ala_alv_id bigint(11)');
+        }
+        elseif($version < 3.0) {
+            $wpdb->query('ALTER TABLE '.$article_tbl_name .' DROP ala_image');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_publish_date ala_published bigint(11)');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_post_id ala_post bigint(11)');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_title_fontsize ala_size tinyint(2)');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_image_options ala_image text');
+            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_text ala_content text');
+            wp_cache_flush();
         }
     }
 
@@ -831,7 +854,50 @@ class Arlima_ListFactory {
         $this->wpdb->query('DROP TABLE IF EXISTS '.$this->dbTable('_article'));
     }
 
+    /**
+     * Updates publish date for all arlima articles related to given post and clears the cache
+     * of the lists where they appear
+     * @param stdClass|WP_Post $post
+     */
+    public function updateArticlePublishDate($post)
+    {
+        if($post && $post->post_type == 'post') {
 
+            /* @var wpdb $wpdb */
+            global $wpdb;
+
+            $date = strtotime($post->post_date_gmt);
+            $prep_statement = $wpdb->prepare(
+                'UPDATE '.$this->dbTable('_article').'
+                SET ala_published=%d
+                WHERE ala_post=%d AND ala_published != %d',
+                $date,
+                (int)$post->ID,
+                $date
+            );
+
+            $wpdb->query($prep_statement);
+
+            // Clear list cache
+            if($wpdb->rows_affected > 0) {
+
+                /* Get id of lists that has this post, could probably be done in a better way... */
+                $sql = 'SELECT DISTINCT(alv_al_id)
+                        FROM '.$this->dbTable('_version').'
+                        WHERE alv_id IN (
+                                SELECT DISTINCT(ala_alv_id)
+                                FROM '.$this->dbTable('_article').'
+                                WHERE ala_post=%d
+                            )';
+
+                $ids = $wpdb->get_results( $wpdb->prepare($sql, (int)$post->ID) );
+                foreach($ids as $id) {
+                    $cache_id = 'arlima_articles_id_'.$id->alv_al_id;
+                    $this->cache->delete($cache_id);
+                }
+            }
+        }
+    }
 
 
     /* * * * * * * * * * * * * * * * * STATIC UTILITY FUNCTIONS  * * * * * * * * * * * * * * * * * */
@@ -844,64 +910,97 @@ class Arlima_ListFactory {
      * @param array $options
      * @return array
      */
-    private static function cleanArticleOptions(array $options)
+    private static function cleanArticleOptions($options)
     {
-        if( empty($options['streamer']) ) {
-            unset($options['streamer_type']);
-            unset($options['streamer_content']);
-            unset($options['streamer_color']);
-            unset($options['streamer_image']);
+        $has_streamer = !empty($options['streamerType']);
+        if( $has_streamer && $options['streamerType'] == 'extra' && $options['streamerContent'] != 'Extra') {
+            $options['streamerContent'] = 'Extra';
         }
 
-        if( empty($options['sticky']) ) {
-            unset($options['sticky_pos']);
-            unset($options['sticky_interval']);
+        if( !$has_streamer || empty($options['streamerContent']) ) {
+            unset($options['streamerType']);
+            unset($options['streamerContent']);
+            unset($options['streamerColor']);
         }
 
+        if( empty($options['scheduled']) ) {
+            unset($options['scheduledInterval']);
+        }
+
+
+        $new_opts = array();
         foreach($options as $key=>$val) {
-            $options[$key] = str_replace('\\\\', '\\', $val);
+            if( $val !== '' ) {
+                $new_opts[$key] = str_replace('\\', '', $val);
+            }
         }
 
-        return $options;
+        return $new_opts;
     }
 
     /**
-     * Updates publish date for all arlima articles related to given post and clears the cache
-     * of the lists where they appear
-     * @static
-     * @param stdClass|WP_Post $post
+     * Fixes old database data
+     * @param array $art_data
+     * @return mixed
      */
-    public static function updateArticlePublishDate($post)
+    protected static function legacyFix($art_data)
     {
-        if($post && $post->post_type == 'post') {
-
-            /* @var wpdb $wpdb */
-            global $wpdb;
-
-            $date = strtotime($post->post_date);
-            $prep_statement = $wpdb->prepare('UPDATE '.$wpdb->prefix.'arlima_articlelist_article SET ala_publish_date=%d WHERE ala_post_id=%d AND ala_publish_date != %d', $date, (int)$post->ID, $date);
-
-            $wpdb->query($prep_statement);
-
-            // Clear list cache
-            if($wpdb->rows_affected > 0) {
-                /* Get id of lists that has this post, could probably be done in a better way... */
-                $sql = 'SELECT DISTINCT(alv_al_id)
-                        FROM '.$wpdb->prefix.'arlima_articlelist_version
-                        WHERE alv_id IN (
-                                SELECT DISTINCT(ala_alv_id)
-                                FROM '.$wpdb->prefix.'arlima_articlelist_article
-                                WHERE ala_post_id=%d
-                            )';
-
-                $ids = $wpdb->get_results( $wpdb->prepare($sql, (int)$post->ID) );
-                $cache = Arlima_CacheManager::loadInstance();
-                foreach($ids as $id) {
-                    $cache_id = 'arlima_articles_id_'.$id->alv_al_id;
-                    $cache->delete($cache_id);
+        if (isset($art_data['title_fontsize'])) {
+            $fix = array(
+                'title_fontsize' => 'size',
+                'post_id' => 'post',
+                'publish_date' => 'published',
+                'image_options' => 'image',
+                'text' => 'content',
+                'options' => array(
+                    'hiderelated' => 'hideRelated',
+                    'pre_title' => 'preTitle',
+                    'overriding_url' => 'overridingURL',
+                    'streamer_content' => 'streamerContent',
+                    'streamer_color' => 'streamerColor',
+                    'streamer_type' => 'streamerType',
+                    'streamer_image' => 'streamerImage',
+                    'sticky_interval' => 'scheduledInterval',
+                    'sticky' => 'scheduled',
+                    'section_divider' => 'sectionDivider',
+                    'file_include' => 'fileInclude',
+                    'file_args' => 'fileArgs'
+                )
+            );
+            foreach ($fix as $old => $new) {
+                if ($old == 'options') {
+                    if (isset($art_data['options'])) {
+                        foreach ($new as $opt_old => $opt_new) {
+                            if ( isset($art_data['options'][$opt_old]) && empty($art_data['options'][$opt_new]) ) {
+                                $art_data['options'][$opt_new] = $art_data['options'][$opt_old];
+                                unset($art_data['options'][$opt_old]);
+                            }
+                        }
+                    }
+                } elseif (isset($art_data[$old])) {
+                    $art_data[$new] = $art_data[$old];
+                    unset($art_data[$old]);
                 }
             }
+
+            # Fix streamer...
+            if( !empty($art_data['options']['streamerType']) && $art_data['options']['streamerType'] == 'image' ) {
+                $art_data['options']['streamerContent'] = $art_data['options']['streamerImage'];
+                unset($art_data['options']['streamerImage']);
+            }
+
+            # Fix image
+            if( !empty($art_data['image']) && $art_data['image']['alignment'] == 'aligncenter')
+                $art_data['image']['alignment'] = 'alignleft';
+
         }
+
+        if( !empty($art_data['image']) && !empty($art_data['image']['attach_id']) ) {
+            $art_data['image']['attachment'] = $art_data['image']['attach_id'];
+            unset($art_data['image']['attach_id']);
+        }
+
+        return $art_data;
     }
 
     /**
@@ -957,32 +1056,35 @@ class Arlima_ListFactory {
     public static function createArticleDataArray($override=array())
     {
         $options = array(
-            'pre_title' => '',
-            'streamer_color' => '',
-            'streamer_content' => '',
-            'streamer_image' => '',
-            'streamer_type' => 'extra',
-            'hiderelated' => false, // todo: make depr, use underscore between words
+            'preTitle' => '',
+            'streamerColor' => '',
+            'streamerContent' => '',
+            'streamerImage' => '',
+            'streamerType' => '',
+            'hideRelated' => false,
             'template' => '',
             'format' => '',
-            'overriding_url' => '',
+            'sectionDivider' => '',
+            'overridingURL' => '',
             'target' => ''
         );
 
         $data = array(
             'children' => array(),
             'id' => 0,
-            'image' => '',
-            'image_options' => array(),
+            'image' => array(),
             'options' => $options,
-            'post_id' => 0,
+            'post' => 0,
             'status' => 1,
-            'text' => '',
+            'content' => '',
             'title' => 'Unknown',
-            'title_fontsize' => 24, // todo: make depr, use underscore between words
+            'size' => 24,
             'created' => 0,
-            'publish_date' => 0
+            'published' => 0
         );
+
+        // legacy fix...
+        $override = self::legacyFix($override);
 
         foreach($override as $key => $val) {
             if($key == 'children') {
@@ -1006,7 +1108,55 @@ class Arlima_ListFactory {
         return $data;
     }
 
+    /**
+     * Takes a post and returns an Arlima article object
+     * @param $post
+     * @param string|null $text
+     * @return array
+     */
+    public static function postToArlimaArticle($post, $text = null)
+    {
+        if( $text === null ) {
+            $text = !empty($post->post_excerpt) ? $post->post_excerpt : get_the_excerpt();
+            if ( stristr($text, '<p>') === false ) {
+                $text = '<p>' . $text . '</p>';
+            }
+        }
+        $art_data = array(
+            'post' => $post->ID,
+            'title' => $post->post_title,
+            'content' => $text,
+            'size' => 24,
+            'created' => time(),
+            'published' => strtotime($post->post_date)
+        );
 
+        if (self::hasPostThumbNailSupport() && has_post_thumbnail($post->ID)) {
+            $attach_id = get_post_thumbnail_id($post->ID);
+            $art_data['image'] = array(
+                'html' => get_the_post_thumbnail($post->ID, 'large'),
+                'url' => wp_get_attachment_url($attach_id),
+                'attachment' => $attach_id,
+                'size' => 'full',
+                'alignment' => 'alignleft',
+                'connected' => true
+            );
+        }
+
+        return Arlima_ListFactory::createArticleDataArray($art_data);
+    }
+
+    protected static $has_post_thumb_func = null;
+
+    /**
+     * @return bool
+     */
+    protected static function hasPostThumbNailSupport()
+    {
+        if( self::$has_post_thumb_func === null )
+            self::$has_post_thumb_func = function_exists('has_post_thumbnail');
+        return self::$has_post_thumb_func;
+    }
 
     /**
      * Remove prefix from array keys, will also turn stdClass objects to arrays unless
@@ -1035,93 +1185,4 @@ class Arlima_ListFactory {
         return $convert_to_std ? (object)$new_array:$new_array;
     }
 
-
-    /* * * * * * * * * * * * * * * * * DEPRECATED FUNCTIONS  * * * * * * * * * * * * * * * * * */
-
-    /**
-     * @deprecated
-     * @see Arlima_ListFactory::loadList()
-     * @return Arlima_List
-     */
-    public function loadListBySlug($slug, $version=false, $include_future_posts=false)
-    {
-
-        Arlima_Plugin::warnAboutUseOfDeprecatedFunction(
-            'Arlima_ListFactory::loadListBySlug(slug, version, include_future_post)',
-            2.8,
-            'Arlima_ListFactory::loadList(slug|id|url, version, include_future_post)'
-        );
-
-        return $this->loadList($slug, $version, $include_future_posts);
-    }
-
-    /**
-     * @deprecated
-     * @param Arlima_List $list
-     */
-    public static function addArticles( &$list )
-    {
-        $factory = new self();
-        $reloaded_list = $factory->loadList($list->id());
-        $list->setArticles( $reloaded_list->getArticles() );
-    }
-
-    /**
-     * @deprecated
-     * @param Arlima_List $list
-     * @param $id
-     * @param string $version
-     */
-    public static function addData(&$list, $id, $version = '')
-    {
-        $factory = new self();
-        $list = $factory->loadList($list->id(), $version === '' ? false : $version);
-    }
-
-    /**
-     * @deprecated
-     * @param mixed $slug_or_id
-     * @param string $version
-     * @return Arlima_List
-     */
-    public static function load($slug_or_id, $version='')
-    {
-        $factory = new self();
-        return $factory->loadList($slug_or_id, $version === '' ? false:$version);
-    }
-
-    /**
-     * @deprecated
-     * @param Arlima_List $list
-     * @param int $user_id
-     */
-    public static function saveNewVersion(&$list, $user_id)
-    {
-        $factory = new self();
-        $factory->saveNewListVersion($list, $list->getArticles(), $user_id);
-        $list = $factory->loadList($list->id()); // reload
-    }
-
-    /**
-     * @deprecated
-     * @param $list
-     */
-    public static function saveListProperties($list)
-    {
-        $factory = new self();
-        $factory->updateListProperties($list);
-    }
-
-    /**
-     * @deprecated
-     * @param $name
-     * @param $slug
-     * @param array $options
-     * @return Arlima_List
-     */
-    public static function create($name, $slug, $options = array())
-    {
-        $factory = new self();
-        return $factory->createList($name, $slug, $options);
-    }
 }

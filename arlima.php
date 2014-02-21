@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 2.8.7
+Version: 3.0.alpha.11
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -72,11 +72,10 @@ function arlima_link_entrywords( $content, $url, $target=false, $extra_classes='
 
 
 /**
- * @param string $type - Deprecated
  * @param bool|int $post_id - Optional
  * @return array|bool
  */
-function arlima_related_posts( $type = 'deprecated', $post_id = false) {
+function arlima_related_posts( $post_id = false) {
     global $post;
     $data = false;
     if( Arlima_Plugin::isWPRelatedPostsInstalled() && ($post_id || is_object($post)) ) {
@@ -106,13 +105,9 @@ function arlima_related_posts( $type = 'deprecated', $post_id = false) {
  * search in the article editor
  * @param Closure $form_callback
  * @param Closure $query_callback
- * @param $deprecated
  */
-function arlima_modify_post_search($form_callback, $query_callback, $deprecated=false) {
+function arlima_modify_post_search($form_callback, $query_callback) {
     Arlima_PostSearchModifier::modifySearch($form_callback, $query_callback);
-    if( $deprecated !== false ) {
-        Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_modify_post_search', 2.22, 'Function arguments have changed');
-    }
 }
 
 /**
@@ -332,84 +327,11 @@ function arlima_file_args($default) {
 
 /**
  * Include arlima file outside of arlima list.
- * @param  string $file
- * @param  array  $args
+ * @param string $file
+ * @param array  $args
  * @return string
  */
 function arlima_include_file($file, $args = array()) {
     $file_include = new Arlima_FileInclude();
     return $file_include->includeFile($file, $args);
-}
-
-/* * * * * * * * * * * * DEPRECATED FUNCTIONS * * * * * * * * * * * * * */
-
-
-/**
- * @deprecated
- * @see arlima_has_list()
- * @return bool
- */
-function has_arlima_list() {
-    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('has_arlima_list()', 2.8, 'arlima_has_list()');
-    return arlima_has_list();
-}
-
-/**
- * @deprecated
- * @return bool
- */
-function is_arlima_preview() {
-    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('is_arlima_preview()', 2.8, 'arlima_is_preview()');
-    return arlima_is_preview();
-}
-
-/**
- * @deprecated
- * @see arlima_get_list()
- * @param bool $list_only
- */
-function get_arlima_list($list_only = true) {
-    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('get_arlima_list()', 2.8, 'arlima_get_list()');
-    return arlima_get_list($list_only);
-}
-
-/**
- * Returns a readable string of the version data
- * @deprecated
- * @see Arlima_List::getVersionInfo
- * @param array $version
- * @return string
- */
-function arlima_get_version_info( $version ) {
-    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_get_version_info()', 2.0, 'Arlima_List::getVersionInfo()');
-    if( isset($version[ 'id' ]))
-        return $version[ 'id' ];
-    else
-        return '';
-}
-
-/**
- * Tells whether or not a preview of the list with given slug is requested
- * @deprecated
- * @param $list_id
- * @return bool
- */
-function arlima_requesting_preview($list_id) {
-    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_requesting_preview()', 2.5, 'Function is removed');
-    return arlima_is_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $list_id;
-}
-
-/**
- * @deprecated
- */
-function arlima_is_requesting_preview() {
-    return !empty($_GET[Arlima_List::QUERY_ARG_PREVIEW]) && is_user_logged_in();
-}
-
-/**
- * @deprecated
- * @return string
- */
-function arlima_preview_url() {
-    Arlima_Plugin::warnAboutUseOfDeprecatedFunction('arlima_preview_url()', 2.4, 'Function is removed');
 }

@@ -1,4 +1,4 @@
-Arlima
+Arlima 3.0
 ======
 
 *This Wordpress plugin was created by Swedish newspaper Västerbottens-Kuriren to give its editorial
@@ -6,6 +6,7 @@ staff an easy to use tool for customizing the front pages of their online magazi
 used on a daily basis at http://www.folkbladet.nu and http://www.vk.se, websites that 
 together has over 200 000 unique visitors per week.*
 
+> **NOTICE!** The master branch of this repository is not intended for use in production.
 
 ## Getting started
 
@@ -58,7 +59,6 @@ the list that you created on step 2.
 
 ## Some websites using this plugin
 
-- http://www.sportnu.se/
 - http://www.vk.se/
 - http://www.folkbladet.nu/
 - http://www.dalademokraten.se/
@@ -66,14 +66,3 @@ the list that you created on step 2.
 - http://tidningenelektrikern.se/
 - http://www.utryckning.se/
 - http://www.victorjonsson.se/
-
-
-## Credits
-
-- [**Manuele J Sarfatti**, jquery.ui.nestedSortable](http://mjsarfatti.com/)
-- [**Xiao Yu**, jquery-tmpl-php](https://twitter.com/HypertextRanch)
-- [**Craig Michael Thompson**, jquery.qtip](http://craigsworks.com/)
-- [**Janis Skarnelis**, fancybox](http://fancybox.net)
-- [**Tzury Bar Yochay**, jquery.hotkeys](http://github.com/tzuryby/)
-- [**Moxiecode**, tinyMCE](http://www.tinymce.com/)
-- [jQuery](http://jquery.com)

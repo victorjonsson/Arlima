@@ -18,11 +18,21 @@ class Arlima_AdminAjaxManager
     private $arlima_plugin;
 
     /**
+     * @var bool
+     */
+    private $has_preamble_func;
+
+    /**
+     * @var bool
+     */
+
+    /**
      * @param Arlima_Plugin $arlima_plugin
      */
     public function __construct($arlima_plugin)
     {
         $this->arlima_plugin = $arlima_plugin;
+        $this->has_preamble_func = function_exists('vk_get_preamble');
     }
 
     /**
@@ -34,13 +44,14 @@ class Arlima_AdminAjaxManager
         add_action('wp_ajax_arlima_get_scissors', array($this, 'getScissors'));
         add_action('wp_ajax_arlima_get_attached_images', array($this, 'getAttachedImages'));
         add_action('wp_ajax_arlima_get_post', array($this, 'getPost'));
-        add_action('wp_ajax_arlima_add_list_widget', array($this, 'addListWidget'));
+        add_action('wp_ajax_arlima_add_list_widget', array($this, 'loadListData'));
         add_action('wp_ajax_arlima_check_for_later_version', array($this, 'checkForLaterVersion'));
         add_action('wp_ajax_arlima_save_list', array($this, 'saveList'));
         add_action('wp_ajax_arlima_prepend_article', array($this, 'prependArticle'));
         add_action('wp_ajax_arlima_save_list_setup', array($this, 'saveListSetup'));
         add_action('wp_ajax_arlima_get_list_setup', array($this, 'getListSetup'));
-        add_action('wp_ajax_arlima_upload', array($this, 'upload'));
+        add_action('wp_ajax_arlima_save_image', array($this, 'saveImage'));
+        add_action('wp_ajax_arlima_save_external_img', array($this, 'saveExternalImage'));
         add_action('wp_ajax_arlima_print_custom_templates', array($this, 'printCustomTemplates'));
         add_action('wp_ajax_arlima_duplicate_image', array($this, 'duplicateImage'));
         add_action('wp_ajax_arlima_import_arlima_list', array($this, 'importList'));
@@ -83,13 +94,13 @@ class Arlima_AdminAjaxManager
     private function isSavingEditedImage()
     {
         return isset($_POST['action']) &&
-            isset($_POST['postid']) &&
-            isset($_POST['do']) &&
-            isset($_POST['context']) &&
-            $_POST['action'] == 'image-editor' &&
-            $_POST['do'] == 'save' &&
-            $_POST['context'] == 'edit-attachment' &&
-            basename($_SERVER['PHP_SELF']) == 'admin-ajax.php';
+        isset($_POST['postid']) &&
+        isset($_POST['do']) &&
+        isset($_POST['context']) &&
+        $_POST['action'] == 'image-editor' &&
+        $_POST['do'] == 'save' &&
+        $_POST['context'] == 'edit-attachment' &&
+        basename($_SERVER['PHP_SELF']) == 'admin-ajax.php';
     }
 
     /**
@@ -144,13 +155,12 @@ class Arlima_AdminAjaxManager
             require_once(ABSPATH . "wp-admin" . '/includes/media.php');
         }
 
-        $attachment_id = intval($_POST['attachid']);
+        $attachment_id = intval($_POST['attachment']);
         if ( $attachment_id ) {
 
             $url = wp_get_attachment_url($attachment_id);
-
             if( !$url )
-                die;
+                die( json_encode(array('error'=>'Attachment not found')) );
 
             /** @var WP_Error|string $tmp */
             $tmp = download_url($url);
@@ -161,14 +171,11 @@ class Arlima_AdminAjaxManager
 
             // Check for download errors
             if ( is_wp_error($tmp) ) {
-                if( file_exists($file_array['tmp_name']) ) {
-                    @unlink($file_array['tmp_name']);
-                }
                 echo json_encode(
                     array(
                         'attach_id' => -1,
                         'html' => '',
-                        'error' => $tmp->get_error_message()
+                        'error' => $tmp->get_error_message() .' '. $url
                     )
                 );
             }
@@ -207,12 +214,12 @@ class Arlima_AdminAjaxManager
                 'url' => 'http://google.com/',
                 'title_fontsize' => 20,
                 'options' => array(
-                    'streamer' => '1',
-                    'streamer_type' => 'text',
-                    'streamer_color' => '3399ff', // Important, no #-sign
-                    'streamer_image' => '',
-                    'streamer_content' => 'Wild thing!',
-                    'pre_title' => 'Demo:'
+                    'streamerType' => 'text',
+                    'streamerColor' => '3399ff', // Important, no #-sign
+                    'streamerImage' => '',
+                    'streamerContent' => 'Wild thing!',
+                    'preTitle' => 'Demo:',
+                    'overridingURL' => 'http://google.de/'
                 )
             ),
             array(
@@ -229,45 +236,7 @@ class Arlima_AdminAjaxManager
             $templates[$key] = Arlima_ListFactory::createArticleDataArray($data);
         }
 
-        ob_start();
-        ?>
-        <table class="widefat">
-            <thead>
-            <tr>
-                <th>&nbsp;</th>
-                <th><?php _e('Title', 'arlima') ?></th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-                <th>&nbsp;</th>
-                <th><?php _e('Title', 'arlima') ?></th>
-            </tr>
-            </tfoot>
-            <tbody>
-            <?php $i = 0; foreach ($templates as $template): $i++; ?>
-                <tr>
-                    <td>
-                        <li id="dragger_template_<?php echo $i; ?>" class="dragger listitem" style="z-index: 49;">
-                            <div>
-                        <span class="arlima-listitem-title"><img
-                                src="<?php echo ARLIMA_PLUGIN_URL . '/images/arrow.png'; ?>" class="handle" alt="move"
-                                height="16" width="16"/></span>
-                                <img class="arlima-listitem-remove" alt="remove"
-                                     src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
-                            </div>
-                        </li>
-                    </td>
-                    <td><?php echo $template['name']; ?></td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-        <?php
-        $html = ob_get_contents();
-        ob_end_clean();
-        $data = array("html" => $html, "articles" => $templates);
-        echo json_encode($data);
+        echo json_encode($templates);
         die();
     }
 
@@ -287,10 +256,67 @@ class Arlima_AdminAjaxManager
         }
     }
 
+    function saveImage() {
+        $this->initAjaxRequest();
+
+        if ( !function_exists('wp_generate_attachment_metadata') ) {
+            require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+            require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+            require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+        }
+
+        $img_file = tempnam(get_temp_dir(), $_POST['name']);
+        file_put_contents($img_file, base64_decode($_POST['image']));
+
+        // Set variables for storage
+        // fix file filename for query strings
+        preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $_POST['name'], $matches );
+        $file_array['name'] = basename($matches[0]);
+        $file_array['tmp_name'] = $img_file;
+
+        $time = current_time( 'mysql' );
+        $file = wp_handle_sideload( $file_array, array('test_form'=>false), $time );
+
+        if ( isset($file['error']) )
+            return new WP_Error( 'upload_error', $file['error'] );
+
+        $local_url = $file['url'];
+        $type = $file['type'];
+        $file = $file['file'];
+
+        if( empty($title) )
+            $title = pathinfo($file, PATHINFO_FILENAME);
+
+        // Don't know why this happens....?
+        if( strpos($local_url, 'http:///') === 0 ) {
+            $local_url = dirname(dirname(get_stylesheet_directory_uri())) .'/uploads/'. substr($local_url,8);
+        }
+
+        // Construct the attachment array
+        $attachment = array(
+            'post_mime_type' => $type,
+            'guid' => $local_url,
+            'post_parent' => empty($_POST['postid']) ? '':$_POST['postid'],
+            'post_title' => $title,
+            'post_content' => '',
+        );
+
+        // Save the attachment metadata
+        $id = wp_insert_attachment($attachment, $file);
+
+        if( !is_wp_error($id) ) {
+            wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $file ) );
+            die(json_encode(array('attachment'=>$id, 'url'=>current(wp_get_attachment_image_src($id, 'full')))));
+        } else {
+            die(json_encode(array('error' =>$id->get_error_message())));
+        }
+
+    }
+
     /**
-     * Upload an image
+     * Side load an external image and attach it to post
      */
-    function upload()
+    function saveExternalImage()
     {
         $this->initAjaxRequest();
 
@@ -302,86 +328,58 @@ class Arlima_AdminAjaxManager
 
         $post_id = intval($_POST['postid']);
 
-        // image file from user's desktop
-        if ( !empty($_FILES) ) {
-            foreach ($_FILES as $file => $array) {
+        if ( $post_id ) {
 
-                if ( $_FILES[$file]['error'] !== UPLOAD_ERR_OK ) {
-                    die(json_encode(array('error' => 'upload error: ' . $_FILES[$file]['error'])));
-                }
-                if ( is_numeric($post_id) ) {
-                    $attach_id = media_handle_upload($file, $post_id);
-                } else {
-                    $upload = wp_handle_upload($_FILES[$file], array('test_form' => false));
-                    if ( !isset($upload['error']) && isset($upload['file']) ) {
-                        $wp_filetype = wp_check_filetype(basename($upload['file']), null);
-                        $attachment = array(
-                            'post_mime_type' => $wp_filetype['type'],
-                            'post_title' => preg_replace('/\.[^.]+$/', '', basename($upload['file'])),
-                            'post_content' => '',
-                            'post_status' => 'inherit'
-                        );
-                        $attach_id = wp_insert_attachment($attachment, $upload['file']);
-                        $attach_data = wp_generate_attachment_metadata($attach_id, $upload['file']);
-                        wp_update_attachment_metadata($attach_id, $attach_data);
-                    }
-                }
-            }
+            media_sideload_image(urldecode($_POST['imgurl']), $post_id, '');
 
-        } // image from the web
-        elseif ( !empty ($_POST['imgurl']) ) {
+            $attachments = get_posts(
+                array(
+                    'post_type' => 'attachment',
+                    'number_posts' => 1,
+                    'post_status' => null,
+                    'post_parent' => $post_id,
+                    'orderby' => 'post_date',
+                    'order' => 'DESC',
+                )
+            );
 
-            if ( is_numeric($post_id) ) {
+            $attach_id = $attachments[0]->ID;
 
-                media_sideload_image(urldecode($_POST['imgurl']), $post_id, '');
-
-                $attachments = get_posts(
-                    array(
-                        'post_type' => 'attachment',
-                        'number_posts' => 1,
-                        'post_status' => null,
-                        'post_parent' => $post_id,
-                        'orderby' => 'post_date',
-                        'order' => 'DESC',
-                    )
-                );
-
-                $attach_id = $attachments[0]->ID;
-
-            } else {
-                $url = $_POST[ 'imgurl' ];
-                $tmp = download_url( $url );
-                $file_array = array(
-                    'name' => basename( $url ),
-                    'tmp_name' => $tmp
-                );
-
-                /* @var WP_Error|string $tmp */
-                // Check for download errors
-                if ( is_wp_error( $tmp ) ) {
-                    @unlink( $file_array[ 'tmp_name' ] );
-                    die( json_encode( array( 'error' => $tmp->get_error_messages() ) ) );
-                }
-
-                $attach_id = media_handle_sideload( $file_array, 0 );
-
-                // Check for handle sideload errors.
-                if ( is_wp_error( $attach_id ) ) {
-                    @unlink( $file_array['tmp_name'] );
-                    die( json_encode( array( 'error' => $attach_id->error_message() ) ) );
-                }
-
-            }
         } else {
-            die(json_encode(array('error' => 'no file')));
+            $url = current(explode('?', $_POST[ 'imgurl' ]));
+            $tmp = download_url( $url );
+            $file_array = array(
+                'name' => basename( $url ),
+                'tmp_name' => $tmp
+            );
+
+            /* @var WP_Error|string $tmp */
+            // Check for download errors
+            if ( is_wp_error( $tmp ) ) {
+                @unlink( $file_array[ 'tmp_name' ] );
+                die( json_encode( array( 'error' => $tmp->get_error_messages() ) ) );
+            }
+
+            $attach_id = media_handle_sideload( $file_array, 0 );
+
+            // Check for handle sideload errors.
+            if ( is_wp_error( $attach_id ) ) {
+                @unlink( $file_array['tmp_name'] );
+                die( json_encode( array( 'error' => $attach_id->get_error_messages() ) ) );
+            }
+
         }
+
 
         if ( empty($attach_id) ) {
             die(json_encode(array('error' => 'no attach_id')));
         }
 
         echo json_encode(
-            array('attach_id' => $attach_id, 'html' => wp_get_attachment_image($attach_id, 'default'), 'error' => false)
+            array(
+                'attachment' => $attach_id,
+                'url' => current(wp_get_attachment_image_src($attach_id, 'default'))
+            )
         );
         die();
     }
@@ -443,46 +441,11 @@ class Arlima_AdminAjaxManager
             setup_postdata($post);
             $GLOBALS['post'] = $post; // Soemhting is removing post from global, even though we call setup_postdata
 
-            if ( function_exists('vk_get_preamble') ) {
-                $text = vk_get_preamble();
-            } else {
-                // weird, "get_the_excerpt" should return the manual excerpt but does not seem to do this in the admin context
-                $text = !empty($post->post_excerpt) ? $post->post_excerpt : get_the_excerpt();
-            }
-
-            if ( stristr($text, '<p>') === false ) {
-                $text = '<p>' . $text . '</p>';
-            }
-
-            $article = array(
-                'title' => $post->post_title,
-                'text' => $text,
-                'url' => get_permalink($post->ID),
-                'post_id' => $post->ID,
-                'title_fontsize' => 24
-            );
-
-            if ( function_exists('has_post_thumbnail') && has_post_thumbnail() ) {
-                $attach_id = get_post_thumbnail_id($post->ID, 'large');
-                $article['image'] = wp_get_attachment_url($attach_id);
-                $article['image_options'] = array(
-                    'html' => get_the_post_thumbnail(
-                        $post->ID,
-                        'large',
-                        array('class' => 'aligncenter')
-                    ),
-                    'url' => wp_get_attachment_url($attach_id),
-                    'attach_id' => $attach_id,
-                    'size' => 'full',
-                    'alignment' => 'aligncenter'
-                );
-            }
-
             $list = $this->loadListFactory()->loadList($list_id, false, true);
             $articles = $list->getArticles();
-            array_unshift($articles, $article);
+            array_unshift($articles, $this->postToArlimaArticle($post));
 
-            $this->saveAndOutputNewListVersion($list, $articles);
+            $this->saveAndOutputList($list, $articles);
         }
         die(json_encode(array()));
     }
@@ -505,7 +468,7 @@ class Arlima_AdminAjaxManager
 
         if ( $list_id ) {
             $articles = !empty($_POST['articles']) ? $_POST['articles'] : array();
-            $this->saveAndOutputNewListVersion($list_id, $articles, isset($_POST['preview']));
+            $this->saveAndOutputList($list_id, $articles, isset($_POST['preview']));
         }
 
         die;
@@ -516,7 +479,7 @@ class Arlima_AdminAjaxManager
      * @param $articles
      * @param bool $preview
      */
-    private function saveAndOutputNewListVersion($list_id, $articles, $preview = false)
+    private function saveAndOutputList($list_id, $articles, $preview = false)
     {
         $list_factory = $this->loadListFactory();
 
@@ -531,13 +494,7 @@ class Arlima_AdminAjaxManager
         // Reload list to get latest version
         $list = $list_factory->loadList($list_id, false, true);
 
-        echo json_encode(
-            array(
-                'version' => $list->getVersion(),
-                'versioninfo' => $list->getVersionInfo(),
-                'versions' => $list->getVersions()
-            )
-        );
+        $this->outputListData($list);
     }
 
     /**
@@ -570,7 +527,7 @@ class Arlima_AdminAjaxManager
     /**
      * Fetches an arlima list and outputs it in widget form
      */
-    function addListWidget()
+    function loadListData()
     {
 
         $this->initAjaxRequest();
@@ -580,13 +537,13 @@ class Arlima_AdminAjaxManager
 
         if ( is_numeric($list_id) ) {
             $list = $this->loadListFactory()->loadList($list_id, $version, true);
-            $this->loadListWidgets($list);
+            $this->outputListData($list);
         } elseif ( $list_id ) {
             // Probably url referring to an imported list
             try {
                 $import_manager = new Arlima_ImportManager($this->arlima_plugin);
                 $list = $import_manager->loadList($list_id);
-                $this->loadImportedListWidget($list);
+                echo $this->listToJSON($list, '', '');
             } catch (Exception $e) {
                 header('HTTP/1.1 500 Internal Server Error');
                 echo json_encode(array('error' => $e->getMessage()));
@@ -600,10 +557,8 @@ class Arlima_AdminAjaxManager
      * Outputs a list in json format
      * @param Arlima_List $list
      */
-    private function loadListWidgets($list)
+    private function outputListData($list)
     {
-        ob_start();
-
         $connector = new Arlima_ListConnector($list);
         $preview_page = current($connector->loadRelatedPages());
         $preview_url = '';
@@ -627,135 +582,19 @@ class Arlima_AdminAjaxManager
 
         $preview_width = apply_filters('arlima_tmpl_width', $preview_width, $list);
 
-        ?>
-        <div class="arlima-list-header">
-            <span>
-                <a href="#" class="arlima-list-container-remove">
-                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
-                </a>
-                <?php if( $list->isSupportingSections() && current_user_can('manage_options') ): ?>
-                    <a href="#" class="arlima-add-section-div">
-                        <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/plus-icon.png'; ?>"/>
-                    </a>
-                <?php endif; ?>
-                <?php echo $list->getTitle(); ?>
-            </span>
-        </div>
-        <div class="arlima-list-scroller">
-            <ul class="arlima-list" id="arlima-list-<?php echo $list->id(); ?>"></ul>
-        </div>
-        <div class="arlima-list-footer">
-            <div class="arlima-list-footer-buttons">
-                <a class="arlima-preview-list" id="arlima-preview-list-<?php echo $list->id(); ?>" title="Granska">
-                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/preview-icon.png'; ?>"/>
-                </a>
-                <a class="arlima-save-list" id="arlima-save-list-<?php echo $list->id(); ?>" title="Publicera"
-                   style="display:none;">
-                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/save-icon.png'; ?>"/>
-                    <a class="arlima-refresh-list" id="arlima-refresh-list-<?php echo $list->id(); ?>" alt="Uppdatera"
-                       title="Uppdatera">
-                        <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/reload-icon-16.png'; ?>"/>
-                    </a>
-                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/ajax-loader-trans.gif'; ?>" class="ajax-loader"/>
-                </a>
-
-                <div class="arlima-list-version"><span class="arlima-list-version-select"><select
-                            class="arlima-list-version-ddl" name="list-version"></select></span><span
-                        class="arlima-list-version-info tooltip"></span></div>
-            </div>
-            <!-- .arlima-list-footer-buttons -->
-        </div><!-- .arlima-list-footer -->
-        <input type="hidden" name="arlima-list-id" id="arlima-list-id-<?php echo $list->id(); ?>" class="arlima-list-id"
-               value="<?php echo $list->id(); ?>"/>
-        <input type="hidden" name="arlima-list-previewpage" id="arlima-list-previewpage-<?php echo $list->id(); ?>"
-               class="arlima-list-previewpage" value="<?php echo $preview_url ?>"/>
-        <input type="hidden" name="article-preview-width"
-               class="article-preview-width" value="<?php echo $preview_width ?>"/>
-        <input type="hidden" name="arlima-version-id" id="arlima-version-id-<?php echo $list->id(); ?>"
-               class="arlima-version-id" value="<?php echo $list->getVersionAttribute('id'); ?>"/>
-        <input type="hidden" name="arlima-list-template" id="arlima-list-previewtemplate-<?php echo $list->id(); ?>"
-               class="arlima-list-previewtemplate" value="<?php echo $list->getOption('template'); ?>"/>
-        <?php
-        $html = ob_get_contents();
-        ob_end_clean();
-        $data = array(
-            'html' => $html,
-            'articles' => $list->getArticles(),
-            'version' => $list->getVersion(),
-            'versioninfo' => $list->getVersionInfo(),
-            'versions' => $list->getVersions(),
-            'title_element' => $list->getTitleElement(),
-            'is_imported' => 0,
-            'exists' => $list->exists(),
-            'options' => $list->getOptions()
-        );
-        echo json_encode($data);
+        echo $this->listToJSON($list, $preview_url, $preview_width);
     }
 
     /**
-     * Outputs an imported list
-     * @param Arlima_List $list
-     */
-    private function loadImportedListWidget($list)
-    {
-        $version_info = sprintf(
-            __('Last modified %s a go', 'arlima'),
-            human_time_diff($list->getVersionAttribute('created'))
-        );
-        ob_start();
-        ?>
-        <div class="arlima-list-header">
-            <a href="#" class="arlima-list-container-remove">
-                <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
-            </a>
-            <span>
-                <?php echo $list->getTitle(); ?>
-            </span>
-        </div>
-        <div class="arlima-list-scroller">
-            <ul class="arlima-list imported" id="arlima-list-<?php echo $list->id(); ?>"></ul>
-            <!-- .arlima-list -->
-        </div>
-        <div class="arlima-list-footer">
-            <div class="arlima-list-footer-buttons">
-                <span class="last-mod arlima-list-version-info">
-                <?php echo $version_info; ?>
-                </span>
-                <a class="arlima-refresh-list" id="arlima-refresh-list-<?php echo $list->id(); ?>" alt="Uppdatera"
-                   title="Uppdatera">
-                    <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/reload-icon-16.png'; ?>"/>
-                </a>
-                <img src="<?php echo ARLIMA_PLUGIN_URL . '/images/ajax-loader-trans.gif'; ?>" class="ajax-loader"/>
-            </div>
-            <!-- .arlima-list-footer-buttons -->
-        </div>
-        <input type="hidden" name="arlima-list-id" id="arlima-list-id-<?php echo $list->id(); ?>" class="arlima-list-id"
-               value="<?php echo $list->id; ?>"/>
-        <input type="hidden" name="arlima-version-id" id="arlima-version-id-<?php echo $list->id(); ?>"
-               class="arlima-version-id" value="<?php echo $list->getVersionAttribute('id'); ?>"/>
-        <?php
-        $html = ob_get_contents();
-        ob_end_clean();
-        $data = array(
-            'html' => $html,
-            'articles' => $list->getArticles(),
-            'version' => 0,
-            'versioninfo' => $version_info,
-            'versions' => array(),
-            'is_imported' => 1,
-            'exists' => $list->exists()
-        );
-        echo json_encode($data);
-    }
-
-    /**
-     * @param $post
+     * @param WP_Post $post
      * @return bool|mixed|void
      */
     private function setupPostObject($post) {
-        if( is_object($post) && $post->post_type == 'post' && $post->post_status != 'deleted' && $post->post_status != 'trash' ) {
+        if( is_object($post) && ($post->post_status == 'future' || $post->post_status == 'publish' || $post->post_status == 'draft') ) {
             $post->url = get_permalink($post->ID);
-            $post->publish_date = strtotime($post->post_date);
+            $post->published = strtotime($post->post_date_gmt);
+            $post->display_date = $post->post_date;
+            $post->display_author = get_the_author_meta('display_name', $post->post_author);
             return apply_filters('arlima_wp_post', $post);
         }
         return false;
@@ -772,14 +611,14 @@ class Arlima_AdminAjaxManager
             $posts = array();
             foreach(explode(',', $_POST['postid']) as $id) {
                 if( $p = $this->setupPostObject(get_post($id)) ) {
-                    $posts[] = $p;
+                    $posts[$p->ID] = $p;
                 }
             }
             die(json_encode(array('posts'=>$posts)));
         } else {
             $post_id = intval($_POST['postid']);
             if( $p = $this->setupPostObject(get_post($post_id)) ) {
-                die(json_encode((array)$p));
+                die(json_encode(array('posts' => array($p->ID => (array)$p))));
             }
         }
 
@@ -810,9 +649,9 @@ class Arlima_AdminAjaxManager
         if ( $attachments ) {
             foreach ($attachments as $attachment) {
                 $images[] = array(
-                    'attach_id' => $attachment->ID,
+                    'attachment' => $attachment->ID,
                     'thumb' => wp_get_attachment_image($attachment->ID, 'thumbnail'),
-                    'large' => wp_get_attachment_image($attachment->ID, 'large')
+                    'url' => wp_get_attachment_image_src($attachment->ID, 'large')
                 );
             }
         }
@@ -841,9 +680,9 @@ class Arlima_AdminAjaxManager
         }
 
         wp_update_post(array(
-                'ID' => $attach->ID,
-                'post_parent' => $_POST['post']
-            ));
+            'ID' => $attach->ID,
+            'post_parent' => $_POST['post']
+        ));
 
         echo json_encode(array('success'=>1));
         die;
@@ -853,7 +692,7 @@ class Arlima_AdminAjaxManager
     {
         $this->initAjaxRequest();
 
-        $attachment_id = $_POST['attachment_id'];
+        $attachment_id = $_POST['attachment'];
 
         if ( Arlima_Plugin::isScissorsInstalled() ) {
 
@@ -913,117 +752,67 @@ class Arlima_AdminAjaxManager
     }
 
     /**
-     * @param array $posts
+     * @param array|WP_Post[] $posts
      * @param int $offset
      */
     private function iteratePosts($posts, $offset = 0)
     {
         $articles = array();
-        ob_start();
-        ?>
-        <table class="widefat">
-            <thead>
-            <tr>
-                <th>&nbsp;</th>
-                <th>Id</th>
-                <th><?php _e('Title', 'arlima') ?></th>
-                <th><?php _e('Author', 'arlima') ?></th>
-                <th><?php _e('Date', 'arlima') ?></th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-                <th>
-                    <?php if ( $offset > 0 ) { ?> <a href="" alt="<?php echo (int)$offset - 10; ?>"
-                                                     class="arlima-get-posts-paging">&laquo; <?php _e(
-                            'Previous',
-                            'arlima'
-                        ) ?></a> <?php } ?>
-                </th>
-                <th colspan="3"></th>
-                <th style="text-align:right;">
-                    <?php if ( sizeof($posts) >= 10 ) { ?> <a href="" alt="<?php echo (int)$offset + 10; ?>"
-                                                              class="arlima-get-posts-paging"><?php _e(
-                            'Next',
-                            'arlima'
-                        ) ?> &raquo;</a> <?php } ?>
-                </th>
-            </tr>
-            </tfoot>
-            <tbody>
-            <?php foreach ($posts as $post):
-                setup_postdata($post);
-                $GLOBALS['post'] = $post; // Soemhting is removing post from global, even though we call setup_postdata
+        foreach ($posts as $post) {
 
-                if ( function_exists('vk_get_preamble') ) {
-                    $text = vk_get_preamble();
-                } else {
-                    // weird, "get_the_excerpt" should return the manual excerpt but does not seem to do this in the admin context
-                    $text = !empty($post->post_excerpt) ? $post->post_excerpt : get_the_excerpt();
-                }
-                if ( stristr($text, '<p>') === false ) {
-                    $text = '<p>' . $text . '</p>';
-                }
+            setup_postdata($post);
+            $GLOBALS['post'] = $post; // Soemhting is removing post from global, even though we call setup_postdata
 
-                $url = get_permalink($post->ID);
-                $article = array(
-                    'post_id' => $post->ID,
-                    'title' => $post->post_title,
-                    'text' => $text,
-                    'url' => $url,
-                    'title_fontsize' => 24,
-                    'content' => $post->post_content,
-                    'publish_date' => strtotime($post->post_date)
-                );
+            $articles[] = array(
+                'data' => $this->postToArlimaArticle($post),
+                'post' => $this->setupPostObject($post)
+            );
+        }
 
-                if ( function_exists('has_post_thumbnail') && has_post_thumbnail($post->ID) ) {
-                    $attach_id = get_post_thumbnail_id($post->ID);
-                    $article['image'] = wp_get_attachment_url($attach_id);
-                    $article['image_options'] = array(
-                        'html' => get_the_post_thumbnail($post->ID, 'large'),
-                        'url' => wp_get_attachment_url($attach_id),
-                        'attach_id' => $attach_id,
-                        'size' => 'full',
-                        'alignment' => 'aligncenter',
-                        'connected' => true
-                    );
-                }
-                $articles[] = $article;
-                ?>
-                <tr>
-                    <td>
-                        <li id="dragger_<?php echo $post->ID; ?>" class="dragger listitem">
-                            <div>
-                        <span class="arlima-listitem-title"><img
-                                src="<?php echo ARLIMA_PLUGIN_URL . '/images/arrow.png'; ?>" class="handle" alt="move"
-                                height="16" width="16"/></span>
-                                <img class="arlima-listitem-remove" alt="remove"
-                                     src="<?php echo ARLIMA_PLUGIN_URL . '/images/close-icon.png'; ?>"/>
-                            </div>
-                        </li>
-                    </td>
-                    <td><?php echo $post->ID; ?></td>
-                    <td width="220"><?php edit_post_link(
-                            $post->post_title,
-                            '',
-                            '',
-                            $post->ID
-                        ); ?><?php if ( $post->post_status == 'future' ) {
-                            echo '<br /><em>(' . __(
-                                'unpublished',
-                                'arlima'
-                            ) . ')</em> ';
-                        } ?></td>
-                    <td><?php the_author_meta('user_login', $post->post_author); ?></td>
-                    <td><?php echo date('Y-m-d H:i', strtotime($post->post_date)); ?></td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-        <?php
-        $html = ob_get_contents();
-        ob_end_clean();
-        $data = array("html" => $html, "posts" => $articles);
-        echo json_encode($data);
+        echo json_encode(array(
+            'articles' => $articles
+        ));
+    }
+
+    /**
+     * @param $post
+     * @return array
+     */
+    private function postToArlimaArticle($post)
+    {
+        if ( $this->has_preamble_func ) {
+            $text = vk_get_preamble();
+        } else {
+            // weird, "get_the_excerpt" should return the manual excerpt but does not seem to do this in the admin context
+            $text = !empty($post->post_excerpt) ? $post->post_excerpt : get_the_excerpt();
+        }
+        if ( stristr($text, '<p>') === false ) {
+            $text = '<p>' . $text . '</p>';
+        }
+        return Arlima_ListFactory::postToArlimaArticle($post, $text);
+    }
+
+    /**
+     * @param Arlima_List $list
+     * @param string $preview_url
+     * @param int $preview_width
+     * @return mixed|string|void
+     */
+    protected function listToJSON($list, $preview_url, $preview_width)
+    {
+        return json_encode(array(
+            'articles' => $list->getArticles(),
+            'version' => $list->getVersion(),
+            'versionDisplayText' => $list->getVersionInfo(),
+            'versions' => $list->getVersions(),
+            'titleElement' => $list->getTitleElement(),
+            'isImported' => $list->isImported(),
+            'exists' => $list->exists(),
+            'options' => $list->getOptions(),
+            'title' => $list->getTitle(),
+            'previewURL' => $preview_url,
+            'previewWidth' => $preview_width,
+            'id' => $list->id()
+        ));
     }
 }

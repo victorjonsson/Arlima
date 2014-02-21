@@ -10,8 +10,7 @@ class Arlima_Page_Edit extends Arlima_AbstractAdminPage {
     function scripts()
     {
         return array(
-            'arlima-js' => array('url' =>ARLIMA_PLUGIN_URL . 'js/page-edit.js', 'deps'=>array('jquery')),
-            'arlima_js_jquery' => array('url'=>ARLIMA_PLUGIN_URL . 'js/arlima/arlima-jquery-plugins.js', 'deps'=>array('jquery'))
+            'arlima-js' => array('url' =>ARLIMA_PLUGIN_URL . 'js/page-edit.js', 'deps'=>array('jquery'))
         );
     }
 

@@ -8,7 +8,7 @@
  */
 class Arlima_Plugin
 {
-    const VERSION = 2.8;
+    const VERSION = 3.0;
     const EXPORT_FEED_NAME = 'arlima-export';
     const PLUGIN_SETTINGS_OPT = 'arlima_plugin_settings';
 
@@ -61,13 +61,8 @@ class Arlima_Plugin
         }
 
         // Add filters that makes content editable in context
-        if( is_user_logged_in() ) {
-            if( arlima_is_preview() ) {
-                wp_enqueue_script('jquery'); // The list manager uses the jQuery object on this page
-            } elseif( $this->getSetting('in_context_editing') ) {
-                $editor = new Arlima_InContextEditor($this);
-                $editor->apply();
-            }
+        if( is_user_logged_in() && arlima_is_preview() ) {
+            wp_enqueue_script('jquery'); // The list manager uses the jQuery object on this page
         }
     }
 
@@ -142,7 +137,7 @@ class Arlima_Plugin
     {
         if ( !self::$has_loaded_textdomain ) {
             self::$has_loaded_textdomain = true;
-            load_plugin_textdomain('arlima', false, 'arlima/lang/');
+            load_plugin_textdomain('arlima', false, basename(ARLIMA_PLUGIN_PATH).'/lang/');
         }
     }
 
@@ -234,6 +229,19 @@ class Arlima_Plugin
         self::loadTextDomain();
         add_action('save_post', array($this, 'savePageMetaBox'));
         add_action('add_meta_boxes', array($this, 'addAttachmentMetaBox'));
+        add_filter('plugin_action_links_arlima-dev/arlima.php', array($this, 'settingsLinkOnPluginPage'));
+    }
+
+    /**
+     * Add a settings link to given links
+     * @param array $links
+     * @return array
+     */
+    function settingsLinkOnPluginPage($links)
+    {
+        $settings_link = '<a href="admin.php?page='.Arlima_Page_Settings::PAGE_SLUG.'">'.__('Settings', 'arlima').'</a>';
+        array_unshift($links, $settings_link);
+        return $links;
     }
 
     /**
@@ -275,10 +283,10 @@ class Arlima_Plugin
             <?php endforeach; ?>
         </p>
         <?php if($no_version_style != ''): ?>
-            <p>
-                <input type="button" data-post-id="<?php echo $post->ID ?>" id="delete-arlima-versions" class="button" value="<?php _e('Delete versions', 'arlima') ?>" />
-            </p>
-        <?php endif;
+        <p>
+            <input type="button" data-post-id="<?php echo $post->ID ?>" id="delete-arlima-versions" class="button" value="<?php _e('Delete versions', 'arlima') ?>" />
+        </p>
+    <?php endif;
     }
 
     /**
@@ -299,8 +307,8 @@ class Arlima_Plugin
         global $post;
         $img_content_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif');
         return self::supportsImageEditor() &&
-                is_object($post) &&
-                in_array(strtolower($post->post_mime_type), $img_content_types);
+        is_object($post) &&
+        in_array(strtolower($post->post_mime_type), $img_content_types);
     }
 
     /**
@@ -352,7 +360,6 @@ class Arlima_Plugin
         $plugin = new self();
         $settings = $plugin->loadSettings();
         $settings['install_version'] = self::VERSION;
-        $settings['in_context_editing'] = true;
         $settings['image_quality'] = 100;
         $plugin->saveSettings($settings);
     }
@@ -395,6 +402,8 @@ class Arlima_Plugin
         $settings = $plugin->loadSettings();
         $current_version = isset($settings['install_version']) ? $settings['install_version'] : 0;
 
+        #var_dump($current_version); die;
+
         // Time for an update
         if ( $current_version != self::VERSION ) {
 
@@ -407,12 +416,12 @@ class Arlima_Plugin
 
             // Update to version 2.2
             if ( $current_version < 2.2 ) {
-                Arlima_ListFactory::databaseUpdates($current_version);
+                Arlima_ListFactory::databaseUpdates(2.1);
             }
 
             // Update to version 2.6
             if( $current_version < 2.6 ) {
-                Arlima_ListFactory::databaseUpdates($current_version);
+                Arlima_ListFactory::databaseUpdates(2.5);
 
                 $pages = get_pages(
                     array(
@@ -457,9 +466,12 @@ class Arlima_Plugin
             }
 
             // Update to 2.7
-            if ( $current_version < self::VERSION ) {
-                $settings['in_context_editing'] = true;
+            if ( $current_version < 2.7 ) {
                 $settings['image_quality'] = 100;
+            }
+
+            if( $current_version < 3 ) {
+                Arlima_ListFactory::databaseUpdates(2.9);
             }
 
             $settings['install_version'] = self::VERSION;
@@ -570,9 +582,9 @@ class Arlima_Plugin
                    name="arlima-send-to-list-btn"
                    value="<?php _e('Send', 'arlima') ?>" />
             <img src="<?php echo   ARLIMA_PLUGIN_URL . '/images/ajax-loader-trans.gif'; ?>"
-                class="ajax-loader"
-                style="display:none;" />
-            <?php
+                 class="ajax-loader"
+                 style="display:none;" />
+        <?php
         } else {
             echo '<em>' . __('Post needs to be published', 'arlima') . '</em>';
         }
@@ -588,7 +600,7 @@ class Arlima_Plugin
 
         $import_manager = new Arlima_ImportManager( $this );
         $imported = $import_manager->getImportedLists();
-       
+
         $relation_data = false;
         if ( $post ) {
             $relation_data = $connector->getRelationData($post->ID);
@@ -624,11 +636,11 @@ class Arlima_Plugin
                                     <optgroup label="<?php _e('Imported lists', 'arlima') ?>">
                                         <?php foreach($imported as $list_data): ?>
                                             <option value="<?php echo $list_data['url'] ?>"<?php
-                                                // may be either slug or id
-                                                if ( $relation_data['id'] == $list_data['url']  ){
-                                                    echo ' selected="selected"';
-                                                }
-                                                ?>><?php echo $list_data['title'] ?>
+                                            // may be either slug or id
+                                            if ( $relation_data['id'] == $list_data['url']  ){
+                                                echo ' selected="selected"';
+                                            }
+                                            ?>><?php echo $list_data['title'] ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </optgroup>
@@ -667,7 +679,7 @@ class Arlima_Plugin
                 </table>
             <?php endif; ?>
         </div>
-        <?php
+    <?php
     }
 
     /**
@@ -675,6 +687,8 @@ class Arlima_Plugin
     public function savePageMetaBox($post_id)
     {
         if ( !wp_is_post_autosave($post_id) && !wp_is_post_revision($post_id) ) {
+
+            $list_factory = new Arlima_ListFactory();
 
             if ( isset($_POST['arlima_nonce']) && wp_verify_nonce($_POST['arlima_nonce'], __FILE__) ) {
 
@@ -684,20 +698,19 @@ class Arlima_Plugin
                     $connector->removeRelation($post_id);
                 } else {
 
-                    $list_factory = new Arlima_ListFactory();
                     $connector->setList($list_factory->loadList($_POST['arlima_list']));
                     $connector->relate($post_id, array(
-                            'width' => (int)$_POST['arlima_width'],
-                            'offset' => (int)$_POST['arlima_offset'],
-                            'limit' => (int)$_POST['arlima_limit'],
-                            'position' => $_POST['arlima_position']
-                        ));
+                        'width' => (int)$_POST['arlima_width'],
+                        'offset' => (int)$_POST['arlima_offset'],
+                        'limit' => (int)$_POST['arlima_limit'],
+                        'position' => $_POST['arlima_position']
+                    ));
                 }
 
                 do_action('arlima_meta_box_save', $post_id);
 
             } else {
-                Arlima_ListFactory::updateArticlePublishDate(get_post($post_id));
+                $list_factory->updateArticlePublishDate(get_post($post_id));
             }
         }
     }
@@ -779,9 +792,10 @@ class Arlima_Plugin
                 // theme has not applied any css, neither the old nor the new way
                 // then let the plugin add the css
                 if( is_admin() ) {
-                    add_filter('arlima_template_stylesheets', array($this, 'templateCSSFilter'));
+                    add_filter('arlima_template_stylesheets', array($this, 'templateStylesheetsInListManager'));
                 } else {
                     wp_enqueue_style('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css', array(), ARLIMA_FILE_VERSION);
+                    wp_enqueue_style('arlima_template_css_queries', ARLIMA_PLUGIN_URL . 'css/template-media-queries.css', array(), ARLIMA_FILE_VERSION);
                 }
             }
         }
@@ -791,7 +805,7 @@ class Arlima_Plugin
      * @param $files
      * @return array
      */
-    public function templateCSSFilter($files)
+    public function templateStylesheetsInListManager($files)
     {
         $files[] = ARLIMA_PLUGIN_URL . 'css/template-typo.css';
         $files[] = ARLIMA_PLUGIN_URL . 'css/template.css';
@@ -846,18 +860,19 @@ class Arlima_Plugin
      */
     public static function classLoader($class)
     {
-        // use substr instead of strpos or regexp, way faster in this case
         if ( strpos($class, 'Arlima_') === 0 ) {
             require_once ARLIMA_PLUGIN_PATH . '/classes/' . str_replace('_', '/', substr($class, 7)) . '.php';
-        } elseif ( strpos($class, 'jQueryTmpl') === 0 ) {
+        }
+        elseif ( strpos($class, 'jQueryTmpl') === 0 ) {
             $jquery_tmpl_class = ARLIMA_PLUGIN_PATH . '/classes/jquery-tmpl-php/' .
-                                    str_replace('_', '/', $class) . '.php';
+                str_replace('_', '/', $class) . '.php';
             require_once $jquery_tmpl_class;
 
-        } // Deprecated classes
-        elseif ( strpos($class, 'Arlima') === 0 ) {
-            require_once ARLIMA_PLUGIN_PATH . '/classes/deprecated.php';
         }
+        elseif (strpos($class, 'Mustache') === 0) {
+            require_once ARLIMA_PLUGIN_PATH . '/classes/mustache/src/' . str_replace('_', '/', $class) . '.php';
+        }
+
     }
 
     /**
@@ -890,24 +905,36 @@ class Arlima_Plugin
         // Make it possible for theme or other plugins to
         // define their own streamer colors
         $plugin = new Arlima_Plugin();
-        $colors = $plugin->getSetting('streamer_colors', array());
-        $predefined_colors = apply_filters('arlima_streamer_colors', $colors);
-        if ( !empty($predefined_colors) ) {
-            foreach ($predefined_colors as $hex) {
-                echo '<option value="' . $hex . '">#' . $hex . '</option>';
-            }
-        } // default colors
-        else {
-            $cs = array('00', '33', '66', '99', 'CC', 'FF');
-            for ($i = 0; $i < 6; $i++) {
-                for ($j = 0; $j < 6; $j++) {
-                    for ($k = 0; $k < 6; $k++) {
-                        $c = $cs[$i] . $cs[$j] . $cs[$k];
-                        echo '<option value="' . $c . '">#' . $c . '</option>\n';
-                    }
-                }
-            }
+        $colors = apply_filters('arlima_streamer_colors', array());
+        if ( empty($colors) ) {
+            // http://clrs.cc/
+            $colors = array(
+                '001F3F',
+                '0074D9',
+                '7FDBFF',
+                '39CCCC',
+                '3D9970',
+                '2ECC40',
+                '01FF70',
+                'FFDC00',
+                'FF851B',
+                'FF4136 ',
+                '85144B',
+                'F012BE',
+                'B10DC9',
+                'F9F9F9',
+                'DDDDDD',
+                'AAAAAA',
+                '111111'
+            );
         }
+
+        $colors = array_merge($colors, $plugin->getSetting('streamer_colors', array()));
+
+        foreach ($colors as $hex) {
+            echo '<option value="' . $hex . '">#' . $hex . '</option>';
+        }
+
     }
 
 }

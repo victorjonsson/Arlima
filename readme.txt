@@ -2,8 +2,8 @@
 
 Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
-Requires at least: 3.0
-Tested up to: 3.6
+Requires at least: 3.5.1
+Tested up to: 3.8
 Stable tag: 2.8.7
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -28,7 +28,7 @@ Internet Explorer 9 (image upload does not work in internet explorer)
 
 = Wiki =
 
-Now you can read [the Arlima wiki](https://github.com/victorjonsson/Arlima/wiki/) to get more information about how to use this plugin
+Read [the Arlima wiki](https://github.com/victorjonsson/Arlima/wiki/) to get more information about how to use this plugin
 
 
 == Installation ==
@@ -42,14 +42,25 @@ the list that you created on step 2.
 
 == Changelog ==
 
+= 3.0 =
+
+- jQuery-tmpl and jQuery nestedSortable is removed. This means that Arlima no longer is dependent on unmaintained code projects.
+- Mustache has replaced jquery-tmpl as template engine. If you have written your own templates you will have to rewrite them (see templates/article.tmpl).
+- Some of the properties in the article object is renamed.
+- The drag-and-drop features is considerably improved.
+- New keyboard shortcuts is added (eg. undo and redo).
+- The "look and feel" of the list manager is more in-tune with WordPress 3.8
+- Improved performance of the article preview.
+- All functions declared as deprecated up until this version is now removed.
+
+
 = 2.8.x =
 
-- Fixed bug that caused articles only containing an image not to be rendered
 - Sticky articles now works in lists with support for sections
 - It's now possible to hide templates for particular lists in the list manager
 - Fancybox used to connect articles to posts is now larger
 - Fixed bug affecting article connected to future posts
-- Added support for two more image versions (fifth and sixth) that can be enabled using template tag <a href="https://github.com/victorjonsson/Arlima/wiki/Custom-jQuery-templates#image-support">image-support</a>
+- Added support for two more image versions (fifth and sixth) that can be enabled using template the tag <a href="https://github.com/victorjonsson/Arlima/wiki/Custom-jQuery-templates#image-support">image-support</a>
 
 = 2.8 =
 

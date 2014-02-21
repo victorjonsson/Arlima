@@ -19,13 +19,13 @@ class TestArlimaExport extends ExportImportBase {
         self::$exporter = new Arlima_ExportManager(new Private_ArlimaPluginDummy());
     }
 
+
     function testExportRSS() {
 
         $now = time();
         $list = $this->createList();
         $list->setCreated($now);
         $rss = self::$exporter->convertList($list, Arlima_ExportManager::FORMAT_RSS);
-
         $xml = simplexml_load_string($rss);
 
         $this->assertEquals('Title (Slug)', (string)$xml->channel->title);
@@ -49,7 +49,7 @@ class TestArlimaExport extends ExportImportBase {
 
         $json_data = json_decode($json, true);
         $this->assertEquals(1, count($json_data['articles']));
-        $this->assertEquals(get_permalink(self::$some_post_id), @$json_data['articles'][0]['external_url']);
+        $this->assertEquals(get_permalink(self::$some_post_id), @$json_data['articles'][0]['externalURL']);
 
         $compare = array(
             'title' => 'Title',

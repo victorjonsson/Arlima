@@ -82,26 +82,16 @@ class Arlima_ExportManager
             $relation = $connector->getRelationData($page->ID);
 
             if ( empty($relation) ) {
-                // This logic is here only for backward compatibility
-                // todo: Remove when moving to version 3.0
-                $arlima_slug = get_post_meta($page->ID, 'arlima', true);
-                if( empty($arlima_slug) ) {
-                    $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '404 Bad Request', $format);
-                    die;
-                }
-                else {
-                    $list = $factory->loadList($arlima_slug);
-                }
+                $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '404 List not found', $format);
             } else {
                 $list = $factory->loadList($relation['id'], false, true);
-            }
-
-            if ( !$list->exists() ) {
-                $this->sendErrorToClient(self::ERROR_LIST_DOES_NOT_EXIST, '404 Content not found', $format);
-            } elseif ( !$this->isAvailableForExport($list) ) {
-                $this->sendErrorToClient(self::ERROR_LIST_BLOCKED_FROM_EXPORT, '403 Forbidden', $format);
-            } else {
-                echo $this->convertList($list, $format);
+                if ( !$list->exists() ) {
+                    $this->sendErrorToClient(self::ERROR_LIST_DOES_NOT_EXIST, '404 List not found', $format);
+                } elseif ( !$this->isAvailableForExport($list) ) {
+                    $this->sendErrorToClient(self::ERROR_LIST_BLOCKED_FROM_EXPORT, '403 Forbidden', $format);
+                } else {
+                    echo $this->convertList($list, $format);
+                }
             }
         }
 
@@ -135,6 +125,9 @@ class Arlima_ExportManager
         if( function_exists('header_remove') ) {
             header_remove();
         }
+
+        header('Arlima-Version: '.ARLIMA_FILE_VERSION);
+
         switch ($format) {
             case self::FORMAT_RSS:
                 header('Content-Type: text/xml; charset=utf8');
@@ -223,24 +216,24 @@ class Arlima_ExportManager
      */
     private function prepareArticleForExport(&$article_data, $base_url)
     {
-        $article_data['external_url'] = Arlima_List::resolveURL($article_data);
+        $article_data['externalURL'] = Arlima_List::resolveURL($article_data);
 
-        if ( strpos($article_data['external_url'], 'http') === false ) {
-            $article_data['external_url'] = $base_url . ltrim($article_data['external_url'], '/');
+        if ( strpos($article_data['externalURL'], 'http') === false ) {
+            $article_data['externalURL'] = $base_url . ltrim($article_data['externalURL'], '/');
         }
 
         // Add url for backward compatibility @todo: remove when moving up to version 3.0
-        $article_data['url'] = $article_data['external_url'];
+        $article_data['url'] = $article_data['externalURL'];
 
-        $article_data['external_post_id'] = 0;
-        if ( !empty($article_data['post_id']) ) {
-            $article_data['external_post_id'] = $article_data['post_id'];
-            $article_data['post_id'] = 0;
+        $article_data['externalPost'] = 0;
+        if ( !empty($article_data['post']) ) {
+            $article_data['externalPost'] = $article_data['post'];
+            $article_data['post'] = 0;
         }
 
-        if ( !empty($article_data['image_options']) ) {
-            $article_data['image_options']['external_attach_id'] = isset($article_data['image_options']['attach_id']) ? $article_data['image_options']['attach_id'] : 0;
-            $article_data['image_options']['attach_id'] = 0;
+        if ( !empty($article_data['image']) ) {
+            $article_data['image']['externalAttachment'] = isset($article_data['image']['attachment']) ? $article_data['image']['attachment'] : 0;
+            $article_data['image']['attachment'] = 0;
         }
 
         if ( !empty($article_data['children']) ) {
@@ -260,10 +253,10 @@ class Arlima_ExportManager
     private function articleToRSSItem(array $article, $last_mod)
     {
         $img = '';
-        if ( isset($article['image_options']) && !empty($article['image_options']['url']) ) {
+        if ( isset($article['image']) && !empty($article['image']['url']) ) {
 
             $node_type = defined('ARLIMA_RSS_IMG_TAG') ? ARLIMA_RSS_IMG_TAG : 'enclosure';
-            $img_url = apply_filters('arlima_rss_image', $article['image_options']['url'], $article['image_options']);
+            $img_url = apply_filters('arlima_rss_image', $article['image']['url'], $article['image']);
             $img_type = pathinfo($img_url, PATHINFO_EXTENSION);
             $img_type = 'image/'. current(explode('?', $img_type));
 
@@ -277,7 +270,7 @@ class Arlima_ExportManager
         }
 
         $guid = $article['url'];
-        $post_id = intval($article['external_post_id']);
+        $post_id = intval($article['externalPost']);
         if ( $post_id ) {
             $guid = '/?p=' . $post_id;
             $date = date('r', strtotime(get_post($post_id)->post_date));
@@ -287,8 +280,8 @@ class Arlima_ExportManager
 
         return '<item>
                     <title><![CDATA[' . str_replace('__', '', $article['title']) . ']]></title>
-                    <description><![CDATA[' . strip_tags($article['text']) . ']]></description>
-                    <link>' . $article['external_url'] . '</link>
+                    <description><![CDATA[' . strip_tags($article['content']) . ']]></description>
+                    <link>' . $article['externalURL'] . '</link>
                     <guid isPermaLink="false">' . $guid . '</guid>
                     <pubDate>' . $date . '</pubDate>
                     ' . $img . '

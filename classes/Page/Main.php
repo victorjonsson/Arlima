@@ -7,23 +7,25 @@
  */
 class Arlima_Page_Main extends Arlima_AbstractAdminPage {
 
+    const PAGE_SLUG = 'arlima-main';
+
     function scripts()
     {
         // Add an almost astronomical amount of javascript
         $scripts = array(
-            'qtip'              => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.qtip.min.js',
-            'colourpicker'      => ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/jquery.colourpicker.js',
-            'fancybox'          => ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox.js',
-            'ui-nestedsortable' => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.nestedSortable.js',
-            'pluploadfull'      => ARLIMA_PLUGIN_URL . 'js/misc/plupload.full.js',
-            'jquery-tmpl'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.tmpl.min.js',
-            'arlima-jquery'     => ARLIMA_PLUGIN_URL . 'js/arlima/arlima-jquery-plugins.js',
-            'arlima-tmpl'       => ARLIMA_PLUGIN_URL . 'js/arlima/template-loader.js',
-            'arlima-js'         => ARLIMA_PLUGIN_URL . 'js/arlima/arlima.js',
-            'arlima-plupload'   => ARLIMA_PLUGIN_URL . 'js/arlima/plupload-init.js',
-            'arlima-main-js'    => ARLIMA_PLUGIN_URL . 'js/page-main.js',
-            'new-hotkeys'       => ARLIMA_PLUGIN_URL . 'js/jquery/jquery.hotkeys.js'
+            'qtip'              => array(ARLIMA_PLUGIN_URL . 'js/jquery/jquery.qtip.min.js', 'jquery'),
+            'colourpicker'      => array(ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/jquery.colourpicker.js', 'jquery'),
+            'fancybox'          => array(ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox.js', 'jquery'),
+            'pluploadfull'      => array(ARLIMA_PLUGIN_URL . 'js/misc/plupload.js', 'jquery'),
+            'arlima-js'         => array(ARLIMA_PLUGIN_URL . 'js/arlima/arlima.js', 'mustache'),
+            'arlima-main-js'    => array(ARLIMA_PLUGIN_URL . 'js/page-main.js', 'jquery'),
+            'new-hotkeys'       => array(ARLIMA_PLUGIN_URL . 'js/jquery/jquery.hotkeys.js', 'jquery'),
+            'mustache'          => array('//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js', 'jquery')
         );
+
+        if( ARLIMA_DEV_MODE ) {
+            $scripts = $this->addDevScripts($scripts);
+        }
 
         if( Arlima_Plugin::supportsImageEditor() ) {
             // these files could not be enqueue´d until wp version 3.5
@@ -35,25 +37,55 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
 
         $scripts_to_enqueue = array();
         foreach($scripts as $handle => $js) {
-            $dependency = array('jquery');
-            if( $handle == 'ui-nestedsortable' )
-                $dependency = array('jquery-ui-sortable');
-
-            $scripts_to_enqueue[$handle] = array('url'=>$js, 'deps'=>$dependency);
+            if( is_array($js) )
+                $scripts_to_enqueue[$handle] = array('url'=>$js[0], 'deps'=>array($js[1]));
+            else
+                $scripts_to_enqueue[$handle] = array('url'=>$js, 'deps'=>array('jquery'));
         }
 
         return $scripts_to_enqueue;
     }
 
+    private function addDevScripts($scripts)
+    {
+        // The order of these scripts must be the same in package.json
+        $scripts['arlima-js'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaUtils.js';
+        $scripts['arlima-js-backend'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaBackend.js';
+        $scripts['arlima-js-settings-menu'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticleSettingsMenu.js';
+        $scripts['arlima-js-list'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaList.js';
+        $scripts['arlima-js-article'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticle.js';
+        $scripts['arlima-js-preview'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticlePreview.js';
+        $scripts['arlima-js-form'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticleForm.js';
+        $scripts['arlima-js-connection'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticleConnection.js';
+        $scripts['arlima-js-search'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaPostSearch.js';
+        $scripts['arlima-js-loader'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaListLoader.js';
+        $scripts['arlima-js-blocker'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaFormBlocker.js';
+        $scripts['arlima-js-template-loader'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaTemplateLoader.js';
+        $scripts['arlima-js-version-manager'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaVersionManager.js';
+        $scripts['arlima-js-container'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaListContainer.js';
+        $scripts['arlima-js-short-cuts'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaKeyBoardShortCuts.js';
+        $scripts['arlima-js-list-preview'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaListPreview.js';
+        $scripts['arlima-js-nested-sortable'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaNestedSortable.js';
+        $scripts['arlima-js-image'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaImageManager.js';
+        $scripts['arlima-js-image-upload'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaImageUploader.js';
+        $scripts['arlima-js-file-includes'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaFileIncludes.js';
+        $scripts['arlima-js-scissors'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaScissors.js';
+        $scripts['arlima-article-templates'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticleTemplates.js';
+        $scripts['arlima-scheduled-interval'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaScheduledIntervalPicker.js';
+        return $scripts;
+    }
+
     function styleSheets()
     {
         wp_register_style('jquery_ui_css', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css');
-        return array(
+        $styles = array(
+            'font-awesome' => array('url' => '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css', 'deps'=>array()),
             'arlima_css' => array('url'=>ARLIMA_PLUGIN_URL . 'css/admin.css', 'deps'=>array()),
             'jquery_ui_css' => array('url'=>'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css', 'deps'=>array()),
             'colourpicker_css' => array('url'=>ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/colourpicker.css', 'deps'=>array()),
             'fancy_css' => array('url'=>ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox.css', 'deps'=>array()),
         );
+        return $styles;
     }
 
     function enqueueStyles()
@@ -102,27 +134,20 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         }
         add_filter('mce_css', 'tdav_css');
 
-        // Deregister scripts we need to override
+        // We use our own version of hotkeys
         wp_deregister_script('jquery-hotkeys');
-        wp_deregister_script('jquery-ui-core');
-        wp_deregister_script('jquery-ui-draggable');
-        wp_deregister_script('jquery-ui-droppable');
-        wp_deregister_script('jquery-ui-mouse');
-        wp_deregister_script('jquery-ui-widget');
-        wp_deregister_script('jquery-ui-sortable');
-        
-        wp_register_script('jquery-ui-core', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.core.min-1.92.js', 12, true);
-        wp_register_script('jquery-ui-draggable', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.draggable.min-1.92.js', 12, true);
-		wp_register_script('jquery-ui-droppable', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.droppable.min-1.92.js', 12, true);
-        wp_register_script('jquery-ui-mouse', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.mouse.min-1.92.js', 12, true);        
-        wp_register_script('jquery-ui-widget', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.widget.min-1.92.js', 12, true);
 
-        // Replace jquery.ui.sortable with old version of the same function
-        wp_register_script('jquery-ui-sortable', ARLIMA_PLUGIN_URL . 'js/jquery/jquery.ui.sortable-1.82.js', array('jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse'), 12, true);
-        wp_enqueue_script('jquery-ui-sortable');
-
+        // Enqueue all that jquery magic
         wp_enqueue_script('jquery');
+        wp_enqueue_script('jquery-ui-core');
+        wp_enqueue_script('jquery-ui-draggable');
+        wp_enqueue_script('jquery-ui-droppable');
+        wp_enqueue_script('jquery-ui-resizable');
+        wp_enqueue_script('jquery-ui-sortable');
+        wp_enqueue_script('jquery-ui-mouse');
+        wp_enqueue_script('jquery-ui-widget');
         wp_enqueue_script('jquery-ui-slider');
+
         wp_enqueue_script('media-upload');
 
         parent::enqueueScripts();
@@ -145,20 +170,22 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         $style_sheets = $this->plugin->getTemplateStylesheets();
         ?>
         <script>
+            ArlimaArticle.defaultData = <?php echo json_encode(Arlima_ListFactory::createArticleDataArray()) ?>;
+            ArlimaUtils.serverTime = <?php echo time() * 1000; ?>;
             (function(win) {
                 var tmpls = [];
                 <?php foreach ($tmpl_resolver->getTemplateFiles()as $tmpl): ?>
-                    tmpls.push('<?php echo $tmpl['url']; ?>?v=11');
+                tmpls.push('<?php echo $tmpl['url']; ?>?v=<?php echo ARLIMA_FILE_VERSION ?>');
                 <?php endforeach; ?>
                 win.ArlimaTemplateLoader.load(tmpls);
                 <?php if ( !empty($_GET['open_list']) ): ?>
-                    win.loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
+                win.loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
                 <?php endif; ?>
                 <?php if( is_array($style_sheets) && !empty($style_sheets) ): ?>
-                    win.arlimaTemplateStylesheets = [];
-                    <?php foreach($style_sheets as $style): ?>
-                        win.arlimaTemplateStylesheets.push('<?php echo $style ?>');
-                    <?php endforeach; ?>
+                win.arlimaTemplateStylesheets = [];
+                <?php foreach($style_sheets as $style): ?>
+                win.arlimaTemplateStylesheets.push('<?php echo $style ?>');
+                <?php endforeach; ?>
                 <?php endif; ?>
             })(window);
         </script>
@@ -214,7 +241,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
 
     function slug()
     {
-        return 'arlima-main';
+        return self::PAGE_SLUG;
     }
 
     public function parentSlug()

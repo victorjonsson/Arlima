@@ -1,54 +1,45 @@
-<div data-post="${article.post}" class="${container.class} tmpl-article">
-<article>
+<div data-post="{{post}}" class="{{class}} tmpl-article">
+    <article>
 
-    {{if streamer}}
-        <div style="${streamer.style}" class="streamer ${streamer.type}">
-            <span>{{html streamer.content}}</span>
+        {{{article_begin}}}
+
+        <div class="streamer-wrapper">
+            {{{html_streamer}}}
         </div>
-    {{/if}}
 
-    {{html article_begin}}
+        {{image-support size="full, half, third, quarter" children-size="full, half, third"}}
+        {{{html_image}}}
 
-    {{image-support size="full, half, third, quarter" children-size="full, half, third"}}
+        {{{html_title}}}
 
-    {{include parts/top-image.tmpl}}
+        {{{html_content}}}
 
-    {{html article.html_title}}
+        {{#related}}
+            <div class="teaser-related-posts">
+                <aside>
+                    {{#related.single}}
+                        <h3>Read more</h3>
+                    {{/related.single}}
+                    {{^related.single}}
+                        <h3>Related articles</h3>
+                    {{/related.single}}
+                    <ul>
+                        {{#related.posts}}
+                            <li>
+                                <a href="{{url}}" class="related">{{post_title}}</a>
+                                {{#html_comment_stats}}
+                                    <span title="Number of comments" class="num-comments">
+                                        {{{html_comment_stats}}}
+                                    </span>
+                                {{/html_comment_stats}}
+                            </li>
+                        {{/related.posts}}
+                    </ul>
+                </aside>
+            </div>
+        {{/related}}
+    </article>
 
-    {{html article.html_text}}
-
-    {{if related}}
-        <div class="teaser-related-posts">
-            <aside>
-                {{if related.single}}
-                    <h3>Reade more</h3>
-                {{else}}
-                    <h3>Related articles</h3>
-                {{/if}}
-                <ul>
-                    {{each related.posts}}
-                        <li>
-                            <a href="${this.url}" class="related">${this.post_title}</a>
-                            {{if this.html_comment_stats}}
-                                <span title="Number of comments" class="num-comments">
-                                    {{html this.html_comment_stats}}
-                                </span>
-                            {{/if}}
-                        </li>
-                    {{/each}}
-                </ul>
-            </aside>
-        </div>
-    {{/if}}
-
-</article>
-
-{{if child_articles}}
-    <div class="teaser-children">
-        {{html child_articles}}
-    </div>
-{{/if}}
+    {{include parts/footer.tmpl}}
 
 </div>
-
-{{html article_end}}

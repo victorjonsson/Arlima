@@ -1,5 +1,7 @@
 /**
- * @author Unknown....
+ * @author Andreas Lagerkvis <http://andreaslagerkvist.com/>
+ * @version Unkown...
+ * @license http://creativecommons.org/licenses/by/3.0/
  */
 jQuery.fn.colourPicker = function (conf) {
 	// Config for plug

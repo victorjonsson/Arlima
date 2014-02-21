@@ -153,21 +153,21 @@ class Arlima_FilterApplier
         $filtered = array('content'=>'');
         $img_alt = '';
         $img_class = '';
-        $has_img = !empty($article['image_options']) && !empty($article['image_options']['attach_id']);
+        $has_img = !empty($article['image']) && !empty($article['image']['attachment']);
         $has_giant_tmpl = !empty($article['options']['template']) && $article['options']['template'] == 'giant';
 
         $article_width = $is_child_split ? round(self::$width / 2) : self::$width;
 
-        if ( $has_img && !$has_giant_tmpl && $attach_meta = wp_get_attachment_metadata($article['image_options']['attach_id']) ) {
+        if ( $has_img && !$has_giant_tmpl && $attach_meta = wp_get_attachment_metadata($article['image']['attachment']) ) {
 
-            $size = self::getNewImageDimensions($article, $article_width, $attach_meta, $article['image_options']['attach_id']);
+            $size = self::getNewImageDimensions($article, $article_width, $attach_meta, $article['image']['attachment']);
 
             if( !$size ) {
                 // For some reason unable to calculate new image dimensions, more info in error log
                 return '';
             }
 
-            $img_class = $article['image_options']['size'] . ' ' . $article['image_options']['alignment'];
+            $img_class = $article['image']['size'] . ' ' . $article['image']['alignment'];
             $img_alt = htmlspecialchars($article['title']);
 
             // Let other plugin take over this function entirely
@@ -187,12 +187,12 @@ class Arlima_FilterApplier
             if( !empty($filtered['content']) )
                 return $filtered['content'];
 
-            $attach_url = wp_get_attachment_url($article['image_options']['attach_id']);
+            $attach_url = wp_get_attachment_url($article['image']['attachment']);
             $resized_url = self::generateImageVersion(
                                 $attach_meta['file'],
                                 $attach_url,
                                 $size,
-                                $article['image_options']['attach_id']
+                                $article['image']['attachment']
                             );
 
             $filtered = self::filter(
@@ -208,9 +208,9 @@ class Arlima_FilterApplier
                         );
 
         }
-        elseif( empty($article['image_options']['attach_id']) && !empty($article['image_options']['external_attach_id']) ) {
+        elseif( empty($article['image']['attachment']) && !empty($article['image']['externalAttachment']) ) {
             //external images, just try to fit them
-            switch ($article['image_options']['size']) {
+            switch ($article['image']['size']) {
                 case 'half':
                     $size = array(round($article_width * 0.5));
                     break;
@@ -230,9 +230,9 @@ class Arlima_FilterApplier
                     $size = array($article_width);
                     break;
             }
-            $img_class = $article['image_options']['size'] . ' ' . $article['image_options']['alignment'];
+            $img_class = $article['image']['size'] . ' ' . $article['image']['alignment'];
             $img_alt = htmlspecialchars($article['title']);
-            $filtered['resized'] = $article['image_options']['url'];
+            $filtered['resized'] = $article['image']['url'];
         }
         elseif(!$has_giant_tmpl) {
             // Callback for empty image
@@ -309,11 +309,11 @@ class Arlima_FilterApplier
         $filtered = self::filter('arlima_future_post', $article_counter, $article, $post, $list);
 
         if( empty($filtered['content']) && $filtered['content'] !== false) {
-            $url = $article['post_id'] ? admin_url('post.php?action=edit&amp;post=' . $post->ID) : $article['url'];
+            $url = $article['post'] ? admin_url('post.php?action=edit&amp;post=' . $article['post']) : $article['url'];
             $filtered['content'] = '<div class="arlima future-post"><p>
-                        Hey dude, <a href="' . $url . '" target="_blank">&quot;'.$article['title'].'&quot;</a> is
+                        Watch out! <a href="' . $url . '" target="_blank">&quot;'.$article['title'].'&quot;</a> is
                         connected to a post that isn\'t published yet. The article will become public in '.
-                        human_time_diff(time(), $article['publish_date']).'.</p>
+                        human_time_diff(time(), $article['published']).'.</p>
                     </div>';
         }
 
@@ -331,10 +331,10 @@ class Arlima_FilterApplier
     public static function contentCallback($article, $deprecated, $post, $article_counter, $list)
     {
         $filtered = self::filter('arlima_article_content', $article_counter, $article, $post, $list);
-
         if( empty($filtered['content']) && $filtered['content'] !== false ) {
             $target = empty($article['options']['target']) ? false:$article['options']['target'];
-            $filtered['content'] = arlima_link_entrywords(trim($article['text']), $article['url'], $target);
+            $url = empty($article['options']['overridingURL']) ? $article['url'] : $article['options']['overridingURL'];
+            $filtered['content'] = arlima_link_entrywords(trim($article['content']), $url, $target);
         }
 
         return $filtered['content'];
@@ -376,7 +376,7 @@ class Arlima_FilterApplier
             return false;
         }
 
-        switch ($article['image_options']['size']) {
+        switch ($article['image']['size']) {
             case 'half':
                 $width = round($article_width * 0.5);
                 $size = array($width, round($attach_meta['height'] * ($width / $attach_meta['width'])));

@@ -169,7 +169,7 @@ abstract class Arlima_AbstractListRenderingManager
             } else {
                 $articles = array();
                 foreach($this->list->getArticles() as $art) {
-                    if( empty($art['options']['section_divider']) )
+                    if( empty($art['options']['sectionDivider']) )
                         $articles[] = $art;
                 }
                 $this->articles_to_render = array_slice($articles, $this->getOffset());
@@ -224,7 +224,7 @@ abstract class Arlima_AbstractListRenderingManager
         }
 
         $is_empty = false;
-        $has_image = !empty($article['image_options']) && (isset($article['image_options']['attach_id']) || isset($article['image_options']['url']));
+        $has_image = !empty($article['image']) && (isset($article['image']['attachment']) || isset($article['image']['url']));
 
         if ( empty($article['text']) && empty($article['title']) && !$has_image ) {
             $is_empty = true;
@@ -236,12 +236,12 @@ abstract class Arlima_AbstractListRenderingManager
     }
 
     /**
-     * @var bool
+     * @var bool|array
      */
     static $current_section_divider = false;
 
     /**
-     * @return bool
+     * @return bool|array
      */
     public static function getCurrentSectionDivider()
     {
@@ -272,7 +272,7 @@ abstract class Arlima_AbstractListRenderingManager
 
         foreach($articles as $art) {
 
-            $is_section_divider = !empty($art['options']['section_divider']);
+            $is_section_divider = !empty($art['options']['sectionDivider']);
 
             if( $start_collecting_articles ) {
                 if( $is_section_divider ) {
@@ -311,7 +311,7 @@ abstract class Arlima_AbstractListRenderingManager
 
     /**
      * - Set to false if you want to render entire list (default)
-     * - Set to a string if you want to render a section with given name
+     * - Set to a string if you want to render the section with given name
      * - Set to a number if you want to render the section at given index
      * - Set to eg. >=2 if you want to render all articles, starting from the second section
      * @param int|bool|string $section
@@ -430,45 +430,5 @@ abstract class Arlima_AbstractListRenderingManager
     public function getOffset()
     {
         return $this->offset;
-    }
-
-
-    /* * * * * * * *  DEPRECATED  * * * * * * */
-
-
-    /**
-     * @deprecated
-     * @see Arlima_AbstractListManager::setContentCallback()
-     */
-    function setTextModifierCallback($callback_func)
-    {
-        $this->setContentCallback($callback_func);
-    }
-
-    /**
-     * @deprecated
-     * @see Arlima_AbstractListManager::setImageCallback()
-     */
-    function setGetImageCallback($callback_func)
-    {
-        $this->setImageCallback($callback_func);
-    }
-
-    /**
-     * @deprecated
-     * @see Arlima_AbstractListManager::setArticleBeginCallback()
-     */
-    function setBeforeArticleCallback($callback_func)
-    {
-        $this->setArticleBeginCallback($callback_func);
-    }
-
-    /**
-     * @deprecated
-     * @see Arlima_AbstractListManager::setArticleEndCallback()
-     */
-    function setAfterArticleCallback($callback_func)
-    {
-        $this->setArticleEndCallback($callback_func);
     }
 }

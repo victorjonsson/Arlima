@@ -70,7 +70,6 @@ class Arlima_List
      * @var array
      */
     public $options = array(
-        'pagestopurge' => '', // deprecated
         'template' => 'article',
         'pages_to_purge' => '',
         'supports_sections' => "0", // translates to bool false
@@ -96,36 +95,9 @@ class Arlima_List
      */
     function __construct($exists = false, $id = 0, $is_imported = false)
     {
-        if ( is_numeric($exists) ) {
-
-            /*
-                The code within this if statement wont make much sense
-                since it only exists for backward compatibility reasons.
-                todo: remove when moving up to version 3.0
-            */
-
-            Arlima_Plugin::warnAboutUseOfDeprecatedFunction(
-                'Arlima_List::__construct(ID, VERSION)',
-                2.0,
-                'Arlima_ListFactory::loadList(ID, VERSION)'
-            );
-
-            $factory = new Arlima_ListFactory();
-            $list = $factory->loadList($exists, $id);
-            foreach($this as $key => $val) {
-                $set_func = 'set'.ucfirst($key);
-                $get_func = 'get'.ucfirst($key);
-                if( method_exists($this, $set_func) ) {
-                    $val = call_user_func(array($list, $get_func));
-                    call_user_func(array($this, $set_func), $val);
-                }
-            }
-
-        } else {
-            $this->exists = $exists;
-            $this->is_imported = $is_imported;
-            $this->id = $id;
-        }
+        $this->exists = $exists;
+        $this->is_imported = $is_imported;
+        $this->id = $id;
     }
 
     /**
@@ -225,23 +197,6 @@ class Arlima_List
      */
     public function getOption($name)
     {
-        // Backward compatibility. todo: Remove when moving up to version 3.0
-        if( $name == 'template' ) {
-            if( isset($this->options['template']) )
-                return $this->options['template'];
-            elseif( isset($this->options['previewtemplate']) )
-                return $this->options['previewtemplate'];
-            else
-                return null;
-        }
-        if( $name == 'pages_to_purge' && empty($this->options[$name]) && !empty($this->options['pagestopurge']) ) {
-            return $this->options['pagestopurge'];
-        }
-        if( $name == 'pagestopurge' && empty($this->options[$name]) && !empty($this->options['pages_to_purge']) ) {
-            Arlima_Plugin::warnAboutUseOfDeprecatedFunction('Arlima_List::getOption', 2.8, 'The option &quot;pagestopurge&quot; is deprecated, use &quot;pages_to_purge&quot; instead');
-            return $this->options['pages_to_purge'];
-        }
-
         return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 
@@ -251,10 +206,6 @@ class Arlima_List
      */
     public function setOption($name, $val)
     {
-        if( $name == 'pagestopurge' ) {
-            Arlima_Plugin::warnAboutUseOfDeprecatedFunction('Arlima_List::setOption', 2.8, 'The option &quot;pagestopurge&quot; is deprecated, use &quot;pages_to_purge&quot; instead');
-            $name = 'pages_to_purge';
-        }
         $this->options[$name] = $val;
     }
 
@@ -276,12 +227,12 @@ class Arlima_List
         if( $this->post_ids === false ) {
             $this->post_ids = array();
             foreach($this->getArticles() as $article) {
-                if( !empty($article['post_id']) ) {
-                    $this->post_ids[] = $article['post_id'];
+                if( !empty($article['post']) ) {
+                    $this->post_ids[] = $article['post'];
                 }
                 foreach ($article['children'] as $child) {
-                    if (!empty($child['post_id'])) {
-                        $this->post_ids[] = $child['post_id'];
+                    if (!empty($child['post'])) {
+                        $this->post_ids[] = $child['post'];
                     }
                 }
             }
@@ -402,6 +353,10 @@ class Arlima_List
      */
     public function setOptions($options)
     {
+        foreach($options as $name => $val) {
+            if( is_numeric($val) )
+                $options[$name] = (int)$val;
+        }
         $this->options = $options;
     }
 
@@ -461,25 +416,29 @@ class Arlima_List
      */
     function getVersionInfo($no_version_text = '')
     {
-        $version = $this->version;
-        if ( isset($version['id']) && isset($version['user_id']) ) {
-            Arlima_Plugin::loadTextDomain();
-            $user_data = get_userdata($version['user_id']);
-            $saved_since = '';
-            $saved_by = 'Unknown';
-            $lang_saved_since = __(' saved since ', 'arlima');
-            $lang_by = __(' by ', 'arlima');
-
-            if ( !empty($version['created']) ) {
-                $saved_since = $lang_saved_since . human_time_diff($version['created']);
-            }
-            if ( $user_data ) {
-                $saved_by = $user_data->display_name;
-            }
-
-            return 'v ' . $version['id'] . ' ' . $saved_since . $lang_by . $saved_by . ($this->is_imported ? ' (IMPORT)' : '');
+        if( $this->isImported() ) {
+            return sprintf(__('Last modified %s a go', 'arlima'), human_time_diff($this->version['created']));
         } else {
-            return $no_version_text . ($this->is_imported ? ' (IMPORT)' : '');
+            $version = $this->version;
+            if ( isset($version['id']) && isset($version['user_id']) ) {
+                Arlima_Plugin::loadTextDomain();
+                $user_data = get_userdata($version['user_id']);
+                $saved_since = '';
+                $saved_by = 'Unknown';
+                $lang_saved_since = __(' saved since ', 'arlima');
+                $lang_by = __(' by ', 'arlima');
+
+                if ( !empty($version['created']) ) {
+                    $saved_since = $lang_saved_since . human_time_diff($version['created']);
+                }
+                if ( $user_data ) {
+                    $saved_by = $user_data->display_name;
+                }
+
+                return 'v ' . $version['id'] . ' ' . $saved_since . $lang_by . $saved_by . ($this->is_imported ? ' (IMPORT)' : '');
+            } else {
+                return $no_version_text . ($this->is_imported ? ' (IMPORT)' : '');
+            }
         }
     }
 
@@ -507,55 +466,6 @@ class Arlima_List
         return $arr;
     }
 
-    /**
-     * Magic method that makes it possible to request previously public
-     * member variables (considered deprecated).
-     * @param string $arg
-     * @return string
-     */
-    public function __get($arg)
-    {
-        // todo: remove when moving to version 3.0
-        $this->warnAboutDeprecatedUseOfProperty($arg);
-        $get_func = 'get' . ucfirst($arg);
-        if ( method_exists($this, $get_func) ) {
-            return call_user_func(array($this, $get_func));
-        } elseif ( method_exists($this, $arg) ) {
-            return call_user_func(array($this, $arg));
-        } elseif ( $arg == 'is_imported' ) {
-            return $this->isImported();
-        }
-
-        return false;
-    }
-
-    /**
-     * Magic method that makes it possible to set previously public
-     * member variables (considered deprecated).
-     * @param string $name
-     * @param mixed $val
-     */
-    public function __set($name, $val)
-    {
-        $this->warnAboutDeprecatedUseOfProperty($name);
-        $this->$name = $val;
-    }
-
-    /**
-     * @param $arg
-     */
-    private function warnAboutDeprecatedUseOfProperty($arg)
-    {
-        if( !defined('ARLIMA_UNIT_TEST') || !ARLIMA_UNIT_TEST) {
-            Arlima_Plugin::warnAboutUseOfDeprecatedFunction(
-                'Arlima_List::' . $arg,
-                2.5,
-                'This variable is no longer a public property'
-            );
-        }
-    }
-
-
 
 
     /* * * * * * * * * * * * * * * * STATIC UTILITY FUNCTIONS * * * * * * * * */
@@ -574,22 +484,18 @@ class Arlima_List
             return '';
         }
 
-        $underscore_replace = !isset($options['convert_breaks']) || $options['convert_breaks'] ? '<br />':'';
+        $underscore_replace = !isset($options['convertBreaks']) || $options['convertBreaks'] ? '<br />':'';
         $title = str_replace('__', $underscore_replace, $article['title']);
 
-        if ( !empty ($article['options']['pre_title']) ) {
-            $title = '<span class="arlima-pre-title">' . $article['options']['pre_title'] . '</span> ' . $title;
+        if ( !empty($article['options']['preTitle']) ) {
+            $title = '<span class="arlima-pre-title">' . $article['options']['preTitle'] . '</span> ' . $title;
         }
 
         $title_html = '';
-        $header_classes[] = 'fsize-' . $article['title_fontsize'];
+        $header_classes[] = 'fsize-' . $article['size'];
 
         $start_tag = empty($options['before_title']) ? '<h2>' : $options['before_title'];
         $end_tag = empty($options['after_title']) ? '</h2>' : $options['after_title'];
-
-        if ( !empty($article['options']['header_class']) ) {
-            $header_classes[] = $article['options']['header_class'];
-        }
 
         if ( !empty($header_classes) ) {
             if ( stristr($start_tag, 'class') !== false ) {
@@ -626,10 +532,10 @@ class Arlima_List
      */
     public static function resolveURL($article)
     {
-        if( !empty($article['options']) && !empty($article['options']['overriding_url']) ) {
-            return $article['options']['overriding_url'];
-        } elseif( !empty($article['post_id']) ) {
-            return get_permalink($article['post_id']);
+        if( !empty($article['options']) && !empty($article['options']['overridingURL']) ) {
+            return $article['options']['overridingURL'];
+        } elseif( !empty($article['post']) ) {
+            return get_permalink($article['post']);
         }
         return '';
     }
@@ -664,25 +570,5 @@ class Arlima_List
     {
         $self = new self();
         return $self->options;
-    }
-
-
-    /* * * * * * * * * * * * * * * * DEPRECATED FUNCTIONS * * * * * * * * */
-
-
-    /**
-     * @deprecated
-     * @var bool
-     */
-    private $preview;
-
-    /**
-     * @deprecated
-     * @see Arlima_List::isPreview()
-     * @return bool
-     */
-    public function preview()
-    {
-        return $this->getStatus() == self::STATUS_PREVIEW;
     }
 }

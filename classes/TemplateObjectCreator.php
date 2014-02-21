@@ -108,36 +108,6 @@ class Arlima_TemplateObjectCreator
     }
 
     /**
-     * Returns an empty jquery tmpl data object
-     * @return array
-     */
-    private function getEmptyObjectArray()
-    {
-        return array(
-            'container' => array(
-                'id' => '',
-                'class' => 'teaser'
-            ),
-            'article' => array(
-                'title' => '',
-                'url' => '',
-                'html_title' => '',
-                'html_text' => false
-            ),
-            'sub_articles' => false, // deprecated
-            'child_articles' => false,
-            'streamer' => false,
-            'related' => false,
-            'before_related' => false,
-            'article_begin' => false,
-            'article_end' => false,
-            'is_child' => false,
-            'image' => false
-        );
-    }
-
-
-    /**
      * @param string $img_size
      */
     public function setImgSize($img_size)
@@ -202,30 +172,26 @@ class Arlima_TemplateObjectCreator
         $load_related_articles = true,
         $template_name = null
     ) {
-        $obj = $this->getEmptyObjectArray();
-        $has_streamer = $this->display_streamer && isset($article['options']['streamer']);
-        $img_opt_size = isset($article['image_options']) && !empty($article['image_options']['size']) ? $article['image_options']['size'] : false;
+        $obj = $article;
+        $has_streamer = $this->display_streamer && !empty($article['options']['streamerType']);
+        $img_opt_size = isset($article['image']) && !empty($article['image']['size']) ? $article['image']['size'] : false;
 
-        $url = isset($article['url']) ? $article['url'] : '';
-        $post_id = !empty($article['post_id']) ? $article['post_id'] : '';
+        if( !empty($article['post']) ) {
+            $obj['url'] = get_permalink($article['post']);
+        } elseif( !empty($article['options']['overridingURL']) ) {
+            $obj['url'] = $article['options']['overridingURL'];
+        }
 
-        //$obj['container']['id'] = 'teaser-' . (is_numeric($post_id) ? $post_id : $url); // deprecated
-        $obj['container']['id'] = $article['id'];
-        $obj['container']['class'] = 'teaser' . ($is_empty ? ' empty' : '');
-        $obj['article']['title'] = isset($article['title']) ? $article['title'] : '';
-        $obj['article']['html_title'] = $is_empty ? '' : Arlima_List::getTitleHtml($article, array('before_title'=>$this->before_title_html, 'after_title'=>$this->after_title_html));
-        $obj['article']['url'] = $url;
-        $obj['article']['publish_date'] = $article['publish_date'];
-        $obj['article']['post'] = $article['post_id'];
+        $obj['class'] = 'teaser' . ($is_empty ? ' empty' : '');
+        $obj['html_title'] = $is_empty ? '' : Arlima_List::getTitleHtml($obj, array('before_title'=>$this->before_title_html, 'after_title'=>$this->after_title_html));
         $obj['is_child'] = $this->is_child;
         $obj['is_child_split'] = $this->is_child_split;
 
         if ( !empty($article['options']) && !empty($article['options']['format']) ) {
-            $obj['container']['class'] .= ' ' . $article['options']['format'];
-            $obj['container']['format'] = $article['options']['format'];
+            $obj['class'] .= ' ' . $article['options']['format'];
         }
         if( $has_streamer ) {
-            $obj['container']['class'] .= ' has-streamer';
+            $obj['class'] .= ' has-streamer';
         }
 
         // Add article end content
@@ -239,15 +205,14 @@ class Arlima_TemplateObjectCreator
 
             // Text content
             if( $this->content_callback !== false ) {
-                $obj['article']['html_content'] = call_user_func($this->content_callback, $article, !empty($post), $post, $article_counter, $this->list);
-                $obj['article']['html_text'] = $obj['article']['html_content']; // deprecated todo: remove on v 3.0
+                $obj['html_content'] = call_user_func($this->content_callback, $article, !empty($post), $post, $article_counter, $this->list);
             }
 
             $this->generateStreamerData($has_streamer, $obj, $article);
 
             // Related posts
             if ( $load_related_articles ) {
-                if ( empty($article['options']['hiderelated']) && $this->related_callback !== false ) {
+                if ( empty($article['options']['hideRelated']) && $this->related_callback !== false ) {
                     $obj['related'] = call_user_func($this->related_callback, $article_counter, $article, $post, $this->list);
                 }
             }
@@ -260,13 +225,13 @@ class Arlima_TemplateObjectCreator
 
         // child classes
         if( $this->is_child ) {
-            $obj['container']['class'] .= ' teaser-child';
+            $obj['class'] .= ' teaser-child';
         }
         if( $this->is_child_split ) {
-            $obj['container']['class'] .= ' teaser-split'; // is one out of many children
+            $obj['class'] .= ' teaser-split'; // is one out of many children
         }
 
-        $filter_suffix = Arlima_FilterApplier::getFilterSuffix(); 
+        $filter_suffix = Arlima_FilterApplier::getFilterSuffix();
         return apply_filters('arlima_template_object'. ($filter_suffix ? '-'.$filter_suffix:''), $obj, $article, $this->list, $template_name);
     }
 
@@ -283,25 +248,22 @@ class Arlima_TemplateObjectCreator
         if( $this->image_callback !== false) {
             $img = call_user_func($this->image_callback, $article, $article_counter, $post, $this->list, $img_size, $this->is_child_split);
 
-            if ( $img || !empty($article['image_options']['url']) ) {
+            if ( $img || !empty($article['image']['url']) ) {
 
-                if ( empty($article['image_options']['url']) ) {
+                if ( empty($article['image']['url']) ) {
                     preg_match('/src="([^"]*)"/i', $img, $arr);
                     if ( !empty($arr[1]) ) {
-                        $article['image_options']['url'] = $arr[1];
+                        $article['image']['url'] = $arr[1];
                     } else {
-                        $article['image_options']['url'] = false;
+                        $article['image']['url'] = false;
                     }
                 }
 
-                $data['image'] = array(
-                    'html' => $img,
-                    'src' => false, // src is actually only used by javascript in wp-admin,
-                    'url' => $article['image_options']['url'], // this variable is only available in front end
-                );
-                $data['container']['class'] .= $img_opt_size ? ' img-' . $img_opt_size : ' has-img';
+                $data['html_image'] = $img;
+                $data['class'] .= $img_opt_size ? ' img-' . $img_opt_size : ' has-img';
+
             } else {
-                $data['container']['class'] .= ' no-img';
+                $data['class'] .= ' no-img';
             }
         }
     }
@@ -313,21 +275,38 @@ class Arlima_TemplateObjectCreator
      */
     protected function generateStreamerData($has_streamer, &$data, $article)
     {
-        $data['container']['class'] .= ($has_streamer ? '' : ' no-streamer');
+        $data['class'] .= ($has_streamer ? '' : ' no-streamer');
         if ( $has_streamer ) {
-            $data['streamer']['type'] = $article['options']['streamer_type'];
-            switch ($data['streamer']['type']) {
+
+            $style_attr = '';
+            $streamer_classes = $data['options']['streamerType'];
+
+            switch ($data['options']['streamerType']) {
                 case 'extra' :
-                    $data['streamer']['content'] = 'EXTRA';
+                    $content = 'EXTRA';
                     break;
                 case 'image' :
-                    $data['streamer']['content'] = '<img src="' . $article['options']['streamer_image'] . '" alt="Streamer" />';
+                    $content = '<img src="' . $data['options']['streamerContent'] . '" alt="Streamer" />';
+                    break;
+                case 'text':
+                    $content = $data['options']['streamerContent'];
+                    if( isset($data['options']['streamerColor']) ) {
+                        $style_attr = ' style="background: #'.$data['options']['streamerColor'].'"';
+                        $streamer_classes .= ' color-'.$data['options']['streamerColor'];
+                    }
                     break;
                 default :
-                    $data['streamer']['content'] = $article['options']['streamer_content'];
+                    // Custom streamer
+                    $content = $data['options']['streamerContent'];
+                    break;
             }
 
-            $data['streamer']['style'] = !empty($article['options']['streamer_color']) && $data['streamer']['type'] == 'text' ? 'background: #' . $article['options']['streamer_color'] : '';
+            $data['html_streamer'] = sprintf(
+                    '<div class="streamer %s"%s>%s</div>',
+                    $streamer_classes,
+                    $style_attr,
+                    $content
+                );
         }
     }
 

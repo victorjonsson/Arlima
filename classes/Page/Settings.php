@@ -7,6 +7,8 @@
  */
 class Arlima_Page_Settings extends Arlima_AbstractAdminPage {
 
+    const PAGE_SLUG = 'arlima-settings';
+
     function scripts()
     {
         return array(
@@ -33,11 +35,16 @@ class Arlima_Page_Settings extends Arlima_AbstractAdminPage {
 
     function slug()
     {
-        return 'arlima-settings';
+        return self::PAGE_SLUG;
     }
 
     public function parentSlug()
     {
         return 'arlima-main';
+    }
+
+    public function capability()
+    {
+        return 'manage_options';
     }
 }

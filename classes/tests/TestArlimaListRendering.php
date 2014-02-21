@@ -45,10 +45,10 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         $list->setOption('supports_sections', 1);
         $articles = $list->getArticles();
 
-        $articles[0]['options']['section_divider'] = 1;
-        $articles[3]['options']['section_divider'] = 1;
+        $articles[0]['options']['sectionDivider'] = 1;
+        $articles[3]['options']['sectionDivider'] = 1;
         $articles[3]['title'] = 'secundo';
-        $articles[9]['options']['section_divider'] = 1;
+        $articles[9]['options']['sectionDivider'] = 1;
         $list->setArticles($articles);
 
         $renderer = new Arlima_ListTemplateRenderer($list);

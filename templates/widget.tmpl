@@ -1,27 +1,24 @@
-<div class="${container.class} tmpl-article tmpl-widget">
+<div data-post="{{post}}" class="{{class}} tmpl-article tmpl-widget">
     <article>
 
-        {{if streamer}}
-            <div style="${streamer.style}" class="streamer ${streamer.type}">
-                <span>{{html streamer.content}}</span>
-            </div>
-        {{/if}}
+        {{{html_streamer}}}
 
-        {{html article_begin}}
+        {{{article_begin}}}
 
         {{image-support size="full, half, third" children-size="full, half"}}
 
-        {{include parts/top-image.tmpl}}
+        {{{html_image}}}
 
-        {{if article.url}}
-            <h4><a href="${article.url}">${article.title}</a></h4>
-        {{else}}
-            <h4>${article.title}</h4>
-        {{/if}}
+        {{#url}}
+            <h4><a href="{{url}}">{{title}}</a></h4>
+        {{/url}}
+        {{^url}}
+            <h4>{{title}}</h4>
+        {{/url}}
 
-        {{html article.html_text}}
+        {{{html_content}}}
 
     </article>
 </div>
 
-{{html article_end}}
+{{{article_end}}}

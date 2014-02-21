@@ -1,3 +1,6 @@
+> **!! NOTICE !!** The master branch of this repository is not intended for use in production.
+
+
 Arlima 3.0
 ======
 
@@ -6,11 +9,10 @@ staff an easy to use tool for customizing the front pages of their online magazi
 used on a daily basis at http://www.folkbladet.nu and http://www.vk.se, websites that 
 together has over 200 000 unique visitors per week.*
 
-> **NOTICE!** The master branch of this repository is not intended for use in production.
-
 ## Getting started
 
-1. Install Arlima via the [WordPress.org plugin directory](http://wordpress.org/extend/plugins/arlima/).
+~~1. Install Arlima via the [WordPress.org plugin directory](http://wordpress.org/extend/plugins/arlima/).~~
+1. Download the latest release from github and unzip the folder in your plugin directory
 2. Go to "Article lists" -> "Edit lists" in wp-admin and create your first article list.
 3. Open up a page (or create it) in wp-admin. Down to the right you will see a meta box labeled "Arlima" where you choose
 the list that you created on step 2.

@@ -459,7 +459,7 @@ class Arlima_List
     {
         $arr = array();
         foreach($this as $key => $val) {
-            if( $key !== 'preview' )
+            if( $key !== 'preview' && $key != 'post_ids' )
                 $arr[$key] = $val;
         }
 

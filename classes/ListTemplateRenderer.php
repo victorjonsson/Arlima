@@ -141,7 +141,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     /**
      * @param array|stdClass $article_data
      * @param int $article_counter
-     * @return int
+     * @return array
      */
     protected function outputArticle($article_data, $article_counter)
     {
@@ -453,8 +453,8 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     {
         $file_include = new Arlima_FileInclude();
         $args = array();
-        if (!empty($article_data['options']['file_args'])) {
-            parse_str($article_data['options']['file_args'], $args);
+        if (!empty($article_data['options']['fileArgs'])) {
+            parse_str($article_data['options']['fileArgs'], $args);
         }
 
         return $file_include->includeFile($article_data['options']['fileInclude'], $args, $this, $article_data);

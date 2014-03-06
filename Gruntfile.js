@@ -224,7 +224,7 @@ module.exports = function(grunt) {
      */
     var defaultTasks = [
         'phpunit',
-       // 'validate',
+        'validate',
         'change-version',
         'localization',
         'less',

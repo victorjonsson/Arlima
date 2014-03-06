@@ -286,10 +286,14 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         $child_articles = '';
         $count = 0;
         $has_open_child_wrapper = false;
+        $group_children_vk_style = apply_filters('arlima_group_children', true) === true;
         $num_children = count($articles);
         $has_even_children = $num_children % 2 === 0;
         $is_child_split = $num_children > 1;
         $image_size = !$is_child_split ? $this->img_size_name_sub_article_full : $this->img_size_name_sub_article;
+
+        // if $group_children_vk_style is false will the variable $has_open_child_wrapper always be false
+        // and then no grouping will be applied
 
         // Configure object creator for child articles
         $this->template_obj_creator->setImgSize($image_size);
@@ -301,9 +305,11 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             $first_or_last_class = '';
 
             if(
-                ($num_children == 4 && ($count == 1 || $count == 2)) ||
-                ($num_children == 6 && ($count != 0 && $count != 3)) ||
-                ($num_children > 1 && $num_children != 4 && $num_children != 6 && ($count != 0 || $has_even_children) )
+                $group_children_vk_style && (
+                    ($num_children == 4 && ($count == 1 || $count == 2)) ||
+                    ($num_children == 6 && ($count != 0 && $count != 3)) ||
+                    ($num_children > 1 && $num_children != 4 && $num_children != 6 && ($count != 0 || $has_even_children) )
+                )
             ) {
                 $this->template_obj_creator->setIsChildSplit( true );
                 $first_or_last_class = (($count==1 && $num_children > 2) || ($count==0 && $num_children==2) || $count==3 || ($count==4 && $num_children ==6)? ' first':' last');
@@ -325,7 +331,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             list($post, $article, $is_post, $is_empty) = $this->setup($article_data);
 
             if ( is_object($post) && $post->post_status == 'future' ) {
-                if( $has_open_child_wrapper  && $first_or_last_class == ' last' ) {
+                if( $group_children_vk_style && $has_open_child_wrapper  && $first_or_last_class == ' last' ) {
                     $child_articles .= '</div>';
                     $has_open_child_wrapper = false;
                 }

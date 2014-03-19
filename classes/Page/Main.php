@@ -171,7 +171,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         ?>
         <script>
             ArlimaArticle.defaultData = <?php echo json_encode(Arlima_ListFactory::createArticleDataArray()) ?>;
-            ArlimaUtils.serverTime = <?php echo time() * 1000; ?>;
+            ArlimaUtils.serverTime = <?php echo current_time('timestamp') * 1000; ?>;
             (function(win) {
                 var tmpls = [];
                 <?php foreach ($tmpl_resolver->getTemplateFiles()as $tmpl): ?>

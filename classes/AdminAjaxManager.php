@@ -594,7 +594,12 @@ class Arlima_AdminAjaxManager
             $post->url = get_permalink($post->ID);
             $post->published = strtotime($post->post_date_gmt);
             $post->display_date = $post->post_date;
+            if(is_plugin_active('co-authors-plus/co-authors-plus.php')) {
+                $coauthors = get_coauthors($post->ID);
+                $post->post_author = $coauthors[0]->ID;
+            }
             $post->display_author = get_the_author_meta('display_name', $post->post_author);
+
             return apply_filters('arlima_wp_post', $post);
         }
         return false;

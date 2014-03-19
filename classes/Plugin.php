@@ -753,6 +753,14 @@ class Arlima_Plugin
      */
     public function addAdminJavascriptVars($handle)
     {
+        // Default crop templates
+        $crop_templates = array(
+            'Widescreen' => array(16,9),
+            '19:9' => array(19,9),
+            'Cinema' => array(21,9),
+            'Square' => array(666,666)
+        );
+
         wp_localize_script(
             $handle,
             'ArlimaJSAdmin',
@@ -766,7 +774,8 @@ class Arlima_Plugin
                         'arlima'
                     ),
                     'wasSentTo' => __('The post is inserted in article list', 'arlima')
-                )
+                ),
+                'scissorsCropTemplates' => apply_filters('arlima_scissors_crop_templates', $crop_templates)
             )
         );
     }

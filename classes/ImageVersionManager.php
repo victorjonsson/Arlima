@@ -11,7 +11,7 @@ class Arlima_ImageVersionManager
 {
 
     const META_KEY = 'arlima-images';
-    const VERSION_PREFIX = 'arlima_mw';
+    const VERSION_PREFIX = 'norran_mw';
     
     /**
      * @var int

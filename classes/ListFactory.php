@@ -715,6 +715,21 @@ class Arlima_ListFactory {
         return $this->executeSQLQuery('get_results', $sql);
     }
 
+    /**
+     * Get latest article teaser created that is related to given post
+     * @param $post_id
+     * @return array
+     */
+    public function getLatestArticle($post_id)
+    {
+        $sql = sprintf(
+                "SELECT * FROM %s WHERE ala_post=%d ORDER BY ala_id DESC LIMIT 0,1",
+                $this->dbTable('_article'),
+                (int)$post_id
+            );
+
+        return $this->executeSQLQuery('get_results', $sql);
+    }
 
     /* * * * * * * * * * * * * * * * * INSTALL / UNINSTALL  * * * * * * * * * * * * * * * * * */
 

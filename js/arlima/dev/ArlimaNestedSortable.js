@@ -294,6 +294,10 @@ function arlimaNestedSortable(list) {
 
                 if( !window.arlimaMoveBetweenLists )
                     _whenDropFinished(ui.item, false);
+                else {
+                    list.updateParentProperties();
+                    _resetSortableVars();
+                }
             },
             sort: function(e, ui) {
 
@@ -338,7 +342,6 @@ function arlimaNestedSortable(list) {
                     list.$elem.find('.ui-draggable').remove();
                     $addedElement = article.$elem;
                 } else {
-                    // don't call _whenDropFinished, is already done in stop event
                     $addedElement = ui.item;
                     ui.item[0].arlimaArticle.listID = list.data.id;
                 }

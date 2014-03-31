@@ -281,7 +281,11 @@ class Arlima_ListFactory {
     private function saveArticle($version_id, $article, $sort, $parent=-1, $offset)
     {
         foreach($article as $key => $val) {
-            if( !is_array($val) ) {
+            if( is_array($val) ) {
+                foreach($article[$key] as $sub_key => $sub_val) {
+                    $article[$key][$sub_key] = str_replace('\\', '', $sub_val);
+                }
+            } else {
                 $article[$key] = str_replace('\\', '', $val);
             }
         }
@@ -715,6 +719,21 @@ class Arlima_ListFactory {
         return $this->executeSQLQuery('get_results', $sql);
     }
 
+    /**
+     * Get latest article teaser created that is related to given post
+     * @param $post_id
+     * @return array
+     */
+    public function getLatestArticle($post_id)
+    {
+        $sql = sprintf(
+                "SELECT * FROM %s WHERE ala_post=%d ORDER BY ala_id DESC LIMIT 0,1",
+                $this->dbTable('_article'),
+                (int)$post_id
+            );
+
+        return $this->executeSQLQuery('get_results', $sql);
+    }
 
     /* * * * * * * * * * * * * * * * * INSTALL / UNINSTALL  * * * * * * * * * * * * * * * * * */
 
@@ -998,6 +1017,7 @@ class Arlima_ListFactory {
         if( !empty($art_data['image']) && !empty($art_data['image']['attach_id']) ) {
             $art_data['image']['attachment'] = $art_data['image']['attach_id'];
             unset($art_data['image']['attach_id']);
+            unset($art_data['image']['html']);
         }
 
         return $art_data;
@@ -1134,7 +1154,6 @@ class Arlima_ListFactory {
         if (self::hasPostThumbNailSupport() && has_post_thumbnail($post->ID)) {
             $attach_id = get_post_thumbnail_id($post->ID);
             $art_data['image'] = array(
-                'html' => get_the_post_thumbnail($post->ID, 'large'),
                 'url' => wp_get_attachment_url($attach_id),
                 'attachment' => $attach_id,
                 'size' => 'full',

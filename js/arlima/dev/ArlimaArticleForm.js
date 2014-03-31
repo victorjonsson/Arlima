@@ -288,9 +288,8 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
          * Looks at current mustasch template and hides/shows features in the editor
          */
         toggleEditorFeatures : function() {
-            var template = this.article.getTemplate(),
-                blocker = window.ArlimaFormBlocker,
-                support = window.ArlimaTemplateLoader.templateSupport(template),
+            var blocker = window.ArlimaFormBlocker,
+                support = window.ArlimaTemplateLoader.getTemplateSupport(this.article),
                 $features = this.$form.find('.template-feature');
 
             if( this.article.opt('sectionDivider') || this.article.opt('fileInclude') ) {
@@ -353,7 +352,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                     return check == this.article.listID;
                 }
                 else {
-                    return check == this.article.$elem;
+                    return check[0].arlimaArticle && check[0].arlimaArticle == this.article.$elem[0].arlimaArticle;
                 }
             }
             return false;

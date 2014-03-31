@@ -105,12 +105,14 @@ function arlimaNestedSortable(list) {
      * @private
      */
      _whenDropFinished = function($elem, toggleUnsavedState) {
+
         // update parent props for child articles
         list.updateParentProperties();
         _reduceListToMaxSize();
 
-        if( startedOfInPreview || window.ArlimaArticlePreview.isPreviewed($elem.get(0).arlimaArticle) ) {
-            window.ArlimaArticlePreview.reload();
+        // update preview
+        if( window.ArlimaArticleForm.isEditing($elem) ) {
+            window.ArlimaArticleForm.setupForm(); // will also update preview if open
         }
 
         try {
@@ -158,6 +160,7 @@ function arlimaNestedSortable(list) {
 
                 var height, width, parent, children, tempHolder;
                 transport = ui.helper.children('.children-transport');
+                window.arlimaMoveBetweenLists = false;
 
                 // Set depths. currentDepth must be set before children are located.
                 originalDepth = _itemDepth(ui.item);
@@ -219,7 +222,7 @@ function arlimaNestedSortable(list) {
                     listContainerElem = ui.item.closest('.article-list').get(0),
                     itemIndex = ui.item.prevAll().length;
 
-                if( ui.item.hasClass('ui-draggable')) {
+                if( ui.item.hasClass('ui-draggable') ) {
                     // this item is taken care of in the recieve event
                     return;
                 } else if( listContainerElem.arlimaList.data.id == list.data.id && list.data.isImported ) {
@@ -289,7 +292,8 @@ function arlimaNestedSortable(list) {
                     list.toggleUnsavedState(true);
                 }
 
-                _whenDropFinished(ui.item, false);
+                if( !window.arlimaMoveBetweenLists )
+                    _whenDropFinished(ui.item, false);
             },
             sort: function(e, ui) {
 
@@ -327,17 +331,21 @@ function arlimaNestedSortable(list) {
             },
             receive: function(event, ui) {
                 var $addedElement;
-                if(ui.sender.hasClass('ui-draggable')) {
+                if( ui.sender.hasClass('ui-draggable') ) {
                     var article =  new ArlimaArticle($.extend(true, {}, ui.item.context.arlimaArticle.data), list.data.id);
                     article.$elem.insertAfter(list.$elem.find('ui-draggable'));
                     article.$elem.addClass('list-item-depth-' + currentDepth).insertAfter($('.ui-draggable', this));
                     list.$elem.find('.ui-draggable').remove();
                     $addedElement = article.$elem;
                 } else {
+                    // don't call _whenDropFinished, is already done in stop event
                     $addedElement = ui.item;
+                    ui.item[0].arlimaArticle.listID = list.data.id;
                 }
 
                 _whenDropFinished($addedElement, true);
+
+                window.arlimaMoveBetweenLists = true; // prevent that some things gets called twice due to the stop event
             }
         });
 }

@@ -1,4 +1,4 @@
-var ArlimaImageManager = (function($, window, ArlimaArticleForm) {
+var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateLoader) {
 
     'use strict';
 
@@ -6,8 +6,13 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm) {
 
         $elem : false,
         $imageWrapper : false,
+        $sizeOpts : false,
         $buttons : false,
         $selects : false,
+
+        /**
+         * @var {ArlimaArticle}
+         */
         article : false,
 
         setup : function(article) {
@@ -40,6 +45,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm) {
             this.$imageWrapper = $container.find('.image');
             this.$buttons = $container.find('.button');
             this.$selects = $container.find('select');
+            this.$sizeOpts = _this.$selects.filter('.img-size').find('option');
 
             var $attachFancyBox = $container.find('.attachments-fancybox');
 
@@ -152,6 +158,34 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm) {
             _this.$buttons.show();
             _this.$selects.show();
 
+            var imageSizeSupport = ArlimaTemplateLoader.getTemplateSupport(_this.article).imageSize,
+                sizes = false;
+
+            if( imageSizeSupport ) {
+                if( _this.article.isChild() && imageSizeSupport['children-size'] ) {
+                    sizes = imageSizeSupport['children-size'].split(',');
+                } else if( imageSizeSupport.size ) {
+                    sizes = imageSizeSupport.size.split(',');
+                }
+
+                if( sizes ) {
+                    _this.$sizeOpts.attr('disabled', 'disabled');
+                    var currentSizeIsAvailable = false;
+                    $.each(sizes, function(i, size) {
+                        size = $.trim(size);
+                        _this.$sizeOpts.filter('[value="'+size+'"]').removeAttr('disabled');
+                        if( size == _this.article.data.image.size ) {
+                            currentSizeIsAvailable = true;
+                        }
+                    });
+                    if( !currentSizeIsAvailable ) {
+                        _this.article.data.image.size = _this.$sizeOpts.filter(':not(disabled)').attr('value');
+                    }
+                }
+            } else {
+                _this.$sizeOpts.removeAttr('disabled');
+            }
+
             // Add data to form
             ArlimaUtils.selectVal(_this.$selects.filter('.img-align'), _this.article.data.image.alignment, false);
             ArlimaUtils.selectVal(_this.$selects.filter('.img-size'), _this.article.data.image.size, false);
@@ -170,4 +204,4 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm) {
 
     return _this;
 
-})(jQuery, window, ArlimaArticleForm);
+})(jQuery, window, ArlimaArticleForm, ArlimaTemplateLoader);

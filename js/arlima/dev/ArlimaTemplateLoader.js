@@ -29,6 +29,11 @@ var ArlimaTemplateLoader = (function($) {
         },
 
         /**
+         * Get the object describing the feature support of a certain template.
+         * @example
+         *  ArlimaTemplateLoader.templateSupport('my-article-template'); // Returns object with all feature support configuration for the template my-article-template.tmpl
+         *  ArlimaTemplateLoader.templateSupport('my-article-template', 'image'); // Returns the support for image in the template my-article-template.tmpl
+         *
          * @param name
          * @param type
          * @returns {*}
@@ -38,6 +43,15 @@ var ArlimaTemplateLoader = (function($) {
                 return this._templateSupport[name];
             }
             return this._templateSupport[name] === undefined ? undefined : this._templateSupport[name][type];
+        },
+
+        /**
+         * Get an object describing the feature support of the template chosen for given article
+         * @param {ArlimaArticle} article
+         * @returns {Object}
+         */
+        getTemplateSupport : function(article) {
+            return this.templateSupport(article.getTemplate()) || {};
         },
 
         _loadNextTemplate : function() {

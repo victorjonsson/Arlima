@@ -229,7 +229,16 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      * @return {String}
      */
     ArlimaArticle.prototype.getTemplate = function() {
-        return this.opt('template') || window.ArlimaListContainer.list(this.listID).data.options.template;
+        var tmpl = this.opt('template');
+        if( !tmpl ) {
+            if( !this.listID ) {
+                ArlimaUtils.log('Trying to get template of an article that is not yet related to any list', 'warn');
+                tmpl = undefined;
+            } else {
+                tmpl = window.ArlimaListContainer.list(this.listID).data.options.template;
+            }
+        }
+        return tmpl;
     };
 
     /**

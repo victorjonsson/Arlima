@@ -316,8 +316,9 @@ function arlimaNestedSortable(list) {
 
                 _updateSharedVars(ui);
 
-                if( prev.length && !prev.get(0).arlimaArticle.canHaveChildren() || !canBeChild )
+                if( (prev.length && !prev[0].arlimaArticle.isChild() && !prev[0].arlimaArticle.canHaveChildren()) || !canBeChild ) {
                     depth = 0; // We cant go deeper if parent article for some reason don't accept children
+                }
 
                 // Check and correct if depth is not within range.
                 if ( depth > maxDepth ) depth = maxDepth;

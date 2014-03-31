@@ -14,11 +14,6 @@ class Arlima_ImageVersionManager
     const VERSION_PREFIX = 'arlima_mw';
 
     /**
-     * @var string
-     */
-    private $version_prefix;
-
-    /**
      * @var int
      */
     private $attach_id;

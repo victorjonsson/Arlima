@@ -246,7 +246,13 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      */
     ArlimaArticle.prototype.getParentArticle = function() {
         if( this.isChild() ) {
-            return this.$elem.parent().find('.article').not('.list-item-depth-1').get(this.data.parent).arlimaArticle;
+            try {
+                return this.$elem.parent().find('.article').not('.list-item-depth-1').get(this.data.parent).arlimaArticle;
+            } catch(err) {
+                console.log(this.$elem.parent());
+                console.log(this.$elem);
+                console.log(new Error().stack);
+            }
         }
     };
 

@@ -1,4 +1,4 @@
-var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend) {
+var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
     'use strict';
 
@@ -267,6 +267,12 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend) {
         return this.$elem.find('.article').get(index).arlimaArticle;
     };
 
+    ArlimaList.prototype.dump = function() {
+        this.$elem.find('.article').each(function() {
+            ArlimaUtils.log(this.arlimaArticle);
+        });
+    };
+
     /**
      * Save current list as a new version
      */
@@ -460,4 +466,4 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend) {
 
     return ArlimaList;
 
-})(jQuery, window, ArlimaJS, ArlimaBackend);
+})(jQuery, window, ArlimaJS, ArlimaBackend, ArlimaUtils);

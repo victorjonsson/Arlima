@@ -12,7 +12,7 @@ class Arlima_ImageVersionManager
 
     const META_KEY = 'arlima-images';
     const VERSION_PREFIX = 'arlima_mw';
-    
+
     /**
      * @var int
      */

@@ -81,10 +81,9 @@ var ArlimaScissors = (function($, window, ArlimaArticleForm, ArlimaBackend, Arli
         modifyScissorsEditor : function($elem) {
 
             var attach = ArlimaArticleForm.article.data.image.attachment;
-            _createRatioButton('Widescreen', 16, 9, attach);
-            _createRatioButton('19:9', 19, 9, attach);
-            _createRatioButton('Cinema', 21, 9, attach);
-            _createRatioButton('Square', 666, 666, attach);
+            $.each(ArlimaJSAdmin.scissorsCropTemplates, function(key, val) {
+                _createRatioButton(key, val[0], val[1], attach);
+            });
 
             // Modify settings in crop form
             $elem.find('input[type="checkbox"]').each(function() {

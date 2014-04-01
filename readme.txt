@@ -1,10 +1,10 @@
 === Article List Manager (arlima) ===
 
-Contributors: @chredd, @znoid, @victor_jonsson, @lefalque
+Contributors: @chredd, @znoid, @victor_jonsson, @lefalque, @aaslun
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.5.1
 Tested up to: 3.8
-Stable tag: 3.0.alpha.20
+Stable tag: 3.0.alpha.21
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

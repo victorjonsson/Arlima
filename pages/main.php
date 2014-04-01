@@ -296,7 +296,7 @@ $arlima_plugin = new Arlima_Plugin();
                             'name'              => 'catid',
                             'id'                => 'arlima-posts-category'
                         );
-                        wp_dropdown_categories( $args );
+                        wp_dropdown_categories( apply_filters('arlima_dropdown_categories', $args) );
 
                         $args = array(
                             'show_option_all' 	=> __('All authors', 'arlima'),

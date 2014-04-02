@@ -8,7 +8,7 @@ function arlimaNestedSortable(list) {
         $articles = list.$elem.find('.articles'),
         globalMaxDepth = 2, currentDepth = 0, originalDepth, minDepth, maxDepth,
         prev, next, prevBottom, nextThreshold, helperHeight, transport, isMovingWithChildren,
-        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, startedOfInPreview, canBeChild,
+        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, canBeChild,
 
     _updateCurrentDepth = function(ui, depth) {
         _updateDepthClass( ui.placeholder, depth, currentDepth );
@@ -85,7 +85,6 @@ function arlimaNestedSortable(list) {
     _resetSortableVars = function() {
         startedOfAsChild = false;
         itemStartIndex = -1;
-        startedOfInPreview = false;
     },
 
     /**
@@ -191,7 +190,6 @@ function arlimaNestedSortable(list) {
                     });
                 } else {
                     isMovingCopy = false;
-                    startedOfInPreview = window.ArlimaArticlePreview.isPreviewed(ui.item[0].arlimaArticle);
                 }
 
                 // Update the height of the placeholder to match the moving item.

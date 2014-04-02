@@ -53,6 +53,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils) {
          * @param {Boolean} [belongsToImportedList]
          */
         setArticle : function(article, templateContent, width, titleElem, belongsToImportedList) {
+            ArlimaUtils.log('Adding article to preview');
             this.article = article;
             if( !article.canPreview() || belongsToImportedList ) {
                 if( this.isVisible() ) {
@@ -267,6 +268,9 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils) {
      * Render the entire preview
      */
     _render = function() {
+
+        ArlimaUtils.log('Rendering preview');
+
         var $content;
 
         _this.isRendered = true;

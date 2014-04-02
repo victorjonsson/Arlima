@@ -252,7 +252,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      */
     ArlimaArticle.prototype.getParentArticle = function() {
         if( this.isChild() ) {
-            var $allArticles = this.$elem.parent().find('.article').not('.list-item-depth-1').not('.section-divider');
+            var $allArticles = this.$elem.parent().find('.article').not('.list-item-depth-1');
             return $allArticles.get(this.data.parent).arlimaArticle;
         }
     };

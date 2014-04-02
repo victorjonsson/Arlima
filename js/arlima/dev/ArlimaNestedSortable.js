@@ -105,9 +105,15 @@ function arlimaNestedSortable(list) {
      */
      _whenDropFinished = function($elem, toggleUnsavedState) {
 
+        window.ArlimaUtils.log('Finished drop for '+list.data.id);
+
         // update parent props for child articles
-        list.updateParentProperties();
         _reduceListToMaxSize();
+        
+        setTimeout(function() {
+            // This must be done in a little while for DOM to catch up
+            list.updateParentProperties();
+        }, 400);
 
         // update preview
         if( window.ArlimaArticleForm.isEditing($elem) ) {
@@ -293,7 +299,10 @@ function arlimaNestedSortable(list) {
                 if( !window.arlimaMoveBetweenLists )
                     _whenDropFinished(ui.item, false);
                 else {
+
+                    // This may be redundant if we moved a copy to another list... but nevermind...
                     list.updateParentProperties();
+
                     _resetSortableVars();
                 }
             },

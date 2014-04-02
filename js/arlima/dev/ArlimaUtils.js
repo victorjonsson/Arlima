@@ -32,6 +32,11 @@ var ArlimaUtils = (function($, window, undefined) {
         log : function(mess, method) {
             if(method === undefined)
                 method = 'log';
+
+            if( method == 'log' && !ArlimaJS.devMode ) {
+                return;
+            }
+
             if('console' in window && typeof window.console[method] == 'function') {
                 window.console[method](mess);
             }

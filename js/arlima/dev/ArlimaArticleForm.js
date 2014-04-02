@@ -72,6 +72,9 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
          * @param {ArlimaList} [list]
          */
         setupForm : function(list) {
+
+            ArlimaUtils.log('Setting up article form');
+
             if( !list ) {
                 list = window.ArlimaListContainer.list(this.article.listID)
             }

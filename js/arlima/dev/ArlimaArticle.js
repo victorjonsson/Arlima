@@ -212,13 +212,19 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      * @return {ArlimaList[]}
      */
     ArlimaArticle.prototype.getChildArticles = function() {
-        var elemIndex = this.$elem.prevAll().not('.list-item-depth-1').length,
-            $next = this.$elem.next(),
-            children = [];
+        if( this.isChild() ) {
+            return []; // Notice: this logic must be looked over if allowing deeper child levels
+        }
 
-        while($next.length > 0 && $next[0].arlimaArticle && $next[0].arlimaArticle.data.parent == elemIndex) {
-            children.push($next[0].arlimaArticle);
-            $next = $next.next();
+        var children = [],
+            $next = this.$elem.next(),
+            parentIndex = $next.length && $next[0].arlimaArticle ? $next[0].arlimaArticle.data.parent : -1;
+
+        if( parentIndex > -1 ) {
+            while($next.length && $next[0].arlimaArticle.data.parent == parentIndex ) {
+                children.push($next[0].arlimaArticle);
+                $next = $next.next();
+            }
         }
 
         return children;
@@ -246,13 +252,8 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      */
     ArlimaArticle.prototype.getParentArticle = function() {
         if( this.isChild() ) {
-            try {
-                return this.$elem.parent().find('.article').not('.list-item-depth-1').get(this.data.parent).arlimaArticle;
-            } catch(err) {
-                console.log(this.$elem.parent());
-                console.log(this.$elem);
-                console.log(new Error().stack);
-            }
+            var $allArticles = this.$elem.parent().find('.article').not('.list-item-depth-1');
+            return $allArticles.get(this.data.parent).arlimaArticle;
         }
     };
 

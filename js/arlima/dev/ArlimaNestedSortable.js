@@ -8,7 +8,7 @@ function arlimaNestedSortable(list) {
         $articles = list.$elem.find('.articles'),
         globalMaxDepth = 2, currentDepth = 0, originalDepth, minDepth, maxDepth,
         prev, next, prevBottom, nextThreshold, helperHeight, transport, isMovingWithChildren,
-        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, startedOfInPreview, canBeChild,
+        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, canBeChild,
 
     _updateCurrentDepth = function(ui, depth) {
         _updateDepthClass( ui.placeholder, depth, currentDepth );
@@ -85,7 +85,6 @@ function arlimaNestedSortable(list) {
     _resetSortableVars = function() {
         startedOfAsChild = false;
         itemStartIndex = -1;
-        startedOfInPreview = false;
     },
 
     /**
@@ -106,9 +105,15 @@ function arlimaNestedSortable(list) {
      */
      _whenDropFinished = function($elem, toggleUnsavedState) {
 
+        window.ArlimaUtils.log('Finished drop for '+list.data.id);
+
         // update parent props for child articles
-        list.updateParentProperties();
         _reduceListToMaxSize();
+
+        setTimeout(function() {
+            // This must be done in a little while for DOM to catch up
+            list.updateParentProperties();
+        }, 400);
 
         // update preview
         if( window.ArlimaArticleForm.isEditing($elem) ) {
@@ -191,7 +196,6 @@ function arlimaNestedSortable(list) {
                     });
                 } else {
                     isMovingCopy = false;
-                    startedOfInPreview = window.ArlimaArticlePreview.isPreviewed(ui.item[0].arlimaArticle);
                 }
 
                 // Update the height of the placeholder to match the moving item.
@@ -295,7 +299,10 @@ function arlimaNestedSortable(list) {
                 if( !window.arlimaMoveBetweenLists )
                     _whenDropFinished(ui.item, false);
                 else {
+
+                    // This may be redundant if we moved a copy to another list... but nevermind...
                     list.updateParentProperties();
+
                     _resetSortableVars();
                 }
             },

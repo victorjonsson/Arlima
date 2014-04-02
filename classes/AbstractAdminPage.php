@@ -190,6 +190,7 @@ abstract class Arlima_AbstractAdminPage {
                 'pluginURL' => ARLIMA_PLUGIN_URL,
                 'hasScissors' => Arlima_Plugin::isScissorsInstalled(),
                 'isAdmin' => current_user_can('manage_options'),
+                'devMode' => ARLIMA_DEV_MODE,
                 'previewQueryArg' => Arlima_List::QUERY_ARG_PREVIEW,
                 'lang' => array( // todo: but these args in a separate .js.php file when this array gets to long
                     'unsaved' => __('You have one, or more, unsaved article lists, do you wish to proceed?', 'arlima'),

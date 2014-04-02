@@ -255,7 +255,7 @@ class Arlima_ExportManager
         $img = '';
         if ( isset($article['image']) && !empty($article['image']['url']) ) {
 
-            $node_type = defined('ARLIMA_RSS_IMG_TAG') ? ARLIMA_RSS_IMG_TAG : 'enclosure';
+            $node_type = ARLIMA_RSS_IMG_TAG;
             $img_url = apply_filters('arlima_rss_image', $article['image']['url'], $article['image']);
             $img_type = pathinfo($img_url, PATHINFO_EXTENSION);
             $img_type = 'image/'. current(explode('?', $img_type));

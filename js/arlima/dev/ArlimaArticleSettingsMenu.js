@@ -42,7 +42,7 @@ var ArlimaArticleSettingsMenu = (function($, ArlimaUtils) {
                 }
             });
 
-            if( !list.data.options.allows_template_switching || !article.canPreview() ) {
+            if( !list.data.options.allows_template_switching || !article.canHaveTemplate() ) {
                 // list does not allow change of template
                 this.$dropDown.find('.nav.template .nav').addClass('disabled');
             } else {

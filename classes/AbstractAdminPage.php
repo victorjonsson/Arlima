@@ -154,7 +154,7 @@ abstract class Arlima_AbstractAdminPage {
     public function enqueueStyles()
     {
         $styles = $this->styleSheets();
-        if( ARLIMA_DEV_MODE && !defined('PREVENT_ARLIMA_ADMIN_LESS') ) { // The second constant makes it possible to use the compiled css event though we're in dev-mode
+        if( ARLIMA_COMPILE_LESS_IN_BROWSER ) { // The second constant makes it possible to use the compiled css event though we're in dev-mode
             unset($styles['arlima_css']);
             add_action('admin_head', 'Arlima_AbstractAdminPAge::outputLessJS');
         }
@@ -191,6 +191,7 @@ abstract class Arlima_AbstractAdminPage {
                 'hasScissors' => Arlima_Plugin::isScissorsInstalled(),
                 'isAdmin' => current_user_can('manage_options'),
                 'devMode' => ARLIMA_DEV_MODE,
+                'sectionDivsSupportTemplate' => ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES,
                 'previewQueryArg' => Arlima_List::QUERY_ARG_PREVIEW,
                 'lang' => array( // todo: but these args in a separate .js.php file when this array gets to long
                     'unsaved' => __('You have one, or more, unsaved article lists, do you wish to proceed?', 'arlima'),

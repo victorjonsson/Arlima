@@ -268,11 +268,25 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
     };
 
     /**
-     * Says that the article supports templates
+     * Says that the article supports templates that is possible to preview
+     * in the list manager
+     * @see ArlimaArticle.canHaveTemplate()
      * @returns {Boolean}
      */
     ArlimaArticle.prototype.canPreview = function() {
         return !this.opt('fileInclude') && !this.opt('sectionDivider');
+    };
+
+    /**
+     * Tells whether or not this article support switching of the template (as long as its allowed by the list it's in).
+     * @returns {Boolean}
+     */
+    ArlimaArticle.prototype.canHaveTemplate = function() {
+        if( this.opt('sectionDivider') ) {
+            return ArlimaJS.sectionDivsSupportTemplate;
+        } else {
+            return !this.opt('fileInclude');
+        }
     };
 
     /**

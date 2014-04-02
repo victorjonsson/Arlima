@@ -322,7 +322,6 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      */
     ArlimaList.prototype.updateParentProperties = function() {
         var parentIndex = -1;
-        console.log('Updating list props '+this.data.id);
         this.$elem.find('.article').each(function() {
             var $article = $(this);
             if( $article.hasClass('list-item-depth-1') ) {

@@ -109,7 +109,7 @@ function arlimaNestedSortable(list) {
 
         // update parent props for child articles
         _reduceListToMaxSize();
-        
+
         setTimeout(function() {
             // This must be done in a little while for DOM to catch up
             list.updateParentProperties();

@@ -92,28 +92,33 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
             title = this.opt('preTitle') + ' ' + title;
         }
 
-        if(this.opt('streamerType')) {
-            var color;
-            switch (this.opt('streamerType')) {
-                case 'extra':
-                    color = 'rgba(0,0,0, .5)';
-                    break;
-                case 'image':
-                    color = 'rgba(0,0,0, .5)';
-                    break;
-                default:
-                    color = '#'+this.opt('streamerColor');
-                    break;
-            }
-            if( color == '#' )
-                color = 'black';
-
-            title = '<span class="streamer-indicator" style="background:'+color+'"></span> '+title ;
-        }
-
         if( this.opt('sectionDivider') ) {
             this.$elem.addClass('section-divider');
             title = '&ndash;&ndash;&ndash; '+title+' &ndash;&ndash;&ndash;';
+            if(this.opt('streamerType') == 'text' ) {
+                this.$elem.css('background', '#'+this.opt('streamerColor'));
+            } else {
+                this.$elem.css('background', '');
+            }
+        } else {
+            if(this.opt('streamerType')) {
+                var color;
+                switch (this.opt('streamerType')) {
+                    case 'extra':
+                        color = 'rgba(0,0,0, .5)';
+                        break;
+                    case 'image':
+                        color = 'rgba(0,0,0, .5)';
+                        break;
+                    default:
+                        color = '#'+this.opt('streamerColor');
+                        break;
+                }
+                if( color == '#' )
+                    color = 'black';
+
+                title = '<span class="streamer-indicator" style="background:'+color+'"></span> '+title ;
+            }
         }
 
         if( this.opt('adminLock') )

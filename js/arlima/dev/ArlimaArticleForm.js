@@ -145,7 +145,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                     });
                     this.$fileIncludeContainer.append('<p class="args"><span style="color:#999">'+argsHTML+'</span></p>');
                 }
-            }else{
+            } else {
                 this.$fileIncludeContainer.hide();
             }
 
@@ -629,8 +629,10 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                             }
 
                             // Update title element
-                            var dataAffectingTitle = ['options:preTitle', 'title', 'options:streamerType', 'options:streamerContent', 'options:adminLock', 'options:scheduled'];
-                            if($.inArray(prop, dataAffectingTitle) > -1) {
+                            var dataAffectingTitleAppearance = ['options:preTitle', 'title',
+                                'options:streamerType', 'options:streamerContent', 'options:streamerColor',
+                                'options:adminLock', 'options:scheduled'];
+                            if($.inArray(prop, dataAffectingTitleAppearance) > -1) {
                                 _this.article.updateTitleElement(false);
                             }
                         }

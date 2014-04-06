@@ -77,11 +77,11 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
 
     function styleSheets()
     {
-        wp_register_style('jquery_ui_css', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css');
+        wp_register_style('jquery_ui_css', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css');
         $styles = array(
             'font-awesome' => array('url' => '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css', 'deps'=>array()),
             'arlima_css' => array('url'=>ARLIMA_PLUGIN_URL . 'css/admin.css', 'deps'=>array()),
-            'jquery_ui_css' => array('url'=>'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css', 'deps'=>array()),
+            'jquery_ui_css' => array('url'=>'//ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css', 'deps'=>array()),
             'colourpicker_css' => array('url'=>ARLIMA_PLUGIN_URL . 'js/jquery/colourpicker/colourpicker.css', 'deps'=>array()),
             'fancy_css' => array('url'=>ARLIMA_PLUGIN_URL . 'js/jquery/fancybox/jquery.fancybox.css', 'deps'=>array()),
         );

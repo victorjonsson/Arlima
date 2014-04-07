@@ -543,7 +543,7 @@ class Arlima_AdminAjaxManager
             try {
                 $import_manager = new Arlima_ImportManager($this->arlima_plugin);
                 $list = $import_manager->loadList($list_id);
-                echo $this->listToJSON($list, '', '');
+                echo $this->listToJSON($list, '', 0);
             } catch (Exception $e) {
                 header('HTTP/1.1 500 Internal Server Error');
                 echo json_encode(array('error' => $e->getMessage()));
@@ -811,7 +811,7 @@ class Arlima_AdminAjaxManager
             'options' => $list->getOptions(),
             'title' => $list->getTitle(),
             'previewURL' => $preview_url,
-            'previewWidth' => $preview_width,
+            'previewWidth' => (int)$preview_width,
             'id' => $list->id()
         ));
     }

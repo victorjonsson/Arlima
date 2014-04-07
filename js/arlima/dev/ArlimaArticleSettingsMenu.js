@@ -96,7 +96,9 @@ var ArlimaArticleSettingsMenu = (function($, ArlimaUtils) {
                 $formatOpts.removeClass('disabled');
             } else {
 
+                // The format set for this article is not supported by the template
                 if( $.inArray(window.ArlimaArticleForm.opt('format'), this.templateFormatsMap[template]) == -1 ) {
+                    window.ArlimaArticleForm.article.data.options.format = '';
                     _setItemAsChecked($formatOpts.eq(0));
                 }
 

@@ -8,9 +8,12 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2012-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Victor Jonsson <kontakt@victorjonsson.se>\n"
+"PO-Revision-Date: 2014-04-04 10:24+0100\n"
+"Last-Translator: Andreas Lundgren <andreas.lundgren@norran.se>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: sv_SE\n"
+"X-Generator: Poedit 1.6.4\n"
 
 #: arlima.php:39 arlima.php:225
 msgid "Article List Manager"
@@ -62,7 +65,9 @@ msgstr "Den här artikellistan har fler extra-plattor"
 
 #: arlima.php:363
 msgid "You have made changes to this list, do you want to remove it anyway?"
-msgstr "Du har gjort ändringar i den här artikellistan, vill du fortarande ta bort den?"
+msgstr ""
+"Du har gjort ändringar i den här artikellistan, vill du fortarande ta bort "
+"den?"
 
 #: arlima.php:364
 msgid "Do you want to remove \""
@@ -97,8 +102,9 @@ msgid ""
 "No list slug is defined. Please add custom field &quot;arlima&quot; to this "
 "page with the slug name of the list that you want to display"
 msgstr ""
-"Ingen lista är definerad. Du måste lägga till ett eget fält med namnet \"arlima\""
-"innehållandes namnet på den artikellista du vill visa på den här sidan."
+"Ingen lista är definerad. Du måste lägga till ett eget fält med namnet "
+"\"arlima\"innehållandes namnet på den artikellista du vill visa på den här "
+"sidan."
 
 #: page-arlima-example.php:37
 msgid "It does not exist any arlima list with the slug"
@@ -160,8 +166,7 @@ msgstr "Sidor som ska övervakas för tömning cache-minnet"
 msgid ""
 "Comma separated list of URL's where this list will be displayed (for caching "
 "control only)"
-msgstr ""
-"Kommaseparerad list med URL:er (avancerat)"
+msgstr "Kommaseparerad list med URL:er (avancerat)"
 
 #: pages/edit.php:110
 msgid "Title HTML-tags"
@@ -204,7 +209,7 @@ msgstr "redigera"
 
 #: pages/main.php:28
 msgid "Streamer"
-msgstr "Platta"
+msgstr "Vinjett"
 
 #: pages/main.php:33
 msgid "Extra"
@@ -220,7 +225,7 @@ msgstr "Bild"
 
 #: pages/main.php:47
 msgid "Choose streamer"
-msgstr "Välj platta"
+msgstr "Välj vinjett"
 
 #: pages/main.php:73
 msgid "Drag images to here"
@@ -344,14 +349,21 @@ msgstr "Ändrades för %s sedan"
 msgid "Choose which article lists that should be available for export"
 msgstr "Välja vilka listor som ska vara tillgängliga för export"
 
-msgid "This list is not related to any page! Create a new page with a custom field named arlima having %s as value."
-msgstr "Den här listan är inte kopplad till någon sida! Skapa en sida med ett eget fält som du ger namnet arlima och värdet %s "
+msgid ""
+"This list is not related to any page! Create a new page with a custom field "
+"named arlima having %s as value."
+msgstr ""
+"Den här listan är inte kopplad till någon sida! Skapa en sida med ett eget "
+"fält som du ger namnet arlima och värdet %s "
 
 msgid "URL"
 msgstr "Webbadress"
 
-msgid "You can export your lists in RSS format by adding ?format=rss to the URL."
-msgstr "Du kan även exportera listorna i RSS-format genom att lägga till<br /> ?format=rss på listans webbadress. "
+msgid ""
+"You can export your lists in RSS format by adding ?format=rss to the URL."
+msgstr ""
+"Du kan även exportera listorna i RSS-format genom att lägga till<br /> ?"
+"format=rss på listans webbadress. "
 
 msgid "Import list"
 msgstr "Importera"
@@ -404,8 +416,12 @@ msgstr "Nästa"
 msgid "Post needs to be published"
 msgstr "Inlägget måste vara publicerad"
 
-msgid "Are you sure you want to insert this post in the top of selected article list?"
-msgstr "Är du säker på att du vill lägga till artikeln i toppen av vald artikellista? "
+msgid ""
+"Are you sure you want to insert this post in the top of selected article "
+"list?"
+msgstr ""
+"Är du säker på att du vill lägga till artikeln i toppen av vald "
+"artikellista? "
 
 msgid "The post is inserted in article list"
 msgstr "Artikeln skickades till"
@@ -444,7 +460,7 @@ msgid "Future post"
 msgstr "Tidsinställd artikel"
 
 msgid "Format"
-msgstr "Format"
+msgstr "Bredd"
 
 msgid "Default template"
 msgstr "Standardmall"
@@ -506,13 +522,19 @@ msgstr " i "
 msgid "Quick Edit"
 msgstr "Snabbredigering"
 
-msgid "This is an experimental feature that makes it possible to edit articles directly on your front page."
-msgstr "Den här funktionen gör det möjligt att redigera artiklar direkt på startsidan."
+msgid ""
+"This is an experimental feature that makes it possible to edit articles "
+"directly on your front page."
+msgstr ""
+"Den här funktionen gör det möjligt att redigera artiklar direkt på "
+"startsidan."
 
 msgid "Streamer Colors"
 msgstr "Bakgrundsfärger (streamers)"
 
-msgid "Use this tool to define colors that should be available as background colors for your"
+msgid ""
+"Use this tool to define colors that should be available as background colors "
+"for your"
 msgstr "Här definerar du vilka bakgrundsfärger man kan välja bland för"
 
 msgid "Image Quality"
@@ -536,8 +558,12 @@ msgstr "Inaktivterad"
 msgid "Read more"
 msgstr "Läs mer"
 
-msgid "With this tool you can import RSS-feeds and articles lists from remote websites. Once a list is imported it will be available in the list manager."
-msgstr "Med detta verktyg kan du importera RSS-flöden och artikellistor från externa webbplatser."
+msgid ""
+"With this tool you can import RSS-feeds and articles lists from remote "
+"websites. Once a list is imported it will be available in the list manager."
+msgstr ""
+"Med detta verktyg kan du importera RSS-flöden och artikellistor från externa "
+"webbplatser."
 
 msgid "This URL seems to be invalid"
 msgstr "Ogiltig webbadress"

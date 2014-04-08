@@ -188,10 +188,13 @@ class Arlima_AdminAjaxManager
                     return $attach_id;
                 }
 
+                $attach_src = wp_get_attachment_image_src($attach_id, 'large');
+
                 echo json_encode(
                     array(
                         'attach_id' => $attach_id,
                         'html' => wp_get_attachment_image($attach_id, 'large'),
+                        'attach_url' => $attach_src[0],
                         'error' => false
                     )
                 );

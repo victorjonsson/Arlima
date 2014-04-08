@@ -460,7 +460,7 @@ msgid "Future post"
 msgstr "Tidsinställd artikel"
 
 msgid "Format"
-msgstr "Bredd"
+msgstr "Format"
 
 msgid "Default template"
 msgstr "Standardmall"

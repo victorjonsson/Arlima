@@ -31,11 +31,10 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 size : size || 'full',
                 url : url,
                 alignment : alignment || 'alignleft',
-                attachment : attachment
+                attachment : attachment,
+                connected : connected ? true:false
             };
-            if( connected ) {
-                _this.article.data.image.connected = 1;
-            }
+
             ArlimaArticleForm.change('.image-attach', attachment);
             _setupForm();
         },
@@ -98,8 +97,11 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 $(this).hide();
                 _this.article.data.image.connected = '';
                 // manually trigger a change of the list (normally you would call ArlimaArticleForm.change())
-                ArlimaArticleForm.$form.find('.image-attach').trigger('change');
-                ArlimaBackend.duplicateImage(_this.article.data.image.attachment, function(json) { });
+                ArlimaBackend.duplicateImage(_this.article.data.image.attachment, function(json) {
+                    if(!json.error) {
+                         _this.setNewImage(json.attach_url, json.attach_id, false);
+                    }
+                });
                 return false;
             });
 

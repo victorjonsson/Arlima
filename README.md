@@ -49,7 +49,7 @@ the list that you created on step 2.
 - [Include PHP files in articles](https://github.com/victorjonsson/Arlima/wiki/File-includes)
 - [Article list sections](https://github.com/victorjonsson/Arlima/wiki/Article-list-sections)
 - Using Arlima in the ordinary category loop
-- Modifying the behavior of the article form in the list manager (javascript events)
+- - [Modifing the list manager with javascript](https://github.com/victorjonsson/Arlima/wiki/Modifing-the-list-manager-with-javascript)*(updated for version 3.0)*
 
 #### Misc
 

@@ -175,7 +175,10 @@ abstract class Arlima_AbstractAdminPage {
     public function enqueueScripts()
     {
         wp_enqueue_script('jquery');
-        foreach($this->scripts() as $handle => $data) {
+        $js_filter = 'arlima_admin_scripts-'.substr($this->slug(), 7); // remove arlima- prefix from slug
+        $scripts = apply_filters($js_filter, $this->scripts());
+
+        foreach($scripts as $handle => $data) {
             wp_enqueue_script($handle, $data['url'], $data['deps'], ARLIMA_FILE_VERSION, false);
         }
 

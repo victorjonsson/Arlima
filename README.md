@@ -30,7 +30,7 @@ the list that you created on step 2.
 #### User manual
 
 - [Publishing article lists](https://github.com/victorjonsson/Arlima/wiki/Publishing-article-lists)
-- [Interface walkthrough](https://github.com/victorjonsson/Arlima/wiki/Interface-walkthrough)
+- [Interface walkthrough](https://github.com/victorjonsson/Arlima/wiki/Interface-walkthrough) *(updated for version 3.0)*
 - [Keyboard shortcuts in the list manager](https://github.com/victorjonsson/Arlima/wiki/Keyboard-shortcuts) *(updated for version 3.0)*
 - Importing article lists from remote websites
 - [Importing RSS-feeds](https://github.com/victorjonsson/Arlima/wiki/Importing-RSS-feeds)
@@ -49,7 +49,7 @@ the list that you created on step 2.
 - [Include PHP files in articles](https://github.com/victorjonsson/Arlima/wiki/File-includes)
 - [Article list sections](https://github.com/victorjonsson/Arlima/wiki/Article-list-sections)
 - Using Arlima in the ordinary category loop
-- Modifying the behavior of the article form in the list manager (javascript events)
+- [Modifing the list manager with javascript](https://github.com/victorjonsson/Arlima/wiki/Modifing-the-list-manager-with-javascript) *(updated for version 3.0)*
 
 #### Misc
 
@@ -63,6 +63,7 @@ the list that you created on step 2.
 - http://www.vk.se/
 - http://www.folkbladet.nu/
 - http://www.dalademokraten.se/
+- http://lifesciencesweden.se/
 - http://malarnasfacktidning.se/
 - http://tidningenelektrikern.se/
 - http://www.utryckning.se/

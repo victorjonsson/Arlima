@@ -231,6 +231,10 @@ class Arlima_TemplateObjectCreator
             $obj['class'] .= ' teaser-split'; // is one out of many children
         }
 
+        if( !empty($article['children']) ) {
+            $obj['class'] .= ' has-children';
+        }
+
         $filter_suffix = Arlima_FilterApplier::getFilterSuffix();
         return apply_filters('arlima_template_object'. ($filter_suffix ? '-'.$filter_suffix:''), $obj, $article, $this->list, $template_name);
     }

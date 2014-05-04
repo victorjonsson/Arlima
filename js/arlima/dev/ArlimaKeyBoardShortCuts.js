@@ -127,17 +127,28 @@ var ArlimaKeyBoardShortCuts = (function($, window, ArlimaArticlePreview, ArlimaV
                     // tinymce is initiated, stop interval
                     clearInterval(tinyMCEEventInterval);
 
+                    var editorContent = '';
+
                     // We have editors
                     if(window.tinyMCE.editors && window.tinyMCE.editors.length > 0) {
 
+                        // Capture initial content to determine when content change onkeyup
+                        window.tinyMCE.editors[0].onSetContent.add(function(editor, e) {
+                            editorContent = $.trim(ArlimaArticleForm.getEditorContent());
+                        });
+
+                        // Trigger change in form when content changes
+                        window.tinyMCE.editors[0].onKeyUp.add(function(editor, e) {
+                            var newContent = $.trim(ArlimaArticleForm.getEditorContent());
+                            if( newContent != editorContent ) {
+                                ArlimaArticleForm.change('input.text', ArlimaArticleForm.getEditorContent());
+                            }
+                        });
+
                         // listen to keyboard short cuts
                         window.tinyMCE.editors[0].onKeyDown.add(function(editor, e) {
-                            var key = e.keyCode || e.which;
-                            if( key == 32 || key == 190 ) {
-                                // space or . should trigger an update immediately
-                                window.arlimaTinyMCEChanged();
-                            }
-                            else if( (key = shortCuts.interpretCommand(e, tinyMCECommandKeys)) ) {
+                            var key;
+                            if( (key = shortCuts.interpretCommand(e, tinyMCECommandKeys)) ) {
 
                                 switch (key) {
                                     case shortCuts.p.key:

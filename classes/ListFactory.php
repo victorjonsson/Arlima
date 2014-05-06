@@ -60,7 +60,7 @@ class Arlima_ListFactory {
         $options = array_merge(Arlima_List::getDefaultListOptions(), $options);
 
         $insert_data = array(
-            time(),
+            current_time('timestamp'),
             $title,
             $slug,
             $max_length,
@@ -237,7 +237,7 @@ class Arlima_ListFactory {
             "INSERT INTO " . $this->dbTable('_version') . "
                 (alv_created, alv_al_id, alv_status, alv_user_id)
                 VALUES (%d, %s, %d, %d)",
-            time(),
+            current_time('timestamp'),
             $list->id(),
             $preview ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED,
             $user_id
@@ -304,8 +304,8 @@ class Arlima_ListFactory {
                     ala_content, ala_sort, ala_size, ala_options,
                     ala_image, ala_parent)
                     VALUES (%d, %d, %d, %d, %s, %s, %d, %d, %s, %s, %d)",
-            empty($article['created']) ? time():(int)$article['created'],
-            empty($article['published']) ? time():(int)$article['published'],
+            empty($article['created']) ? current_time('timestamp'):(int)$article['created'],
+            empty($article['published']) ? current_time('timestamp'):(int)$article['published'],
             $version_id,
             isset($article['post']) ? (int)$article['post']:0,
             $article['title'],
@@ -647,7 +647,7 @@ class Arlima_ListFactory {
         if( !$include_future_posts ) {
 
             foreach( $articles as $i => $article ) {
-                if( $article['published'] && ( $article['published'] > time() ) ) {
+                if( $article['published'] && ( $article['published'] > current_time('timestamp') ) ) {
                     unset( $articles[$i] );
                 }
             }
@@ -1147,7 +1147,7 @@ class Arlima_ListFactory {
             'title' => $post->post_title,
             'content' => $text,
             'size' => 24,
-            'created' => time(),
+            'created' => current_time('timestamp'),
             'published' => strtotime($post->post_date)
         );
 

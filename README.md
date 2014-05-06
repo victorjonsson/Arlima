@@ -61,6 +61,7 @@ the list that you created on step 2.
 ## Some websites using this plugin
 
 - http://www.vk.se/
+- http://norran.se/
 - http://www.folkbladet.nu/
 - http://www.dalademokraten.se/
 - http://lifesciencesweden.se/

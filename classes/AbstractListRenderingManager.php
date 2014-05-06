@@ -269,10 +269,22 @@ abstract class Arlima_AbstractListRenderingManager
         $start_collecting_articles = false;
         $section_index = -1;
         $extracted_articles = array();
+        $begun = false;
+
 
         foreach($articles as $art) {
 
             $is_section_divider = !empty($art['options']['sectionDivider']);
+
+            if( !$begun && !$is_section_divider ) {
+                // The list does not start with a section
+                $section_index++;
+                if( $wants_indexed_section && $section_index == $section ) {
+                    $start_collecting_articles = true;
+                    // Create a fake section divider
+                    self::$current_section_divider = Arlima_ListFactory::createArticleDataArray();
+                }
+            }
 
             if( $start_collecting_articles ) {
                 if( $is_section_divider ) {
@@ -301,8 +313,18 @@ abstract class Arlima_AbstractListRenderingManager
                     self::$current_section_divider = $art;
                 }
             }
+
+            $begun = true;
         }
-        return $extracted_articles;
+
+        if( $section_index == -1 && $section == 0 ) {
+            // No sections yet exists in this list. Create "empty" section divider article
+            // and slice from the beginning of the article array
+            self::$current_section_divider = Arlima_ListFactory::createArticleDataArray();
+            return array_slice($articles, $offset);
+        } else {
+            return $extracted_articles;
+        }
     }
 
 

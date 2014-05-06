@@ -1,4 +1,4 @@
-var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils) {
+var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS) {
 
     var $document = $(document),
         _this = {
@@ -337,22 +337,23 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils) {
                 firstOrLastClass = '';
                 // todo: remove this hellisch piece of logic and instead add a feature that makes it possible
                 // for the editor to choose which articles that is full/half by dragging the article element sideways
+                if( ArlimaJS.groupChildArticles ) {
+                    if(
+                        (children.length == 4 && (i == 1 || i == 2)) ||
+                            (children.length == 6 && (i != 0 && i != 3)) ||
+                            (children.length > 1 && children.length != 4 && children.length != 6 && (i != 0 || hasEvenNumberOfChildren) )
+                        ) {
 
-                if(
-                    (children.length == 4 && (i == 1 || i == 2)) ||
-                        (children.length == 6 && (i != 0 && i != 3)) ||
-                        (children.length > 1 && children.length != 4 && children.length != 6 && (i != 0 || hasEvenNumberOfChildren) )
-                    ) {
-
-                    firstOrLastClass = ((i==1 && children.length > 2) || (i==0 && children.length==2) || i==3 || (i==4 && children.length ==6)? ' first':' last');
-                    if( firstOrLastClass == ' first' ) {
-                        childrenHTML += '<div class="arlima child-wrapper">';
-                        hasOpenChildWrapper = true;
+                        firstOrLastClass = ((i==1 && children.length > 2) || (i==0 && children.length==2) || i==3 || (i==4 && children.length ==6)? ' first':' last');
+                        if( firstOrLastClass == ' first' ) {
+                            childrenHTML += '<div class="arlima child-wrapper">';
+                            hasOpenChildWrapper = true;
+                        }
                     }
-                }
 
-                if( firstOrLastClass ) {
-                    firstOrLastClass += ' teaser-split';
+                    if( firstOrLastClass ) {
+                        firstOrLastClass += ' teaser-split';
+                    }
                 }
 
                 if( i === childIndex ) {
@@ -361,13 +362,15 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils) {
                     childrenHTML += _renderArticle(childArticle, false, true, false, true, firstOrLastClass+' teaser-child');
                 }
 
-                if( hasOpenChildWrapper && firstOrLastClass == 'last') {
-                    childrenHTML += '</div>';
-                    hasOpenChildWrapper = false;
+                if( ArlimaJS.groupChildArticles) {
+                    if( hasOpenChildWrapper && firstOrLastClass == 'last') {
+                        childrenHTML += '</div>';
+                        hasOpenChildWrapper = false;
+                    }
                 }
             });
 
-            if( hasOpenChildWrapper ) {
+            if( hasOpenChildWrapper && ArlimaJS.groupChildArticles ) {
                 childrenHTML += '</div>';
             }
 
@@ -493,4 +496,4 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils) {
 
     return _this;
 
-})(jQuery, window, Mustache, ArlimaUtils);
+})(jQuery, window, Mustache, ArlimaUtils, ArlimaJS);

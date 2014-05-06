@@ -286,13 +286,12 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         $child_articles = '';
         $count = 0;
         $has_open_child_wrapper = false;
-        $group_children_vk_style = apply_filters('arlima_group_children', true) === true;
         $num_children = count($articles);
         $has_even_children = $num_children % 2 === 0;
         $is_child_split = $num_children > 1;
         $image_size = !$is_child_split ? $this->img_size_name_sub_article_full : $this->img_size_name_sub_article;
 
-        // if $group_children_vk_style is false will the variable $has_open_child_wrapper always be false
+        // if ARLIMA_GROUP_CHILD_ARTICLES is false will the variable $has_open_child_wrapper always be false
         // and then no grouping will be applied
 
         // Configure object creator for child articles
@@ -305,7 +304,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             $first_or_last_class = '';
 
             if(
-                $group_children_vk_style && (
+                ARLIMA_GROUP_CHILD_ARTICLES && (
                     ($num_children == 4 && ($count == 1 || $count == 2)) ||
                     ($num_children == 6 && ($count != 0 && $count != 3)) ||
                     ($num_children > 1 && $num_children != 4 && $num_children != 6 && ($count != 0 || $has_even_children) )
@@ -331,7 +330,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             list($post, $article, $is_post, $is_empty) = $this->setup($article_data);
 
             if ( is_object($post) && $post->post_status == 'future' ) {
-                if( $group_children_vk_style && $has_open_child_wrapper  && $first_or_last_class == ' last' ) {
+                if( ARLIMA_GROUP_CHILD_ARTICLES && $has_open_child_wrapper  && $first_or_last_class == ' last' ) {
                     $child_articles .= '</div>';
                     $has_open_child_wrapper = false;
                 }

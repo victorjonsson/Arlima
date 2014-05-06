@@ -256,7 +256,9 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      */
     ArlimaList.prototype.fixFutureNotices = function() {
         this.$elem.find('.future').each(function() {
-            // todo: find article object that this HTML element is referring to
+            if( this.arlimaArticle.isPublished() ) {
+                this.arlimaArticle.updateItemPresentation();
+            }
         });
     };
 

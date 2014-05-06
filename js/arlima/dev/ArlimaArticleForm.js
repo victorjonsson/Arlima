@@ -633,7 +633,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                                 'options:streamerType', 'options:streamerContent', 'options:streamerColor',
                                 'options:adminLock', 'options:scheduled'];
                             if($.inArray(prop, dataAffectingTitleAppearance) > -1) {
-                                _this.article.updateTitleElement(false);
+                                _this.article.updateItemPresentation(false);
                             }
                         }
                     })

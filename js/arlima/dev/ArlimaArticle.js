@@ -66,21 +66,28 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
     ArlimaArticle.prototype.setData = function(data) {
         if( _needsItemTitleUpdate(data, this.data) ) {
             this.data = data;
-            this.updateTitleElement();
+            this.updateItemPresentation();
         } else {
             this.data = data;
+            if( !this.isPublished() ) {
+                this.$elem.addClass('future');
+            } else {
+                this.$elem.removeClass('future');
+            }
         }
+    };
+
+    /**
+     * Update the title and the style of the item element
+     */
+    ArlimaArticle.prototype.updateItemPresentation = function(checkDate) {
+
         if( !this.isPublished() ) {
             this.$elem.addClass('future');
         } else {
             this.$elem.removeClass('future');
         }
-    };
 
-    /**
-     * Update the title in the item element
-     */
-    ArlimaArticle.prototype.updateTitleElement = function(checkDate) {
         var title = '';
 
         if(this.data.title)

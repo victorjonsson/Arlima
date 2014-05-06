@@ -160,7 +160,7 @@ var ArlimaArticleConnection = (function($, ArlimaUtils, ArlimaArticleForm, Arlim
                         if( _this.article.data.image && _this.article.data.image.connected ) {
                             delete _this.article.data.image.connected;
                         }
-                        _this.article.updateTitleElement(true);
+                        _this.article.updateItemPresentation(true);
                     }
                     if( ArlimaArticleForm.$form.find('input.overriding-url-target').val() != target) {
                         ArlimaArticleForm.change('input.overriding-url-target', target);
@@ -208,7 +208,7 @@ var ArlimaArticleConnection = (function($, ArlimaUtils, ArlimaArticleForm, Arlim
 
                                 // Update article publish date
                                 _this.article.data.published = post.published;
-                                _this.article.updateTitleElement(true);
+                                _this.article.updateItemPresentation(true);
                                 if( _this.article.isPublished() ) {
                                     _this.$futureNotice.hide();
                                 } else {

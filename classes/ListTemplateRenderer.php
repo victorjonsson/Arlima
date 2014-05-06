@@ -53,7 +53,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      */
     function __construct($list, $template_path = null)
     {
-        $this->now = current_time('timestamp');
+        $this->now = time();
         $this->template_resolver = new Arlima_TemplatePathResolver(array($template_path));
         $this->template_engine = new Mustache_Engine();
         parent::__construct($list);

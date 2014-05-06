@@ -313,7 +313,7 @@ class Arlima_FilterApplier
             $filtered['content'] = '<div class="arlima future-post"><p>
                         Watch out! <a href="' . $url . '" target="_blank">&quot;'.$article['title'].'&quot;</a> is
                         connected to a post that isn\'t published yet. The article will become public in '.
-                        human_time_diff(current_time('timestamp'), $article['published']).'.</p>
+                        human_time_diff(time(), $article['published']).'.</p>
                     </div>';
         }
 

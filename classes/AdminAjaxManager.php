@@ -595,7 +595,7 @@ class Arlima_AdminAjaxManager
     private function setupPostObject($post) {
         if( is_object($post) && ($post->post_status == 'future' || $post->post_status == 'publish' || $post->post_status == 'draft') ) {
             $post->url = get_permalink($post->ID);
-            $post->published = strtotime($post->post_date_gmt);
+            $post->published = strtotime($post->post_date);
             $post->display_date = $post->post_date;
             $post->display_author = get_the_author_meta('display_name', $post->post_author);
             return apply_filters('arlima_wp_post', $post);

@@ -67,7 +67,7 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
         $article_counter = 0;
         foreach ($this->getArticlesToRender() as $article) {
             list($post, $article) = $this->setup($article);
-            if ( !empty($article_data['publish_date']) && $article_data['publish_date'] > current_time('timestamp') ) {
+            if ( !empty($article_data['publish_date']) && $article_data['publish_date'] > time() ) {
                 continue;
             }
 

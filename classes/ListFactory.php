@@ -885,7 +885,7 @@ class Arlima_ListFactory {
             /* @var wpdb $wpdb */
             global $wpdb;
 
-            $date = strtotime($post->post_date);
+            $date = self::getPostTimeStamp($post);
             $prep_statement = $wpdb->prepare(
                 'UPDATE '.$this->dbTable('_article').'
                 SET ala_published=%d
@@ -1148,7 +1148,7 @@ class Arlima_ListFactory {
             'content' => $text,
             'size' => 24,
             'created' => time(),
-            'published' => strtotime($post->post_date)
+            'published' => self::getPostTimeStamp($post)
         );
 
         if (self::hasPostThumbNailSupport() && has_post_thumbnail($post->ID)) {
@@ -1202,6 +1202,24 @@ class Arlima_ListFactory {
             }
         }
         return $convert_to_std ? (object)$new_array:$new_array;
+    }
+
+    /**
+     * @param WP_Post $p
+     * @return int
+     */
+    public static function getPostTimeStamp($p)
+    {
+        static $date_prop = null;
+        if( $date_prop === null ) {
+            global $wp_version;
+            if( (float)$wp_version < 3.9 ) {
+                $date_prop = 'post_date';
+            } else {
+                $date_prop = 'post_date_gmt';
+            }
+        }
+        return strtotime( $p->$date_prop );
     }
 
 }

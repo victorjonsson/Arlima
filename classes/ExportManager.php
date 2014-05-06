@@ -273,7 +273,7 @@ class Arlima_ExportManager
         $post_id = intval($article['externalPost']);
         if ( $post_id ) {
             $guid = '/?p=' . $post_id;
-            $date = date('r', strtotime(get_post($post_id)->post_date));
+            $date = date('r', Arlima_ListFactory::getPostTimeStamp(get_post($post_id)) );
         } else {
             $date = date('r', $last_mod);
         }

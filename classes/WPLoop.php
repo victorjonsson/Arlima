@@ -207,7 +207,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
      */
     protected function extractTemplateData($post, $article_counter)
     {
-        $date = strtotime($post->post_date);
+        $date = self::getPostTimeStamp($post);
         $article = array_merge(array(
             'post' => $post->ID,
             'options' => array(

@@ -273,6 +273,10 @@ msgstr "Centrerad"
 msgid "Align right"
 msgstr "Högerjusterad "
 
+#: pages/main.php:113
+msgid "Align none"
+msgstr "Ingen"
+
 #: pages/main.php:121
 msgid "Entry word"
 msgstr "Ingångsord"

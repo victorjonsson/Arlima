@@ -183,7 +183,7 @@ $arlima_plugin = new Arlima_Plugin();
                         <select class="data img-align" data-prop="image:alignment">
                             <option value="alignleft"><?php _e('Align left', 'arlima') ?></option>
                             <option value="alignright"><?php _e('Align right', 'arlima') ?></option>
-                            <option value="alignnone"><?php _e('Align none', 'arlima') ?></option>
+                            <option value=""><?php _e('Align none', 'arlima') ?></option>
                         </select>
                         <input type="hidden" class="data image-attach" data-prop="image:attachment" />
                     </div>

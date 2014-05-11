@@ -6,7 +6,8 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
 
         $elem : false,
         $imageWrapper : false,
-        $sizeOpts : false,
+        $sizeSelect : false,
+        $alignSelect : false,
         $buttons : false,
         $selects : false,
 
@@ -27,10 +28,17 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
         },
 
         setNewImage : function(url, attachment, connected, size, alignment) {
-            _this.article.data.image = {
-                size : size || 'full',
+            size = size || 'full';
+            alignment = alignment || '';
+            if( size == 'full' && alignment != '') {
+                alignment = '';
+            } else if( size != 'full' && alignment == '') {
+                alignment = 'alignleft';
+            }
+             _this.article.data.image = {
+                size : size,
                 url : url,
-                alignment : alignment || 'alignleft',
+                alignment : alignment,
                 attachment : attachment,
                 connected : connected ? true:false
             };
@@ -43,8 +51,8 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
             this.$elem = $container;
             this.$imageWrapper = $container.find('.image');
             this.$buttons = $container.find('.button');
-            this.$selects = $container.find('select');
-            this.$sizeOpts = _this.$selects.filter('.img-size').find('option');
+            this.$alignSelect = $container.find('select.img-align');
+            this.$sizeSelect = $container.find('select.img-size');
 
             var $attachFancyBox = $container.find('.attachments-fancybox');
 
@@ -92,11 +100,15 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 return false;
             });
 
+            // Adjust alignment select when changing size
+            _this.$sizeSelect.on('change', function() {
+                _setSelectStates( _this.$sizeSelect.val() );
+            });
+
             // Disconnect button
             this.$buttons.filter('.disconnect').click(function() {
                 $(this).hide();
                 _this.article.data.image.connected = '';
-                // manually trigger a change of the list (normally you would call ArlimaArticleForm.change())
                 ArlimaBackend.duplicateImage(_this.article.data.image.attachment, function(json) {
                     if(!json.error) {
                          _this.setNewImage(json.attach_url, json.attach_id, false);
@@ -152,13 +164,34 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
         }
     },
 
+    _setSelectStates = function(size) {
+        if( !size )
+            size = _this.article.data.image.size;
+
+        if( size == 'full' ) {
+            if( _this.$alignSelect.val() != '' )
+                ArlimaUtils.selectVal(_this.$alignSelect, '', true);
+
+            _this.$alignSelect.attr('disabled', 'disabled');
+            _this.$alignSelect.find('option[value=""]').attr('disabled', null);
+
+        } else {
+            if( _this.$alignSelect.val() == '' )
+                ArlimaUtils.selectVal(_this.$alignSelect, 'alignleft', true);
+
+            _this.$alignSelect.attr('disabled', null);
+            _this.$alignSelect.find('option[value=""]').attr('disabled', 'disabled');
+        }
+    },
+
     _setupForm = function() {
         if( _this.article.data.image && _this.article.data.image.url ) {
 
             // toggle visibility
             _toggleImageDisplay(true);
             _this.$buttons.show();
-            _this.$selects.show();
+            _this.$alignSelect.show();
+            _this.$sizeSelect.show();
 
             var imageSizeSupport = ArlimaTemplateLoader.getTemplateSupport(_this.article).imageSize,
                 sizes = false;
@@ -171,36 +204,50 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 }
 
                 if( sizes ) {
-                    _this.$sizeOpts.attr('disabled', 'disabled');
-                    var currentSizeIsAvailable = false;
+                    var currentSizeIsAvailable = false,
+                        $sizeOptions = _this.$sizeSelect.find('options');
+
+                    $sizeOptions.attr('disabled', 'disabled');
                     $.each(sizes, function(i, size) {
                         size = $.trim(size);
-                        _this.$sizeOpts.filter('[value="'+size+'"]').removeAttr('disabled');
+                        $sizeOptions.filter('[value="'+size+'"]').removeAttr('disabled');
                         if( size == _this.article.data.image.size ) {
                             currentSizeIsAvailable = true;
                         }
                     });
                     if( !currentSizeIsAvailable ) {
-                        _this.article.data.image.size = _this.$sizeOpts.filter(':not(disabled)').attr('value');
+                        _this.article.data.image.size = $sizeOptions.filter(':not(disabled)').attr('value');
                     }
                 }
             } else {
-                _this.$sizeOpts.removeAttr('disabled');
+                _this.$sizeSelect.find('options').removeAttr('disabled');
             }
 
+            // Fix alignment if incorrect
+            var align = _this.article.data.image.alignment;
+            if( _this.article.data.image.size == 'full' && align != '' )
+                align = '';
+            else if( _this.article.data.image.size != 'full' && align == '' )
+                align = 'alignleft';
+
             // Add data to form
-            ArlimaUtils.selectVal(_this.$selects.filter('.img-align'), _this.article.data.image.alignment, false);
-            ArlimaUtils.selectVal(_this.$selects.filter('.img-size'), _this.article.data.image.size, false);
+            ArlimaUtils.selectVal(_this.$alignSelect, align, false);
+            ArlimaUtils.selectVal(_this.$sizeSelect, _this.article.data.image.size, false);
+
+            // Disable alignment options on full articles
+            _setSelectStates();
 
             if( !_this.article.data.image.connected ) {
                 _this.$buttons.filter('.disconnect').hide();
             }
 
+
         } else {
             // Hide most of the stuff when there's no image
             _toggleImageDisplay(false);
             _this.$buttons.filter(':not(.browse)').hide();
-            _this.$selects.hide();
+            _this.$alignSelect.hide();
+            _this.$sizeSelect.hide();
         }
     };
 

@@ -275,7 +275,7 @@ msgstr "Högerjusterad "
 
 #: pages/main.php:113
 msgid "Align none"
-msgstr "Ingen"
+msgstr "Ingen justering"
 
 #: pages/main.php:121
 msgid "Entry word"

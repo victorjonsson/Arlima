@@ -179,7 +179,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
                 <?php endforeach; ?>
                 win.ArlimaTemplateLoader.load(tmpls);
                 <?php if ( !empty($_GET['open_list']) ): ?>
-                win.loadArlimListOnLoad = <?php echo intval($_GET['open_list']); ?>;
+                win.loadArlimaListOnLoad = <?php echo intval($_GET['open_list']); ?>;
                 <?php endif; ?>
                 <?php if( is_array($style_sheets) && !empty($style_sheets) ): ?>
                 win.arlimaTemplateStylesheets = [];

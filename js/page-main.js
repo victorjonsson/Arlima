@@ -1,5 +1,13 @@
 jQuery(function($) {
 
+    // Load list by url
+    if( window.loadArlimaListOnLoad ) {
+        $(window).on('arlimaListSetupLoaded', function() {
+            ArlimaListLoader.addListToContainer(window.loadArlimaListOnLoad);
+        });
+    }
+
+    // Initiate all Arlima components
     ArlimaListContainer.init($('#list-container-body'),$('#list-container-footer'));
     ArlimaArticlePreview.init($('#arlima-preview'));
     ArlimaListLoader.init($('#list-container-header'));

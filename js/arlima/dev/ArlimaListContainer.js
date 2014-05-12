@@ -173,6 +173,7 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
             $listContainer.find('.ajax-loader').show();
             this.loadListSetup(function() {
                 $listContainer.find('.ajax-loader').hide();
+                $(window).trigger('arlimaListSetupLoaded');
             });
 
             // Reload all list button

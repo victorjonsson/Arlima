@@ -52,35 +52,48 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
             });
         },
 
+        /**
+         * Load a list from backend and add it to the list container
+         * @param {Number} listID
+         */
+        addListToContainer : function(listID) {
+            if( listID ) {
+                if( listID in window.ArlimaListContainer.lists ) {
+                    ArlimaUtils.shake(window.ArlimaListContainer.lists[listID]);
+                } else {
+                    _this.load(listID, function(list) {
+                        if( list ) {
+                            window.ArlimaListContainer.add(list, {
+                                left : '25px',
+                                top: '25px',
+                                width: '300px',
+                                height: '400px'
+                            });
+                        } else {
+                            throw new Error('Trying to add list '+listID+' to container but it does not exist');
+                        }
+                    })
+                }
+            }
+        },
 
         /* * * * * *  INIT * * * * * */
 
         init : function($elem) {
 
-            var $lists = $elem.find('select'),
-                _addListToContainer = function(listID) {
-                    if( listID ) {
-                        if( listID in window.ArlimaListContainer.lists ) {
-                            ArlimaUtils.shake(window.ArlimaListContainer.lists[listID]);
-                        } else {
-                            _this.load(listID, function(list) {
-                                window.ArlimaListContainer.add(list);
-                            })
-                        }
-                    }
-                };
+            var $lists = $elem.find('select');
 
             // Choose a list from select
             $elem.find('.action').click(function() {
                 this.blur();
                 var listID = $lists.val();
-                _addListToContainer($lists.val());
+                _this.addListToContainer($lists.val());
             });
 
             // Search for a list
             _arlimaListSearch($elem.find('.list-search input'), $elem.find('.list-search ul'));
             $elem.find('.list-search .list').on('click', function() {
-                _addListToContainer($(this).attr('data-alid'));
+                _this.addListToContainer($(this).attr('data-alid'));
             });
 
         }

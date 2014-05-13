@@ -14,6 +14,7 @@
         "phpunit" : [
             "classes/tests/TestActions.php",
             "classes/tests/TestArlimaExport.php",
+            "classes/tests/TestArlimaImageManager.php",
             "classes/tests/TestArlimaImport.php",
             "classes/tests/TestArlimaListFactory.php",
             "classes/tests/TestArlimaListRendering.php",

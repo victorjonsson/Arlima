@@ -946,4 +946,66 @@ class Arlima_Plugin
 
     }
 
+    /**
+     * Create a wordpress attachment out of a string with base64 encoded image binary
+     * @param string $base64_img
+     * @param string $file_name
+     * @param string $connected_post
+     * @return int The attachment ID
+     * @throws Exception
+     */
+    public static function saveImageAsAttachment($base64_img, $file_name, $connected_post='')
+    {
+        if ( !function_exists('wp_generate_attachment_metadata') ) {
+            require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+            require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+            require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+        }
+
+        $img_file = tempnam(get_temp_dir(), $file_name);
+        file_put_contents($img_file, $base64_img);
+
+        // Set variables for storage
+        // fix file filename for query strings
+        preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $file_name, $matches );
+        $file_array['name'] = basename($matches[0]);
+        $file_array['tmp_name'] = $img_file;
+
+        $time = current_time( 'mysql' );
+        $file = wp_handle_sideload( $file_array, array('test_form'=>false), $time );
+
+        if ( isset($file['error']) )
+            throw new Exception( 'Could not save image due to '.$file['error'] );
+
+        $local_url = $file['url'];
+        $type = $file['type'];
+        $file = $file['file'];
+
+        if( empty($title) )
+            $title = pathinfo($file, PATHINFO_FILENAME);
+
+        // Don't know why this happens....?
+        if( strpos($local_url, 'http:///') === 0 ) {
+            $local_url = dirname(dirname(get_stylesheet_directory_uri())) .'/uploads/'. substr($local_url,8);
+        }
+
+        // Construct the attachment array
+        $attachment = array(
+            'post_mime_type' => $type,
+            'guid' => $local_url,
+            'post_parent' => $connected_post,
+            'post_title' => $title,
+            'post_content' => '',
+        );
+
+        // Save the attachment metadata
+        $id = wp_insert_attachment($attachment, $file);
+
+        if( !is_wp_error($id) ) {
+            wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $file ) );
+            return $id;
+        } else {
+            throw new Exception($id->get_error_message());
+        }
+    }
 }

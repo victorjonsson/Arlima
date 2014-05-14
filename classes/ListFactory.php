@@ -852,13 +852,23 @@ class Arlima_ListFactory {
             $wpdb->query('ALTER TABLE '.$article_tbl_name.' ala_alv_id ala_alv_id bigint(11)');
         }
         elseif($version < 3.0) {
-            $wpdb->query('ALTER TABLE '.$article_tbl_name .' DROP ala_image');
-            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_publish_date ala_published bigint(11)');
-            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_post_id ala_post bigint(11)');
-            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_title_fontsize ala_size tinyint(2)');
-            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_image_options ala_image text');
-            $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_text ala_content text');
-            wp_cache_flush();
+
+            $check_exist_query = "SELECT ala_image_options
+                                FROM information_schema.COLUMNS
+                                WHERE
+                                    TABLE_NAME = '$article_tbl_name'
+                                AND COLUMN_NAME = 'ala_image_options'";
+
+            if( $wpdb->get_var($check_exist_query) ) {
+                // If this fails, rename ala_image_depr to ala_image
+                $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_image ala_image_depr');
+                $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_publish_date ala_published bigint(11)');
+                $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_post_id ala_post bigint(11)');
+                $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_title_fontsize ala_size tinyint(2)');
+                $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_image_options ala_image text');
+                $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_text ala_content text');
+                wp_cache_flush();
+            }
         }
     }
 

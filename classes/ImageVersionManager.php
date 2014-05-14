@@ -24,18 +24,18 @@ class Arlima_ImageVersionManager
     private static $upload_dir_data;
 
     /**
-     * @var Arlima_Plugin|null
+     * @var int
      */
-    private $plugin;
+    private $img_quality;
 
     /**
      * @param int $id
-     * @param Arlima_Plugin $plugin
+     * @param Arlima_Plugin|int $plugin_or_img_quality
      */
-    public function __construct($id, $plugin=null)
+    public function __construct($id, $plugin_or_img_quality=100)
     {
         $this->attach_id = $id;
-        $this->plugin = $plugin;
+        $this->img_quality = is_numeric($plugin_or_img_quality) ? $plugin_or_img_quality : $plugin_or_img_quality->getSetting('image_quality', 100);
     }
 
     /**
@@ -83,21 +83,19 @@ class Arlima_ImageVersionManager
     }
 
     /**
-     * Generates a new version
      * @param int $max_width
      * @return string
      */
-    function getVersionURL($max_width)
+    function getVersionRelativeFilePath( $max_width )
     {
         $file = get_post_meta( $this->attach_id, '_wp_attached_file', true );
-        $version_url = false;
         if( $file ) {
 
             $meta = wp_get_attachment_metadata($this->attach_id);
 
             // Version already generated
             if( !empty($meta[self::META_KEY]) && isset($meta[self::META_KEY][$max_width]) ) {
-                $version_url = $this->generateFileURL($meta[self::META_KEY][$max_width]);
+                return $meta[self::META_KEY][$max_width];
             }
             else {
 
@@ -109,33 +107,44 @@ class Arlima_ImageVersionManager
 
                 if( is_wp_error($editor) ) {
                     trigger_error('Failed loading WP image editor with message: '.$editor->get_error_message(), E_USER_ERROR);
-                    $version_url = $this->generateFileURL($file);
+                    return $file;
                 }
                 elseif( $this->canGenerateVersion($file_full_path, $max_width) ) {
-                    $editor->set_quality( apply_filters('arlima_image_quality', $this->plugin->getSetting('image_quality', 100)) );
+                    $editor->set_quality( apply_filters('arlima_image_quality', $this->img_quality) );
                     if( $editor->resize($max_width, false) ) {
 
                         if( ($error = $editor->save(self::uploadDirData('basedir').'/'.$version_file)) instanceof WP_Error ) {
                             trigger_error('Failed saving resized image with message: '.$error->get_error_message(), E_USER_ERROR);
-                            $version_url = $this->generateFileURL($file);
+                            return $file;
                         } else {
                             $this->saveGeneratedVersion($meta, $version_file, $max_width);
-                            $version_url = $this->generateFileURL($version_file);
+                            return $version_file;
                         }
 
                     } else {
                         trigger_error($editor->get_error_message(), E_USER_ERROR);
-                        $version_url = $this->generateFileURL($file);
+                        return $file;
                     }
                 }
                 else {
                     // We can not generate a version out of this file, use original source
                     $this->saveGeneratedVersion($meta, $file, $max_width);
-                    $version_url = $this->generateFileURL($file);
+                    return $file;
                 }
             }
         }
-        return $version_url;
+        return false;
+    }
+
+    /**
+     * Generates a new version
+     * @param int $max_width
+     * @return string
+     */
+    function getVersionURL($max_width)
+    {
+        $file = $this->getVersionRelativeFilePath($max_width);
+        return $file ? $this->generateFileURL($file) : false;
     }
 
     /**

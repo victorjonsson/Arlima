@@ -963,7 +963,7 @@ class Arlima_Plugin
         }
 
         $img_file = tempnam(get_temp_dir(), $file_name);
-        file_put_contents($img_file, $base64_img);
+        file_put_contents($img_file, base64_decode($base64_img));
 
         // Set variables for storage
         // fix file filename for query strings

@@ -10,7 +10,8 @@
 class Arlima_ImageVersionManager
 {
 
-    const META_KEY = 'arlima-images';
+    const META_KEY_VERSIONS = 'arlima-images';
+    const META_KEY_VERSION_CREATED = 'arlima-version-created';
     const VERSION_PREFIX = 'arlima_mw';
 
     /**
@@ -71,69 +72,87 @@ class Arlima_ImageVersionManager
     public static function removeVersions($attach_id = null)
     {
         $meta = wp_get_attachment_metadata($attach_id);
-        if( !empty($meta) && !empty($meta[self::META_KEY])) {
-            $manager = new self($attach_id);
-            foreach($manager->getVersions($meta) as $path) {
-                if( file_exists($path) )
-                    @unlink($path);
+        $changed_meta = false;
+        if( !empty($meta) ) {
+            if( !empty($meta[self::META_KEY_VERSIONS]) ) {
+                $manager = new self($attach_id);
+                foreach($manager->getVersions($meta) as $path) {
+                    if( file_exists($path) )
+                        @unlink($path);
+                }
+                unset($meta[self::META_KEY_VERSIONS]);
+                $changed_meta = true;
             }
-            unset($meta[self::META_KEY]);
+            if( !empty($meta[self::META_KEY_VERSION_CREATED]) ) {
+                unset($meta[self::META_KEY_VERSION_CREATED]);
+                $changed_meta = true;
+            }
+        }
+
+        if( $changed_meta ) {
             wp_update_attachment_metadata($attach_id, $meta);
         }
     }
 
     /**
      * @param int $max_width
-     * @return string
+     * @return array With relative file path and timestamp when first image version was created
      */
-    function getVersionRelativeFilePath( $max_width )
+    function getVersionFile( $max_width )
     {
         $file = get_post_meta( $this->attach_id, '_wp_attached_file', true );
+        $version_created_date = '';
+        $new_version_file = false;
+
         if( $file ) {
 
             $meta = wp_get_attachment_metadata($this->attach_id);
 
             // Version already generated
-            if( !empty($meta[self::META_KEY]) && isset($meta[self::META_KEY][$max_width]) ) {
-                return $meta[self::META_KEY][$max_width];
+            if( !empty($meta[self::META_KEY_VERSIONS]) && isset($meta[self::META_KEY_VERSIONS][$max_width]) ) {
+                $new_version_file = $meta[self::META_KEY_VERSIONS][$max_width];
+                $version_created_date = isset($meta[self::META_KEY_VERSION_CREATED]) ? $meta[self::META_KEY_VERSION_CREATED]:'';
             }
             else {
 
                 // Try to create new version
 
-                $version_file = $this->generateVersionName($file, $max_width);
+                $new_version_file_relative_path = $this->generateVersionName($file, $max_width);
                 $file_full_path = self::uploadDirData('basedir').'/'.$file;
                 $editor = wp_get_image_editor($file_full_path);
 
                 if( is_wp_error($editor) ) {
                     trigger_error('Failed loading WP image editor with message: '.$editor->get_error_message(), E_USER_ERROR);
-                    return $file;
+                    $new_version_file = $file;
                 }
                 elseif( $this->canGenerateVersion($file_full_path, $max_width) ) {
                     $editor->set_quality( apply_filters('arlima_image_quality', $this->img_quality) );
                     if( $editor->resize($max_width, false) ) {
 
-                        if( ($error = $editor->save(self::uploadDirData('basedir').'/'.$version_file)) instanceof WP_Error ) {
+                        if( ($error = $editor->save(self::uploadDirData('basedir').'/'.$new_version_file_relative_path)) instanceof WP_Error ) {
                             trigger_error('Failed saving resized image with message: '.$error->get_error_message(), E_USER_ERROR);
-                            return $file;
+                            $new_version_file = $file;
                         } else {
-                            $this->saveGeneratedVersion($meta, $version_file, $max_width);
-                            return $version_file;
+                            $version_created_date = $this->saveGeneratedVersion($meta, $new_version_file_relative_path, $max_width);
+                            $new_version_file = $new_version_file_relative_path;
                         }
 
                     } else {
                         trigger_error($editor->get_error_message(), E_USER_ERROR);
-                        return $file;
+                        $new_version_file = $file;
                     }
                 }
                 else {
                     // We can not generate a version out of this file, use original source
-                    $this->saveGeneratedVersion($meta, $file, $max_width);
-                    return $file;
+                    $version_created_date = $this->saveGeneratedVersion($meta, $file, $max_width);
+                    $new_version_file = $file;
                 }
             }
         }
-        return false;
+        return array(
+            $new_version_file,
+            $version_created_date
+        );
     }
 
     /**
@@ -143,11 +162,13 @@ class Arlima_ImageVersionManager
      */
     function getVersionURL($max_width)
     {
-        $file = $this->getVersionRelativeFilePath($max_width);
-        return $file ? $this->generateFileURL($file) : false;
+        list($file, $created_timestamp) = $this->getVersionFile($max_width);
+        return $file ? $this->generateFileURL($file, $created_timestamp) : false;
     }
 
     /**
+     * Saves version in attachment meta and returns date timestamp when the
+     * first image version was created for this image
      * @param $meta
      * @param $version_file
      * @param $max_width
@@ -155,12 +176,16 @@ class Arlima_ImageVersionManager
      */
     private function saveGeneratedVersion($meta, $version_file, $max_width)
     {
-        if( empty($meta[self::META_KEY]) )
-            $meta[self::META_KEY] = array();
+        if( empty($meta[self::META_KEY_VERSIONS]) )
+            $meta[self::META_KEY_VERSIONS] = array();
 
-        $meta[self::META_KEY][$max_width] = $version_file;
+        if( empty($meta[self::META_KEY_VERSION_CREATED]) )
+            $meta[self::META_KEY_VERSION_CREATED] = time();
+
+        $meta[self::META_KEY_VERSIONS][$max_width] = $version_file;
         wp_update_attachment_metadata($this->attach_id, $meta);
-        return $meta;
+
+        return $meta[self::META_KEY_VERSION_CREATED];
     }
 
     /**
@@ -177,18 +202,21 @@ class Arlima_ImageVersionManager
 
     /**
      * @param $file
+     * @param $timestamp
      * @return bool|mixed|string
      */
-    private function generateFileURL($file)
+    private function generateFileURL($file, $timestamp='')
     {
         $uploads = self::uploadDirData();
 
         if ( 0 === strpos($file, $uploads['basedir']) ) //Check that the upload base exists in the file location
-            return str_replace($uploads['basedir'], $uploads['baseurl'], $file); //replace file location with url location
+            $url = str_replace($uploads['basedir'], $uploads['baseurl'], $file); //replace file location with url location
         elseif ( false !== strpos($file, 'wp-content/uploads') )
-            return $uploads['baseurl'] . substr( $file, strpos($file, 'wp-content/uploads') + 18 );
+            $url = $uploads['baseurl'] . substr( $file, strpos($file, 'wp-content/uploads') + 18 );
         else
-            return $uploads['baseurl'] . "/$file"; //Its a newly uploaded file, therefor $file is relative to the basedir.
+            $url = $uploads['baseurl'] . "/$file"; //Its a newly uploaded file, therefor $file is relative to the basedir.
+
+        return $url . ( empty($timestamp) ? '' : '?d='.$timestamp);
     }
 
     /**
@@ -216,8 +244,8 @@ class Arlima_ImageVersionManager
         $paths = array();
         $dir = self::uploadDirData('basedir').'/';
         $file_name_regex = '/'.self::VERSION_PREFIX.'([0-9]+)\.([a-zA-Z]+)/';
-        if( $meta && !empty($meta[self::META_KEY]) ) {
-            foreach( $meta[self::META_KEY] as $version ) {
+        if( $meta && !empty($meta[self::META_KEY_VERSIONS]) ) {
+            foreach( $meta[self::META_KEY_VERSIONS] as $version ) {
                 if( preg_match_all($file_name_regex, $version, $m) ) {
                     $paths[] = $dir . $version;
                     // some paths may be the same as the original source since we

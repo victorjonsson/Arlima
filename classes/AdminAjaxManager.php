@@ -94,13 +94,13 @@ class Arlima_AdminAjaxManager
     private function isSavingEditedImage()
     {
         return isset($_POST['action']) &&
-        isset($_POST['postid']) &&
-        isset($_POST['do']) &&
-        isset($_POST['context']) &&
-        $_POST['action'] == 'image-editor' &&
-        $_POST['do'] == 'save' &&
-        $_POST['context'] == 'edit-attachment' &&
-        basename($_SERVER['PHP_SELF']) == 'admin-ajax.php';
+                isset($_POST['postid']) &&
+                isset($_POST['do']) &&
+                isset($_POST['context']) &&
+                $_POST['action'] == 'image-editor' &&
+                $_POST['do'] == 'save' &&
+                $_POST['context'] == 'edit-attachment' &&
+                basename($_SERVER['PHP_SELF']) == 'admin-ajax.php';
     }
 
     /**
@@ -262,58 +262,18 @@ class Arlima_AdminAjaxManager
     function saveImage() {
         $this->initAjaxRequest();
 
-        if ( !function_exists('wp_generate_attachment_metadata') ) {
-            require_once(ABSPATH . "wp-admin" . '/includes/image.php');
-            require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-            require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-        }
+        try {
+            $id = Arlima_Plugin::saveImageAsAttachment(
+                        $_POST['image'],
+                        $_POST['name'],
+                        empty($_POST['postid']) ? '':$_POST['postid']
+                    );
 
-        $img_file = tempnam(get_temp_dir(), $_POST['name']);
-        file_put_contents($img_file, base64_decode($_POST['image']));
-
-        // Set variables for storage
-        // fix file filename for query strings
-        preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $_POST['name'], $matches );
-        $file_array['name'] = basename($matches[0]);
-        $file_array['tmp_name'] = $img_file;
-
-        $time = current_time( 'mysql' );
-        $file = wp_handle_sideload( $file_array, array('test_form'=>false), $time );
-
-        if ( isset($file['error']) )
-            return new WP_Error( 'upload_error', $file['error'] );
-
-        $local_url = $file['url'];
-        $type = $file['type'];
-        $file = $file['file'];
-
-        if( empty($title) )
-            $title = pathinfo($file, PATHINFO_FILENAME);
-
-        // Don't know why this happens....?
-        if( strpos($local_url, 'http:///') === 0 ) {
-            $local_url = dirname(dirname(get_stylesheet_directory_uri())) .'/uploads/'. substr($local_url,8);
-        }
-
-        // Construct the attachment array
-        $attachment = array(
-            'post_mime_type' => $type,
-            'guid' => $local_url,
-            'post_parent' => empty($_POST['postid']) ? '':$_POST['postid'],
-            'post_title' => $title,
-            'post_content' => '',
-        );
-
-        // Save the attachment metadata
-        $id = wp_insert_attachment($attachment, $file);
-
-        if( !is_wp_error($id) ) {
-            wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $file ) );
             die(json_encode(array('attachment'=>$id, 'url'=>current(wp_get_attachment_image_src($id, 'full')))));
-        } else {
-            die(json_encode(array('error' =>$id->get_error_message())));
-        }
 
+        } catch(Exception $e) {
+            die(json_encode(array('error' =>$e->getMessage())));
+        }
     }
 
     /**

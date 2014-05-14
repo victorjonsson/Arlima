@@ -145,7 +145,15 @@ module.exports = function(grunt) {
                     if( handleProcessError(grunt, stderr, error, stdout) ) {
                         done();
                     } else {
-                        grunt.log.writeln('* Successfully ran php-unit file '+file);
+
+                        if( stdout.indexOf('<span style="') > -1 ) {
+                            // h4ck.. in case of a php-error the output will not be sent
+                            // to stderr...
+                            handleProcessError(grunt, stdout);
+                            done();
+                        } else {
+                            grunt.log.writeln('* Successfully ran php-unit file '+file);
+                        }
                     }
 
                     finishedTests++;

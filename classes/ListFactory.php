@@ -853,13 +853,8 @@ class Arlima_ListFactory {
         }
         elseif($version < 3.0) {
 
-            $check_exist_query = "SELECT ala_image_options
-                                FROM information_schema.COLUMNS
-                                WHERE
-                                    TABLE_NAME = '$article_tbl_name'
-                                AND COLUMN_NAME = 'ala_image_options'";
-
-            if( $wpdb->get_var($check_exist_query) ) {
+            $row = $wpdb->get_row('SELECT * FROM '.$article_tbl_name.' LIMIT 0,1');
+            if( isset($row->ala_image_options) ) {
                 // If this fails, rename ala_image_depr to ala_image
                 $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_image ala_image_depr');
                 $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_publish_date ala_published bigint(11)');
@@ -968,6 +963,35 @@ class Arlima_ListFactory {
     }
 
     /**
+     * @param $art_data
+     * @return array
+     */
+    private static function legacyFixForOptions($art_data)
+    {
+        $options = array(
+            'hiderelated' => 'hideRelated',
+            'pre_title' => 'preTitle',
+            'overriding_url' => 'overridingURL',
+            'streamer_content' => 'streamerContent',
+            'streamer_color' => 'streamerColor',
+            'streamer_type' => 'streamerType',
+            'streamer_image' => 'streamerImage',
+            'sticky_interval' => 'scheduledInterval',
+            'sticky' => 'scheduled',
+            'section_divider' => 'sectionDivider',
+            'file_include' => 'fileInclude',
+            'file_args' => 'fileArgs'
+        );
+        foreach($options as $old => $new) {
+            if( isset($art_data['options'][$old]) ) {
+                $art_data['options'][$new] = $art_data['options'][$old];
+                unset($art_data['options'][$old]);
+            }
+        }
+        return $art_data;
+    }
+
+    /**
      * Fixes old database data
      * @param array $art_data
      * @return mixed
@@ -980,37 +1004,17 @@ class Arlima_ListFactory {
                 'post_id' => 'post',
                 'publish_date' => 'published',
                 'image_options' => 'image',
-                'text' => 'content',
-                'options' => array(
-                    'hiderelated' => 'hideRelated',
-                    'pre_title' => 'preTitle',
-                    'overriding_url' => 'overridingURL',
-                    'streamer_content' => 'streamerContent',
-                    'streamer_color' => 'streamerColor',
-                    'streamer_type' => 'streamerType',
-                    'streamer_image' => 'streamerImage',
-                    'sticky_interval' => 'scheduledInterval',
-                    'sticky' => 'scheduled',
-                    'section_divider' => 'sectionDivider',
-                    'file_include' => 'fileInclude',
-                    'file_args' => 'fileArgs'
-                )
+                'text' => 'content'
             );
             foreach ($fix as $old => $new) {
-                if ($old == 'options') {
-                    if (isset($art_data['options'])) {
-                        foreach ($new as $opt_old => $opt_new) {
-                            if ( isset($art_data['options'][$opt_old]) && empty($art_data['options'][$opt_new]) ) {
-                                $art_data['options'][$opt_new] = $art_data['options'][$opt_old];
-                                unset($art_data['options'][$opt_old]);
-                            }
-                        }
-                    }
-                } elseif (isset($art_data[$old])) {
+                if( isset($art_data[$old]) ) {
                     $art_data[$new] = $art_data[$old];
                     unset($art_data[$old]);
                 }
             }
+
+            # Fix options
+            $art_data = self::legacyFixForOptions($art_data);
 
             # Fix streamer...
             if( !empty($art_data['options']['streamerType']) && $art_data['options']['streamerType'] == 'image' ) {
@@ -1022,6 +1026,9 @@ class Arlima_ListFactory {
             if( !empty($art_data['image']) && $art_data['image']['alignment'] == 'aligncenter')
                 $art_data['image']['alignment'] = 'alignleft';
 
+        } elseif( isset($art_data['options']['pre_title']) || isset($art_data['options']['section_divider']) || isset($art_data['options']['file_includes'])) {
+            // Only fix options
+            $art_data = self::legacyFixForOptions($art_data);
         }
 
         if( !empty($art_data['image']) && !empty($art_data['image']['attach_id']) ) {

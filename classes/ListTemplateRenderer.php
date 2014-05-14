@@ -92,7 +92,6 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      */
     function renderList($output = true)
     {
-
         $article_counter = 0;
         $content = '';
 

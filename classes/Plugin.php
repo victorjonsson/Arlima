@@ -947,23 +947,19 @@ class Arlima_Plugin
     }
 
     /**
-     * Create a wordpress attachment out of a string with base64 encoded image binary
-     * @param string $base64_img
-     * @param string $file_name
-     * @param string $connected_post
-     * @return int The attachment ID
+     * @param $img_file
+     * @param $file_name
+     * @param $connected_post
+     * @return int
      * @throws Exception
      */
-    public static function saveImageAsAttachment($base64_img, $file_name, $connected_post='')
+    public static function saveImageFileAsAttachment($img_file, $file_name, $connected_post)
     {
         if ( !function_exists('wp_generate_attachment_metadata') ) {
             require_once(ABSPATH . "wp-admin" . '/includes/image.php');
             require_once(ABSPATH . "wp-admin" . '/includes/file.php');
             require_once(ABSPATH . "wp-admin" . '/includes/media.php');
         }
-
-        $img_file = tempnam(get_temp_dir(), $file_name);
-        file_put_contents($img_file, base64_decode($base64_img));
 
         // Set variables for storage
         // fix file filename for query strings
@@ -1007,5 +1003,20 @@ class Arlima_Plugin
         } else {
             throw new Exception($id->get_error_message());
         }
+    }
+
+    /**
+     * Create a wordpress attachment out of a string with base64 encoded image binary
+     * @param string $base64_img
+     * @param string $file_name
+     * @param string $connected_post
+     * @return int The attachment ID
+     * @throws Exception
+     */
+    public static function saveImageAsAttachment($base64_img, $file_name, $connected_post='')
+    {
+        $img_file = tempnam(get_temp_dir(), $file_name);
+        file_put_contents($img_file, base64_decode($base64_img));
+        return self::saveImageFileAsAttachment($img_file, $file_name, $connected_post);
     }
 }

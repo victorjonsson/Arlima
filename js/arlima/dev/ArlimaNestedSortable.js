@@ -120,7 +120,6 @@ function arlimaNestedSortable(list) {
             } else if(
                 window.ArlimaArticlePreview.isVisible() &&
                 window.arlimaDragArticleParent &&
-                window.ArlimaArticleForm.article &&
                 window.ArlimaArticleForm.article.data.id == window.arlimaDragArticleParent
                 ) {
                 window.ArlimaArticlePreview.reload();

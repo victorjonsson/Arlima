@@ -111,7 +111,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 _this.article.data.image.connected = '';
                 ArlimaBackend.duplicateImage(_this.article.data.image.attachment, function(json) {
                     if(!json.error) {
-                         _this.setNewImage(json.attach_url, json.attach_id, false);
+                        _this.setNewImage(json.attach_url, json.attach_id, false);
                     }
                 });
                 return false;

@@ -146,62 +146,39 @@ class Arlima_AdminAjaxManager
      */
     function duplicateImage()
     {
-
         $this->initAjaxRequest();
+        try {
+            $attachment_id = intval($_POST['attachment']);
+            if ( $attachment_id ) {
+                $file = get_post_meta( $attachment_id, '_wp_attached_file', true );
+                if( $file ) {
+                    $tmp_file = get_temp_dir().'/'.uniqid();
+                    copy(WP_CONTENT_DIR .'/uploads/'. $file, $tmp_file);
+                    $new_attach_id = Arlima_Plugin::saveImageFileAsAttachment($tmp_file, basename($file), '');
+                    list($attach_url) = wp_get_attachment_image_src($new_attach_id, 'default');
 
-        if ( !function_exists('wp_generate_attachment_metadata') ) {
-            require_once(ABSPATH . "wp-admin" . '/includes/image.php');
-            require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-            require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-        }
-
-        $attachment_id = intval($_POST['attachment']);
-        if ( $attachment_id ) {
-
-            $url = wp_get_attachment_url($attachment_id);
-            if( !$url )
-                die( json_encode(array('error'=>'Attachment not found')) );
-
-            /** @var WP_Error|string $tmp */
-            $tmp = download_url($url);
-            $file_array = array(
-                'name' => basename($url),
-                'tmp_name' => $tmp
-            );
-
-            // Check for download errors
-            if ( is_wp_error($tmp) ) {
-                echo json_encode(
-                    array(
-                        'attach_id' => -1,
-                        'html' => '',
-                        'error' => $tmp->get_error_message() .' '. $url
-                    )
-                );
-            }
-            else {
-                $attach_id = media_handle_sideload($file_array, 0);
-
-                // Check for handle sideload errors.
-                if ( is_wp_error($attach_id) ) {
-                    @unlink($file_array['tmp_name']);
-                    return $attach_id;
+                    echo json_encode(
+                        array(
+                            'attach_id' => $new_attach_id,
+                            'attach_url' => $attach_url,
+                            'error' => false
+                        )
+                    );
                 }
-
-                $attach_src = wp_get_attachment_image_src($attach_id, 'large');
-
-                echo json_encode(
-                    array(
-                        'attach_id' => $attach_id,
-                        'html' => wp_get_attachment_image($attach_id, 'large'),
-                        'attach_url' => $attach_src[0],
-                        'error' => false
-                    )
-                );
+            } else {
+                throw new Exception('File does not exist');
             }
+
+        } catch(Exception $e) {
+            echo json_encode(
+                array(
+                    'attach_id' => -1,
+                    'error' => $e->getMessage()
+                )
+            );
         }
 
-        die();
+        die;
     }
 
     /**

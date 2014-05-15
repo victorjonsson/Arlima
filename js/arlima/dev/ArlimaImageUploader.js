@@ -120,7 +120,7 @@ var ArlimaImageUploader = (function($, window, ArlimaArticleForm, ArlimaJS, plup
                     _this.showPreloader();
                     window.ArlimaBackend.saveImage(
                         content,
-                        ArlimaArticleForm.article ? ArlimaArticleForm.article.post:'',
+                        ArlimaArticleForm.article ? ArlimaArticleForm.article.data.post:'',
                         files[0].native.name,
                         function(json) {
                             _this.removeNotice();

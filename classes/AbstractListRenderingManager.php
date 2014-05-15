@@ -208,11 +208,11 @@ abstract class Arlima_AbstractListRenderingManager
         $is_post = false;
         $post = false;
 
-        if ( !empty($article['post_id']) && is_numeric($article['post_id']) ) {
+        if ( !empty($article['post']) && is_numeric($article['post']) ) {
             global $post;
 
             if ( $this->setup_wp_post_data ) {
-                $post = get_post($article['post_id']);
+                $post = get_post($article['post']);
             }
 
             if ( $post ) {
@@ -226,7 +226,7 @@ abstract class Arlima_AbstractListRenderingManager
         $is_empty = false;
         $has_image = !empty($article['image']) && (isset($article['image']['attachment']) || isset($article['image']['url']));
 
-        if ( empty($article['text']) && empty($article['title']) && !$has_image ) {
+        if ( empty($article['content']) && empty($article['title']) && !$has_image ) {
             $is_empty = true;
         }
 

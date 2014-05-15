@@ -854,9 +854,9 @@ class Arlima_ListFactory {
         elseif($version < 3.0) {
 
             $row = $wpdb->get_row('SELECT * FROM '.$article_tbl_name.' LIMIT 0,1');
-            if( isset($row->ala_image_options) ) {
-                // If this fails, rename ala_image_depr to ala_image
-                $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_image ala_image_depr');
+
+            if( empty($row) || isset($row->ala_image_options) ) {
+                $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_image ala_image_depr varchar(250)');
                 $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_publish_date ala_published bigint(11)');
                 $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_post_id ala_post bigint(11)');
                 $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_title_fontsize ala_size tinyint(2)');
@@ -941,7 +941,7 @@ class Arlima_ListFactory {
             $options['streamerContent'] = 'Extra';
         }
 
-        if( !$has_streamer || empty($options['streamerContent']) ) {
+        if( !$has_streamer || (empty($options['streamerContent']) && empty($options['streamerColor'])) ) {
             unset($options['streamerType']);
             unset($options['streamerContent']);
             unset($options['streamerColor']);
@@ -1026,7 +1026,7 @@ class Arlima_ListFactory {
             if( !empty($art_data['image']) && $art_data['image']['alignment'] == 'aligncenter')
                 $art_data['image']['alignment'] = 'alignleft';
 
-        } elseif( isset($art_data['options']['pre_title']) || isset($art_data['options']['section_divider']) || isset($art_data['options']['file_includes'])) {
+        } elseif( isset($art_data['options']['pre_title']) || isset($art_data['options']['section_divider']) || isset($art_data['options']['file_include'])) {
             // Only fix options
             $art_data = self::legacyFixForOptions($art_data);
         }

@@ -175,6 +175,10 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         }
 
         list($mustache_template, $template_name) = $this->loadTemplate($article);
+        if( is_array($mustache_template) ) {
+            // we dont get this...
+            list($mustache_template, $template_name) = $mustache_template;
+        }
 
         $template_data = $this->template_obj_creator->create(
                             $article,

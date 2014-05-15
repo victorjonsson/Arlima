@@ -53,7 +53,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
          * @param {Boolean} [belongsToImportedList]
          */
         setArticle : function(article, templateContent, width, titleElem, belongsToImportedList) {
-            ArlimaUtils.log('Adding article to preview');
+            ArlimaUtils.log('Adding article to preview for '+article.data.id);
             this.article = article;
             if( !article.canPreview() || belongsToImportedList ) {
                 if( this.isVisible() ) {
@@ -400,10 +400,14 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
         }
         else if( type == 'format' ) {
             // remove previous format
-            var $container = _this.$iframeBody.find('.template-placeholder-format');
+            var $container = _this.$iframeBody.find('.template-placeholder-format'),
+                newFormat = _this.article.opt('format');
             $.each(window.ArlimaArticleForm.$form.find('.formats option'), function() {
                 $container.removeClass($(this).attr('value'));
             });
+            if( newFormat ) {
+                $container.addClass(newFormat);
+            }
         } else {
             var newContent, newContentPlain='';
             switch( type ) {

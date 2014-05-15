@@ -28,7 +28,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
         },
 
         setNewImage : function(url, attachment, connected, size, alignment) {
-            size = size || 'full';
+            size = size || _getDefaultImageSize();
             alignment = alignment || '';
             if( size == 'full' && alignment != '') {
                 alignment = '';
@@ -184,8 +184,24 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
         }
     },
 
+    _getDefaultImageSize = function() {
+        var imageSizeSupport = ArlimaTemplateLoader.getTemplateSupport(_this.article).imageSize;
+        if( imageSizeSupport ) {
+            if( _this.article.isChild() && imageSizeSupport['children-size'] && imageSizeSupport['children-size'] != '*' ) {
+                return $.trim(imageSizeSupport['children-size'].split(',')[0]);
+            } else if( imageSizeSupport.size && imageSizeSupport.size != '*' ) {
+                return $.trim(imageSizeSupport.size.split(',')[0]);
+            }
+        }
+        return 'full';
+    },
+
     _setupForm = function() {
         if( _this.article.data.image && _this.article.data.image.url ) {
+
+            var img = _this.article.data.image; // shorten code pls...
+
+            ArlimaUtils.log('Setting up image form for '+_this.article.data.id);
 
             // toggle visibility
             _toggleImageDisplay(true);
@@ -197,47 +213,51 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 sizes = false;
 
             if( imageSizeSupport ) {
-                if( _this.article.isChild() && imageSizeSupport['children-size'] ) {
+
+                if( _this.article.isChild() && imageSizeSupport['children-size'] && imageSizeSupport['children-size'] != '*' ) {
                     sizes = imageSizeSupport['children-size'].split(',');
-                } else if( imageSizeSupport.size ) {
+                } else if( !_this.article.isChild() && imageSizeSupport['size'] && imageSizeSupport['size'] != '*' ) {
                     sizes = imageSizeSupport.size.split(',');
                 }
 
                 if( sizes ) {
                     var currentSizeIsAvailable = false,
-                        $sizeOptions = _this.$sizeSelect.find('options');
+                        $sizeOptions = _this.$sizeSelect.find('option');
 
                     $sizeOptions.attr('disabled', 'disabled');
+
                     $.each(sizes, function(i, size) {
                         size = $.trim(size);
                         $sizeOptions.filter('[value="'+size+'"]').removeAttr('disabled');
-                        if( size == _this.article.data.image.size ) {
+                        if( size == img.size ) {
                             currentSizeIsAvailable = true;
                         }
                     });
                     if( !currentSizeIsAvailable ) {
-                        _this.article.data.image.size = $sizeOptions.filter(':not(disabled)').attr('value');
+                        img.size = _getDefaultImageSize();
                     }
+                } else {
+                    _this.$sizeSelect.find('option').removeAttr('disabled');
                 }
             } else {
-                _this.$sizeSelect.find('options').removeAttr('disabled');
+                _this.$sizeSelect.find('option').removeAttr('disabled');
             }
 
             // Fix alignment if incorrect
-            var align = _this.article.data.image.alignment;
-            if( _this.article.data.image.size == 'full' && align != '' )
-                align = '';
-            else if( _this.article.data.image.size != 'full' && align == '' )
-                align = 'alignleft';
+            img.alignment = img.alignment || '';
+            if( img.size == 'full' && img.alignment != '' )
+                img.alignment = '';
+            else if( img.size != 'full' && img.alignment == '' )
+                img.alignment = 'alignleft';
 
             // Add data to form
-            ArlimaUtils.selectVal(_this.$alignSelect, align, false);
-            ArlimaUtils.selectVal(_this.$sizeSelect, _this.article.data.image.size, false);
+            ArlimaUtils.selectVal(_this.$alignSelect, img.alignment, false);
+            ArlimaUtils.selectVal(_this.$sizeSelect, img.size, false);
 
             // Disable alignment options on full articles
             _setSelectStates();
 
-            if( !_this.article.data.image.connected ) {
+            if( !img.connected ) {
                 _this.$buttons.filter('.disconnect').hide();
             }
 

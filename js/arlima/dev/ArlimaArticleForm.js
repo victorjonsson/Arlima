@@ -73,7 +73,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
          */
         setupForm : function(list) {
 
-            ArlimaUtils.log('Setting up article form');
+            ArlimaUtils.log('Setting up article form for '+this.article.data.id);
 
             if( !list ) {
                 list = window.ArlimaListContainer.list(this.article.listID)
@@ -155,6 +155,10 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
             // Setup connection between this article and a wp post
             window.ArlimaArticleConnection.setup(this.article);
 
+            // Setup image manager
+            window.ArlimaImageManager.setup(this.article);
+            window.ArlimaImageUploader.removeNotice();
+
             // Setup preview
             ArlimaArticlePreview.setArticle(
                 this.article,
@@ -163,10 +167,6 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                 false,
                 list.data.isImported
             );
-
-            // Setup image manager
-            window.ArlimaImageManager.setup(this.article);
-            window.ArlimaImageUploader.removeNotice();
         },
 
         /**

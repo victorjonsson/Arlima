@@ -80,7 +80,8 @@ var ArlimaUtils = (function($, window, undefined) {
             var $opt = $select.find('option[value="'+val+'"]');
             if( $opt.length == 0 ) {
                 if( val != '' && val != 'aligncenter' ) { // legacy...
-                    throw Error('Trying to set value ('+val+') for a select that does not exist');
+                    throw Error('Trying to set value ('+val+') for a select[name='+($select.attr('name') || $select.attr('data-prop'))+
+                        '] but no option exists for that value');
                 }
             } else {
                 if( $select.val() != val ) {

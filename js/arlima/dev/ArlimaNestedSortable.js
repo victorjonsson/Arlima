@@ -8,7 +8,7 @@ function arlimaNestedSortable(list) {
         $articles = list.$elem.find('.articles'),
         globalMaxDepth = 2, currentDepth = 0, originalDepth, minDepth, maxDepth,
         prev, next, prevBottom, nextThreshold, helperHeight, transport, isMovingWithChildren,
-        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, canBeChild,
+        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, canBeChild, $parentArtElem,
 
     _updateCurrentDepth = function(ui, depth) {
         _updateDepthClass( ui.placeholder, depth, currentDepth );
@@ -113,12 +113,21 @@ function arlimaNestedSortable(list) {
         setTimeout(function() {
             // This must be done in a little while for DOM to catch up
             list.updateParentProperties();
-        }, 400);
 
-        // update preview
-        if( window.ArlimaArticleForm.isEditing($elem) ) {
-            window.ArlimaArticleForm.setupForm(); // will also update preview if open
-        }
+            // update preview
+            if( window.ArlimaArticleForm.isEditing($elem) ) {
+                window.ArlimaArticleForm.setupForm(); // will also update preview if open
+            } else if(
+                window.ArlimaArticlePreview.isVisible() &&
+                window.arlimaDragArticleParent &&
+                window.ArlimaArticleForm.article &&
+                window.ArlimaArticleForm.article.data.id == window.arlimaDragArticleParent
+                ) {
+                window.ArlimaArticlePreview.reload();
+            }
+
+
+        }, 200);
 
         try {
             $elem.effect("highlight", {color:'rgba(255,255,255, .2)'});
@@ -183,6 +192,7 @@ function arlimaNestedSortable(list) {
                 transport.append( children );
                 isMovingWithChildren = children.length > 0;
                 canBeChild = !isMovingWithChildren && ( !('arlimaArticle' in ui.item[0]) ||  ui.item[0].arlimaArticle.canBeChild() );
+                window.arlimaDragArticleParent = false;
 
                 if( ArlimaUtils.hasMetaKeyPressed(e) || list.data.isImported ) {
                     isMovingCopy = true;
@@ -196,6 +206,9 @@ function arlimaNestedSortable(list) {
                     });
                 } else {
                     isMovingCopy = false;
+                    if( ui.item.get(0).arlimaArticle.isChild() ) {
+                        window.arlimaDragArticleParent = ui.item.get(0).arlimaArticle.getParentArticle().data.id;
+                    }
                 }
 
                 // Update the height of the placeholder to match the moving item.

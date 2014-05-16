@@ -107,7 +107,7 @@ module.exports = function(grunt) {
      * Change to new version or the next version number in all files
      * containing the version definition
      */
-    grunt.registerTask('change-version', 'Move up the version number', function() {
+    grunt.registerTask('change-version', 'Bump up the version number, or change version name by adding --new-version=3.1.0', function() {
         var currentVersion = getCurrentVersion(),
             newVersion = grunt.option('new-version');
 
@@ -129,7 +129,7 @@ module.exports = function(grunt) {
     /*
      * Build javascript
      */
-    grunt.registerTask('build-js', ['current-version', 'concat', 'uglify']);
+    grunt.registerTask('build-js', ['current-version', 'concat', 'uglify', 'change-version']);
 
     /*
      * Run PHP-unit

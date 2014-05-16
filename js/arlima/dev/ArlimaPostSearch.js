@@ -52,9 +52,7 @@ var ArlimaPostSearch = (function($, window, ArlimaBackend, ArlimaJS, ArlimaUtils
                         $resultBody.append('<tr><td colspan="3"><em>'+ArlimaJS.lang.noPostsFound+'...</em></td></tr>');
                     } else {
                         $.each(json.articles, function(i, article) {
-                            console.log(article);
 
-                           
                             var futureText = ArlimaUtils.isFutureDate(article.data.published * 1000) ? ' <em>('+ArlimaJS.lang.future+')</em>':'',
                                 $row = $('<tr><td><div>'+article.post.post_title+futureText+'</div></td><td>'+article.post.display_author+'</td><td>'+article.post.post_date+'</td></tr>'),
                                 articleContainer = $row.find('div').get(0);

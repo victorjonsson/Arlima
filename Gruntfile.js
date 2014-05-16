@@ -127,9 +127,25 @@ module.exports = function(grunt) {
     });
 
     /*
+     * Validate our javascripts
+     */
+    grunt.registerTask('validate-js', "Check that we're not doing anything wrong in our javascripts", function() {
+        for(var x in config.filesToConcat ) {
+            Object.keys(config.filesToConcat[x]).every(function(i) {
+                var file = __dirname +'/'+ config.filesToConcat[x][i],
+                    code = readFile(file);
+                if( code.indexOf('console.') > -1 ) {
+                    throw new Error('Javascript '+file+' invoked the console object, you must remove it to build the scripts!');
+                }
+                return true;
+            });
+        }
+    });
+
+    /*
      * Build javascript
      */
-    grunt.registerTask('build-js', ['current-version', 'concat', 'uglify', 'change-version']);
+    grunt.registerTask('build-js', ['validate-js', 'current-version', 'concat', 'uglify', 'change-version']);
 
     /*
      * Run PHP-unit
@@ -184,7 +200,7 @@ module.exports = function(grunt) {
     /*
      * Validate the readme file
      */
-    grunt.registerTask('validate', 'Validate readme.txt', function() {
+    grunt.registerTask('validate-readme', 'Validate readme.txt', function() {
         var done = this.async();
         exec('mval ./readme.txt', function(error, stdout, stderr) {
             if( !handleProcessError(grunt, stderr, error, stdout) ) {
@@ -232,7 +248,8 @@ module.exports = function(grunt) {
      */
     var defaultTasks = [
         'phpunit',
-        'validate',
+        'validate-js',
+        'validate-readme',
         'change-version',
         'localization',
         'less',

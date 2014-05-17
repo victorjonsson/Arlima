@@ -51,6 +51,13 @@ the list that you created on step 2.
 - Using Arlima in the ordinary category loop
 - [Modifing the list manager with javascript](https://github.com/victorjonsson/Arlima/wiki/Modifing-the-list-manager-with-javascript) *(updated for version 3.0)*
 
+
+#### Contributer manual
+
+- [Install, configure and build](https://github.com/victorjonsson/Arlima/wiki/Install,-configure-and-build)
+- Server-side, in depth
+- Front-end, in depth
+
 #### Misc
 
 - [Upgrading from version 2.x to 3.0](https://github.com/victorjonsson/Arlima/wiki/Upgrading-from-version-2.x-to-3.0)

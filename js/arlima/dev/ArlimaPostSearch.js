@@ -53,8 +53,11 @@ var ArlimaPostSearch = (function($, window, ArlimaBackend, ArlimaJS, ArlimaUtils
                     } else {
                         $.each(json.articles, function(i, article) {
 
-                            var futureText = ArlimaUtils.isFutureDate(article.data.published * 1000) ? ' <em>('+ArlimaJS.lang.future+')</em>':'',
-                                $row = $('<tr><td><div>'+article.post.post_title+futureText+'</div></td><td>'+article.post.display_author+'</td><td>'+article.post.post_date+'</td></tr>'),
+                            var futureText = ArlimaUtils.isFutureDate(article.data.published * 1000) ? ' <em>('+ArlimaJS.lang.future+')</em>':'';
+
+                            var editLink = '<a href="' + article.post.edit_url + '" target="_blank" class="edit-post-link"><span class="fa fa-edit"></span></a>';
+
+                            var $row = $('<tr><td><div>'+editLink+article.post.post_title+futureText+'</div></td><td>'+article.post.display_author+'</td><td>'+article.post.post_date+'</td></tr>'),
                                 articleContainer = $row.find('div').get(0);
 
                             $row.find('td').get(0).arlimaArticle = new ArlimaArticle(article.data);

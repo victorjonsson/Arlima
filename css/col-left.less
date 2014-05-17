@@ -149,6 +149,7 @@
 .article.editing,
 .article.editing:hover {
   background: #6BA6C2;
+  background: #888;
   color: #FFF;
 }
 
@@ -169,6 +170,7 @@
 .article.section-divider.editing,
 .article.section-divider.editing:hover {
   background: #6C8DA3;
+  background: #666;
   padding: 0px;
   color: rgba(255,255,255, .85) !important;
   font-weight: bold;
@@ -181,6 +183,10 @@
 
   .remove {
     top: 3px;
+  }
+
+  &.light-streamer {
+    color: rgba(0, 0, 0, .85) !important;
   }
 }
 
@@ -213,8 +219,8 @@
 
   // HEADER
   .header {
-    color: #fff;
-    background: #608EA3;
+    color: #eee;
+    background: #333;
     height: @header-height;
     line-height: @header-height;
     width: inherit;
@@ -224,6 +230,10 @@
     cursor: move;
     .text-wrap();
 
+    .title {
+      font-weight: bold;
+    }
+
     .remove, .title {
       margin: 0 8px;
 
@@ -231,8 +241,8 @@
         float: left;
         margin-left: 9px;
         margin-right: -1px;
-        box-shadow: 0 0 5px #fff;
-        background: #FFF;
+        box-shadow: 0 0 5px #ff9;
+        background: #FF9;
         border-radius: 100px;
         display: inline-block;
         height: 6px;
@@ -289,7 +299,7 @@
     }
 
     a.save, a.disabled {
-      color: #999;
+      color: #bbb;
       cursor: default;
     }
 
@@ -300,7 +310,7 @@
     .version {
       display: inline;
       float: right;
-      color: #888;
+      color: #333;
       font-size: 12px;
       cursor: pointer;
       margin-right: 3px;
@@ -319,6 +329,10 @@
       margin-right: 6px;
     }
 
+    .preview, .refresh {
+      color: #222;
+    }
+
   }
 
   .ui-resizable-handle {
@@ -329,7 +343,7 @@
 
 .article-list.unsaved,
 .article-list.active {
-  background: #F5F9FC;
+  background: #f6f6f6;
 
   .header .title {
     color: rgba(255,255,255, .9);
@@ -338,7 +352,7 @@
 
 .article-list.unsaved {
   .header {
-    background: @blue;
+    background: #222;
   }
   .title {
     text-shadow: 0px 0px 8px rgba(255,255,255, .8);
@@ -348,8 +362,9 @@
 
 // Unsaved article list
 .article-list.unsaved {
+  background: #ffe;
   a.save {
-    color: @blue;
+    color: #222;
     cursor: pointer;
   }
 }

@@ -530,6 +530,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
             $form.find('.ui-slider-handle,input.font-size').bind('focus click', function() {
                 $sliderButton.addClass('active');
                 $form.find('input').one('focus', _removeSliderKeyDownEvent);
+                _removeSliderKeyDownEvent();
                 $doc.on('keydown', _onSliderKeyDown);
                 _soonRemoveSliderKeyDownEvent();
                 lastSliderEvent = new Date().getTime();

@@ -104,6 +104,11 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
             title = '&ndash;&ndash;&ndash; '+title+' &ndash;&ndash;&ndash;';
             if(this.opt('streamerType') == 'text' ) {
                 this.$elem.css('background', '#'+this.opt('streamerColor'));
+                if (_isColorLight(this.opt('streamerColor'))) {
+                    this.$elem.addClass('light-streamer');
+                } else {
+                    this.$elem.removeClass('light-streamer');
+                }
             } else {
                 this.$elem.css('background', '');
             }
@@ -334,6 +339,19 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
                 newData.options.streamerColor != oldData.options.streamerColor ||
                 newData.options.streamerType != oldData.options.streamerType;
     };
+
+    /**
+     * Simple function to determine if a color is light or dark.
+     * @param {String} color
+     * @returns {boolean}
+     * @private
+     */
+    var _isColorLight = function(color) {
+        var r = parseInt(color.substr(0, 2), 16),
+            g = parseInt(color.substr(2, 2), 16),
+            b = parseInt(color.substr(4, 2), 16);
+        return (r + g + b) > 382;
+    }
 
 
     return ArlimaArticle;

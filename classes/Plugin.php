@@ -872,12 +872,6 @@ class Arlima_Plugin
         if ( strpos($class, 'Arlima_') === 0 ) {
             require_once ARLIMA_PLUGIN_PATH . '/classes/' . str_replace('_', '/', substr($class, 7)) . '.php';
         }
-        elseif ( strpos($class, 'jQueryTmpl') === 0 ) {
-            $jquery_tmpl_class = ARLIMA_PLUGIN_PATH . '/classes/jquery-tmpl-php/' .
-                str_replace('_', '/', $class) . '.php';
-            require_once $jquery_tmpl_class;
-
-        }
         elseif (strpos($class, 'Mustache') === 0) {
             require_once ARLIMA_PLUGIN_PATH . '/classes/mustache/src/' . str_replace('_', '/', $class) . '.php';
         }

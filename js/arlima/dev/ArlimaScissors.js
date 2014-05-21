@@ -31,8 +31,14 @@ var ArlimaScissors = (function($, window, ArlimaArticleForm, ArlimaBackend, Arli
                             imgData.attachment,
                             imgData.connected,
                             imgData.size,
-                            imgData.alignment
+                            imgData.alignment,
+                            true
                         );
+
+                        // We have to trigger the change manually since the input
+                        // for the attachmentID that normally triggers the change
+                        // doesn't get a new value
+                        ArlimaArticleForm.$form.find('.image-attach').trigger('change');
 
                         if( window.ArlimaArticlePreview.isVisible() ) {
                             window.ArlimaArticlePreview.reload();

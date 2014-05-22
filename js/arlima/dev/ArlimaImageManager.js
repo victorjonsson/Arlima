@@ -72,15 +72,19 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
             // Browser media library
             this.$buttons.filter('.browse').click(function() {
 
+                var post_id = _this.article ? _this.article.data.post : null;
                 // If the media frame already exists, reopen it.
                 if ( window.wpMediaModal ) {
+                    window.wpMediaModal.uploader.uploader.param( 'post_id', post_id );
                     window.wpMediaModal.open();
                     return;
+                }else{
+                    wp.media.model.settings.post.id = post_id;
                 }
 
                 // Create the media frame.
                 window.wpMediaModal = wp.media.frames.file_frame = wp.media({
-                    title: 'a title',
+                    title: window.ArlimaJS.lang.chooseImage,
                     button: {
                         text: window.ArlimaJS.insertImage
                     },
@@ -111,7 +115,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 _this.article.data.image.connected = '';
                 ArlimaBackend.duplicateImage(_this.article.data.image.attachment, function(json) {
                     if(!json.error) {
-                        _this.setNewImage(json.attach_url, json.attach_id, false);
+                        _this.setNewImage(json.attach_url, json.attach_id, false, _this.article.data.image.size, _this.article.data.image.alignment);
                     }
                 });
                 return false;

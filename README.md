@@ -56,7 +56,7 @@ the list that you created on step 2.
 
 - [Install, configure and build](https://github.com/victorjonsson/Arlima/wiki/Install,-configure-and-build)
 - Server-side, in depth
-- Front-end, in depth
+- [Front-end, in depth](https://github.com/victorjonsson/Arlima/wiki/Front-end,-in-depth)
 
 #### Misc
 

@@ -628,3 +628,9 @@ msgstr "Inga artiklar hittades"
 
 msgid "Add to article"
 msgstr "Använd"
+
+msgid "Article presets"
+msgstr "Förinställda artiklar"
+
+msgid "Article"
+msgstr "Artikel"

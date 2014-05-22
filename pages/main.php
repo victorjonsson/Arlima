@@ -346,14 +346,14 @@ $arlima_plugin = new Arlima_Plugin();
             </div>
         </div>
 
-        <div id="arlima-custom-templates" class="arlima-postbox">
+        <div id="arlima-article-presets" class="arlima-postbox">
             <div class="collapse-toggle"><br /></div>
-            <h3><span><?php _e('Teaser templates', 'arlima') ?></span></h3>
+            <h3><span><?php _e('Article presets', 'arlima') ?></span></h3>
             <div class="inside" style="display:none;">
                 <table class="widefat">
                     <thead>
                     <tr>
-                        <th><?php _e('Template', 'arlima') ?></th>
+                        <th><?php _e('Article', 'arlima') ?></th>
                     </tr>
                     </thead>
                     <tbody></tbody>

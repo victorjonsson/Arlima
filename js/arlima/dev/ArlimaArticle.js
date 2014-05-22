@@ -82,12 +82,6 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      */
     ArlimaArticle.prototype.updateItemPresentation = function(checkDate) {
 
-        if( !this.isPublished() ) {
-            this.$elem.addClass('future');
-        } else {
-            this.$elem.removeClass('future');
-        }
-
         var title = '';
 
         if(this.data.title)
@@ -139,8 +133,13 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
             title = '<span class="fa fa-clock-o"></span>' + title;
         if( this.opt('fileInclude') )
             title = '<span class="fa fa-bolt"></span>' + title;
-        if( !this.isPublished() )
-            title = '<span class="fa fa-calendar"></span>' + title;
+
+        if( !this.isPublished() ) {
+            title = '<span class="future-push-date">'+ _getDatePresentation(this.data.published * 1000) +'</span>' + title;
+            this.$elem.addClass('future');
+        } else {
+            this.$elem.removeClass('future');
+        }
 
         this.$elem.find('.article-title').html(title);
 
@@ -351,8 +350,29 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
             g = parseInt(color.substr(2, 2), 16),
             b = parseInt(color.substr(4, 2), 16);
         return (r + g + b) > 382;
-    }
+    };
 
+    /**
+     * @param ts
+     * @returns {String}
+     * @private
+     */
+    var _getDatePresentation = function(ts) {
+        var getFullDate = function(d) {
+                    return d.getYear()+'-'+d.getMonth()+'-'+ d.getDate();
+            },
+            unitFix = function(unit) {
+                return unit < 10 ? '0'+unit:unit;
+            },
+            date = new Date(),
+            givenDate = new Date(ts);
+
+        if( getFullDate(date) == getFullDate(givenDate) ) {
+            return unitFix(givenDate.getHours()) +':'+ unitFix(givenDate.getMinutes());
+        } else {
+            return unitFix(givenDate.getMonth()+1) +'/'+ unitFix(givenDate.getDate());
+        }
+    };
 
     return ArlimaArticle;
 

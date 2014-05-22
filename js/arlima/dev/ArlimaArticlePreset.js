@@ -1,4 +1,4 @@
-var ArlimaArticleTemplates = (function($, window, ArlimaBackend, ArlimaUtils) {
+var ArlimaArticlePreset = (function($, window, ArlimaBackend, ArlimaUtils) {
 
     return {
 

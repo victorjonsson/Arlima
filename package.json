@@ -61,7 +61,7 @@
                 "js/arlima/dev/ArlimaImageUploader.js",
                 "js/arlima/dev/ArlimaFileIncludes.js",
                 "js/arlima/dev/ArlimaScissors.js",
-                "js/arlima/dev/ArlimaArticleTemplates.js",
+                "js/arlima/dev/ArlimaArticlePreset.js",
                 "js/arlima/dev/ArlimaScheduledIntervalPicker.js",
                 "js/arlima/dev/ArlimaTinyMCE.js"
             ]

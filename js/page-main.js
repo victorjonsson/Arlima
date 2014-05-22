@@ -21,7 +21,7 @@ jQuery(function($) {
     ArlimaKeyBoardShortCuts.init();
     ArlimaTinyMCE.init();
     ArlimaScheduledIntervalPicker.init($('#scheduled-interval-fancybox'));
-    ArlimaArticleTemplates.init($('#arlima-custom-templates'));
+    ArlimaArticlePreset.init($('#arlima-article-presets'));
 
     // Fix future notices in all lists
     setTimeout(function() {

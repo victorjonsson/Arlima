@@ -82,6 +82,7 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
         },
 
         /**
+         * @todo: Rename to loadArticlePresets
          * @param {Function} [callback]
          */
         loadCustomTemplateData : function(callback) {

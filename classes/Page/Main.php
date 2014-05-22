@@ -70,7 +70,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         $scripts['arlima-js-image-upload'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaImageUploader.js';
         $scripts['arlima-js-file-includes'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaFileIncludes.js';
         $scripts['arlima-js-scissors'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaScissors.js';
-        $scripts['arlima-article-templates'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticleTemplates.js';
+        $scripts['arlima-article-templates'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticlePreset.js';
         $scripts['arlima-scheduled-interval'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaScheduledIntervalPicker.js';
         $scripts['arlima-js-tinymce'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaTinyMCE.js';
         return $scripts;

@@ -19,6 +19,7 @@ jQuery(function($) {
     ArlimaImageUploader.init(ArlimaArticleForm.$form.find('.image-container'), 'arlima-image');
     ArlimaFormBlocker.init();
     ArlimaKeyBoardShortCuts.init();
+    ArlimaTinyMCE.init();
     ArlimaScheduledIntervalPicker.init($('#scheduled-interval-fancybox'));
     ArlimaArticleTemplates.init($('#arlima-custom-templates'));
 
@@ -48,11 +49,6 @@ jQuery(function($) {
     };
 
 });
-
-// Changes in tinymce should update article
-function arlimaTinyMCEChanged() {
-    ArlimaArticleForm.change('input.text', ArlimaArticleForm.getEditorContent());
-}
 
 // Add qtip style
 var qtipStyle = {

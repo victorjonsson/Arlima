@@ -46,6 +46,71 @@ var ArlimaKeyBoardShortCuts = (function($, window, ArlimaArticlePreview, ArlimaV
                 }
             }
         },
+
+        /**
+         * Looks at the keyUp event and returns which type of command that should be invoked
+         * @param e
+         * @param keyList
+         * @returns {*}
+         */
+        getCommandFromEvent : function(e, keyList) {
+            var key = e.keyCode || e.which;
+            if( (e.ctrlKey || e.metaKey) && $.inArray(key, keyList) > -1 ) {
+                return key;
+            }
+            return false;
+        }
+    };
+
+    return {
+
+        /**
+         * Executes commands from key list if given event indicates that
+         * one of the commans should be invoked.
+         * @param evt
+         * @param keyList
+         * @returns {boolean} Returns true if a command was invoked
+         */
+        call : function(evt, keyList) {
+            var key = shortCuts.getCommandFromEvent(evt, keyList);
+            if( key ) {
+                switch (key) {
+                    case shortCuts.p.key:
+                        shortCuts.p.run();
+                        break;
+                    case shortCuts.s.key:
+                        shortCuts.s.run();
+                        break;
+                    case shortCuts.l.key:
+                        shortCuts.l.run();
+                        break;
+                    case shortCuts.y.key:
+                        if( !evt.target || evt.target.nodeName != 'INPUT' ) {
+                            shortCuts.y.run();
+                        } else {
+                            return false; // don't prevent native undo/redo in inputs
+                        }
+                        break;
+                    case shortCuts.z.key:
+                        if( !evt.target || evt.target.nodeName != 'INPUT' ) {
+                            if( evt.shiftKey ) {
+                                shortCuts.y.run();
+                            } else {
+                                shortCuts.z.run();
+                            }
+                        } else {
+                            return false; // don't prevent native undo/redo in inputs
+                        }
+
+                        break;
+                }
+
+                return true;
+            }
+
+            return false;
+        },
+
         getKeyList : function(letters) {
             var keys = [];
             if( !letters ) {
@@ -61,114 +126,16 @@ var ArlimaKeyBoardShortCuts = (function($, window, ArlimaArticlePreview, ArlimaV
             }
             return keys;
         },
-        interpretCommand : function(e, keyList) {
-            var key = e.keyCode || e.which;
-            if( (e.ctrlKey || e.metaKey) && $.inArray(key, keyList) > -1 ) {
-                return key;
-            }
-            return false;
-        }
-    };
-
-    return {
 
         init : function() {
-
-            var allCommandKeys = shortCuts.getKeyList('plszy'),
-                tinyMCECommandKeys = shortCuts.getKeyList('pls');
-
-            $(document).bind('keydown', function(evt) {
-                var key = shortCuts.interpretCommand(evt, allCommandKeys);
-                if( key ) {
-                    switch (key) {
-                        case shortCuts.p.key:
-                            shortCuts.p.run();
-                            break;
-                        case shortCuts.s.key:
-                            shortCuts.s.run();
-                            break;
-                        case shortCuts.l.key:
-                            shortCuts.l.run();
-                            break;
-                        case shortCuts.y.key:
-                            if( !evt.target || evt.target.nodeName != 'INPUT' ) {
-                                shortCuts.y.run();
-                            } else {
-                                return true; // don't prevent native undo/redo in inputs
-                            }
-                            break;
-                        case shortCuts.z.key:
-                            if( !evt.target || evt.target.nodeName != 'INPUT' ) {
-                                if( evt.shiftKey ) {
-                                    shortCuts.y.run();
-                                } else {
-                                    shortCuts.z.run();
-                                }
-                            } else {
-                                return true; // don't prevent native undo/redo in inputs
-                            }
-
-                            break;
-                    }
-
+            var _this = this,
+                allCommandKeys = this.getKeyList('plszy');
+            $(window.document).bind('keydown', function(evt) {
+                if( _this.call(evt, allCommandKeys) ) {
                     evt.preventDefault();
                     return false;
                 }
             });
-
-
-            // tinyMCe events. This will not work
-            // when loading the page with tinyMCE being in HTML mode, therefor
-            // we put the initiation in a interval that runs until visual mode
-            // is activated
-            var tinyMCEEventInterval = setInterval(function() {
-                if(window.tinyMCE !== undefined) {
-
-                    // tinymce is initiated, stop interval
-                    clearInterval(tinyMCEEventInterval);
-
-                    var editorContent = '';
-
-                    // We have editors
-                    if(window.tinyMCE.editors && window.tinyMCE.editors.length > 0) {
-
-                        // Capture initial content to determine when content change onkeyup
-                        window.tinyMCE.editors[0].onSetContent.add(function(editor, e) {
-                            editorContent = $.trim(ArlimaArticleForm.getEditorContent());
-                        });
-
-                        // Trigger change in form when content changes
-                        window.tinyMCE.editors[0].onKeyUp.add(function(editor, e) {
-                            var newContent = $.trim(ArlimaArticleForm.getEditorContent());
-                            if( newContent != editorContent ) {
-                                ArlimaArticleForm.change('input.text', ArlimaArticleForm.getEditorContent());
-                            }
-                        });
-
-                        // listen to keyboard short cuts
-                        window.tinyMCE.editors[0].onKeyDown.add(function(editor, e) {
-                            var key;
-                            if( (key = shortCuts.interpretCommand(e, tinyMCECommandKeys)) ) {
-
-                                switch (key) {
-                                    case shortCuts.p.key:
-                                        shortCuts.p.run();
-                                        break;
-                                    case shortCuts.s.key:
-                                        shortCuts.s.run();
-                                        break;
-                                    case shortCuts.l.key:
-                                        shortCuts.l.run();
-                                        break;
-                                }
-
-                                e.preventDefault();
-                                return false;
-                            }
-                        });
-                    }
-                }
-            }, 500);
         }
 
     };

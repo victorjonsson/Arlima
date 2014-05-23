@@ -634,3 +634,9 @@ msgstr "Förinställda artiklar"
 
 msgid "Article"
 msgstr "Artikel"
+
+msgid "Example article"
+msgstr "Exempelartikel"
+
+msgid "Empty article"
+msgstr "Tom artikel"

@@ -180,11 +180,24 @@ $arlima_plugin = new Arlima_Plugin();
                             <option value="fifth"><?php _e('20% wide', 'arlima') ?></option>
                             <option value="sixth"><?php _e('15% wide', 'arlima') ?></option>
                         </select>
+                        <div class="img-align-buttons">
+                            <label>
+                                <?php _e('Align left', 'arlima') ?>
+                                <input type="radio" class="align-button" name="image-align" value="alignleft" />
+                            </label>
+                            <label>
+                                <?php _e('Align right', 'arlima') ?>
+                                <input type="radio" class="align-button" name="image-align" value="alignright" />
+                            </label>
+                        </div>
+                        <!--
                         <select class="data img-align" data-prop="image:alignment">
                             <option value="alignleft"><?php _e('Align left', 'arlima') ?></option>
                             <option value="alignright"><?php _e('Align right', 'arlima') ?></option>
                             <option value=""><?php _e('Align none', 'arlima') ?></option>
                         </select>
+                        -->
+                        <input type="hidden" class="data img-align" data-prop="image:alignment" />
                         <input type="hidden" class="data image-attach" data-prop="image:attachment" />
                     </div>
                     <div id="arlima-article-attachments" class="fancybox attachments-fancybox" style="width: 400px"></div>
@@ -285,7 +298,7 @@ $arlima_plugin = new Arlima_Plugin();
         </div>
 
         <div id="arlima-post-search" class="arlima-postbox">
-            <div class="collapse-toggle"><br /></div>
+            <div class="collapse-toggle open"><br /></div>
             <h3><span><?php _e('Articles', 'arlima') ?></span></h3>
             <div class="inside">
                 <div class="search-wrapper">

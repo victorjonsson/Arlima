@@ -6,6 +6,18 @@ var ArlimaFormBlocker = (function($, window, ArlimaArticleForm) {
         $streamerBlocker : false,
         $preTitleBlocker : false,
         $titleSizeBlocker : false,
+        $imgAlignBlocker : false,
+
+        toggleImageAlignBlocker : function(toggle) {
+            if( toggle ) {
+                this.$imgAlignBlocker.css({
+                    top : (window.ArlimaImageManager.$alignButtons.eq(0).position().top - 10) +'px'
+                });
+                this.$imgAlignBlocker.show();
+            } else {
+                this.$imgAlignBlocker.hide();
+            }
+        },
 
         toggleFormBlocker : function(toggle, message) {
             if( !toggle ) {
@@ -75,6 +87,9 @@ var ArlimaFormBlocker = (function($, window, ArlimaArticleForm) {
                 case 'title':
                     this.toggleTitleBlocker(true);
                     break;
+                case 'image-align':
+                    this.toggleImageAlignBlocker(true);
+                    break;
                 default:
                     return false;
             }
@@ -86,6 +101,7 @@ var ArlimaFormBlocker = (function($, window, ArlimaArticleForm) {
             this.$streamerBlocker = $('<div class="streamer-blocker blocker"></div>').appendTo(ArlimaArticleForm.$form);
             this.$preTitleBlocker = $('<div class="pre-title-blocker blocker"></div>').appendTo(ArlimaArticleForm.$form);
             this.$titleSizeBlocker = $('<div class="title-size-blocker blocker"></div>').appendTo(ArlimaArticleForm.$form);
+            this.$imgAlignBlocker = $('<div class="img-align-blocker blocker"></div>').appendTo(ArlimaArticleForm.$form);
 
             ArlimaArticleForm.$form.bind('open', function() {
                 if( _this.$formBlocker.is(':visible') ) {

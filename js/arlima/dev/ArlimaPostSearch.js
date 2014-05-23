@@ -80,7 +80,7 @@ var ArlimaPostSearch = (function($, window, ArlimaBackend, ArlimaJS, ArlimaUtils
                                 content: {
                                     text: article.data.content
                                 }
-                            })
+                            });
 
                             $resultBody.append($row);
                         });

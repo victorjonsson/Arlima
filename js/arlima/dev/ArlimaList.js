@@ -435,34 +435,36 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         });
 
         // Toggle version dropdown
-        var $versionWrapper = list.$elem.find('.version'),
-            hasDropDownFocus = false,
-            $versionDropDown = list.$elem.find('.previous-versions');
+        if( !list.data.isImported ) {
+            var $versionWrapper = list.$elem.find('.version'),
+                hasDropDownFocus = false,
+                $versionDropDown = list.$elem.find('.previous-versions');
 
-        $versionDropDown
-            .bind('mouseenter', function() {
+            $versionDropDown
+                .bind('mouseenter', function() {
+                    hasDropDownFocus = true;
+                })
+                .bind('mouseleave', function() {
+                    hasDropDownFocus = false;
+                    setTimeout(function() {
+                        if( $versionDropDown.parent().is(':visible') && !hasDropDownFocus ) {
+                            $versionWrapper.find('.number').show();
+                            $versionDropDown.hide();
+                        }
+                    }, 1200);
+                })
+                .bind('change', function() {
+                    list.reload($(this).val());
+                });
+
+            // Show version drop down
+            $versionWrapper.find('.number').click( function() {
+                $(this).hide();
+                $versionDropDown.show();
                 hasDropDownFocus = true;
-            })
-            .bind('mouseleave', function() {
-                hasDropDownFocus = false;
-                setTimeout(function() {
-                    if( $versionDropDown.parent().is(':visible') && !hasDropDownFocus ) {
-                        $versionWrapper.find('.number').show();
-                        $versionDropDown.hide();
-                    }
-                }, 1200);
-            })
-            .bind('change', function() {
-                list.reload($(this).val());
+                return false;
             });
-
-        // Show version drop down
-        $versionWrapper.find('.number').click( function() {
-            $(this).hide();
-            $versionDropDown.show();
-            hasDropDownFocus = true;
-            return false;
-        });
+        }
     };
 
 

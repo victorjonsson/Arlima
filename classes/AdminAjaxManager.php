@@ -188,7 +188,7 @@ class Arlima_AdminAjaxManager
     {
         $templates = array(
             array(
-                'name' => 'Full featured teaser',
+                'name' => __('Example article', 'arlima'),
                 'title' => 'Lorem te ipusm dolor sit amet',
                 'text' => '<p><span class="teaser-entryword">Lorem te ipsum</span> dolor sit amet anno del torro.</p>',
                 'url' => 'http://google.com/',
@@ -203,7 +203,7 @@ class Arlima_AdminAjaxManager
                 )
             ),
             array(
-                'name' => 'Empty teaser',
+                'name' => __('Empty article', 'arlima'),
                 'title' => '',
                 'text' => '',
                 'url' => ''
@@ -532,9 +532,10 @@ class Arlima_AdminAjaxManager
     private function setupPostObject($post) {
         if( is_object($post) && ($post->post_status == 'future' || $post->post_status == 'publish' || $post->post_status == 'draft') ) {
             $post->url = get_permalink($post->ID);
-            $post->published = Arlima_ListFactory::getPostTimeStamp($post);
+            $post->published = Arlima_Utils::getPostTimeStamp($post);
             $post->display_date = $post->post_date;
             $post->display_author = get_the_author_meta('display_name', $post->post_author);
+            $post->edit_url = get_edit_post_link($post->ID);
             return apply_filters('arlima_wp_post', $post);
         }
         return false;

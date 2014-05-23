@@ -2,7 +2,8 @@
 
 /**
  * Class with all the knowledge about how to convert a typical arlima
- * article array to jquery-tmpl objects
+ * article array to an object used when the TemplateEngine constructs
+ * the articles view (template)
  *
  * @package Arlima
  * @since 2.0
@@ -183,7 +184,7 @@ class Arlima_TemplateObjectCreator
         }
 
         $obj['class'] = 'teaser' . ($is_empty ? ' empty' : '');
-        $obj['html_title'] = $is_empty ? '' : Arlima_List::getTitleHtml($obj, array('before_title'=>$this->before_title_html, 'after_title'=>$this->after_title_html));
+        $obj['html_title'] = $is_empty ? '' : Arlima_Utils::getTitleHtml($obj, array('before_title'=>$this->before_title_html, 'after_title'=>$this->after_title_html));
         $obj['is_child'] = $this->is_child;
         $obj['is_child_split'] = $this->is_child_split;
 

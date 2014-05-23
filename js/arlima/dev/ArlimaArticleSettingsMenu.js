@@ -239,10 +239,8 @@ var ArlimaArticleSettingsMenu = (function($, ArlimaUtils) {
             $dropDown.slideUp('fast');
 
             $button
-                .bind('mouseenter', function() {
-                    if( _this.isOpen() ) {
-                        _this.close();
-                    } else {
+                .bind('mouseenter click', function() {
+                    if( !_this.isOpen() ) {
                         _this.open();
                     }
                     $(this).blur();

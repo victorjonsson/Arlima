@@ -1,4 +1,4 @@
-var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateLoader) {
+var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateLoader, ArlimaFormBlocker) {
 
     'use strict';
 
@@ -7,7 +7,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
         $elem : false,
         $imageWrapper : false,
         $sizeSelect : false,
-        $alignSelect : false,
+        $alignButtons : false,
         $buttons : false,
         $selects : false,
 
@@ -40,18 +40,18 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 url : url,
                 alignment : alignment,
                 attachment : attachment,
-                connected : connected ? true:false
+                connected : connected ? 1:''
             };
 
             ArlimaArticleForm.change('.image-attach', attachment);
-            _setupForm();
+            setTimeout(_setupForm, 200); // cant rush it...
         },
 
         init : function($container) {
             this.$elem = $container;
             this.$imageWrapper = $container.find('.image');
             this.$buttons = $container.find('.button');
-            this.$alignSelect = $container.find('select.img-align');
+            this.$alignButtons = $container.find('.align-button');
             this.$sizeSelect = $container.find('select.img-size');
 
             var $attachFancyBox = $container.find('.attachments-fancybox');
@@ -72,14 +72,14 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
             // Browser media library
             this.$buttons.filter('.browse').click(function() {
 
-                var post_id = _this.article ? _this.article.data.post : null;
+                var postID = _this.article ? _this.article.data.post : null;
                 // If the media frame already exists, reopen it.
                 if ( window.wpMediaModal ) {
-                    window.wpMediaModal.uploader.uploader.param( 'post_id', post_id );
+                    window.wpMediaModal.uploader.uploader.param( 'post_id', postID );
                     window.wpMediaModal.open();
                     return;
                 }else{
-                    wp.media.model.settings.post.id = post_id;
+                    wp.media.model.settings.post.id = postID;
                 }
 
                 // Create the media frame.
@@ -93,9 +93,15 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
 
                 // When an image is selected, run a callback.
                 window.wpMediaModal.on('select', function() {
-                    // We set multiple to false so only get one image from the uploader
-                    var attachment = window.wpMediaModal.state().get('selection').first().toJSON();
-                    _this.setNewImage(attachment.url, attachment.id);
+                    var attachment = window.wpMediaModal.state().get('selection').first().toJSON(),
+                        connected = postID ? true:false;
+
+                    if( postID && !attachment.uploadedTo ) {
+                        // Not connected via upload
+                        ArlimaBackend.connectAttachmentToPost(attachment, attachment.id);
+                    }
+
+                    _this.setNewImage(attachment.url, attachment.id, connected);
                 });
 
                 // Finally, open the modal
@@ -104,9 +110,14 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 return false;
             });
 
-            // Adjust alignment select when changing size
+            // Adjust alignment when changing size
             _this.$sizeSelect.on('change', function() {
-                _setSelectStates( _this.$sizeSelect.val() );
+                _setAlignmentButtons( _this.$sizeSelect.val() );
+            });
+
+            // Changing alignment
+            _this.$alignButtons.on('change', function() {
+                ArlimaArticleForm.change('.data.img-align', $(this).val(), true);
             });
 
             // Disconnect button
@@ -168,23 +179,25 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
         }
     },
 
-    _setSelectStates = function(size) {
+    _setAlignmentButtons = function(size) {
         if( !size )
             size = _this.article.data.image.size;
 
-        if( size == 'full' ) {
-            if( _this.$alignSelect.val() != '' )
-                ArlimaUtils.selectVal(_this.$alignSelect, '', true);
+        var $checked = _this.$alignButtons.filter(':checked');
 
-            _this.$alignSelect.attr('disabled', 'disabled');
-            _this.$alignSelect.find('option[value=""]').attr('disabled', null);
+        if( size == 'full' ) {
+            if( $checked.length != 0 )
+                $checked[0].checked = false;
+
+            ArlimaFormBlocker.toggleImageAlignBlocker(true);
+            ArlimaArticleForm.change('.data.img-align', '', false);
 
         } else {
-            if( _this.$alignSelect.val() == '' )
-                ArlimaUtils.selectVal(_this.$alignSelect, 'alignleft', true);
+            if( $checked.length == 0 )
+                _this.$alignButtons[0].checked = true;
 
-            _this.$alignSelect.attr('disabled', null);
-            _this.$alignSelect.find('option[value=""]').attr('disabled', 'disabled');
+            ArlimaFormBlocker.toggleImageAlignBlocker(false);
+            ArlimaArticleForm.change('.data.img-align', _this.$alignButtons.eq(0).val(), false);
         }
     },
 
@@ -210,7 +223,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
             // toggle visibility
             _toggleImageDisplay(true);
             _this.$buttons.show();
-            _this.$alignSelect.show();
+            _this.$alignButtons.parent().show();
             _this.$sizeSelect.show();
 
             var imageSizeSupport = ArlimaTemplateLoader.getTemplateSupport(_this.article).imageSize,
@@ -247,6 +260,10 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 _this.$sizeSelect.find('option').removeAttr('disabled');
             }
 
+            if( !img.connected ) {
+                _this.$buttons.filter('.disconnect').hide();
+            }
+
             // Fix alignment if incorrect
             img.alignment = img.alignment || '';
             if( img.size == 'full' && img.alignment != '' )
@@ -255,26 +272,23 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 img.alignment = 'alignleft';
 
             // Add data to form
-            ArlimaUtils.selectVal(_this.$alignSelect, img.alignment, false);
+            if( img.alignment ) {
+                _this.$alignButtons.filter('[value='+img.alignment+']')[0].checked = true;
+            }
             ArlimaUtils.selectVal(_this.$sizeSelect, img.size, false);
 
             // Disable alignment options on full articles
-            _setSelectStates();
-
-            if( !img.connected ) {
-                _this.$buttons.filter('.disconnect').hide();
-            }
-
+            _setAlignmentButtons();
 
         } else {
             // Hide most of the stuff when there's no image
             _toggleImageDisplay(false);
             _this.$buttons.filter(':not(.browse)').hide();
-            _this.$alignSelect.hide();
+            _this.$alignButtons.parent().hide();
             _this.$sizeSelect.hide();
         }
     };
 
     return _this;
 
-})(jQuery, window, ArlimaArticleForm, ArlimaTemplateLoader);
+})(jQuery, window, ArlimaArticleForm, ArlimaTemplateLoader, ArlimaFormBlocker);

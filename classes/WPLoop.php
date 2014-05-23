@@ -116,7 +116,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
      * @return mixed
      */
     public static function defaultHeaderCallback($article_counter, $article, $post, $list) {
-        return $article['html_title'];
+        return $article['title'];
     }
 
     /**
@@ -147,7 +147,6 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
 
         // Create template
         $this->default_template_name = $this->list->getOption('template');
-        $this->default_template_obj = $this->loadTemplate($this->default_template_name);
 
         // Setup tmpl object creatorv
         $this->setup_wp_post_data = false; // prevent this class from overwriting the global post object
@@ -158,7 +157,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
             Arlima_FilterApplier::applyFilters($this);
         }
 
-        $this->setupObjectCreator();
+        $this->setupTemplateObjectCreator();
 
         while (have_posts()) {
             if ( $this->getOffset() > $article_counter ) {
@@ -207,25 +206,10 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
      */
     protected function extractTemplateData($post, $article_counter)
     {
-        $date = Arlima_ListFactory::getPostTimeStamp($post);
-        $article = array_merge(array(
-            'post' => $post->ID,
-            'options' => array(
-                'hideRelated' => false
-            ),
-            'title' => apply_filters('the_title', $post->post_title, 'arlima-list'),
-            'html_title' => '<h2>' . $post->post_title . '</h2>',
-            'url' => get_permalink($post->ID),
-            'content' => '',
-            'size' => 24,
-            'created' => $date,
-            'published' => $date
-        ), $this->default_article_props);
-
-        $article = Arlima_ListFactory::createArticleDataArray($article);
-        $article['title_html'] = call_user_func($this->header_callback, $article_counter, $article, $post, $this->list);
-        $article['content'] = apply_filters('the_content', get_the_content(), 'arlima-list');
-        $article['content'] = apply_filters('the_content', get_the_content());
+        $article = Arlima_ListFactory::postToArlimaArticle($post, null, $this->default_article_props);
+        $article['html_title'] = call_user_func($this->header_callback, $article_counter, $article, $post, $this->list);
+        $article['html_content'] = apply_filters('the_content', get_the_content(), 'arlima-list');
+        $article['html_content'] = apply_filters('the_content', get_the_content());
 
         if( $img = get_post_thumbnail_id($post->ID) ) {
             $article['image'] = array(

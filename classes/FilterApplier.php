@@ -259,7 +259,7 @@ class Arlima_FilterApplier
             );
         }
 
-        return Arlima_List::linkWrap($article, $filtered['content']);
+        return Arlima_Utils::linkWrap($article, $filtered['content']);
     }
 
     /**

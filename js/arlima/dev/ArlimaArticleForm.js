@@ -665,22 +665,11 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
      * @param {String} [content]
      */
     var _editorContent = function(content) {
-        var hasActiveEditor = window.tinyMCE.activeEditor && !window.tinyMCE.activeEditor.isHidden();
-
-        // Set
         if(content !== undefined) {
-            if(hasActiveEditor)
-                window.tinyMCE.activeEditor.setContent(content);
-            else
-                $('#tinyMCE').val( content );
+            window.ArlimaTinyMCE.setEditorContent(content);
         }
-
-        // Get
         else {
-            if(hasActiveEditor)
-                return window.tinyMCE.activeEditor.getContent();
-            else
-                return $('#tinyMCE').val();
+            return window.ArlimaTinyMCE.getEditorContent();
         }
     };
 

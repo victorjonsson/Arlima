@@ -11,9 +11,10 @@
 class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 {
     /**
-     * @var array
+     * Current unix time
+     * @var int
      */
-    private $template_resolver = array();
+    private $now;
 
     /**
      * @var Arlima_TemplateObjectCreator
@@ -21,30 +22,9 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     private $template_obj_creator;
 
     /**
-     * Current unix time
-     * @var int
-     */
-    private $now;
-
-    /**
-     * @var array
-     */
-    private static $preloaded_templates = array();
-
-    /**
-     * @var Mustache_Template
-     */
-    protected $default_template_obj = null;
-
-    /**
      * @var string
      */
     protected $default_template_name = null;
-
-    /**
-     * @var Mustache_Engine
-     */
-    protected $template_engine = null;
 
     /**
      * Class constructor
@@ -54,8 +34,8 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     function __construct($list, $template_path = null)
     {
         $this->now = time();
-        $this->template_resolver = new Arlima_TemplatePathResolver(array($template_path));
-        $this->template_engine = new Mustache_Engine();
+        $this->template_engine = new Arlima_TemplateEngine($template_path);
+        $this->default_template_name = $list->getOption('template');
         parent::__construct($list);
     }
 
@@ -64,13 +44,13 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      * before running this function. A callback added after this function is called
      * will not be triggered
      */
-    protected function setupObjectCreator()
+    protected function setupTemplateObjectCreator()
     {
         $this->template_obj_creator = new Arlima_TemplateObjectCreator();
         $this->template_obj_creator->setList($this->getList());
-        if ( !empty($this->list->options['before_title']) ) {
-            $this->template_obj_creator->setBeforeTitleHtml($this->list->options['before_title']);
-            $this->template_obj_creator->setAfterTitleHtml($this->list->options['after_title']);
+        if ( $this->list->hasOption('before_title') ) {
+            $this->template_obj_creator->setBeforeTitleHtml($this->list->getOption('before_title'));
+            $this->template_obj_creator->setAfterTitleHtml($this->list->getOption('after_title'));
         }
 
         $this->template_obj_creator->setImgSize($this->img_size_name);
@@ -92,13 +72,10 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      */
     function renderList($output = true)
     {
-        $article_counter = 0;
-        $content = '';
+        $count = 0;
+        $list_content = '';
 
-        list($this->default_template_obj,
-            $this->default_template_name) = $this->loadTemplate($this->list->getOption('template'));
-
-        if( empty($this->default_template_obj) ) {
+        if( !$this->template_engine->setDefaultTemplate($this->default_template_name) ) {
             $message = 'You are using a default template for the list "'.$this->list->getTitle().'" that could not be found';
             if( $output ) {
                 echo $message;
@@ -107,25 +84,22 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             }
         }
 
-        // Setup tmpl object creator
-        $this->setupObjectCreator();
+        // Setup template object creator
+        $this->setupTemplateObjectCreator();
         $articles = $this->getArticlesToRender();
 
         do_action('arlima_rendering_init');
 
         foreach ($articles as $article_data) {
-            list($article_counter, $article_content) = $this->outputArticle(
-                $article_data,
-                $article_counter
-            );
+            list($count, $content) = $this->outputArticle($article_data, $count);
 
             if ( $output ) {
-                echo $article_content;
+                echo $content;
             } else {
-                $content .= $article_content;
+                $list_content .= $content;
             }
 
-            if ( $article_counter == $this->getLimit() ) {
+            if ( $count == $this->getLimit() ) {
                 break;
             }
         }
@@ -134,7 +108,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         $GLOBALS['post'] = null;
         wp_reset_query();
 
-        return $content;
+        return $list_content;
     }
 
     /**
@@ -174,51 +148,28 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                 );
         }
 
-        list($mustache_template, $template_name) = $this->loadTemplate($article);
-        if( is_array($mustache_template) ) {
-            // we dont get this...
-            list($mustache_template, $template_name) = $mustache_template;
-        }
-
-        $template_data = $this->template_obj_creator->create(
-                            $article,
-                            $is_empty,
-                            $post,
-                            $article_counter,
-                            true,
-                            $template_name
-                        );
+        list($art_template, $template_obj) = $this->setupTemplateData($article_counter, $article, $is_empty, $post);
 
         // Add class that makes it possible to target the first article in the list
         if( $article_counter == 0 ) {
-            $template_data['class'] .= ' first-in-list';
+            $template_obj['class'] .= ' first-in-list';
         }
     
         $has_child_articles = !empty($article['children']) && is_array($article['children']);
 
         // load sub articles if there's any
         if ( $has_child_articles ) {
-            $template_data['child_articles'] = $this->renderChildArticles($article['children']);
+            $template_obj['child_articles'] = $this->renderChildArticles($article['children']);
         }
 
         // output the article
         if( $is_empty && !$has_child_articles ) {
             $content = ''; // empty article, don't render!
         } else {
-            $content = $this->generateTemplateOutput($mustache_template, $template_data);
+            $content = $this->template_engine->render($template_obj, $art_template);
         }
 
         return array($article_counter + 1, $content);
-    }
-
-    /**
-     * @param Mustache_Template $mustache_template
-     * @param array $template_data
-     * @return string
-     */
-    private function generateTemplateOutput($mustache_template, $template_data)
-    {
-        return $mustache_template->render($template_data);
     }
 
     /**
@@ -340,22 +291,11 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                 continue;
             }
 
-            list($mustache_template, $template_name) = $this->loadTemplate($article);
-
-            $template_data = $this->template_obj_creator->create(
-                                $article,
-                                $is_empty,
-                                $post,
-                                -1,
-                                false,
-                                $template_name
-                            );
-
+            list($template_name, $template_obj) = $this->setupTemplateData(-1, $article, $is_empty, $post);
             if( $first_or_last_class ) {
-                $template_data['class'] .= $first_or_last_class;
+                $template_obj['class'] .= $first_or_last_class;
             }
-
-            $child_articles .= $this->generateTemplateOutput($mustache_template, $template_data);
+            $child_articles .= $this->template_engine->render($template_obj, $template_name);
 
             $count++;
             if( $has_open_child_wrapper && $first_or_last_class == ' last') {
@@ -373,84 +313,6 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         $this->template_obj_creator->setImgSize($this->img_size_name);
 
         return $child_articles;
-    }
-
-    /**
-     * Load template that should be used for given article.
-     * @param array|string $article_or_tmpl_name
-     * @return array array(Mustache_Template, name)
-     */
-    protected function loadTemplate($article_or_tmpl_name) {
-        $is_article_input = is_array($article_or_tmpl_name);
-        if( $is_article_input && empty($article_or_tmpl_name['options']['template']) ) {
-            return array($this->default_template_obj, $this->default_template_name);
-        }
-        elseif( $is_article_input ) {
-            $template_name = $article_or_tmpl_name['options']['template'];
-        } else {
-            $template_name = $article_or_tmpl_name;
-        }
-
-        if ( isset(self::$preloaded_templates[$template_name]) ) {
-            if( self::$preloaded_templates[$template_name] === '' ) {
-                // Don't search for template more than once, we have searched for this template
-                // but it was not found == return default object
-                return array($this->default_template_obj, $this->default_template_name);
-            }
-            return array(self::$preloaded_templates[$template_name], $template_name);
-        }
-
-        $template_paths = $this->template_resolver->getPaths();
-        foreach ($template_paths as $template_path) {
-            $template_file = $template_path . DIRECTORY_SEPARATOR . $template_name . Arlima_TemplatePathResolver::TMPL_EXT;
-            if ( file_exists($template_file) ) {
-                self::$preloaded_templates[$template_name] = $this->fileToMustacheTemplate($template_file);
-                return array(self::$preloaded_templates[$template_name], $template_name);
-            }
-        }
-
-        // Template file not found, return default
-        self::$preloaded_templates[$template_name] = '';
-        return array($this->default_template_obj, $this->default_template_name);
-    }
-
-    /**
-     * Takes a file and turns it into a mustache template object
-     * @see ListTemplateRenderer::loadTemplate()
-     *
-     * @param string $template_file
-     * @return Mustache_Template
-     */
-    private function fileToMustacheTemplate($template_file)
-    {
-        // Load template content
-        $template_content = file_get_contents($template_file);
-
-        // Merge with includes
-        preg_match_all('(\{\{include .*[^ ]\}\})', $template_content, $sub_parts);
-        while ( !empty($sub_parts) && !empty($sub_parts[0]) ) {
-
-            $template_path = dirname($template_file) . '/';
-            foreach ($sub_parts[0] as $tpl_part) {
-                $path = str_replace(array('{{include ', '}}'), '', $tpl_part);
-                $included_tmpl = $template_path . $path;
-                if ( file_exists($included_tmpl) ) {
-                    $template_content = str_replace($tpl_part, file_get_contents($included_tmpl), $template_content);
-                } else {
-                    $template_content = str_replace(
-                        $tpl_part,
-                        '{{! ERROR: ' . $included_tmpl . ' does not exist}}',
-                        $template_content
-                    );
-                }
-            }
-            preg_match_all('(\{\{include [0-9a-z\/A-Z\-\_\.]*\}\})', $template_content, $sub_parts);
-        }
-
-        // Remove image support declarations
-        $template_content = preg_replace('(\{\{image-support .*\}\})', '', $template_content);
-
-        return $this->template_engine->loadTemplate($template_content);
     }
 
     /**
@@ -475,5 +337,28 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     protected function isFileIncludeArticle($article_data)
     {
         return !empty($article_data['options']) && !empty($article_data['options']['fileInclude']);
+    }
+
+    /**
+     * Returns the name of the template being used for this article and
+     * the constructed template object used in the template
+     * @param $article_counter
+     * @param $article
+     * @param $is_empty
+     * @param $post
+     * @return array
+     */
+    protected function setupTemplateData($article_counter, $article, $is_empty, $post)
+    {
+        $art_template = empty($article['options']['template']) ? $this->default_template_name : $article['options']['template'];
+        $template_data = $this->template_obj_creator->create(
+            $article,
+            $is_empty,
+            $post,
+            $article_counter,
+            false, // deprecated
+            $art_template
+        );
+        return array($art_template, $template_data);
     }
 }

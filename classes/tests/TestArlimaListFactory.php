@@ -90,7 +90,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Jodå', $reloaded_list->getTitle());
         $this->assertEquals('hejpa', $reloaded_list->getSlug());
         $this->assertEquals('test2', $reloaded_list->getOption('pages_to_purge'));
-        $this->assertEquals(null, $reloaded_list->getOption('google')); // Is not an option defined in Arlima_List::getDefaultOptions() and is therefor removed
+        $this->assertEquals('test1', $reloaded_list->getOption('google'));
         $this->assertEquals(Arlima_List::STATUS_EMPTY, $reloaded_list->getStatus());
         $this->assertEquals(array(), $reloaded_list->getVersions());
         $this->assertFalse($reloaded_list->isPreview());

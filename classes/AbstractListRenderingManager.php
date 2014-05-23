@@ -230,7 +230,7 @@ abstract class Arlima_AbstractListRenderingManager
             $is_empty = true;
         }
 
-        $article['url'] = Arlima_List::resolveURL($article);
+        $article['url'] = Arlima_Utils::resolveURL($article);
 
         return array($post, $article, $is_post, $is_empty);
     }
@@ -282,7 +282,7 @@ abstract class Arlima_AbstractListRenderingManager
                 if( $wants_indexed_section && $section_index == $section ) {
                     $start_collecting_articles = true;
                     // Create a fake section divider
-                    self::$current_section_divider = Arlima_ListFactory::createArticleDataArray();
+                    self::$current_section_divider = array();
                 }
             }
 
@@ -318,9 +318,9 @@ abstract class Arlima_AbstractListRenderingManager
         }
 
         if( $section_index == -1 && $section == 0 ) {
-            // No sections yet exists in this list. Create "empty" section divider article
+            // No sections yet exists in this list. Create "empty" section divider
             // and slice from the beginning of the article array
-            self::$current_section_divider = Arlima_ListFactory::createArticleDataArray();
+            self::$current_section_divider = array();
             return array_slice($articles, $offset);
         } else {
             return $extracted_articles;

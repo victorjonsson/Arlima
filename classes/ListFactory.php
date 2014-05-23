@@ -57,35 +57,33 @@ class Arlima_ListFactory {
      */
     public function createList($title, $slug, $options=array(), $max_length=50)
     {
-        $options = array_merge(Arlima_List::getDefaultListOptions(), $options);
-
-        $insert_data = array(
-            time(),
-            $title,
-            $slug,
-            $max_length,
-            serialize( $options )
-        );
+        // Create list object
+        $list = new Arlima_List(true);
+        $list->setCreated(time());
+        $list->setMaxlength($max_length);
+        $list->setSlug($slug);
+        $list->setTitle($title);
+        $list->addOptions($options);
 
         // Insert list data in DB
         $sql = 'INSERT INTO ' . $this->dbTable() . '
                 (al_created, al_title, al_slug, al_maxlength, al_options)
                 VALUES (%d, %s, %s, %d, %s)';
 
-        $this->executeSQLQuery('query', $this->wpdb->prepare($sql, $insert_data));
-        $id = $this->wpdb->insert_id;
+        $this->executeSQLQuery('query', $this->wpdb->prepare($sql, array(
+                        $list->getCreated(),
+                        $title,
+                        $slug,
+                        $max_length,
+                        serialize( $list->getOptions() )
+                    )));
+
+        // Add list id
+        $list->setId($this->wpdb->insert_id);
 
         // Remove slug cache
         $cache = Arlima_CacheManager::loadInstance();
         $cache->delete('arlima_list_slugs');
-
-        // Create list object
-        $list = new Arlima_List(true, $id);
-        $list->setCreated($insert_data[0]);
-        $list->setMaxlength($max_length);
-        $list->setOptions($options);
-        $list->setSlug($slug);
-        $list->setTitle($title);
 
         return $list;
     }
@@ -238,7 +236,7 @@ class Arlima_ListFactory {
                 (alv_created, alv_al_id, alv_status, alv_user_id)
                 VALUES (%d, %s, %d, %d)",
             time(),
-            $list->id(),
+            $list->getId(),
             $preview ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED,
             $user_id
         );
@@ -247,10 +245,9 @@ class Arlima_ListFactory {
         $version_id = $this->wpdb->insert_id;
 
         // Update possibly changed published date
-        $post_id_map = array();
         foreach( $articles as $i => $article ) {
-            if( !empty($article['post']) ) {
-                $post_id_map[$i] = $article['post'];
+            if( !empty($article['post']) && $connected_post = get_post($article['post']) ) {
+                $articles[$i]['published'] = Arlima_Utils::getPostTimeStamp($connected_post);
             }
         }
 
@@ -263,10 +260,10 @@ class Arlima_ListFactory {
         }
 
         // Reload list
-        $list = $this->loadList($list->id(), false, true);
+        $list = $this->loadList($list->getId(), false, true);
 
         if( !$preview ) {
-            $this->cache->delete('arlima_list_articles_data_'.$list->id());
+            $this->cache->delete('arlima_list_articles_data_'.$list->getId());
             $this->doSaveListAction($list);
         }
     }
@@ -890,7 +887,7 @@ class Arlima_ListFactory {
             /* @var wpdb $wpdb */
             global $wpdb;
 
-            $date = self::getPostTimeStamp($post);
+            $date = Arlima_Utils::getPostTimeStamp($post);
             $prep_statement = $wpdb->prepare(
                 'UPDATE '.$this->dbTable('_article').'
                 SET ala_published=%d
@@ -1056,25 +1053,31 @@ class Arlima_ListFactory {
     }
 
     /**
+     * @return array
+     */
+    private static function getDefaultListOptions()
+    {
+        static $opts = null;
+        if( $opts === null ) {
+            $empty_list = new Arlima_List();
+            $opts = $empty_list->getOptions();
+        }
+        return $opts;
+    }
+
+    /**
      * @static
      * @param array $options
      * @return array
      */
     protected static function sanitizeListOptions($options)
     {
-        $default_options = Arlima_List::getDefaultListOptions();
+        $default_options = self::getDefaultListOptions();
 
         // Override default options
         foreach($default_options as $name => $val) {
             if( !isset($options[$name]) )
                 $options[$name] = $val;
-        }
-
-        // Remove options that does not exist
-        $opt_names = array_keys($options);
-        foreach($opt_names as $name) {
-            if( !isset($default_options[$name]) )
-                unset($options[$name]);
         }
 
         return $options;
@@ -1092,7 +1095,7 @@ class Arlima_ListFactory {
      */
     public static function createArticleDataArray($override=array())
     {
-        $options = array(
+        $article_options = array(
             'preTitle' => '',
             'streamerColor' => '',
             'streamerContent' => '',
@@ -1110,7 +1113,7 @@ class Arlima_ListFactory {
             'children' => array(),
             'id' => 0,
             'image' => array(),
-            'options' => $options,
+            'options' => $article_options,
             'post' => 0,
             'status' => 1,
             'content' => '',
@@ -1133,10 +1136,10 @@ class Arlima_ListFactory {
             elseif($key == 'options') {
                 if(is_array($val)) {
                     foreach($val as $opt_key => $opt_val) {
-                        $options[$opt_key] = $opt_val;
+                        $article_options[$opt_key] = $opt_val;
                     }
                 }
-                $val = $options;
+                $val = $article_options;
             }
 
             $data[$key] = $val;
@@ -1149,9 +1152,10 @@ class Arlima_ListFactory {
      * Takes a post and returns an Arlima article object
      * @param $post
      * @param string|null $text
+     * @param array $override
      * @return array
      */
-    public static function postToArlimaArticle($post, $text = null)
+    public static function postToArlimaArticle($post, $text = null, $override=array())
     {
         if( $text === null ) {
             $text = !empty($post->post_excerpt) ? $post->post_excerpt : get_the_excerpt();
@@ -1159,14 +1163,14 @@ class Arlima_ListFactory {
                 $text = '<p>' . $text . '</p>';
             }
         }
-        $art_data = array(
+        $art_data = array_merge(array(
             'post' => $post->ID,
             'title' => $post->post_title,
             'content' => $text,
             'size' => 24,
             'created' => time(),
-            'published' => self::getPostTimeStamp($post)
-        );
+            'published' => Arlima_Utils::getPostTimeStamp($post)
+        ), $override);
 
         if (self::hasPostThumbNailSupport() && has_post_thumbnail($post->ID)) {
             $attach_id = get_post_thumbnail_id($post->ID);
@@ -1174,7 +1178,7 @@ class Arlima_ListFactory {
                 'url' => wp_get_attachment_url($attach_id),
                 'attachment' => $attach_id,
                 'size' => 'full',
-                'alignment' => 'alignleft',
+                'alignment' => '',
                 'connected' => true
             );
         }
@@ -1182,6 +1186,9 @@ class Arlima_ListFactory {
         return Arlima_ListFactory::createArticleDataArray($art_data);
     }
 
+    /**
+     * @var null
+     */
     protected static $has_post_thumb_func = null;
 
     /**
@@ -1219,24 +1226,6 @@ class Arlima_ListFactory {
             }
         }
         return $convert_to_std ? (object)$new_array:$new_array;
-    }
-
-    /**
-     * @param WP_Post $p
-     * @return int
-     */
-    public static function getPostTimeStamp($p)
-    {
-        static $date_prop = null;
-        if( $date_prop === null ) {
-            global $wp_version;
-            if( (float)$wp_version < 3.9 ) {
-                $date_prop = 'post_date';
-            } else {
-                $date_prop = 'post_date_gmt';
-            }
-        }
-        return strtotime( $p->$date_prop );
     }
 
 }

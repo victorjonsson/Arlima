@@ -126,29 +126,13 @@ class Arlima_Plugin
     }
 
     /**
-     * If we get a lot of calls to this function we might as well always make a call
-     * to load_plugin_textdomain on init, and not only in wp-admin
-     *
-     * @see Arlima_Plugin::loadTextDomain()
-     * @static
-     * @return bool
-     */
-    public static function loadTextDomain()
-    {
-        if ( !self::$has_loaded_textdomain ) {
-            self::$has_loaded_textdomain = true;
-            load_plugin_textdomain('arlima', false, basename(ARLIMA_PLUGIN_PATH).'/lang/');
-        }
-    }
-
-    /**
      */
     public function adminBar()
     {
         /* @var WP_Admin_Bar $wp_admin_bar */
         global $wp_admin_bar;
         if ( is_admin_bar_showing() ) {
-            Arlima_Plugin::loadTextDomain();
+            Arlima_Utils::loadTextDomain();
             $admin_url = admin_url('admin.php?page=arlima-main');
             $wp_admin_bar->add_menu(
                 array(
@@ -226,7 +210,7 @@ class Arlima_Plugin
     function adminInitHook()
     {
         self::update();
-        self::loadTextDomain();
+        Arlima_Utils::loadTextDomain();
         add_action('save_post', array($this, 'savePageMetaBox'));
         add_action('add_meta_boxes', array($this, 'addAttachmentMetaBox'));
         add_filter('plugin_action_links_arlima-dev/arlima.php', array($this, 'settingsLinkOnPluginPage'));

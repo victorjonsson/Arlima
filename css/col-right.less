@@ -50,8 +50,8 @@
   margin-bottom: 20px;
   width: 600px;
 
-  h3 {
-    cursor: default;
+  > h3 {
+    cursor: pointer;
     font-size: 12px;
     font-weight: bold;
     line-height: 1;
@@ -68,6 +68,10 @@
     background: url(../../../../wp-admin/images/arrows.png) no-repeat 4px 6px;
     cursor: pointer;
     .opacity(75);
+  }
+
+  .collapse-toggle.open {
+    background-position: 2px -30px;
   }
 
   .inside {
@@ -251,7 +255,7 @@
     top: 0;
     left: 0;
     z-index: 98;
-    cursor: not-allowed;
+    cursor: default;
     .opacity(70);
     display: none;
   }
@@ -295,6 +299,13 @@
     left: 438px;
     top: 336px
   }
+
+  .blocker.img-align-blocker {
+    width: 130px;
+    height: 55px;
+    left: 460px;
+    background: #F9F9F9;
+  }
 }
 
 // -- Image container
@@ -308,7 +319,7 @@
   .image {
     float: left;
     min-height: 160px;
-    width: 435px;
+    width: 425px;
     position: relative;
     z-index: 10;
 
@@ -360,7 +371,7 @@
   }
 
   .image-controls {
-    overflow: auto;
+    overflow: hidden;
 
     button, select {
       display: block;
@@ -399,6 +410,22 @@
       width: 115px;
       height: auto;
     }
+
+    .img-align-buttons {
+      clear:both;
+
+      label {
+        text-align: right;
+        line-height: 200%;
+        display: block;
+
+        input {
+          vertical-align: -5px;
+          margin-left: 2px;
+        }
+      }
+    }
+
   }
 
 }

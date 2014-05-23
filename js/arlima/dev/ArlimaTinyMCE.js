@@ -4,13 +4,41 @@ var ArlimaTinyMCE = (function($, window, ArlimaArticlePreview, ArlimaVersionMana
 
     return {
 
+        /**
+         * @returns {Boolean}
+         */
+        hasActiveEditor : function() {
+            return window.tinyMCE && window.tinyMCE.activeEditor && !window.tinyMCE.activeEditor.isHidden();
+        },
+
+        /**
+         * @returns {String}
+         */
+        getEditorContent : function() {
+            if(this.hasActiveEditor())
+                return window.tinyMCE.activeEditor.getContent();
+            else
+                return $('#tinyMCE').val();
+        },
+
+        /**
+         * @param {String} content
+         */
+        setEditorContent : function(content) {
+            if(this.hasActiveEditor())
+                window.tinyMCE.activeEditor.setContent(content);
+            else
+                $('#tinyMCE').val( content );
+        },
+
         init : function() {
 
             // tinyMCe events. This will not work
             // when loading the page with tinyMCE being in HTML mode, therefor
             // we put the initiation in a interval that runs until visual mode
             // is activated
-            var editorContent = '',
+            var _this = this,
+                editorContent = '',
                 onTinyMCEContentChange = function() {
                     var newContent = $.trim(ArlimaArticleForm.getEditorContent());
                     if( newContent != editorContent ) {
@@ -18,7 +46,7 @@ var ArlimaTinyMCE = (function($, window, ArlimaArticlePreview, ArlimaVersionMana
                     }
                 },
                 tinyMCEEventInterval = setInterval(function() {
-                    if(window.tinyMCE !== undefined && window.tinyMCE.editors && window.tinyMCE.editors.length > 0) {
+                    if( _this.hasActiveEditor() ) {
 
                         // tinymce is initiated, stop interval
                         clearInterval(tinyMCEEventInterval);

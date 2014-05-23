@@ -167,7 +167,7 @@ class Arlima_ImportManager
 
         foreach ($list_data as $prop => $val) {
             $set_method = 'set' . ucfirst($prop);
-            if ( method_exists($list, $set_method) ) {
+            if ( $prop != 'id' && method_exists($list, $set_method) ) {
                 if ( $val instanceof stdClass ) {
                     $val = (array)$val;
                 }

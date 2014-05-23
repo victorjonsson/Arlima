@@ -44,7 +44,7 @@ class TestArlimaImport extends ExportImportBase {
         $this->assertTrue( $imported->exists() );
         $this->assertTrue( $imported->isImported() );
         $this->assertEquals('[google.se] Title', $imported->getTitle());
-        $this->assertEquals('http://google.se/export/', $imported->id());
+        $this->assertEquals('http://google.se/export/', $imported->getId());
         $this->assertEquals(1, $imported->numArticles());
 
         $article = current($imported->getArticles());

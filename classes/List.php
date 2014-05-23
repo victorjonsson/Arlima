@@ -66,17 +66,16 @@ class Arlima_List
     private $is_imported = false;
 
     /**
-     * This is variable is public for backwards compatibility reasons
      * @var array
      */
-    public $options = array(
-        'template' => 'article',
-        'pages_to_purge' => '',
-        'supports_sections' => "0", // translates to bool false
-        'allows_template_switching' => "1",
-        'before_title' => '<h2>',
-        'after_title' => '</h2>'
-    );
+    private $options = array(
+                'template' => 'article',
+                'pages_to_purge' => '',
+                'supports_sections' => "0", // translates to bool false
+                'allows_template_switching' => "1",
+                'before_title' => '<h2>',
+                'after_title' => '</h2>'
+            );
 
     /**
      * @var array
@@ -202,6 +201,15 @@ class Arlima_List
 
     /**
      * @param string $name
+     * @return bool
+     */
+    public function hasOption($name)
+    {
+        return !empty($this->options[$name]);
+    }
+
+    /**
+     * @param string $name
      * @param string $val
      */
     public function setOption($name, $val)
@@ -210,11 +218,29 @@ class Arlima_List
     }
 
     /**
+     * @deprecated
+     * @see Arlima_List::getId()
      * @return int
      */
     public function id()
     {
         return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
     }
 
     /**
@@ -349,6 +375,19 @@ class Arlima_List
     }
 
     /**
+     * Merge in new options
+     * @param array $new_options
+     * @return array
+     */
+    public function addOptions($new_options)
+    {
+        $this->options = array_merge($this->options, $new_options);
+        return $this->options;
+    }
+
+    /**
+     * Set options for the list
+     * @see Arlima_List::addOptions()
      * @param array $options
      */
     public function setOptions($options)
@@ -421,7 +460,7 @@ class Arlima_List
         } else {
             $version = $this->version;
             if ( isset($version['id']) && isset($version['user_id']) ) {
-                Arlima_Plugin::loadTextDomain();
+                Arlima_Utils::loadTextDomain();
                 $user_data = get_userdata($version['user_id']);
                 $saved_since = '';
                 $saved_by = 'Unknown';
@@ -464,111 +503,5 @@ class Arlima_List
         }
 
         return $arr;
-    }
-
-
-
-    /* * * * * * * * * * * * * * * * STATIC UTILITY FUNCTIONS * * * * * * * * */
-
-
-    /**
-     * @param array $article
-     * @param array $options
-     * @param array $header_classes
-     * @return string
-     */
-    public static function getTitleHtml($article, $options, $header_classes=array())
-    {
-
-        if ( $article['title'] == '' ) {
-            return '';
-        }
-
-        $underscore_replace = !isset($options['convertBreaks']) || $options['convertBreaks'] ? '<br />':'';
-        $title = str_replace('__', $underscore_replace, $article['title']);
-
-        if ( !empty($article['options']['preTitle']) ) {
-            $title = '<span class="arlima-pre-title">' . $article['options']['preTitle'] . '</span> ' . $title;
-        }
-
-        $title_html = '';
-        $header_classes[] = 'fsize-' . $article['size'];
-
-        $start_tag = empty($options['before_title']) ? '<h2>' : $options['before_title'];
-        $end_tag = empty($options['after_title']) ? '</h2>' : $options['after_title'];
-
-        if ( !empty($header_classes) ) {
-            if ( stristr($start_tag, 'class') !== false ) {
-                $start_tag = str_replace(
-                    'class="',
-                    'class="' . implode(' ', $header_classes) . ' ',
-                    $start_tag
-                );
-            } else {
-                $start_tag = str_replace(
-                    '>',
-                    ' class="' . implode(' ', $header_classes) . '">',
-                    $start_tag
-                );
-            }
-        }
-
-        if ( !empty($article['url']) ) {
-            $title_html .= self::linkWrap($article, $title);
-        } else {
-            $title_html .= $title;
-        }
-
-        return $start_tag . $title_html . $end_tag;
-    }
-
-
-
-    /**
-     * Use the overriding url if it exists, otherwise the permalink of the post that
-     * the article is connected to
-     * @param $article
-     * @return null|string
-     */
-    public static function resolveURL($article)
-    {
-        if( !empty($article['options']) && !empty($article['options']['overridingURL']) ) {
-            return $article['options']['overridingURL'];
-        } elseif( !empty($article['post']) ) {
-            return get_permalink($article['post']);
-        }
-        return '';
-    }
-
-
-    /**
-     * Wrap given content with article link
-     * @param array $article
-     * @param string $content
-     * @return string
-     */
-    public static function linkWrap($article, $content, $classes = array())
-    {
-        if( !empty($article['url']) ) {
-            $opts = $article['options'];
-            return sprintf(
-                '<a href="%s"%s%s>%s</a>',
-                $article['url'],
-                empty($opts['target']) ? '':' target="'.$opts['target'].'"',
-                empty($classes) ? '' : ' class="'.implode(' ', $classes).'"',
-                $content
-            );
-        }
-        return $content;
-    }
-
-
-    /**
-     * @return array
-     */
-    public static function getDefaultListOptions()
-    {
-        $self = new self();
-        return $self->options;
     }
 }

@@ -55,12 +55,14 @@ var ArlimaUtils = (function($, window, undefined) {
                     isCollapsing = true;
                     var $inside = $elem.find('.inside');
                     if( $inside.is(':visible') ) {
+                        $(this).removeClass('open');
                         $inside.slideUp('fast', function() {
                             isCollapsing = false;
                             if( typeof callback == 'function' )
                                 callback();
                         });
                     } else {
+                        $(this).addClass('open');
                         $inside.slideDown('fast', function() {
                             isCollapsing = false;
                             if( typeof callback == 'function' )
@@ -68,6 +70,10 @@ var ArlimaUtils = (function($, window, undefined) {
                         });
                     }
                 }
+            });
+
+            $elem.find('> h3').click(function() {
+                $elem.find('.collapse-toggle').trigger('click');
             });
         },
 

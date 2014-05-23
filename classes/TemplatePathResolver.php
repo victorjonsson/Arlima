@@ -25,6 +25,8 @@ class Arlima_TemplatePathResolver
     {
         if ( $paths === null ) {
             $this->paths = array();
+        } elseif( is_string($paths)) {
+            $this->paths = array($paths);
         } else {
             $this->paths = $paths;
         }

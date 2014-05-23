@@ -14,7 +14,6 @@ class Arlima_Plugin
 
     private static $is_scissors_installed = null;
     private static $is_wp_related_post_installed = null;
-    private static $has_loaded_textdomain = false;
 
     /**
      * Actions added in the theme
@@ -979,6 +978,7 @@ class Arlima_Plugin
             wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $file ) );
             return $id;
         } else {
+            /* @var WP_Error $id */
             throw new Exception($id->get_error_message());
         }
     }

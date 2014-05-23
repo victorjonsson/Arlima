@@ -369,7 +369,7 @@ class Arlima_AdminAjaxManager
     {
         $this->initAjaxRequest();
 
-        global $current_user, $post;
+        global $post;
         get_currentuserinfo();
 
         $list_id = isset($_POST['alid']) ? intval($_POST['alid']) : false;
@@ -526,8 +526,8 @@ class Arlima_AdminAjaxManager
     }
 
     /**
-     * @param WP_Post $post
-     * @return bool|mixed|void
+     * @param WP_Post|stdClass $post
+     * @return mixed
      */
     private function setupPostObject($post) {
         if( is_object($post) && ($post->post_status == 'future' || $post->post_status == 'publish' || $post->post_status == 'draft') ) {
@@ -696,7 +696,7 @@ class Arlima_AdminAjaxManager
      * @param array|WP_Post[] $posts
      * @param int $offset
      */
-    private function iteratePosts($posts, $offset = 0)
+    private function iteratePosts($posts)
     {
         $articles = array();
         foreach ($posts as $post) {
@@ -753,7 +753,7 @@ class Arlima_AdminAjaxManager
             'title' => $list->getTitle(),
             'previewURL' => $preview_url,
             'previewWidth' => (int)$preview_width,
-            'id' => $list->id()
+            'id' => $list->getId()
         ));
     }
 }

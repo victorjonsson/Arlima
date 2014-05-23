@@ -313,7 +313,7 @@ class Arlima_ExportManager
      */
     public function isAvailableForExport($list)
     {
-        $id = is_object($list) ? $list->id() : $list;
+        $id = is_object($list) ? $list->getId() : $list;
         return in_array($id, $this->available_export);
     }
 }

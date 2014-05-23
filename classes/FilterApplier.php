@@ -82,17 +82,17 @@ class Arlima_FilterApplier
     }
 
     /**
-     * @param $filter
-     * @param $article_counter
-     * @param $article
-     * @param $post
-     * @param $list
+     * @param string $filter
+     * @param int $article_counter
+     * @param array $article
+     * @param WP_Post $post
+     * @param Arlima_List $list
      * @param bool $img_size
      * @param bool $source_url
      * @param bool $resized_url
      * @param bool $width
-     * @internal param bool $img_url
-     * @return array
+     * @param bool $dim
+     * @return array|mixed|void
      */
     private static function filter($filter, $article_counter, &$article,
                             $post, $list, $img_size=false, $source_url = false,

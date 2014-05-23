@@ -202,6 +202,7 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
 
     /**
      * @param WP_Post $post
+     * @param int $article_counter
      * @return array
      */
     protected function extractTemplateData($post, $article_counter)

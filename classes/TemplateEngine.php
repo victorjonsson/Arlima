@@ -29,14 +29,14 @@ class Arlima_TemplateEngine
     /**
      * @param string $template_path - Optional path to directory where templates should exists
      */
-    function __construct($path=null)
+    function __construct($template_path=null)
     {
-        $this->template_resolver = new Arlima_TemplatePathResolver($path);
+        $this->template_resolver = new Arlima_TemplatePathResolver($template_path);
         $this->mustache = new Mustache_Engine();
     }
 
     /**
-     * @return string $tmpl_obj
+     * @return string $tmpl_data_obj
      * @param string $tmpl_name
      * @return string
      */

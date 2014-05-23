@@ -83,7 +83,7 @@ class Arlima_Utils
      * Wrap given content with an a-element linking to the URL of the article
      * @param array $article
      * @param string $content
-     * @oaram array $classes
+     * @param array $classes
      * @return string
      */
     public static function linkWrap($article, $content, $classes = array())

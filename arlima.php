@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 3.0.beta.24
+Version: 3.0.beta.25
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -174,12 +174,12 @@ function arlima_edit_link($list=false, $message=false) {
 
     if( is_user_logged_in() && current_user_can('edit_posts') ) {
         if( !$message ) {
-            Arlima_Plugin::loadTextDomain();
+            Arlima_Utils::loadTextDomain();
             $message = __('Edit article list', 'arlima').' &quot;'.$list->getTitle().'&quot;';
         }
         ?>
         <div class="arlima-edit-list admin-tool">
-            <a href="<?php echo admin_url('admin.php?page=arlima-main&open_list='.$list->id()) ?>" target="_arlima">
+            <a href="<?php echo admin_url('admin.php?page=arlima-main&open_list='.$list->getId()) ?>" target="_arlima">
                 <?php echo $message ?>
             </a>
         </div>

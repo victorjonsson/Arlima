@@ -46,7 +46,7 @@ class Arlima_ListConnector {
      */
     public function relate($post_id, $attr)
     {
-        update_post_meta($post_id, self::META_KEY_LIST, $this->list->id());
+        update_post_meta($post_id, self::META_KEY_LIST, $this->list->getId());
         update_post_meta($post_id, self::META_KEY_ATTR, $attr);
     }
 
@@ -77,7 +77,7 @@ class Arlima_ListConnector {
         if( $this->list->exists() ) {
             return get_pages(array(
                     'meta_key' => self::META_KEY_LIST,
-                    'meta_value' => $this->list->id(),
+                    'meta_value' => $this->list->getId(),
                     'hierarchical' => 0
                 ));
         }
@@ -96,7 +96,7 @@ class Arlima_ListConnector {
         $sidebars = wp_get_sidebars_widgets();
 
         if( is_array($sidebars) && is_array($wp_registered_widgets) ) {
-            $list_id = $this->list->id();
+            $list_id = $this->list->getId();
             $prefix_len = strlen(Arlima_Widget::WIDGET_PREFIX);
             foreach($sidebars as $sidebar => $widgets) {
                 $index = 0;

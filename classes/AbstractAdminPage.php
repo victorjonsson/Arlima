@@ -107,23 +107,23 @@ abstract class Arlima_AbstractAdminPage {
     final public function registerPage()
     {
         if( $this->parentSlug() ) {
-            $page_ref = add_submenu_page(
-                    $this->parentSlug(),
-                    $this->getName(),
-                    $this->getMenuName(),
-                    $this->capability(),
-                    $this->slug(),
-                    array($this, 'loadPage')
-                );
+            add_submenu_page(
+                $this->parentSlug(),
+                $this->getName(),
+                $this->getMenuName(),
+                $this->capability(),
+                $this->slug(),
+                array($this, 'loadPage')
+            );
         } else {
-            $page_ref = add_menu_page(
-                    $this->getName(),
-                    $this->getMenuName(),
-                    $this->capability(),
-                    $this->slug(),
-                    array($this, 'loadPage'),
-                    $this->icon()
-                );
+            add_menu_page(
+                $this->getName(),
+                $this->getMenuName(),
+                $this->capability(),
+                $this->slug(),
+                array($this, 'loadPage'),
+                $this->icon()
+            );
         }
 
         // enqueue scripts/links

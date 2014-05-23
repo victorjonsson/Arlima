@@ -100,7 +100,7 @@ class Arlima_ListFactory {
             $list->getSlug(),
             $list->getMaxlength(),
             serialize( self::sanitizeListOptions($list->getOptions()) ),
-            (int)$list->id()
+            (int)$list->getId()
         );
 
         $sql = 'UPDATE ' . $this->dbTable() . '
@@ -110,7 +110,7 @@ class Arlima_ListFactory {
         $this->executeSQLQuery('query', $this->wpdb->prepare($sql, $update_data));
 
         // remove cache
-        $this->cache->delete('arlima_list_props_'.$list->id());
+        $this->cache->delete('arlima_list_props_'.$list->getId());
         $this->cache->delete('arlima_list_slugs');
     }
 
@@ -121,7 +121,7 @@ class Arlima_ListFactory {
     {
         // Get versions
         $version_data = $this->executeSQLQuery('get_results',
-            'SELECT alv_id FROM '.$this->dbTable('_version').' WHERE alv_al_id='.intval($list->id()));
+            'SELECT alv_id FROM '.$this->dbTable('_version').' WHERE alv_al_id='.intval($list->getId()));
 
         // Remove articles
         if( !empty($version_data) ) {
@@ -136,14 +136,14 @@ class Arlima_ListFactory {
         }
 
         // Remove list properties
-        $this->executeSQLQuery('query', 'DELETE FROM '.$this->dbTable().' WHERE al_id='.$list->id());
+        $this->executeSQLQuery('query', 'DELETE FROM '.$this->dbTable().' WHERE al_id='.$list->getId());
 
         // Remove versions
-        $this->executeSQLQuery('query', 'DELETE FROM '.$this->dbTable('_version').' WHERE alv_al_id='.$list->id() );
+        $this->executeSQLQuery('query', 'DELETE FROM '.$this->dbTable('_version').' WHERE alv_al_id='.$list->getId() );
 
         // remove cache
-        $this->cache->delete('arlima_list_props_'.$list->id());
-        $this->cache->delete('arlima_list_articles_data_'.$list->id());
+        $this->cache->delete('arlima_list_props_'.$list->getId());
+        $this->cache->delete('arlima_list_articles_data_'.$list->getId());
         $this->cache->delete('arlima_list_slugs');
     }
 
@@ -170,7 +170,7 @@ class Arlima_ListFactory {
                 if($col == 'options' || $col == 'image')
                     $val = serialize( $val );
 
-                $sql .= " ala_$col = '".$this->wpdb->escape(stripslashes($val))."', ";
+                $sql .= " ala_$col = '".esc_sql(stripslashes($val))."', ";
             }
 
             $sql = rtrim($sql, ', ') . ' WHERE ala_id = '.intval($id);
@@ -181,7 +181,7 @@ class Arlima_ListFactory {
             $list = $this->loadListByVersionId($cols['alv_id']);
             if($list !== null) {
                 $this->doSaveListAction($list);
-                $this->cache->delete('arlima_list_articles_data_'.$list->id());
+                $this->cache->delete('arlima_list_articles_data_'.$list->getId());
             }
         }
     }
@@ -343,8 +343,10 @@ class Arlima_ListFactory {
     /**
      * Removes all preview versions created for this list and all old
      * published versions starting from $num_num_version_to_keep
+     *
      * @param Arlima_List $list
      * @param int $num_versions_to_keep
+     * @return false|null|string
      */
     public function removeOldVersions($list, $num_versions_to_keep=10)
     {
@@ -356,7 +358,7 @@ class Arlima_ListFactory {
                 "SELECT alv_id FROM " . $this->dbTable('_version') . "
                         WHERE alv_al_id = %d AND alv_status = %d
                         ORDER BY alv_id DESC LIMIT %d, 10",
-                $list->id(),
+                $list->getId(),
                 Arlima_List::STATUS_PUBLISHED,
                 $num_versions_to_keep
             );
@@ -368,7 +370,7 @@ class Arlima_ListFactory {
         $sql = $this->wpdb->prepare(
             "SELECT alv_id FROM " . $this->dbTable('_version') . "
                     WHERE alv_al_id = %d AND alv_status = %d",
-            $list->id(),
+            $list->getId(),
             Arlima_List::STATUS_PREVIEW
         );
 

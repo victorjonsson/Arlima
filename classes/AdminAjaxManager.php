@@ -57,6 +57,7 @@ class Arlima_AdminAjaxManager
         add_action('wp_ajax_arlima_import_arlima_list', array($this, 'importList'));
         add_action('wp_ajax_arlima_remove_image_versions', array($this, 'removeImageVersions'));
         add_action('wp_ajax_arlima_update_article', array($this, 'updateArticle'));
+        add_action('wp_ajax_arlima_log_js', array($this, 'saveJsLog'));
         add_action('wp_ajax_arlima_connect_attach_to_post', array($this, 'connectAttachmentToPost'));
 
         // The following action is not possible to hook into wtf???
@@ -64,6 +65,20 @@ class Arlima_AdminAjaxManager
         if ( $this->isSavingEditedImage() ) {
             add_action('init', array($this, 'removeImageVersions'));
         }
+    }
+
+    public function saveJsLog()
+    {
+        $this->initAjaxRequest();
+        $log = sprintf('Arlima JS -> Message: %s, User: %s, File: %s, Line: %s, Stack: %s',
+                    $_POST['message'],
+                    wp_get_current_user()->display_name,
+                    $_POST['file'],
+                    $_POST['line'],
+                    $_POST['stack']);
+
+        error_log($log);
+        die(json_encode(array('log'=>'saved')));
     }
 
     public function updateArticle()

@@ -47,8 +47,14 @@ jQuery(function($) {
             return ArlimaJS.lang.unsaved;
         }
     };
-
 });
+
+if( ArlimaJS.sendJSErrorsToServerLog ) {
+    window.onerror = function(errMessage, url, lineNumber) {
+        ArlimaBackend.logJSError(errMessage, new Error().stack, url, lineNumber);
+        return false;
+    };
+}
 
 // Add qtip style
 var qtipStyle = {

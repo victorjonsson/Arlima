@@ -13,7 +13,7 @@ defined('ARLIMA_COMPILE_LESS_IN_BROWSER')
     or define('ARLIMA_COMPILE_LESS_IN_BROWSER', ARLIMA_DEV_MODE);
 
 // Plugin version (only edit this via grunt!)
-define('ARLIMA_FILE_VERSION', '3.0.beta.25' .(ARLIMA_DEV_MODE ? time():''));
+define('ARLIMA_FILE_VERSION', '3.0.beta.26' .(ARLIMA_DEV_MODE ? time():''));
 
 // Which type of tag to use for images in Arlima RSS feeds
 defined('ARLIMA_RSS_IMG_TAG')
@@ -27,3 +27,7 @@ defined('ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES')
 // when rendering article lists
 defined('ARLIMA_GROUP_CHILD_ARTICLES')
     or define('ARLIMA_GROUP_CHILD_ARTICLES', true);
+
+
+defined('ARLIMA_SEND_JS_ERROR_TO_LOG')
+    or define('ARLIMA_SEND_JS_ERROR_TO_LOG', false);

@@ -160,6 +160,16 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
         },
 
         /**
+         * Send a log message to server log
+         * @param {String} mess
+         * @param {String} stack
+         * @param {Function} [callback]
+         */
+        logJSError : function(mess, stack, url, lineNumber, callback) {
+            this._ajax('arlima_log_js', {message:mess, stack:stack, file:url, line:lineNumber}, callback);
+        },
+
+        /**
          * @param {String} action
          * @param {Object} postArgs
          * @param {Function} callback - Optional

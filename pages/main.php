@@ -219,11 +219,7 @@ $arlima_plugin = new Arlima_Plugin();
                         'wpautop' => true,
                         'media_buttons' => true,
                         'textarea_rows' => 90,
-                        'height' => 200,
-                        'tinymce' => array(
-                            'onchange_callback' => 'arlimaTinyMCEChanged'
-                            // 'save_onsavecallback' => 'arlimaTinyMCESaved' does not work, ctrl + s never gets triggered
-                        )
+                        'height' => 200
                     );
                     wp_editor( '', 'tinyMCE', $editor_settings );
                     ?>

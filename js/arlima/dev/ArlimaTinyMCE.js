@@ -58,6 +58,7 @@ var ArlimaTinyMCE = (function($, window, ArlimaArticlePreview, ArlimaVersionMana
 
                         // Trigger change in form when content changes
                         window.tinyMCE.editors[0].onKeyUp.add(onTinyMCEContentChange);
+                        window.tinyMCE.editors[0].onChange.add(onTinyMCEContentChange);
 
                         // listen to keyboard short cuts
                         window.tinyMCE.editors[0].onKeyDown.add(function(editor, evt) {

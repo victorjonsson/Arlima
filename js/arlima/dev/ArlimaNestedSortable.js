@@ -196,11 +196,11 @@ function arlimaNestedSortable(list) {
                 if( ArlimaUtils.hasMetaKeyPressed(e) || list.data.isImported ) {
                     isMovingCopy = true;
                     $clone = ui.item.clone(false).show();
-                    list.addArticle(new ArlimaArticle( $.extend(true, {}, ui.item.get(0).arlimaArticle.data), null, $clone),false);
+                    list.addArticle(new ArlimaArticle( $.extend(true, {}, ui.item.get(0).arlimaArticle.data), null, $clone, !list.data.isImported),false);
                     $clone.insertAfter(ui.item).removeClass('editing');
                     $(children.get().reverse()).each(function(index) {
                         var $child = $(this).clone(false);
-                        list.addArticle(new ArlimaArticle( $.extend(true, {}, this.arlimaArticle.data), null, $child),false);
+                        list.addArticle(new ArlimaArticle( $.extend(true, {}, this.arlimaArticle.data), null, $child, !list.data.isImported), false);
                         $child.insertAfter($clone);
                     });
                 } else {
@@ -250,7 +250,7 @@ function arlimaNestedSortable(list) {
 
                 if( list.data.isImported ) {
                     ui.item[0].arlimaArticle.listID = listContainerElem.arlimaList.data.id;
-                    ui.item[0].arlimaArticle.addClickEvents();
+                    ui.item[0].arlimaArticle.addClickEvents( !list.data.isImported );
                     if( ArlimaArticleForm.article && ArlimaArticleForm.article.opt('overridingURL') == ui.item[0].arlimaArticle.opt('overridingURL') ) {
                         // RE-edit article to show that its no longer blocked by the UI
                         ArlimaArticleForm.article = false;
@@ -285,7 +285,7 @@ function arlimaNestedSortable(list) {
                     children.each(function(){
                         _updateArticleListId($(this));
                         //the click event is lost, for some reason
-                        this.arlimaArticle.addClickEvents();
+                        this.arlimaArticle.addClickEvents( !list.data.isImported );
                     });
                 }
 
@@ -356,7 +356,7 @@ function arlimaNestedSortable(list) {
             receive: function(event, ui) {
                 var $addedElement;
                 if( ui.sender.hasClass('ui-draggable') ) {
-                    var article =  new ArlimaArticle($.extend(true, {}, ui.item.context.arlimaArticle.data), list.data.id);
+                    var article =  new ArlimaArticle($.extend(true, {}, ui.item.context.arlimaArticle.data), list.data.id, false, !list.data.isImported);
                     article.$elem.insertAfter(list.$elem.find('ui-draggable'));
                     article.$elem.addClass('list-item-depth-' + currentDepth).insertAfter($('.ui-draggable', this));
                     list.$elem.find('.ui-draggable').remove();
@@ -364,6 +364,8 @@ function arlimaNestedSortable(list) {
                 } else {
                     $addedElement = ui.item;
                     ui.item[0].arlimaArticle.listID = list.data.id;
+                    // Re-bind click events
+                    ui.item[0].arlimaArticle.addClickEvents(true);
                 }
 
                 _whenDropFinished($addedElement, true);

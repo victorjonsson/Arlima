@@ -138,12 +138,14 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      * @param {Array} articles
      */
     ArlimaList.prototype.setArticles = function(articles) {
-        var _self = this;
+        var _self = this,
+            addRemoveButton = !this.data.isImported;
+
         $.each(articles, function(i , articleData) {
-            _self.addArticle(new ArlimaArticle(articleData, _self.data.id), false);
+            _self.addArticle(new ArlimaArticle(articleData, _self.data.id, false, addRemoveButton), false);
             if( articleData.children.length > 0 ) {
                 $.each(articleData.children, function(j, childArticleData) {
-                    var childArticle = new ArlimaArticle(childArticleData, _self.data.id, false);
+                    var childArticle = new ArlimaArticle(childArticleData, _self.data.id, false, addRemoveButton);
                     childArticle.$elem.addClass('list-item-depth-1');
                     _self.addArticle(childArticle, false);
                 });

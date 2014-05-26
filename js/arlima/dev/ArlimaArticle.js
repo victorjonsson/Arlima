@@ -30,14 +30,16 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
         this.listID = listID;
         this.$elem[0].arlimaArticle = this;
         this.$elem.attr('title', new Date(data.published * 1000));
-        this.addClickEvents();
+        this.addClickEvents(addRemoveButton);
     }
 
     /**
      * Bind (or re-bind) click events that opens the article
      * form and that removes the article from the list
+     *
+     * @param {Boolean} [addRemoveButtonIfMissing]
      */
-    ArlimaArticle.prototype.addClickEvents = function() {
+    ArlimaArticle.prototype.addClickEvents = function(addRemoveButtonIfMissing) {
         var _self = this,
             $remove = this.$elem.find('.remove');
 
@@ -45,7 +47,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
             window.ArlimaArticleForm.edit( _self );
         });
 
-        if( $remove.length == 0 ) {
+        if( $remove.length == 0 && addRemoveButtonIfMissing ) {
             // The article may not have a remove button, so lets add it
             $remove = $('<a href="#" class="remove">&times;</a>').appendTo(this.$elem.find('.article-title-container'))
         }

@@ -118,9 +118,13 @@ var ArlimaUtils = (function($, window, undefined) {
         getUnsavedListInFocus : function() {
             if( window.ArlimaArticleForm.article ) {
                 // Save article being edited
-                return window.ArlimaListContainer.list(ArlimaArticleForm.article.listID);
+                var list = window.ArlimaListContainer.list(ArlimaArticleForm.article.listID);
+                if( list.hasUnsavedChanges() ) {
+                    return list;
+                }
             }
-            else if( ArlimaListContainer.lastTouchedList &&
+
+            if( ArlimaListContainer.lastTouchedList &&
                 ArlimaListContainer.list(ArlimaListContainer.lastTouchedList) &&
                 ArlimaListContainer.list(ArlimaListContainer.lastTouchedList).hasUnsavedChanges() ) {
 

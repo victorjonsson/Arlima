@@ -10,6 +10,8 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
 
     return {
 
+        backendVersion : false,
+
         /**
          * @param {Object} data
          * @param {Function} [callback]
@@ -170,6 +172,21 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
         },
 
         /**
+         * Show info about updated arlima version
+         */
+        displayNewVersionMessage : function() {
+            var $message = $('#arlima-version-message');
+            if( !$message.is(':visible') ) {
+                $message.find('.version').text(this.backendVersion);
+                $.fancybox({
+                    href : '#arlima-version-message',
+                    height: 400,
+                    width: 400
+                });
+            }
+        },
+
+        /**
          * @param {String} action
          * @param {Object} postArgs
          * @param {Function} callback - Optional
@@ -178,6 +195,7 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
          * @private
          */
         _ajax : function(action, postArgs, callback, dataType, addBodyAjaxPreloader) {
+            var _this = this;
             postArgs['action'] = action;
             postArgs['_ajax_nonce'] = ArlimaJS.arlimaNonce;
             if(addBodyAjaxPreloader === undefined)
@@ -193,7 +211,18 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
                 type : 'POST',
                 data : postArgs,
                 dataType : dataType,
-                success : function(json) {
+                success : function(json, status, http) {
+                    var version = (http.getResponseHeader('X-Arlima-Version') || '').split('__')[0];
+                    if( version ) {
+                        if( _this.backendVersion && _this.backendVersion != version ) {
+                            _this.displayNewVersionMessage();
+                            setInterval(function() {
+                                _this.displayNewVersionMessage();
+                            }, 150000);
+                        }
+                        _this.backendVersion = version;
+                    }
+
                     if( $body)
                         $body.removeClass('wait-loading');
 

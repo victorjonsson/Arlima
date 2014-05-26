@@ -467,3 +467,14 @@ $arlima_plugin = new Arlima_Plugin();
 </div><!-- #col-left -->
 
 </div><!-- #col-container -->
+
+<div id="arlima-version-message" class="fancybox" style="">
+    <h1><?php _e('New version available', 'arlima') ?>!</h1>
+    <p><?php printf(__('We have upgraded Arlima to version %s', 'arlima'), '<strong class="version">XX.ZZ</strong>') ?>
+        <br />
+        <?php _e('Please save your work and update the website in your browser.', 'arlima') ?>
+    </p>
+    <div class="logo">
+        <img src="<?php echo ARLIMA_PLUGIN_URL.'/images/logo.png' ?>" width="71" alt="Arlima" />
+    </div>
+</div>

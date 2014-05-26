@@ -242,6 +242,7 @@ class Arlima_AdminAjaxManager
     {
         if( $send_json ) {
             header('Content-Type: application/json');
+            header('X-Arlima-Version: '.ARLIMA_FILE_VERSION);
         }
 
         if( !check_ajax_referer('arlima-nonce') ) {

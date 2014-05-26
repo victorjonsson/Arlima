@@ -640,3 +640,12 @@ msgstr "Exempelartikel"
 
 msgid "Empty article"
 msgstr "Tom artikel"
+
+msgid "New version available"
+msgstr "Ny version tillgänglig"
+
+msgid "We have upgraded Arlima to version %s"
+msgstr "Vi har uppdaterat till version %s av Arlima."
+
+msgid "Please save your work and update the website in your browser."
+msgstr "Vänligen spara ditt arbete och uppdatera webbläsaren."

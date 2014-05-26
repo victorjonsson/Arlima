@@ -26,19 +26,33 @@ var ArlimaUtils = (function($, window, undefined) {
 
         /**
          * Do a console log
-         * @param mess
+         * @param input
          * @param method
          */
-        log : function(mess, method) {
-            if(method === undefined)
-                method = 'log';
+        log : function(input, method) {
 
-            if( method == 'log' && !ArlimaJS.devMode ) {
-                return;
-            }
+            if( typeof input == 'object' && input.stack ) {
+                // error object
 
-            if('console' in window && typeof window.console[method] == 'function') {
-                window.console[method](mess);
+                if( window.ArlimaJS.sendJSErrorsToServerLog ) {
+                    ArlimaBackend.logJSError(input.message, input.stack, '?', '?');
+                }
+
+                if('console' in window && typeof window.console['error'] == 'function') {
+                    window.console['error'](input.stack);
+                }
+
+            } else {
+                if(method === undefined)
+                    method = 'log';
+
+                if( method == 'log' && !ArlimaJS.devMode ) {
+                    return;
+                }
+
+                if('console' in window && typeof window.console[method] == 'function') {
+                    window.console[method](input);
+                }
             }
         },
 

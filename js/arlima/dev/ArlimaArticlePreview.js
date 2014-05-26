@@ -276,17 +276,23 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
         _this.isRendered = true;
         _this.$iframeBody.html('');
 
-        if( _this.article.isChild() ) {
-            $content = _renderArticle(_this.article.getParentArticle(), false, false, _this.article.getChildIndex());
-        } else {
-            $content = _renderArticle(_this.article, _this.templateContent);
-            $content.eq(0).addClass('main-article-preview');
-        }
+        try {
 
-        $content.find('img').bind('load', _updateIframeHeight);
-        $content.appendTo(_this.$iframeBody);
-        $document.trigger('previewUpdate', 'all');
-        _updateIframeHeight();
+            if( _this.article.isChild() ) {
+                $content = _renderArticle(_this.article.getParentArticle(), false, false, _this.article.getChildIndex());
+            } else {
+                $content = _renderArticle(_this.article, _this.templateContent);
+                $content.eq(0).addClass('main-article-preview');
+            }
+
+            $content.find('img').bind('load', _updateIframeHeight);
+            $content.appendTo(_this.$iframeBody);
+            $document.trigger('previewUpdate', 'all');
+            _updateIframeHeight();
+
+        } catch(e) {
+            ArlimaUtils.log(e);
+        }
     },
 
     /**

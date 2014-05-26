@@ -214,78 +214,84 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
     },
 
     _setupForm = function() {
-        if( _this.article.data.image && _this.article.data.image.url ) {
+        try {
 
-            var img = _this.article.data.image; // shorten code pls...
+            if( _this.article.data.image && _this.article.data.image.url ) {
 
-            ArlimaUtils.log('Setting up image form for '+_this.article.data.id);
+                var img = _this.article.data.image; // shorten code pls...
 
-            // toggle visibility
-            _toggleImageDisplay(true);
-            _this.$buttons.show();
-            _this.$alignButtons.parent().show();
-            _this.$sizeSelect.show();
+                ArlimaUtils.log('Setting up image form for '+_this.article.data.id);
 
-            var imageSizeSupport = ArlimaTemplateLoader.getTemplateSupport(_this.article).imageSize,
-                sizes = false;
+                // toggle visibility
+                _toggleImageDisplay(true);
+                _this.$buttons.show();
+                _this.$alignButtons.parent().show();
+                _this.$sizeSelect.show();
 
-            if( imageSizeSupport ) {
+                var imageSizeSupport = ArlimaTemplateLoader.getTemplateSupport(_this.article).imageSize,
+                    sizes = false;
 
-                if( _this.article.isChild() && imageSizeSupport['children-size'] && imageSizeSupport['children-size'] != '*' ) {
-                    sizes = imageSizeSupport['children-size'].split(',');
-                } else if( !_this.article.isChild() && imageSizeSupport['size'] && imageSizeSupport['size'] != '*' ) {
-                    sizes = imageSizeSupport.size.split(',');
-                }
+                if( imageSizeSupport ) {
 
-                if( sizes ) {
-                    var currentSizeIsAvailable = false,
-                        $sizeOptions = _this.$sizeSelect.find('option');
+                    if( _this.article.isChild() && imageSizeSupport['children-size'] && imageSizeSupport['children-size'] != '*' ) {
+                        sizes = imageSizeSupport['children-size'].split(',');
+                    } else if( !_this.article.isChild() && imageSizeSupport['size'] && imageSizeSupport['size'] != '*' ) {
+                        sizes = imageSizeSupport.size.split(',');
+                    }
 
-                    $sizeOptions.attr('disabled', 'disabled');
+                    if( sizes ) {
+                        var currentSizeIsAvailable = false,
+                            $sizeOptions = _this.$sizeSelect.find('option');
 
-                    $.each(sizes, function(i, size) {
-                        size = $.trim(size);
-                        $sizeOptions.filter('[value="'+size+'"]').removeAttr('disabled');
-                        if( size == img.size ) {
-                            currentSizeIsAvailable = true;
+                        $sizeOptions.attr('disabled', 'disabled');
+
+                        $.each(sizes, function(i, size) {
+                            size = $.trim(size);
+                            $sizeOptions.filter('[value="'+size+'"]').removeAttr('disabled');
+                            if( size == img.size ) {
+                                currentSizeIsAvailable = true;
+                            }
+                        });
+                        if( !currentSizeIsAvailable ) {
+                            img.size = _getDefaultImageSize();
                         }
-                    });
-                    if( !currentSizeIsAvailable ) {
-                        img.size = _getDefaultImageSize();
+                    } else {
+                        _this.$sizeSelect.find('option').removeAttr('disabled');
                     }
                 } else {
                     _this.$sizeSelect.find('option').removeAttr('disabled');
                 }
+
+                if( !img.connected ) {
+                    _this.$buttons.filter('.disconnect').hide();
+                }
+
+                // Fix alignment if incorrect
+                img.alignment = img.alignment || '';
+                if( img.size == 'full' && img.alignment != '' )
+                    img.alignment = '';
+                else if( img.size != 'full' && img.alignment == '' )
+                    img.alignment = 'alignleft';
+
+                // Add data to form
+                if( img.alignment ) {
+                    _this.$alignButtons.filter('[value='+img.alignment+']')[0].checked = true;
+                }
+                ArlimaUtils.selectVal(_this.$sizeSelect, img.size, false);
+
+                // Disable alignment options on full articles
+                _setAlignmentButtons();
+
             } else {
-                _this.$sizeSelect.find('option').removeAttr('disabled');
+                // Hide most of the stuff when there's no image
+                _toggleImageDisplay(false);
+                _this.$buttons.filter(':not(.browse)').hide();
+                _this.$alignButtons.parent().hide();
+                _this.$sizeSelect.hide();
             }
 
-            if( !img.connected ) {
-                _this.$buttons.filter('.disconnect').hide();
-            }
-
-            // Fix alignment if incorrect
-            img.alignment = img.alignment || '';
-            if( img.size == 'full' && img.alignment != '' )
-                img.alignment = '';
-            else if( img.size != 'full' && img.alignment == '' )
-                img.alignment = 'alignleft';
-
-            // Add data to form
-            if( img.alignment ) {
-                _this.$alignButtons.filter('[value='+img.alignment+']')[0].checked = true;
-            }
-            ArlimaUtils.selectVal(_this.$sizeSelect, img.size, false);
-
-            // Disable alignment options on full articles
-            _setAlignmentButtons();
-
-        } else {
-            // Hide most of the stuff when there's no image
-            _toggleImageDisplay(false);
-            _this.$buttons.filter(':not(.browse)').hide();
-            _this.$alignButtons.parent().hide();
-            _this.$sizeSelect.hide();
+        } catch(e) {
+            window.ArlimaUtils.log(e);
         }
     };
 

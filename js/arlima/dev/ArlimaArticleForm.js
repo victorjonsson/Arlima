@@ -642,7 +642,13 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                         var $input = $(this),
                             prop = $input.attr('data-prop'),
                             props = prop.split(':'),
-                            val = props[0] in _this.article.data ? (_this.article.data[props[0]][props[1]] || '') : '';
+                            val = '';
+
+                        if( props.length == 1 && _this.article.data[props[0]]) {
+                            val = _this.article.data[props[0]];
+                        } else if ( props.length == 2 && _this.article.data[props[0]] ) {
+                            val = _this.article.data[props[0]][props[1]] || '';
+                        }
 
                         if( val != $input.val() ) {
                             $input.trigger('change');

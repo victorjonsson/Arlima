@@ -174,10 +174,13 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
         /**
          * Show info about updated arlima version
          */
-        displayNewVersionMessage : function() {
+        displayNewVersionMessage : function(newVersion) {
+            if( !newVersion )
+                newVersion = this.backendVersion;
+
             var $message = $('#arlima-version-message');
             if( !$message.is(':visible') ) {
-                $message.find('.version').text(this.backendVersion);
+                $message.find('.version').text(newVersion);
                 $.fancybox({
                     href : '#arlima-version-message',
                     height: 400,
@@ -217,7 +220,7 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
                         if( _this.backendVersion && _this.backendVersion != version ) {
                             _this.displayNewVersionMessage();
                             setInterval(function() {
-                                _this.displayNewVersionMessage();
+                                _this.displayNewVersionMessage(version);
                             }, 150000);
                         }
                         _this.backendVersion = version;

@@ -41,7 +41,6 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         var _self = this,
             $articles = this.$elem.find('.articles');
 
-
         this.$elem
             .resizable({
                 containment: 'parent',
@@ -433,6 +432,11 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     };
 
             list.addArticle(new ArlimaArticle(sectionDividerData), true);
+
+            // scroll to bottom
+            var $articles = list.$elem.find('.articles');
+            $articles.scrollTop( $articles.innerHeight() );
+
             return false;
         });
 

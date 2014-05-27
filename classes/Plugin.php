@@ -853,12 +853,11 @@ class Arlima_Plugin
     public static function classLoader($class)
     {
         if ( strpos($class, 'Arlima_') === 0 ) {
-            require_once ARLIMA_PLUGIN_PATH . '/classes/' . str_replace('_', '/', substr($class, 7)) . '.php';
+            require_once ARLIMA_CLASS_PATH . '/' . str_replace('_', '/', substr($class, 7)) . '.php';
         }
         elseif (strpos($class, 'Mustache') === 0) {
-            require_once ARLIMA_PLUGIN_PATH . '/classes/mustache/src/' . str_replace('_', '/', $class) . '.php';
+            require_once ARLIMA_CLASS_PATH . '/mustache/src/' . str_replace('_', '/', $class) . '.php';
         }
-
     }
 
     /**

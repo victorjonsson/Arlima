@@ -3,6 +3,9 @@
 // Paths
 define('ARLIMA_PLUGIN_PATH', dirname(__FILE__));
 define('ARLIMA_PLUGIN_URL', plugin_dir_url(__FILE__));
+defined('ARLIMA_CLASS_PATH')
+    or define('ARLIMA_CLASS_PATH', ARLIMA_PLUGIN_PATH.'/classes');
+
 
 // dev-mode will load the uncompressed js files and compile less file in the browser
 defined('ARLIMA_DEV_MODE')
@@ -28,6 +31,7 @@ defined('ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES')
 defined('ARLIMA_GROUP_CHILD_ARTICLES')
     or define('ARLIMA_GROUP_CHILD_ARTICLES', true);
 
-
+// Whether or not the list manager in wp-admin should send js errors to the
+// server log via ajax
 defined('ARLIMA_SEND_JS_ERROR_TO_LOG')
     or define('ARLIMA_SEND_JS_ERROR_TO_LOG', false);

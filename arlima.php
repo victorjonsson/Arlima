@@ -13,7 +13,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 require_once 'constants.php';
 
 // Load arlima plugin class
-require_once 'classes/Plugin.php';
+require_once ARLIMA_CLASS_PATH.'/Plugin.php';
 
 // Register class loader for this plugin
 spl_autoload_register('Arlima_Plugin::classLoader');

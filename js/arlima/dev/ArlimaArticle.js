@@ -282,7 +282,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      * @return {*}
      */
     ArlimaArticle.prototype.opt = function(name) {
-        return this.data.options[name];
+        return this.data.options[name] || '';
     };
 
     /**

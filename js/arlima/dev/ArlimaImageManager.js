@@ -112,7 +112,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
 
             // Adjust alignment when changing size
             _this.$sizeSelect.on('change', function() {
-                _setAlignmentButtons( _this.$sizeSelect.val() );
+                _setAlignmentButtons( _this.$sizeSelect.val(), true);
             });
 
             // Changing alignment
@@ -179,25 +179,35 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
         }
     },
 
-    _setAlignmentButtons = function(size) {
+    _setAlignmentButtons = function(size, triggerChange) {
         if( !size )
             size = _this.article.data.image.size;
+        if( triggerChange === undefined )
+            triggerChange = false;
 
         var $checked = _this.$alignButtons.filter(':checked');
 
         if( size == 'full' ) {
+
             if( $checked.length != 0 )
                 $checked[0].checked = false;
 
             ArlimaFormBlocker.toggleImageAlignBlocker(true);
-            ArlimaArticleForm.change('.data.img-align', '', false);
+            ArlimaArticleForm.change('.data.img-align', '', triggerChange);
 
         } else {
-            if( $checked.length == 0 )
+            var align = _this.article.data.image.alignment;
+            if( align ) {
+                _this.$alignButtons.filter('[value="'+align+'"]').get(0).checked = true;
+            } else {
                 _this.$alignButtons[0].checked = true;
+                triggerChange = true;
+            }
 
             ArlimaFormBlocker.toggleImageAlignBlocker(false);
-            ArlimaArticleForm.change('.data.img-align', _this.$alignButtons.eq(0).val(), false);
+            if( triggerChange ) {
+                ArlimaArticleForm.change('.data.img-align', _this.$alignButtons.eq(0).val(), true);
+            }
         }
     },
 
@@ -217,7 +227,6 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
         try {
 
             if( _this.article.data.image && _this.article.data.image.url ) {
-
                 var img = _this.article.data.image; // shorten code pls...
 
                 ArlimaUtils.log('Setting up image form for '+_this.article.data.id);

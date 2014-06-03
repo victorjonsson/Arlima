@@ -164,10 +164,11 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         self::$factory->saveNewListVersion($list, array(), 5);
         self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray() ), 9, true);
 
-        $latest_version = self::$factory->loadList($list->id());
+        $latest_version = self::$factory->loadList($list->getId());
+        $this->assertEquals(Arlima_List::STATUS_PUBLISHED, $latest_version->getVersionAttribute('status'), 'incorrect version status');
         $this->assertEquals(5, $latest_version->getVersionAttribute('user_id'));
 
-        $preview = self::$factory->loadLatestPreview($list->id());
+        $preview = self::$factory->loadLatestPreview($list->getId());
         $this->assertEquals(1, count($preview->getVersions()));
         $this->assertTrue( $preview->isPreview() );
         $this->assertEquals(1, count($preview->getArticles()));

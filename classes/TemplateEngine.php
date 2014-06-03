@@ -27,22 +27,75 @@ class Arlima_TemplateEngine
     private $default_tmpl_obj = null;
 
     /**
-     * @param string $template_path - Optional path to directory where templates should exists
+     * @var Arlima_TemplatePathResolver
      */
-    function __construct($template_path=null)
+    private $template_path_resolver;
+
+    /**
+     * @var Arlima_TemplateObjectCreator
+     */
+    private $template_obj_creator;
+
+    /**
+     * Factory method for creating instances of the template engine
+     * @param Arlima_List $list
+     * @param null|string $template_path
+     * @return Arlima_TemplateEngine
+     */
+    public static function create($list, $template_path = null)
     {
-        $this->template_resolver = new Arlima_TemplatePathResolver($template_path);
-        $this->mustache = new Mustache_Engine();
+        $obj_creator = new Arlima_TemplateObjectCreator();
+        $obj_creator->setList($list);
+        if ( $list->hasOption('before_title') ) {
+            $obj_creator->setBeforeTitleHtml($list->getOption('before_title'));
+            $obj_creator->setAfterTitleHtml($list->getOption('after_title'));
+        }
+        return new self(new Arlima_TemplatePathResolver($template_path), $obj_creator, new Mustache_Engine());
     }
 
     /**
-     * @return string $tmpl_data_obj
+     * @param Arlima_TemplatePathResolver $tmpl_path_resolver
+     * @param Arlima_TemplateObjectCreator $obj_creator
+     * @param Mustache_Engine $mustache
+     */
+    protected function __construct($tmpl_path_resolver, $obj_creator, $mustache)
+    {
+        $this->template_path_resolver = $tmpl_path_resolver;
+        $this->template_obj_creator = $obj_creator;
+        $this->mustache = $mustache;
+    }
+
+    /**
+     * @return string
+     */
+    function renderArticle($template_name, $article_counter, $article, $is_empty, $post, $child_articles='', $is_child_split=false)
+    {
+        $this->template_obj_creator->setIsChild( (int)$article['parent'] > -1 );
+        $this->template_obj_creator->setIsChildSplit($is_child_split);
+
+        $template_obj = $this->template_obj_creator->create(
+                                $article,
+                                $is_empty,
+                                $post,
+                                $article_counter,
+                                $template_name
+                            );
+
+        if ( !empty($child_articles) ) {
+            $template_obj['child_articles'] = $child_articles;
+        }
+
+        return $this->render($template_obj, $template_name);
+    }
+
+    /**
+     * @param string $tmpl_data_obj
      * @param string $tmpl_name
      * @return string
      */
-    function render($tmpl_data_obj, $tmpl_name)
+    private function render($tmpl_data_obj, $tmpl_name)
     {
-        $template = $this->load($tmpl_name);
+        $template = $this->loadTemplateObject($tmpl_name);
         if( is_object($template) ) {
             return $template->render($tmpl_data_obj);
         } else {
@@ -58,10 +111,11 @@ class Arlima_TemplateEngine
      */
     function setDefaultTemplate($tmpl_name)
     {
-        $this->default_tmpl_obj = $this->load($tmpl_name);
-        return is_object($this->default_tmpl_obj);
+        $this->default_tmpl_obj = $this->loadTemplateObject($tmpl_name);
+        if( !is_object($this->default_tmpl_obj) ) {
+            throw new Exception('Template with name '.$tmpl_name.' could not be found'); // todo: create custom exception object
+        }
     }
-
 
     /**
      * Takes a file and turns it into a mustache template object
@@ -106,7 +160,7 @@ class Arlima_TemplateEngine
      * @param string $template_name
      * @return Mustache_Template
      */
-    protected function load($template_name) {
+    protected function loadTemplateObject($template_name) {
         if ( isset(self::$preloaded_templates[$template_name]) ) {
             if( self::$preloaded_templates[$template_name] === '' ) {
                 // Don't search for template more than once, we have searched for this template
@@ -116,7 +170,7 @@ class Arlima_TemplateEngine
             return self::$preloaded_templates[$template_name];
         }
 
-        if( $template_file = $this->template_resolver->find($template_name) ) {
+        if( $template_file = $this->template_path_resolver->find($template_name) ) {
             self::$preloaded_templates[$template_name] = $this->fileToMustacheTemplate($template_file);
             return self::$preloaded_templates[$template_name];
         }

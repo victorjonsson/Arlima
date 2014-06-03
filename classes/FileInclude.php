@@ -66,7 +66,7 @@ class Arlima_FileInclude {
      * @param array|null $article
      * @return string
      */
-    public function includeFile($file, $args, $renderer=null, $article=null) // Last to arguments should be available in the included file
+    public function includeFile($file, $args, $renderer=null, $article=null) // Last two arguments should be available in the included file
     {
         self::$current_file_args = $args;
 

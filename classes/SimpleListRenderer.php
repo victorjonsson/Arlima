@@ -28,10 +28,17 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
     private $display_article_callback = 'Arlima_SimpleListRenderer::defaultPostDisplayCallback';
 
     /**
-     * @param Arlima_List|null $list
+     * @var bool
      */
-    function __construct($list)
+    private $echo = true;
+
+    /**
+     * @param Arlima_List $list
+     * @param bool $echo
+     */
+    function __construct($list, $echo = true)
     {
+        $this->echo = $echo;
         parent::__construct($list);
     }
 
@@ -39,15 +46,16 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
      * @param int $article_counter
      * @param array $article
      * @param WP_Post|bool $post
-     * @param Arlima_List $list
+     * @param Arlima_AbstractListRenderingManager $renderer
+     * @param bool $echo
      * @return string
      */
-    public static function defaultPostDisplayCallback($article_counter, $article, $post, $list) {
+    public static function defaultPostDisplayCallback($article_counter, $article, $post, $renderer, $echo) {
         return '<p>No callback given for article' . ($post ? '(post &quot;'.$post->post_title.'&quot;' : '').'</p>';
     }
 
     /**
-     * @param Closure $func
+     * @param \Closure $func
      */
     function setDisplayArticleCallback($func)
     {
@@ -55,23 +63,17 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
     }
 
     /**
-     * Note that no callbacks will be fired except display_post()
      * @see Arlima_SimpleListRendered::setDisplayPostCallback()
      * @param bool $output
      * @return string
      */
-    function renderList($output = true)
+    function generateListHtml($output = true)
     {
-        $current_global_post = $GLOBALS['post'];
         $content = '';
         $article_counter = 0;
         foreach ($this->getArticlesToRender() as $article) {
-            list($post, $article) = $this->setup($article);
-            if ( !empty($article_data['publish_date']) && $article_data['publish_date'] > time() ) {
-                continue;
-            }
 
-            $article_content = call_user_func($this->display_article_callback, $article_counter, $article, $post, $this->list );
+            list($index, $article_content) = $this->renderArticle($article, $article_counter);
 
             if( $output ) {
                 echo $article_content;
@@ -85,9 +87,18 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
             }
         }
 
-        // unset global post data
-        $GLOBALS['post'] = $current_global_post;
-
         return $content;
+    }
+
+    /**
+     * @param array $article_data
+     * @param int $index
+     * @param null|stdClass|WP_Post $post
+     * @param $is_empty
+     * @return mixed
+     */
+    protected function generateArticleHtml($article_data, $index, $post, $is_empty)
+    {
+        return call_user_func($this->display_article_callback, $index, $article_data, $post, $this);
     }
 }

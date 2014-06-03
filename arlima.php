@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 3.0.beta.32
+Version: 3.0.beta.33
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -254,6 +254,7 @@ function arlima_render_list($list, $args=array()) {
                 'echo' => true,
                 'filter_suffix' => '',
                 'section' => false,
+                'check_if_exists' => true,
                 'no_list_message' => true // True meaning the the message will be displayed
             ), $args);
 
@@ -267,37 +268,34 @@ function arlima_render_list($list, $args=array()) {
         $renderer = new Arlima_ListTemplateRenderer($list);
     }
 
-    $list_exist = $renderer->getList()->exists();
-
-    if( !$list_exist && $args['no_list_message'] ) {
-        $msg = '<p>'.__('This list does not exist', 'arlima').'</p>';
-        if( $args['echo'] )
-            echo $msg;
-        else
-            return $msg;
-    }
-    elseif( $list_exist ) {
+    if( $args['check_if_exists'] && !$renderer->getList()->exists() ) {
+        if( $args['no_list_message'] ) {
+            $msg = '<p>'.__('This list does not exist', 'arlima').'</p>';
+            if( $args['echo'] )
+                echo $msg;
+            else
+                return $msg;
+        }
+    } else {
 
         $renderer->setOffset( $args['offset'] );
         $renderer->setLimit( $args['limit'] );
         $renderer->setSection( $args['section'] );
 
         if( $renderer->havePosts() ) {
-            
+
             $action_suffix = '';
             if( !empty($args['filter_suffix']) ) {
-                Arlima_FilterApplier::setFilterSuffix($args['filter_suffix']);
+                Arlima_TemplateObjectCreator::setFilterSuffix($args['filter_suffix']);
                 $action_suffix = '-'.$args['filter_suffix'];
             }
 
             do_action('arlima_list_begin'.$action_suffix, $renderer, $args);
-
-
-            Arlima_FilterApplier::setArticleWidth($args['width']);
-            Arlima_FilterApplier::applyFilters($renderer);
+            Arlima_TemplateObjectCreator::setArticleWidth($args['width']);
 
             $content = $renderer->renderList($args['echo']);
-            Arlima_FilterApplier::setFilterSuffix('');
+
+            Arlima_TemplateObjectCreator::setFilterSuffix('');
 
             do_action('arlima_list_end'.$action_suffix, $renderer, $args);
 

@@ -8,61 +8,10 @@
  */
 abstract class Arlima_AbstractListRenderingManager
 {
-
     /**
      * @var Arlima_List
      */
     protected $list = null;
-
-    /**
-     * @var Closure
-     */
-    protected $future_post_callback = false;
-
-    /**
-     * @var Closure
-     */
-    protected $image_callback = false;
-
-    /**
-     * @var Closure
-     */
-    protected $content_callback = false;
-
-    /**
-     * @var Closure
-     */
-    protected $related_posts_callback = false;
-
-    /**
-     * @var string
-     */
-    protected $img_size_name = 'first';
-
-    /**
-     * @var string
-     */
-    protected $img_size_name_sub_article = 'first-child';
-
-    /**
-     * @var string
-     */
-    protected $img_size_name_sub_article_full = 'first-child-full';
-
-    /**
-     * @var bool
-     */
-    protected $setup_wp_post_data = true;
-
-    /**
-     * @var Closure
-     */
-    protected $article_begin_callback = false;
-
-    /**
-     * @var Closure
-     */
-    protected $article_end_callback = false;
 
     /**
      * @var int
@@ -85,78 +34,19 @@ abstract class Arlima_AbstractListRenderingManager
     private $articles_to_render = false;
 
     /**
+     * @var Arlima_WPFacade
+     */
+    protected $system;
+
+    /**
      * Class constructor
      * @param Arlima_List|stdClass $list
      */
     function __construct($list)
     {
+        $this->system = new Arlima_WPFacade();
         $this->list = $list;
     }
-
-
-    /* * * * * * * * * * * * LIST CALLBACKS * * * * * * * * * * */
-
-    /**
-     * Makes it possible to add content that is supposed to be put in
-     * the end of the article
-     * @param Closure $callback_func
-     */
-    function setArticleEndCallback($callback_func)
-    {
-        $this->article_end_callback = $callback_func;
-    }
-
-    /**
-     * This callback will be called once for each article in the list, right before the
-     * article is rendered. Should return content that is placed before article content
-     * @param Closure $callback_func
-     */
-    function setArticleBeginCallback($callback_func)
-    {
-        $this->article_begin_callback = $callback_func;
-    }
-
-    /**
-     * Function that will be called every time list contains a future post, instead of rendering the article
-     * @param Closure|bool $callback_func
-     */
-    function setFuturePostCallback($callback_func)
-    {
-        $this->future_post_callback = $callback_func;
-    }
-
-    /**
-     * This callback should return the html code for the image
-     * @param Closure $callback_func
-     */
-    function setImageCallback($callback_func)
-    {
-        $this->image_callback = $callback_func;
-    }
-
-    /**
-     * This callback should return the final preamble text of the article as a string
-     * @param Closure $callback_func
-     */
-    function setContentCallback($callback_func)
-    {
-        $this->content_callback = $callback_func;
-    }
-
-    /**
-     * This callback should return a string with the html code for content that is
-     * related to this post
-     *
-     * @param Closure $callback_func
-     */
-    function setRelatedPostsCallback($callback_func)
-    {
-        $this->related_posts_callback = $callback_func;
-    }
-
-
-
-    /* * * * * * * * * * * * LIST RENDERING FUNCTIONS * * * * * * * * * * * * * */
 
     /**
      * @return array
@@ -164,18 +54,37 @@ abstract class Arlima_AbstractListRenderingManager
     public function getArticlesToRender()
     {
         if( $this->articles_to_render === false ) {
+            $post_ids = array();
             if( $this->section !== false ) {
-                $this->articles_to_render = $this->extractSectionArticles($this->list->getArticles(), $this->section);
+                list($this->articles_to_render, $post_ids) = $this->extractSectionArticles($this->list->getArticles(), $this->section);
             } else {
                 $articles = array();
                 foreach($this->list->getArticles() as $art) {
-                    if( empty($art['options']['sectionDivider']) )
+                    if( empty($art['options']['sectionDivider']) ) {
                         $articles[] = $art;
+                        $this->getPostsFromArticle($post_ids, $art);
+                    }
                 }
                 $this->articles_to_render = array_slice($articles, $this->getOffset());
             }
+            $this->system->preLoadPosts($post_ids); // To lower the amount of db questions
         }
         return $this->articles_to_render;
+    }
+
+    private function getPostsFromArticle(&$post_ids, $art)
+    {
+        if( !empty($art['post']) && !$this->system->isPreloaded($art['post']) ) {
+            $post_ids[] = $art['post'];
+        }
+        if( !empty($art['image']['attachment']) && !$this->system->isPreloaded($art['image']['attachment'])) {
+            $post_ids[] = $art['image']['attachment'];
+        }
+        if( !empty($art['children']) ) {
+            foreach($art['children'] as $child_article) {
+                $this->getPostsFromArticle($post_ids, $child_article);
+            }
+        }
     }
 
     /**
@@ -194,7 +103,59 @@ abstract class Arlima_AbstractListRenderingManager
      * @param bool $output[optional=true]
      * @return string
      */
-    abstract function renderList($output = true);
+    abstract protected function generateListHtml($output = true);
+
+    /**
+     * @param bool $output
+     * @return string
+     */
+    function renderList($output = true)
+    {
+        $this->system->prepareForPostLoop($this->list);
+        $content = $this->generateListHtml($output);
+        $this->system->resetAfterPostLoop();
+        return $content;
+    }
+
+    /**
+     * @param array|stdClass $article_data
+     * @param int $index
+     * @return array (index, html_content)
+     */
+    protected function renderArticle($article_data, $index)
+    {
+        // File include
+        if ( $this->isFileIncludeArticle($article_data) ) {
+            // We're done, go on pls!
+            return array($index + 1, $this->includeArticleFile($article_data));
+        }
+
+        // Scheduled article
+        if ( !empty($article_data['options']['scheduled']) ) {
+            if ( !$this->isInScheduledInterval($article_data['options']['scheduledInterval']) ) {
+                return array($index, ''); // don't show this scheduled article right now
+            }
+        }
+
+        // Setup
+        list($post, $article_data, $is_empty) = $this->setup($article_data);
+
+        // Future article
+        if ( !empty($article_data['published']) && $article_data['published'] > time() ) {
+            return array($index, $this->system->applyFilters('arlima_future_post',  $post, $article_data, $this->list, $index));
+        }
+
+        return array($index+1, $this->generateArticleHtml($article_data, $index, $post, $is_empty));
+    }
+
+    /**
+     * @param $article_data
+     * @param $index
+     * @param $post
+     * @param $is_empty
+     * @return mixed
+     */
+    abstract protected function generateArticleHtml($article_data, $index, $post, $is_empty);
 
     /**
      * Use the article object/array and set up the wordpress environment
@@ -205,19 +166,9 @@ abstract class Arlima_AbstractListRenderingManager
      */
     protected function setup($article)
     {
-        $is_post = false;
-        $post = false;
-
-        if ( !empty($article['post']) && is_numeric($article['post']) ) {
-            global $post;
-
-            if ( $this->setup_wp_post_data ) {
-                $post = get_post($article['post']);
-            }
-
-            if ( $post ) {
-                $is_post = true;
-            }
+        if ( !empty($article['post']) ) {
+            $GLOBALS['post'] = $this->system->loadPost($article['post']);
+           // setup_postdata($GLOBALS['post']);
         }
         else {
             $GLOBALS['post'] = false;
@@ -232,20 +183,7 @@ abstract class Arlima_AbstractListRenderingManager
 
         $article['url'] = Arlima_Utils::resolveURL($article);
 
-        return array($post, $article, $is_post, $is_empty);
-    }
-
-    /**
-     * @var bool|array
-     */
-    static $current_section_divider = false;
-
-    /**
-     * @return bool|array
-     */
-    public static function getCurrentSectionDivider()
-    {
-        return self::$current_section_divider;
+        return array($GLOBALS['post'], $article, $is_empty);
     }
 
     /**
@@ -258,6 +196,7 @@ abstract class Arlima_AbstractListRenderingManager
      */
     protected function extractSectionArticles($articles, $section)
     {
+        $post_ids = array();
         self::$current_section_divider = false;
         $extract_all = false;
         if( substr($section, 0, 2) == '>=' ) {
@@ -297,6 +236,7 @@ abstract class Arlima_AbstractListRenderingManager
                         $offset--;
                     } else {
                         $extracted_articles[] = $art;
+                        $this->getPostsFromArticle($post_ids, $art);
                     }
                 }
             }
@@ -321,15 +261,108 @@ abstract class Arlima_AbstractListRenderingManager
             // No sections yet exists in this list. Create "empty" section divider
             // and slice from the beginning of the article array
             self::$current_section_divider = array();
-            return array_slice($articles, $offset);
+            return array(array_slice($articles, $offset), $post_ids);
         } else {
-            return $extracted_articles;
+            return array($extracted_articles, $post_ids);
         }
     }
 
 
-    /* * * * * * * * * * * * SETTERS ´n GETTERS * * * * * * * * * * * * */
+    /**
+     * Will try to parse a schedule-interval-formatted string and determine
+     * if we're currently in this time interval
+     * @example
+     *  isInScheduledInterval('*:*');
+     *  isInScheduledInterval('Mon,Tue,Fri:*');
+     *  isInScheduledInterval('*:10-12');
+     *  isInScheduledInterval('Thu:12,15,18');
+     *
+     * @param string $schedule_interval
+     * @return bool
+     */
+    protected function isInScheduledInterval($schedule_interval)
+    {
+        $interval_part = explode(':', $schedule_interval);
+        if ( count($interval_part) == 2 ) {
 
+            // Check day
+            if ( trim($interval_part[0]) != '*' ) {
+
+                $current_day = strtolower(date('D', time()));
+                $days = array();
+                foreach (explode(',', $interval_part[0]) as $day) {
+                    $days[] = strtolower(substr(trim($day), 0, 3));
+                }
+
+                if ( !in_array($current_day, $days) ) {
+                    return false; // don't show article today
+                }
+
+            }
+
+            // Check hour
+            if ( trim($interval_part[1]) != '*' ) {
+
+                $current_hour = (int)date('H', time());
+                $from_to = explode('-', $interval_part[1]);
+                if ( count($from_to) == 2 ) {
+                    $from = (int)trim($from_to[0]);
+                    $to = (int)trim($from_to[1]);
+                    if ( $current_hour < $from || $current_hour > $to ) {
+                        return false; // don't show article this hour
+                    }
+                } else {
+                    $hours = array();
+                    foreach (explode(',', $interval_part[1]) as $hour) {
+                        $hours[] = (int)trim($hour);
+                    }
+
+                    if ( !in_array($current_hour, $hours) ) {
+                        return false; // don't show article this hour
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $article_data
+     * @return string
+     */
+    protected function includeArticleFile($article_data)
+    {
+        $file_include = new Arlima_FileInclude();
+        $args = array();
+        if (!empty($article_data['options']['fileArgs'])) {
+            parse_str($article_data['options']['fileArgs'], $args);
+        }
+
+        return $file_include->includeFile($article_data['options']['fileInclude'], $args, $this, $article_data);
+    }
+
+    /**
+     * @param $article_data
+     * @return bool
+     */
+    protected function isFileIncludeArticle($article_data)
+    {
+        return !empty($article_data['options']) && !empty($article_data['options']['fileInclude']);
+    }
+
+    /**
+     * @var bool|array
+     */
+    static $current_section_divider = false;
+
+    /**
+     * @return bool|array
+     */
+    public static function getCurrentSectionDivider()
+    {
+        return self::$current_section_divider;
+    }
 
     /**
      * - Set to false if you want to render entire list (default)
@@ -353,54 +386,6 @@ abstract class Arlima_AbstractListRenderingManager
     }
 
     /**
-     * @param string $img_size_name_sub_article_full
-     */
-    public function setImgSizeNameSubArticleFull($img_size_name_sub_article_full)
-    {
-        $this->img_size_name_sub_article_full = $img_size_name_sub_article_full;
-    }
-
-    /**
-     * @return string
-     */
-    public function getImgSizeNameSubArticleFull()
-    {
-        return $this->img_size_name_sub_article_full;
-    }
-
-    /**
-     * @param string $img_size_name_sub_article
-     */
-    public function setImgSizeNameSubArticle($img_size_name_sub_article)
-    {
-        $this->img_size_name_sub_article = $img_size_name_sub_article;
-    }
-
-    /**
-     * @return string
-     */
-    public function getImgSizeNameSubArticle()
-    {
-        return $this->img_size_name_sub_article;
-    }
-
-    /**
-     * @param string $img_size_name
-     */
-    public function setImgSizeName($img_size_name)
-    {
-        $this->img_size_name = $img_size_name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getImgSizeName()
-    {
-        return $this->img_size_name;
-    }
-
-    /**
      * @param \Arlima_List $list
      */
     public function setList($list)
@@ -415,7 +400,6 @@ abstract class Arlima_AbstractListRenderingManager
     {
         return $this->list;
     }
-
 
     /**
      * Set to -1 to not limit the number of articles that will be rendered

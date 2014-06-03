@@ -860,6 +860,7 @@ class Arlima_Plugin
         }
     }
 
+
     /**
      * @static
      * @param string $func

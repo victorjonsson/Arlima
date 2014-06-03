@@ -517,46 +517,60 @@ class Arlima_ListFactory {
     {
         $version_data_sql = "SELECT alv_id, alv_created, alv_status, alv_user_id FROM ".$this->dbTable('_version');
 
-        // latest preview version
-        if( $version === 'preview' ) {
-            $version_data_sql = $this->wpdb->prepare(
-                $version_data_sql." WHERE alv_al_id = %d AND alv_status = %d",
-                $list_id,
-                Arlima_List::STATUS_PREVIEW
-            );
-        }
+        if( !$version  ) {
 
-        // specific version
-        elseif($version !== false) {
-            $version_data_sql = $this->wpdb->prepare(
-                $version_data_sql." WHERE alv_id = %d",
-                $version
-            );
-        }
+            $versions = array();
+            $data = $this->executeSQLQuery('get_results', $version_data_sql.' WHERE alv_al_id='.intval($list_id).' AND alv_status != 2 ORDER BY alv_id DESC LIMIT 0,10');
 
-        // latest none preview version
-        else {
-            $version_data_sql = $this->wpdb->prepare(
-                $version_data_sql." WHERE alv_al_id = %d AND alv_status = %d",
-                $list_id,
-                Arlima_List::STATUS_PUBLISHED
-            );
-        }
+            if( empty($data) ) {
+                // No version yet exists
+                return array( array(), array() );
+            } else {
 
-        $version_data_sql .= ' ORDER BY alv_id DESC LIMIT 0,1';
+                foreach($data as $row) {
+                    $versions[] = $row->alv_id;
+                }
 
-        $version_list_sql = $this->wpdb->prepare (
-            "SELECT alv_id FROM " . $this->dbTable('_version') . "
+                return array(
+                    array('created' => $data[0]->alv_created, 'id' => $data[0]->alv_id, 'user_id' => $data[0]->alv_user_id, 'status' => $data[0]->alv_status),
+                    $versions
+                );
+            }
+
+        } else {
+
+            // latest preview version
+            if( $version === 'preview' ) {
+                $version_data_sql = $this->wpdb->prepare(
+                    $version_data_sql." WHERE alv_al_id = %d AND alv_status = %d",
+                    $list_id,
+                    Arlima_List::STATUS_PREVIEW
+                );
+            }
+
+            // specific version
+            elseif($version !== false) {
+                $version_data_sql = $this->wpdb->prepare(
+                    $version_data_sql." WHERE alv_id = %d",
+                    $version
+                );
+            }
+
+            $version_data_sql .= ' ORDER BY alv_id DESC LIMIT 0,1';
+
+            $version_list_sql = $this->wpdb->prepare (
+                "SELECT alv_id FROM " . $this->dbTable('_version') . "
             WHERE alv_al_id = %d AND alv_status = %d
             ORDER BY alv_id DESC LIMIT 0,10",
-            (int)$list_id,
-            Arlima_List::STATUS_PUBLISHED
-        );
+                (int)$list_id,
+                Arlima_List::STATUS_PUBLISHED
+            );
 
-        return array(
-            $this->executeSQLQuery('get_row', $version_data_sql, 'alv_'),
-            $this->executeSQLQuery('get_col', $version_list_sql)
-        );
+            return array(
+                $this->executeSQLQuery('get_row', $version_data_sql, 'alv_'),
+                $this->executeSQLQuery('get_col', $version_list_sql)
+            );
+        }
     }
 
     /**
@@ -1122,7 +1136,8 @@ class Arlima_ListFactory {
             'title' => 'Unknown',
             'size' => 24,
             'created' => 0,
-            'published' => 0
+            'published' => 0,
+            'parent' => -1
         );
 
         // legacy fix...

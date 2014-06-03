@@ -37,10 +37,10 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
     function testActionArguments() {
         $this->list = $this->createList(1);
-        add_action('arlima_article_begin', array($this, 'checkArgs'));
-        add_action('arlima_article_end', array($this, 'checkArgs'));
-        add_action('arlima_article_content', array($this, 'checkArgs'));
-        add_action('arlima_article_image', array($this, 'checkArgs'));
+        add_filter('arlima_article_begin', array($this, 'checkArgs'));
+        add_filter('arlima_article_end', array($this, 'checkArgs'));
+        add_filter('arlima_article_content', array($this, 'checkArgs'));
+        add_filter('arlima_article_image', array($this, 'checkArgs'));
         arlima_render_list($this->list, array('echo' => false));
         $this->assertEquals(4, $this->executed_actions);
     }
@@ -48,10 +48,10 @@ class TestActions extends PHPUnit_Framework_TestCase {
     function testActionArgumentsForCustomActions() {
         $this->list = $this->createList(1);
         $my = 'my-actions';
-        add_action('arlima_article_begin-'.$my, array($this, 'checkArgs'));
-        add_action('arlima_article_end-'.$my, array($this, 'checkArgs'));
-        add_action('arlima_article_content-'.$my, array($this, 'checkArgs'));
-        add_action('arlima_article_image-'.$my, array($this, 'checkArgs'));
+        add_filter('arlima_article_begin-'.$my, array($this, 'checkArgs'));
+        add_filter('arlima_article_end-'.$my, array($this, 'checkArgs'));
+        add_filter('arlima_article_content-'.$my, array($this, 'checkArgs'));
+        add_filter('arlima_article_image-'.$my, array($this, 'checkArgs'));
         arlima_render_list($this->list, array('echo' => false, 'filter_suffix'=>$my));
         $this->assertEquals(4, $this->executed_actions);
     }
@@ -66,7 +66,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
     function testArticleCount() {
         $list = $this->createList(3);
-        add_action('arlima_article_begin', array($this, 'checkArticleCount'));
+        add_filter('arlima_article_begin', array($this, 'checkArticleCount'));
         arlima_render_list($list, array('echo'=>false));
     }
 
@@ -80,17 +80,17 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $list->setOption('template', 'some-template');
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
 
-        add_action('arlima_article_begin', function($data) {
+        add_filter('arlima_article_begin', function($data) {
             $data['content'] = 'BEGIN';
             return $data;
         });
 
-        add_action('arlima_article_end', function($data) {
+        add_filter('arlima_article_end', function($data) {
             $data['content'] = 'END';
             return $data;
         });
 
-        add_action('arlima_article_content', function($data) {
+        add_filter('arlima_article_content', function($data) {
             $data['content'] = 'CONTENT';
             return $data;
         });
@@ -104,17 +104,17 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $list->setOption('template', 'some-template');
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
 
-        add_action('arlima_article_begin', function($data) {
+        add_filter('arlima_article_begin', function($data) {
                 $data['content'] = false;
                 return $data;
             });
 
-        add_action('arlima_article_end', function($data) {
+        add_filter('arlima_article_end', function($data) {
                 $data['content'] = false;
                 return $data;
             });
 
-        add_action('arlima_article_content', function($data) {
+        add_filter('arlima_article_content', function($data) {
                 $data['content'] = false;
                 return $data;
             });
@@ -128,15 +128,15 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $list->setOption('template', 'some-template');
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
 
-        add_action('arlima_article_begin', function($data) {
+        add_filter('arlima_article_begin', function($data) {
                 return false;
             });
 
-        add_action('arlima_article_end', function($data) {
+        add_filter('arlima_article_end', function($data) {
                 return false;
             });
 
-        add_action('arlima_article_content', function($data) {
+        add_filter('arlima_article_content', function($data) {
                 return false;
             });
 
@@ -151,17 +151,17 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         // Add default filters
 
-        add_action('arlima_article_begin', function($data) {
+        add_filter('arlima_article_begin', function($data) {
                 $data['content'] = 'BEGIN';
                 return $data;
             });
 
-        add_action('arlima_article_end', function($data) {
+        add_filter('arlima_article_end', function($data) {
                 $data['content'] = 'END';
                 return $data;
             });
 
-        add_action('arlima_article_content', function($data) {
+        add_filter('arlima_article_content', function($data) {
                 $data['content'] = 'CONTENT';
                 return $data;
             });
@@ -170,17 +170,17 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $filter_suffix = 'my-filter';
 
-        add_action('arlima_article_begin-'.$filter_suffix, function($data) {
+        add_filter('arlima_article_begin-'.$filter_suffix, function($data) {
                 $data['content'] = 'BEGIN-filtered';
                 return $data;
             });
 
-        add_action('arlima_article_end-'.$filter_suffix, function($data) {
+        add_filter('arlima_article_end-'.$filter_suffix, function($data) {
                 $data['content'] = 'END-filtered';
                 return $data;
             });
 
-        add_action('arlima_article_content-'.$filter_suffix, function($data) {
+        add_filter('arlima_article_content-'.$filter_suffix, function($data) {
                 $data['content'] = 'CONTENT-filtered';
                 return $data;
             });
@@ -195,8 +195,8 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $articles = $list->getArticles();
         $articles[0]['children'] = array(
-            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA')),
-            Arlima_ListFactory::createArticleDataArray(array('title' => 'childB'))
+            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA', 'parent'=>0)),
+            Arlima_ListFactory::createArticleDataArray(array('title' => 'childB', 'parent'=>0))
         );
 
         $list->setArticles($articles);
@@ -214,7 +214,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $articles = $list->getArticles();
         $articles[0]['children'] = array(
-            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA'))
+            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA', 'parent'=>0))
         );
 
         $list->setArticles($articles);

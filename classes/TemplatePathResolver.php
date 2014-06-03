@@ -8,7 +8,6 @@
  */
 class Arlima_TemplatePathResolver
 {
-
     const DEFAULT_TMPL = 'article';
     const TMPL_EXT = '.tmpl';
 

@@ -142,10 +142,38 @@ abstract class Arlima_AbstractListRenderingManager
 
         // Future article
         if ( !empty($article_data['published']) && $article_data['published'] > time() ) {
-            return array($index, $this->system->applyFilters('arlima_future_post',  $post, $article_data, $this->list, $index));
+            return array($index, $this->getFutureArticleContent($article_data, $index, $post));
         }
 
         return array($index+1, $this->generateArticleHtml($article_data, $index, $post, $is_empty));
+    }
+
+    /**
+     * @param $article_data
+     * @param $index
+     * @param $post
+     * @return mixed
+     */
+    protected function getFutureArticleContent($article_data, $index, $post)
+    {
+        $filtered = $this->system->applyFilters('arlima_future_post', array(
+            'post' => $post,
+            'article' => $article_data,
+            'list' => $this->list,
+            'count' => $index,
+            'content' => ''
+        ));
+
+        if( empty($filtered['content']) && $filtered['content'] !== false) {
+            $url = $article_data['post'] ? admin_url('post.php?action=edit&amp;post=' . $post->ID) : $article_data['url'];
+            $filtered['content'] = '<div class="arlima future-post"><p>
+                        Hey dude, <a href="' . $url . '" target="_blank">&quot;'.$article_data['title'].'&quot;</a> is
+                        connected to a post that isn\'t published yet. The article will become public in '.
+                human_time_diff(time(), $article_data['published']).'.</p>
+                    </div>';
+        }
+
+        return $filtered['content'];
     }
 
     /**

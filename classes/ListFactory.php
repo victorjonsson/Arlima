@@ -1162,6 +1162,7 @@ class Arlima_ListFactory {
             $data[$key] = $val;
         }
 
+        //return new Arlima_Article($data);
         return $data;
     }
 

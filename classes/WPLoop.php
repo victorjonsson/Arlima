@@ -16,11 +16,6 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
     private $exclude_posts = array();
 
     /**
-     * @var string
-     */
-    private $filter_suffix;
-
-    /**
      * @var callable
      */
     private $header_callback = 'Arlima_WPLoop::defaultHeaderCallback';
@@ -32,13 +27,11 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
 
     /**
      * @param string $template_path - Optional path to directory where templates should exists (see readme.txt about how to add your own template paths from the theme)
-     * @param string $filter_suffix
      */
-    function __construct($template_path = null, $filter_suffix='')
+    function __construct($template_path = null)
     {
         $list = new Arlima_List();
         $list->setOption('title', 'WP Arlima Loop');
-        $this->filter_suffix = $filter_suffix;
         parent::__construct($list, $template_path);
     }
 
@@ -56,22 +49,6 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
     public function getExcludePosts()
     {
         return $this->exclude_posts;
-    }
-
-    /**
-     * @param string $filter_suffix
-     */
-    public function setFilterSuffix($filter_suffix)
-    {
-        $this->filter_suffix = $filter_suffix;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFilterSuffix()
-    {
-        return $this->filter_suffix;
     }
 
     /**
@@ -100,7 +77,6 @@ class Arlima_WPLoop extends Arlima_ListTemplateRenderer
     {
         return have_posts();
     }
-
 
     /**
      * @param bool $output

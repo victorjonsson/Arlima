@@ -107,7 +107,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      * @param array $articles
      * @return string
      */
-    private function renderChildArticles(array $articles)
+    private function renderChildArticles($articles)
     {
         $child_articles = '';
         $count = 0;
@@ -151,7 +151,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
             list($post, $article, $is_empty) = $this->setup($article_data);
 
-            if ( is_object($post) && $post->post_status == 'future' ) {
+            if ( !empty($article['published']) && $article['published'] > time() ) {
                 if( ARLIMA_GROUP_CHILD_ARTICLES && $has_open_child_wrapper  && $first_or_last_class == ' last' ) {
                     $child_articles .= '</div>';
                     $has_open_child_wrapper = false;
@@ -160,6 +160,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             }
 
             $template_name = $this->getTemplateToUse($article);
+
             $child_articles .= $this->template_engine->renderArticle($template_name, -1, $article, $is_empty, $post, '', $first_or_last_class, $is_child_split);
 
             $count++;

@@ -107,8 +107,8 @@ class Arlima_ExportManager
         if( !$page_id ) {
             /* @var wpdb $wpdb */
             global $wpdb;
-            $page = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_type FROM $wpdb->posts WHERE post_name = %s ", $slug ) );
-            if ( !empty($page) && in_array($page[0]->post_type, array('page', 'post')) ) {
+            $page = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_type FROM $wpdb->posts WHERE post_name = %s AND post_type = 'page' ", $slug ) );
+            if ( !empty($page) ) {
                 $page_id = $page[0]->ID;
                 wp_cache_set('arlima_slug_2_page_'.$slug, $page_id, 'arlima', 60);
             }

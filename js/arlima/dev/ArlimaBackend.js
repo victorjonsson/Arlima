@@ -218,7 +218,7 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
                     var version = (http.getResponseHeader('X-Arlima-Version') || '').split('__')[0];
                     if( version ) {
                         if( _this.backendVersion && _this.backendVersion != version ) {
-                            _this.displayNewVersionMessage();
+                            _this.displayNewVersionMessage(version);
                             setInterval(function() {
                                 _this.displayNewVersionMessage(version);
                             }, 150000);

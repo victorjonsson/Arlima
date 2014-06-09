@@ -252,6 +252,7 @@ class Arlima_ExportManager
      */
     private function articleToRSSItem(array $article, $last_mod)
     {
+        if(isset($article['options']['sectionDivider'])) return;
         $img = '';
         if ( isset($article['image']) && !empty($article['image']['url']) ) {
 

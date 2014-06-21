@@ -16,7 +16,7 @@ defined('ARLIMA_COMPILE_LESS_IN_BROWSER')
     or define('ARLIMA_COMPILE_LESS_IN_BROWSER', ARLIMA_DEV_MODE);
 
 // Plugin version (only edit this via grunt!)
-define('ARLIMA_FILE_VERSION', '3.0.beta.34' .(ARLIMA_DEV_MODE ? '__'.time():''));
+define('ARLIMA_FILE_VERSION', '3.0.beta.35' .(ARLIMA_DEV_MODE ? '__'.time():''));
 
 // Which type of tag to use for images in Arlima RSS feeds
 defined('ARLIMA_RSS_IMG_TAG')

@@ -99,15 +99,24 @@ $available_lists = $factory->loadListSlugs();
 								<tbody>
 								<tr valign="top">
 									<th scope="row"><label for="title"><?php _e('Title', 'arlima') ?><span> *</span></th>
-									<td><input id="title" name="title" class="regular-text" value="<?php echo $list->getTitle(); ?>" /></td>
+									<td><input id="title" name="title"
+                                               data-validation="required"
+                                               data-validation-error-msg="<?php _e('This field can not be empty', 'arlima') ?>"
+                                               class="regular-text" value="<?php echo $list->getTitle(); ?>" /></td>
 								</tr>
 								<tr valign="top">
 									<th scope="row"><label for="slug"><?php _e('Slug', 'arlima') ?><span> *</span></th>
-									<td><input id="slug" name="slug" class="regular-text" value="<?php echo $list->getSlug(); ?>" /></td>
+									<td><input id="slug" name="slug"
+                                               data-validation="required"
+                                               data-validation-error-msg="<?php _e('This field can not be empty', 'arlima') ?>"
+                                               class="regular-text" value="<?php echo $list->getSlug(); ?>" /></td>
 								</tr>
 								<tr valign="top">
 									<th scope="row"><label for="maxlength"><?php _e('Maximum number of articles', 'arlima') ?><span> *</span> </label></th>
-									<td><input id="maxlength" name="maxlength" class="small-text" value="<?php echo $list->getMaxlength(); ?>" />
+									<td><input id="maxlength" name="maxlength"
+                                               data-validation="number"
+                                               data-validation-error-msg="<?php _e('This field can only contain numbers', 'arlima') ?>"
+                                               class="small-text" value="<?php echo $list->getMaxlength(); ?>" />
 									<span class="description"></span></td>
 								</tr>
 								<tr valign="top">

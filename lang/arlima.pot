@@ -649,3 +649,9 @@ msgstr "Vi har uppdaterat till version %s av Arlima."
 
 msgid "Please save your work and update the website in your browser."
 msgstr "Vänligen spara ditt arbete och uppdatera webbläsaren."
+
+msgid "This field can only contain numbers"
+msgstr "Du måste ange en siffra."
+
+msgid "This field can not be empty"
+msgstr "Det här fältet kan inte lämnas tomt."

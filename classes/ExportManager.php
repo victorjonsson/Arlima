@@ -281,7 +281,7 @@ class Arlima_ExportManager
 
         return '<item>
                     <title><![CDATA[' . str_replace('__', '', $article['title']) . ']]></title>
-                    <description><![CDATA[' . strip_tags($article['content']) . ']]></description>
+                    <description><![CDATA[' . strip_tags(strip_shortcodes($article['content'])) . ']]></description>
                     <link>' . $article['externalURL'] . '</link>
                     <guid isPermaLink="false">' . $guid . '</guid>
                     <pubDate>' . $date . '</pubDate>

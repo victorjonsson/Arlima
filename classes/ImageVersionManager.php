@@ -180,7 +180,7 @@ class Arlima_ImageVersionManager
             $meta[self::META_KEY_VERSIONS] = array();
 
         if( empty($meta[self::META_KEY_VERSION_CREATED]) )
-            $meta[self::META_KEY_VERSION_CREATED] = time();
+            $meta[self::META_KEY_VERSION_CREATED] = Arlima_Utils::timeStamp();
 
         $meta[self::META_KEY_VERSIONS][$max_width] = $version_file;
         wp_update_attachment_metadata($this->attach_id, $meta);

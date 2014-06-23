@@ -151,7 +151,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
             list($post, $article, $is_empty) = $this->setup($article_data);
 
-            if ( !empty($article['published']) && $article['published'] > time() ) {
+            if ( !empty($article['published']) && $article['published'] > Arlima_Utils::timeStamp() ) {
                 if( ARLIMA_GROUP_CHILD_ARTICLES && $has_open_child_wrapper  && $first_or_last_class == ' last' ) {
                     $child_articles .= '</div>';
                     $has_open_child_wrapper = false;

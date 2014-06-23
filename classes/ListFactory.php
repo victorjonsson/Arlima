@@ -59,7 +59,7 @@ class Arlima_ListFactory {
     {
         // Create list object
         $list = new Arlima_List(true);
-        $list->setCreated(time());
+        $list->setCreated(Arlima_Utils::timeStamp());
         $list->setMaxlength($max_length);
         $list->setSlug($slug);
         $list->setTitle($title);
@@ -301,8 +301,8 @@ class Arlima_ListFactory {
                     ala_content, ala_sort, ala_size, ala_options,
                     ala_image, ala_parent)
                     VALUES (%d, %d, %d, %d, %s, %s, %d, %d, %s, %s, %d)",
-            empty($article['created']) ? time():(int)$article['created'],
-            empty($article['published']) ? time():(int)$article['published'],
+            empty($article['created']) ? Arlima_Utils::timeStamp():(int)$article['created'],
+            empty($article['published']) ? Arlima_Utils::timeStamp():(int)$article['published'],
             $version_id,
             isset($article['post']) ? (int)$article['post']:0,
             $article['title'],
@@ -660,7 +660,7 @@ class Arlima_ListFactory {
         if( !$include_future_posts ) {
 
             foreach( $articles as $i => $article ) {
-                if( $article['published'] && ( $article['published'] > time() ) ) {
+                if( $article['published'] && ( $article['published'] > Arlima_Utils::timeStamp() ) ) {
                     unset( $articles[$i] );
                 }
             }
@@ -1186,7 +1186,7 @@ class Arlima_ListFactory {
             'title' => $post->post_title,
             'content' => $text,
             'size' => 24,
-            'created' => time(),
+            'created' => Arlima_Utils::timeStamp(),
             'published' => Arlima_Utils::getPostTimeStamp($post)
         ), $override);
 

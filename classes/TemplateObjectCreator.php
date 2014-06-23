@@ -69,7 +69,7 @@ class Arlima_TemplateObjectCreator
     }
 
     /**
-     * @return Arlima_List
+     * @return Arlima_List 
      */
     public function getList()
     {
@@ -197,7 +197,7 @@ class Arlima_TemplateObjectCreator
         $obj['article_end'] = $this->applyFilter('arlima_article_end', $article_counter, $article, $post);
 
         return apply_filters('arlima_template_object'. (self::$filter_suffix ? '-'.self::$filter_suffix:''),
-            $obj, $article, $this->list, $template_name);
+                        $obj, $article, $this->list, $template_name);
     }
 
     /**
@@ -437,11 +437,11 @@ class Arlima_TemplateObjectCreator
             }
 
             $data['html_streamer'] = sprintf(
-                '<div class="streamer %s"%s>%s</div>',
-                $streamer_classes,
-                $style_attr,
-                $content
-            );
+                    '<div class="streamer %s"%s>%s</div>',
+                    $streamer_classes,
+                    $style_attr,
+                    $content
+                );
         }
     }
 

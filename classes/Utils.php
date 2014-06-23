@@ -139,4 +139,13 @@ class Arlima_Utils
      * @var bool
      */
     private static $has_loaded_textdomain = false;
+
+    /**
+     * Get unix timestamp
+     * @return int
+     */
+    public static function timeStamp()
+    {
+        return time() + ARLIMA_TIME_ADJUST;
+    }
 }

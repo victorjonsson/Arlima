@@ -54,7 +54,7 @@ class Arlima_Article implements ArrayAccess {
      */
     function isPublished()
     {
-        return $this->data['published'] >= time();
+        return $this->data['published'] >= Arlima_Utils::timeStamp();
     }
 
     /**

@@ -141,7 +141,7 @@ abstract class Arlima_AbstractListRenderingManager
         list($post, $article_data, $is_empty) = $this->setup($article_data);
 
         // Future article
-        if ( !empty($article_data['published']) && $article_data['published'] > time() ) {
+        if ( !empty($article_data['published']) && $article_data['published'] > Arlima_Utils::timeStamp() ) {
             return array($index, $this->getFutureArticleContent($article_data, $index, $post));
         }
 
@@ -169,7 +169,7 @@ abstract class Arlima_AbstractListRenderingManager
             $filtered['content'] = '<div class="arlima future-post"><p>
                         Hey dude, <a href="' . $url . '" target="_blank">&quot;'.$article_data['title'].'&quot;</a> is
                         connected to a post that isn\'t published yet. The article will become public in '.
-                human_time_diff(time(), $article_data['published']).'.</p>
+                human_time_diff(Arlima_Utils::timeStamp(), $article_data['published']).'.</p>
                     </div>';
         }
 
@@ -316,7 +316,7 @@ abstract class Arlima_AbstractListRenderingManager
             // Check day
             if ( trim($interval_part[0]) != '*' ) {
 
-                $current_day = strtolower(date('D', time()));
+                $current_day = strtolower(date('D', Arlima_Utils::timeStamp()));
                 $days = array();
                 foreach (explode(',', $interval_part[0]) as $day) {
                     $days[] = strtolower(substr(trim($day), 0, 3));
@@ -331,7 +331,7 @@ abstract class Arlima_AbstractListRenderingManager
             // Check hour
             if ( trim($interval_part[1]) != '*' ) {
 
-                $current_hour = (int)date('H', time());
+                $current_hour = (int)date('H', Arlima_Utils::timeStamp());
                 $from_to = explode('-', $interval_part[1]);
                 if ( count($from_to) == 2 ) {
                     $from = (int)trim($from_to[0]);

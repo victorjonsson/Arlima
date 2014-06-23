@@ -69,7 +69,7 @@ class Arlima_TemplateObjectCreator
     }
 
     /**
-     * @return Arlima_List 
+     * @return Arlima_List
      */
     public function getList()
     {
@@ -180,7 +180,7 @@ class Arlima_TemplateObjectCreator
 
             $this->generateImageData($article, $article_counter, $obj, $img_opt_size, $post);
 
-            $obj['html_content'] = $this->applyFilter('arlima_article_content', $article_counter, $article, $post);
+            $obj['html_content'] = $this->applyFilter('arlima_article_content', $article_counter, $article, $post, $article['content']);
 
             $this->generateStreamerData($has_streamer, $obj, $article);
 
@@ -197,7 +197,7 @@ class Arlima_TemplateObjectCreator
         $obj['article_end'] = $this->applyFilter('arlima_article_end', $article_counter, $article, $post);
 
         return apply_filters('arlima_template_object'. (self::$filter_suffix ? '-'.self::$filter_suffix:''),
-                        $obj, $article, $this->list, $template_name);
+            $obj, $article, $this->list, $template_name);
     }
 
     /**
@@ -437,11 +437,11 @@ class Arlima_TemplateObjectCreator
             }
 
             $data['html_streamer'] = sprintf(
-                    '<div class="streamer %s"%s>%s</div>',
-                    $streamer_classes,
-                    $style_attr,
-                    $content
-                );
+                '<div class="streamer %s"%s>%s</div>',
+                $streamer_classes,
+                $style_attr,
+                $content
+            );
         }
     }
 
@@ -502,9 +502,9 @@ class Arlima_TemplateObjectCreator
      * @param $post
      * @return string
      */
-    private function applyFilter($tag, $article_counter, $article, $post)
+    private function applyFilter($tag, $article_counter, $article, $post, $content='')
     {
-        $filtered = self::filter($tag, $article_counter, $article, $post, $this->list);
+        $filtered = self::filter($tag, $article_counter, $article, $post, $this->list, false, false, false, false, false, $content);
         return $filtered['content'];
     }
 
@@ -523,13 +523,13 @@ class Arlima_TemplateObjectCreator
      */
     private static function filter($filter, $article_counter, &$article,
                                    $post, $list, $img_size=false, $source_url = false,
-                                   $resized_url=false, $width=false, $dim=false)
+                                   $resized_url=false, $width=false, $dim=false, $content='')
     {
         $data = array(
             'article' => $article,
             'count' => $article_counter,
             'post' => $post,
-            'content' => '',
+            'content' => $content,
             'list' => $list,
             'filter_suffix' => self::$filter_suffix
         );

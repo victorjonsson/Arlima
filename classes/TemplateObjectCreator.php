@@ -209,7 +209,7 @@ class Arlima_TemplateObjectCreator
      */
     protected function generateImageData($article, $article_counter, &$data, $img_opt_size, $post)
     {
-        $img = self::applyImageFilters($article, $article_counter, $post, $this->list, $this->is_child_split);
+        $img = self::createImage($article, $article_counter, $post, $this->list, $this->is_child_split);
         $has_img_url = !empty($article['image']['url']);
 
         if ( $img || $has_img_url ) {
@@ -233,6 +233,18 @@ class Arlima_TemplateObjectCreator
     }
 
     /**
+     * Deprecated since 3.0.beta.37
+     * @deprecated
+     * @see createImage()
+     * @return string
+     */
+    public static function applyImageFilters($article, $article_counter, $post, $list, $is_child_split=false)
+    {
+        return self::createImage($article, $article_counter, $post, $list, $is_child_split);
+    }
+
+
+    /**
      * @param $article
      * @param $article_counter
      * @param $post
@@ -240,7 +252,24 @@ class Arlima_TemplateObjectCreator
      * @param bool $is_child_split
      * @return string
      */
-    public static function applyImageFilters($article, $article_counter, $post, $list, $is_child_split=false)
+    public static function createImage($article, $article_counter, $post, $list, $is_child_split=false)
+    {
+        $html = self::generateImageHTML($article, $article_counter, $post, $list, $is_child_split);
+        if( !empty($html) ) {
+            $html = apply_filters('arlima_article_image_tag', $html);
+        }
+        return $html;
+    }
+
+    /**
+     * @param $article
+     * @param $article_counter
+     * @param $post
+     * @param $list
+     * @param bool $is_child_split
+     * @return string
+     */
+    private static function generateImageHTML($article, $article_counter, $post, $list, $is_child_split=false)
     {
         $filtered = array('content'=>'');
         $img_alt = '';
@@ -353,6 +382,8 @@ class Arlima_TemplateObjectCreator
 
         return Arlima_Utils::linkWrap($article, $filtered['content']);
     }
+
+
 
     /**
      * @param $article

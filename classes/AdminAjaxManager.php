@@ -395,15 +395,18 @@ class Arlima_AdminAjaxManager
 
             $post = get_post($post_id);
             setup_postdata($post);
-            $GLOBALS['post'] = $post; // Soemhting is removing post from global, even though we call setup_postdata
+            $GLOBALS['post'] = $post; // Something is removing post from global, even though we call setup_postdata
 
             $list = $this->loadListFactory()->loadList($list_id, false, true);
             $articles = $list->getArticles();
-            array_unshift($articles, $this->postToArlimaArticle($post));
 
+            array_unshift($articles, $this->postToArlimaArticle($post));
             $this->saveAndOutputList($list, $articles);
+            die;
+
+        } else {
+            die(json_encode(array()));
         }
-        die(json_encode(array()));
     }
 
     /**
@@ -448,7 +451,7 @@ class Arlima_AdminAjaxManager
         $list_factory->saveNewListVersion($list, $articles, get_current_user_id(), $preview);
 
         // Reload list to get latest version
-        $list = $list_factory->loadList($list_id, false, true);
+        $list = $list_factory->loadList($list->getId(), false, true);
 
         $this->outputListData($list);
     }

@@ -21,11 +21,16 @@ jQuery(document).ready(function($) {
             _ajax_nonce : ArlimaJSAdmin.arlimaNonce
         };
 
-        $.post( ajaxurl, data, function(json) {
-            $('.ajax-loader', $metabox).hide();
-            $('.inside', $metabox).append('<p>'+ArlimaJSAdmin.lang.wasSentTo+' &quot;'+ list + '&quot;</p>');
-        }, 'json');
-
+        $.ajax({
+            url : ajaxurl,
+            type : 'POST',
+            data : data,
+            dataType : 'json',
+            success : function(json) {
+                $('.ajax-loader', $metabox).hide();
+                $('.inside', $metabox).append('<p>'+ArlimaJSAdmin.lang.wasSentTo+' &quot;'+ list + '&quot;</p>');
+            }
+        });
     });
 
     //

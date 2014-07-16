@@ -224,6 +224,10 @@ class Arlima_TemplateObjectCreator
                 }
             }
 
+            if( $img ) {
+                $img = apply_filters('arlima_article_image_tag', $img, $img_opt_size, $article);
+            }
+
             $data['html_image'] = $img;
             $data['class'] .= $img_opt_size ? ' img-' . $img_opt_size : ' has-img';
 
@@ -243,7 +247,6 @@ class Arlima_TemplateObjectCreator
         return self::createImage($article, $article_counter, $post, $list, $is_child_split);
     }
 
-
     /**
      * @param $article
      * @param $article_counter
@@ -252,24 +255,7 @@ class Arlima_TemplateObjectCreator
      * @param bool $is_child_split
      * @return string
      */
-    public static function createImage($article, $article_counter, $post, $list, $is_child_split=false)
-    {
-        $html = self::generateImageHTML($article, $article_counter, $post, $list, $is_child_split);
-        if( !empty($html) ) {
-            $html = apply_filters('arlima_article_image_tag', $html);
-        }
-        return $html;
-    }
-
-    /**
-     * @param $article
-     * @param $article_counter
-     * @param $post
-     * @param $list
-     * @param bool $is_child_split
-     * @return string
-     */
-    private static function generateImageHTML($article, $article_counter, $post, $list, $is_child_split=false)
+    private static function createImage($article, $article_counter, $post, $list, $is_child_split=false)
     {
         $filtered = array('content'=>'');
         $img_alt = '';
@@ -380,7 +366,7 @@ class Arlima_TemplateObjectCreator
             );
         }
 
-        return Arlima_Utils::linkWrap($article, $filtered['content']);
+        return empty($filtered['content']) ? '':Arlima_Utils::linkWrap($article, $filtered['content']);
     }
 
 

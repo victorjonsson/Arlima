@@ -114,7 +114,8 @@ module.exports = function(grunt) {
         if( !newVersion ) {
             var versionParts = currentVersion.split('.');
             var newSubVersion = parseInt(versionParts.splice(versionParts.length-1, 1)[0]) + 1;
-            newVersion = versionParts.join('.') + '.' + newSubVersion.toString();
+            newSubVersion = newSubVersion < 10 && newSubVersion > 0 ? '0'+newSubVersion : newSubVersion.toString();
+            newVersion = versionParts.join('.') + '.' + newSubVersion;
         }
 
         config.releaseVersion = newVersion;

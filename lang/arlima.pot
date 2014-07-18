@@ -166,7 +166,7 @@ msgstr "Sidor som ska övervakas för tömning cache-minnet"
 msgid ""
 "Comma separated list of URL's where this list will be displayed (for caching "
 "control only)"
-msgstr "Kommaseparerad list med URL:er (avancerat)"
+msgstr "Kommaseparerad lista med URL:er (avancerat)"
 
 #: pages/edit.php:110
 msgid "Title HTML-tags"

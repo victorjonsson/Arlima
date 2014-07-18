@@ -599,11 +599,12 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                             // Add new data to article
                             //_self.article.setData( _self.serialize() );
                             if(prop.indexOf(':') > 0) {
-                                var props = prop.split(':');
-                                if( !(props[0] in _this.article.data) ) {
-                                    _this.article.data[props[0]] = {};
+                                var propParts = prop.split(':');
+                                if( !_this.article.data[propParts[0]] || $.isArray(_this.article.data[propParts[0]]) ) {
+                                    // May have become an empty array when json encoded on backend
+                                    _this.article.data[propParts[0]] = {};
                                 }
-                                _this.article.data[props[0]][props[1]] = $input.val();
+                                _this.article.data[propParts[0]][propParts[1]] = $input.val();
                             } else {
                                 _this.article.data[prop] = $input.val();
                             }

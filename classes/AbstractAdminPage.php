@@ -229,7 +229,8 @@ abstract class Arlima_AbstractAdminPage {
                     'preview' => __('Preview list', 'arlima'),
                     'future' => __('Future post', 'arlima'),
                     'insertImage' => __('Add to article', 'arlima'),
-                    'noPostsFound' => __('No posts found', 'arlima')
+                    'noPostsFound' => __('No posts found', 'arlima'),
+                    'onlyImages' => __('You can only add images to articles', 'arlima')
                 )
             )
         );

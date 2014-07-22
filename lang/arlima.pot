@@ -655,3 +655,6 @@ msgstr "Du måste ange en siffra."
 
 msgid "This field can not be empty"
 msgstr "Det här fältet kan inte lämnas tomt."
+
+msgid "You can only add images to articles"
+msgstr "Du kan endast koppla en bild till artikeln"

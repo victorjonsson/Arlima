@@ -96,12 +96,17 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                     var attachment = window.wpMediaModal.state().get('selection').first().toJSON(),
                         connected = postID ? true:false;
 
-                    if( postID && !attachment.uploadedTo ) {
-                        // Not connected via upload
-                        ArlimaBackend.connectAttachmentToPost(attachment, attachment.id);
-                    }
+                    if( !window.ArlimaUtils.isImagePath(attachment.url) ) {
+                        alert(window.ArlimaJS.lang.onlyImages);
+                    } else {
 
-                    _this.setNewImage(attachment.url, attachment.id, connected);
+                        if( postID && !attachment.uploadedTo ) {
+                            // Not connected via upload
+                            ArlimaBackend.connectAttachmentToPost(attachment, attachment.id);
+                        }
+
+                        _this.setNewImage(attachment.url, attachment.id, connected);
+                    }
                 });
 
                 // Finally, open the modal

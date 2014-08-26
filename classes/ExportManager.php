@@ -190,10 +190,10 @@ class Arlima_ExportManager
 
             $list_last_mod_time = $list->lastModified();
             foreach ($articles as $article) {
-                $rss .= $this->articleToRSSItem($article, $list_last_mod_time);
+                $rss .= $this->articleToRSSItem($article, $list_last_mod_time, $list);
                 if ( !empty($article['children']) ) {
                     foreach ($article['children'] as $child_article) {
-                        $rss .= $this->articleToRSSItem($child_article, $list_last_mod_time);
+                        $rss .= $this->articleToRSSItem($child_article, $list_last_mod_time, $list);
                     }
                 }
             }
@@ -248,9 +248,10 @@ class Arlima_ExportManager
     /**
      * @param array $article
      * @param int $last_mod
+     * @param Arlima_List $list
      * @return string
      */
-    private function articleToRSSItem(array $article, $last_mod)
+    private function articleToRSSItem(array $article, $last_mod, $list)
     {
         if( !empty($article['options']['sectionDivider']) || !empty($article['options']['fileInclude']) )
             return '';
@@ -284,7 +285,7 @@ class Arlima_ExportManager
         return '<item>
                     <title><![CDATA[' . str_replace('__', '', $article['title']) . ']]></title>
                     <description><![CDATA[' . strip_tags(strip_shortcodes($article['content'])) . ']]></description>
-                    <link>' . $article['externalURL'] . '</link>
+                    <link>' . apply_filters('arlima_rss_link', $article['externalURL'], $list) . '</link>
                     <guid isPermaLink="false">' . $guid . '</guid>
                     <pubDate>' . $date . '</pubDate>
                     ' . $img . '

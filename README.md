@@ -74,5 +74,4 @@ the list that you created on step 2.
 - http://lifesciencesweden.se/
 - http://malarnasfacktidning.se/
 - http://tidningenelektrikern.se/
-- http://www.utryckning.se/
-- http://www.victorjonsson.se/
+- http://orebrotribune.se/

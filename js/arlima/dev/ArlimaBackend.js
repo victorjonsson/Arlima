@@ -53,7 +53,7 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
          * @param {Function} [callback]
          */
         connectAttachmentToPost : function(postId, attachId, callback) {
-            this._ajax('arlima_connect_attach_to_post', {attachment:attachId, post_id:postId}, callback);
+            this._ajax('arlima_connect_attach_to_post', {attachment:attachId, post:postId}, callback);
         },
 
         /**

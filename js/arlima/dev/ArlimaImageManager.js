@@ -102,7 +102,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
 
                         if( postID && !attachment.uploadedTo ) {
                             // Not connected via upload
-                            ArlimaBackend.connectAttachmentToPost(attachment, attachment.id);
+                            ArlimaBackend.connectAttachmentToPost(postID, attachment.id);
                         }
 
                         _this.setNewImage(attachment.url, attachment.id, connected);

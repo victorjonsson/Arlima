@@ -242,11 +242,6 @@ function arlimaNestedSortable(list) {
                     listContainerElem = ui.item.closest('.article-list').get(0),
                     itemIndex = ui.item.prevAll().length;
 
-                if ( ui.item[0].arlimaArticle.isDivider() && _nextIsChild(ui) ) {
-                    $(this).sortable('cancel');
-                    return false;
-                }
-                
                 if( ui.item.hasClass('ui-draggable') ) {
                     // this item is taken care of in the recieve event
                     return;
@@ -254,6 +249,11 @@ function arlimaNestedSortable(list) {
                     // we have moved an article inside an imported list (todo: prevent sorting inside the imported list )
                     e.preventDefault();
                     $clone.remove();
+                    return false;
+                }
+
+                if ( ui.item[0].arlimaArticle.isDivider() && _nextIsChild(ui) ) {
+                    $(this).sortable('cancel');
                     return false;
                 }
 
@@ -346,7 +346,7 @@ function arlimaNestedSortable(list) {
                 
                 // Check if divider is inside a group, if so add
                 // red background to helper object
-                if ( ui.item[0].arlimaArticle.isDivider() ) {
+                if ( ui.item[0].arlimaArticle && ui.item[0].arlimaArticle.isDivider() ) {
                     ui.placeholder.css('background-color', _nextIsChild(ui) ? 'red' : '');
                 }
 

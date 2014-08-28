@@ -430,18 +430,22 @@ class Arlima_TemplateObjectCreator
         $data['class'] .= ($has_streamer ? '' : ' no-streamer');
         if ( $has_streamer ) {
 
+            $content = '';
             $style_attr = '';
             $streamer_classes = $data['options']['streamerType'];
+            $streamer_content = isset($data['options']['streamerContent']) ?
+                    $data['options']['streamerContent'] : '';
 
             switch ($data['options']['streamerType']) {
                 case 'extra' :
                     $content = 'EXTRA';
                     break;
                 case 'image' :
-                    $content = '<img src="' . $data['options']['streamerContent'] . '" alt="Streamer" />';
+                    if ($streamer_content)
+                        $content = '<img src="' . $streamer_content . '" alt="Streamer" />';
                     break;
                 case 'text':
-                    $content = $data['options']['streamerContent'];
+                    $content = $streamer_content;
                     if( isset($data['options']['streamerColor']) ) {
                         $style_attr = ' style="background: #'.$data['options']['streamerColor'].'"';
                         $streamer_classes .= ' color-'.$data['options']['streamerColor'];
@@ -449,11 +453,12 @@ class Arlima_TemplateObjectCreator
                     break;
                 default :
                     // Custom streamer
-                    $content = $data['options']['streamerContent'];
+                    $content = $streamer_content;
                     break;
             }
 
-            $data['html_streamer'] = sprintf(
+            if ($content)
+                $data['html_streamer'] = sprintf(
                     '<div class="streamer %s"%s>%s</div>',
                     $streamer_classes,
                     $style_attr,

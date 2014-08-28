@@ -39,6 +39,10 @@ function arlimaNestedSortable(list) {
         else
             maxDepth = 0;
     },
+    _nextIsChild = function(ui) {
+        if (!next.length) _updateSharedVars(ui);
+        return next.length && next[0].arlimaArticle.isChild();
+    },
     _itemDepth = function($item) {
         var margin = $item.eq(0).css('margin-left');
         return _pxToDepth( margin && -1 != margin.indexOf('px') ? margin.slice(0, -2) : 0 );
@@ -238,6 +242,11 @@ function arlimaNestedSortable(list) {
                     listContainerElem = ui.item.closest('.article-list').get(0),
                     itemIndex = ui.item.prevAll().length;
 
+                if ( ui.item[0].arlimaArticle.isDivider() && _nextIsChild(ui) ) {
+                    $(this).sortable('cancel');
+                    return false;
+                }
+                
                 if( ui.item.hasClass('ui-draggable') ) {
                     // this item is taken care of in the recieve event
                     return;
@@ -334,6 +343,12 @@ function arlimaNestedSortable(list) {
                     (prev.length) ? prev.after( ui.placeholder ) : $articles.prepend( ui.placeholder );
 
                 _updateSharedVars(ui);
+                
+                // Check if divider is inside a group, if so add
+                // red background to helper object
+                if ( ui.item[0].arlimaArticle.isDivider() ) {
+                    ui.placeholder.css('background-color', _nextIsChild(ui) ? 'red' : '');
+                }
 
                 if( (prev.length && !prev[0].arlimaArticle.isChild() && !prev[0].arlimaArticle.canHaveChildren()) || !canBeChild ) {
                     depth = 0; // We cant go deeper if parent article for some reason don't accept children

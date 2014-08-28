@@ -317,8 +317,15 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
     /**
      * @return {Boolean}
      */
+    ArlimaArticle.prototype.isDivider = function() {
+        return this.opt('sectionDivider');
+    }
+
+    /**
+     * @return {Boolean}
+     */
     ArlimaArticle.prototype.canBeChild = function() {
-        return !this.opt('sectionDivider');
+        return !this.isDivider();
     };
 
 

@@ -1,6 +1,7 @@
 var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, ArlimaArticleSettingsMenu, ArlimaJS) {
 
-    var _this = {
+    var $document = $(document),
+        _this = {
 
         article : false,
 
@@ -638,6 +639,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                                 _this.article.updateItemPresentation(false);
                             }
                         }
+                        $document.trigger("Arlima.articleChanged", _this.article);
                     })
                     .bind('keyup', function() {
                         var $input = $(this),

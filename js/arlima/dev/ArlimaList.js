@@ -30,6 +30,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             '</div>'+
         '</div>';
 
+    var $document = $(document);
 
     /**
      * @param {Object} data
@@ -40,6 +41,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         this._isUnsaved = false;
         var _self = this,
             $articles = this.$elem.find('.articles');
+
 
         this.$elem
             .resizable({
@@ -159,6 +161,9 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
     ArlimaList.prototype.addArticle = function(article, toggleUnsavedState) {
         this.$elem.find('.articles').append(article.$elem);
         article.listID = this.data.id;
+
+        $document.trigger("Arlima.articleAdded", article);
+
         if( toggleUnsavedState )
             this.toggleUnsavedState(true);
     };

@@ -62,7 +62,14 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
          * @param {Function} [callback]
          */
         saveList : function(listId, articles, callback) {
-            this._ajax("arlima_save_list", {alid:listId, articles:articles}, callback);
+            this._ajax(
+                "arlima_save_list",
+                'alid='+listId+'&articles='+encodeURIComponent(JSON.stringify(articles)),
+                callback,
+                'json',
+                true,
+                false
+            );
         },
 
         /**
@@ -71,7 +78,14 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
          * @param {Function} [callback]
          */
         savePreview : function(listId, articles, callback) {
-            this._ajax("arlima_save_list", {alid:listId, articles:articles, preview:1}, callback);
+            this._ajax(
+                "arlima_save_list",
+                'alid='+listId+'&preview=1&articles='+encodeURIComponent(JSON.stringify(articles)),
+                callback,
+                'json',
+                true,
+                false
+            );
         },
 
         /**
@@ -195,16 +209,24 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
          * @param {Function} callback - Optional
          * @param {String} [dataType]
          * @param {Boolean} [addBodyAjaxPreloader]
+         * @param {Boolean} [processData]
          * @private
          */
-        _ajax : function(action, postArgs, callback, dataType, addBodyAjaxPreloader) {
+        _ajax : function(action, postArgs, callback, dataType, addBodyAjaxPreloader, processData) {
             var _this = this;
-            postArgs['action'] = action;
-            postArgs['_ajax_nonce'] = ArlimaJS.arlimaNonce;
+            if( typeof postArgs == 'string' ) {
+                postArgs += '&action='+action+'&_ajax_nonce='+ArlimaJS.arlimaNonce;
+            } else {
+                postArgs['action'] = action;
+                postArgs['_ajax_nonce'] = ArlimaJS.arlimaNonce;
+            }
+
             if(addBodyAjaxPreloader === undefined)
                 addBodyAjaxPreloader = true;
             if(dataType === undefined)
                 dataType = 'json';
+
+            processData = processData === undefined ? true:processData;
 
             if( $body && addBodyAjaxPreloader )
                 $body.addClass('wait-loading');
@@ -213,6 +235,7 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
                 url : ArlimaJS.ajaxURL,
                 type : 'POST',
                 data : postArgs,
+                processData : processData,
                 dataType : dataType,
                 success : function(json, status, http) {
                     var version = (http.getResponseHeader('X-Arlima-Version') || '').split('__')[0];

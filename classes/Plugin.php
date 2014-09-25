@@ -860,28 +860,6 @@ class Arlima_Plugin
         }
     }
 
-
-    /**
-     * @static
-     * @param string $func
-     * @param float $since
-     * @param string|bool $replacement - optional
-     */
-    public static function warnAboutUseOfDeprecatedFunction($func, $since, $replacement = false)
-    {
-        if ( WP_DEBUG ) {
-            trigger_error(
-                sprintf(
-                    'Use of deprecated arlima function %s, deprecated since vesion %f %s',
-                    $func,
-                    (string)$since,
-                    $replacement ? ' use ' . $replacement . ' instead' : ''
-                ),
-                E_USER_WARNING
-            );
-        }
-    }
-
     /**
      * Will output a set of option elements containing streamer background colors.
      * @static

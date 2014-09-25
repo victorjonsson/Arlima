@@ -426,7 +426,16 @@ class Arlima_AdminAjaxManager
         $list_id = isset($_POST['alid']) ? intval($_POST['alid']) : false;
 
         if ( $list_id ) {
-            $articles = !empty($_POST['articles']) ? $_POST['articles'] : array();
+            if( empty($_POST['articles']) ) {
+                $articles = array();
+            } elseif( is_array($_POST['articles']) ) {
+                $articles = $_POST['articles'];
+            } else {
+                $articles = json_decode(stripslashes($_POST['articles']), true);
+                if( !$articles ) {
+                    throw new Exception('Json error: '.json_last_error());
+                }
+            }
             $this->saveAndOutputList($list_id, $articles, isset($_POST['preview']));
         }
 

@@ -1,5 +1,7 @@
 var ArlimaScissors = (function($, window, ArlimaArticleForm, ArlimaBackend, ArlimaImageManager) {
 
+    var scissorMonkeyPatches = {};
+
     var _this = {
 
         init : function($btn) {
@@ -84,12 +86,60 @@ var ArlimaScissors = (function($, window, ArlimaArticleForm, ArlimaBackend, Arli
 
         },
 
+        /* Monkey-patch scissor crop functions to be able to
+        disable fancybox overlay click (which is triggered on
+        mouseup while cropping and going outside of fancybox)
+        */
+        monkeyPatchScissors : function() {
+            var m = scissorMonkeyPatches;
+            if (!m.showCrop) {
+                m.crop = window.scissorsCrop;
+                m.showCrop = window.scissorsShowCrop;
+                m.abortCrop = window.scissorsAbortCrop;
+
+                var resetMonkeyPatches = function() {
+                    window.scissorsCrop = m.crop;
+                    window.scissorsShowCrop = m.showCrop;
+                    window.scissorsAbortCrop = m.abortCrop;
+
+                    jQuery.fancybox.helpers.overlay.open();
+                    m = scissorMonkeyPatches = {};
+                }
+
+                window.scissorsShowCrop = function(id, imgSrc) {
+                    var ret = m.showCrop(id, imgSrc);
+                    var overlay = jQuery.fancybox.helpers.overlay;
+                    overlay.overlay.unbind('click');
+                    return ret;
+                }
+
+                window.scissorsCrop = function(id, nonce) {
+                    var ret = m.crop(id, nonce);
+                    resetMonkeyPatches();
+                    return ret;
+                }
+
+                window.scissorsAbortCrop = function(id) {
+                    var ret = m.abortCrop(id);
+                    resetMonkeyPatches();
+                    return ret;
+                }
+            }
+        },
+
         modifyScissorsEditor : function($elem) {
 
             var attach = ArlimaArticleForm.article.data.image.attachment;
             $.each(ArlimaJSAdmin.scissorsCropTemplates, function(key, val) {
                 _createRatioButton(key, val[0], val[1], attach);
             });
+
+
+            try {
+                _this.monkeyPatchScissors();
+            } catch (e) {
+                ArlimaUtils.log('Error when monkey-patching scissors: ' + e.toString(), 'error');
+            }
 
             // Modify settings in crop form
             $elem.find('input[type="checkbox"]').each(function() {

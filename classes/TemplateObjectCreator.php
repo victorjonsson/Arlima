@@ -225,7 +225,7 @@ class Arlima_TemplateObjectCreator
             }
 
             if( $img ) {
-                $img = apply_filters('arlima_article_image_tag', $img, $img_opt_size, $article);
+                $img = apply_filters('arlima_article_image_tag', $img, $img_opt_size, $article, $this->list);
             }
 
             $data['html_image'] = $img;

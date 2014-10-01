@@ -300,6 +300,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                 $features.filter('[data-feature="editor"]').hide();
                 $features.filter('[data-feature="connection"]').hide(); // connection is always supported, except for section dividers
                 blocker.toggleStreamerBlocker(false);
+                blocker.toggleImageAlignBlocker(false);
                 blocker.toggleTitleBlocker(true);
                 if( this.article.data.options.fileInclude ) {
                     blocker.toggleStreamerBlocker(true);

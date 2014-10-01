@@ -72,6 +72,7 @@ var ArlimaFormBlocker = (function($, window, ArlimaArticleForm) {
             this.toggleStreamerBlocker(false);
             this.toggleTitleBlocker(false);
             this.toggleFormBlocker(false);
+            this.toggleImageAlignBlocker(false);
             ArlimaArticleForm.$form.find('input.pre-title').removeAttr('disabled');
         },
 

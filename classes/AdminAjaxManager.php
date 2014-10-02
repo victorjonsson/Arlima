@@ -780,7 +780,7 @@ class Arlima_AdminAjaxManager
             'options' => $list->getOptions(),
             'title' => $list->getTitle(),
             'previewURL' => $preview_url,
-            'previewWidth' => (int)$preview_width,
+            'previewWidth' => $preview_width,
             'id' => $list->getId()
         ));
     }

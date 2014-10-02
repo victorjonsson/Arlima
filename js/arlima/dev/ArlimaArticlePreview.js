@@ -46,6 +46,18 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
         lastHeightChange : null,
 
         /**
+         * Int or array, contains width of preview iframe(s)
+         * @var {mixed}
+         */
+        width : null,
+
+        /**
+         * Number of preview iframes to display - width elements count
+         * @var {Number}
+         */
+        iframesCount : null,
+
+        /**
          * @param {ArlimaArticle} article
          * @param {String} templateContent - The html of the mustache template
          * @param {Number} width
@@ -54,7 +66,26 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
          */
         setArticle : function(article, templateContent, width, titleElem, belongsToImportedList) {
             ArlimaUtils.log('Adding article to preview for '+article.data.id);
+            var elemWidth,
+                leftMargin;
+
             this.article = article;
+            this.width = width;
+            if (this.width instanceof Array) {
+                this.iframesCount = this.width.length;
+                elemWidth = width[0]+20;  // 20 px for scrollbar
+                leftMargin = Math.max.apply(Math, width)+20; // 20 px for scrollbar
+                $('#arlima-preview-iframe').css('width',width[0]+'px'); // first iframe width
+                this.$elem.css({
+                   maxHeight: '800px',
+                   overflow: 'scroll'
+                });
+            } else {
+                this.iframesCount = 1;
+                elemWidth = width;
+                leftMargin = elemWidth;
+            }
+
             if( !article.canPreview() || belongsToImportedList ) {
                 if( this.isVisible() ) {
                     this.hide();
@@ -62,9 +93,10 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
             } else {
                 this.titleElem = titleElem || 'h2';
                 this.setTemplate(templateContent);
+
                 this.$elem.css({
-                    width : width+'px',
-                    marginLeft : '-'+(width+20)+'px' // adjust 20px for padding
+                    width : elemWidth+'px',
+                    marginLeft : '-'+(leftMargin+20)+'px' // adjust 20px for padding
                 });
             }
         },
@@ -88,7 +120,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
          */
         reload : function() {
             var template = window.ArlimaTemplateLoader.templates[this.article.getTemplate()];
-            this.setArticle(this.article, template, this.$elem.width(), this.titleElem);
+            this.setArticle(this.article, template, this.width, this.titleElem);
         },
 
         /**
@@ -254,13 +286,14 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
      * iframe to the same height
      */
     _updateIframeHeight = function() {
-        var elementHeight = _this.$iframeBody.children().eq(0).outerHeight();
-        if( !elementHeight )
-            elementHeight = 400;
+        var el;
 
-        if( _this.lastHeightChange != elementHeight ) {
-            _this.lastHeightChange = elementHeight;
-            _this.$elem.find('iframe').css('height', elementHeight+'px');
+        for (el in _this.$iframeBody) {
+            var elementHeight = _this.$iframeBody.eq(el).children().eq(0).outerHeight(true);
+            if( !elementHeight )
+                elementHeight = 400;
+
+            _this.$elem.find('iframe').eq(el).css('height', elementHeight+'px');
         }
     },
 
@@ -271,7 +304,9 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
 
         ArlimaUtils.log('Rendering preview');
 
-        var $content;
+        var $content,
+            iframes = [],
+            i;
 
         _this.isRendered = true;
         _this.$iframeBody.html('');
@@ -287,6 +322,51 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
 
             $content.find('img').bind('load', _updateIframeHeight);
             $content.appendTo(_this.$iframeBody);
+
+            //create as many iframes as needed
+            if (_this.iframesCount > 1 && _this.$iframe.length < _this.width.length) {
+                //add first iframe (created on init) to iframes collection
+                iframes.push(_this.$iframeBody[0]);
+
+                for (i=_this.$iframe.length; i<_this.width.length;i++) {
+                    _this.$elem.append('<iframe name="arlima-preview-iframe" id="arlima-preview-iframe-'+i+'" style="overflow: hidden; width: '+_this.width[i]+'px; height:0" scrolling="no" border="0" frameborder="0"></iframe>');
+                    var anotherPreview = _this.$elem.find('#arlima-preview-iframe-'+i).contents();
+
+                    // Add stylesheets
+                    if( 'arlimaTemplateStylesheets' in window ) {
+                        $.each(window.arlimaTemplateStylesheets, function(i, styleSheet) {
+                            anotherPreview.find('head').append('<link rel="stylesheet" type="text/css" href="'+styleSheet+'" />');
+                        });
+                    }
+
+                    // Setup iframe body
+                    anotherPreview.find('html,body')
+                        .css({
+                            border: 0,
+                            padding: 0,
+                            margin: 0,
+                            overflow : 'hidden'
+                        })
+                        .addClass('arlima-preview');
+
+                    anotherPreview.find('body').html(jQuery('<div />').append($content.clone()).html());
+
+                    iframes.push(anotherPreview.find('body')[0]);
+                }
+
+                _this.$iframe = _this.$elem.find('iframe');
+                //create jquery collection from iframes array
+                _this.$iframeBody = $(iframes);
+            } else if (_this.$iframe.length > _this.iframesCount) {
+                //too many iframes
+                for (i=_this.iframesCount;i<_this.$iframe.length;i++) {
+                    _this.$iframeBody.eq(i).remove();
+                    _this.$iframe.eq(i).remove();
+                    _this.$iframeBody.splice(i,1);
+                    _this.$iframe.splice(i,1);
+                }
+            }
+
             $document.trigger('previewUpdate', 'all');
             _updateIframeHeight();
 

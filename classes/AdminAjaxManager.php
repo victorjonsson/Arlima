@@ -432,7 +432,7 @@ class Arlima_AdminAjaxManager
                 $articles = $_POST['articles'];
             } else {
                 $articles = json_decode(stripslashes($_POST['articles']), true);
-                if( !$articles ) {
+                if( $articles === null ) {
                     throw new Exception('Json error: '.json_last_error());
                 }
             }

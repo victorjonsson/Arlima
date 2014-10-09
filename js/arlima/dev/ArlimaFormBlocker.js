@@ -118,6 +118,8 @@ var ArlimaFormBlocker = (function($, window, ArlimaArticleForm) {
                 if( _this.$formBlocker.is(':visible') ) {
                     _this.updateFormBlockerSize();
                 }
+
+                ArlimaArticleForm.toggleEditorFeatures();
             });
         }
 

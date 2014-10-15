@@ -75,3 +75,4 @@ the list that you created on step 2.
 - http://malarnasfacktidning.se/
 - http://tidningenelektrikern.se/
 - http://orebrotribune.se/
+- http://handelstrender.se/

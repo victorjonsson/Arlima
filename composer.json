@@ -4,6 +4,7 @@
     "description": "Wordpress plugin - read more at https://github.com/victorjonsson/arlima",
     "homepage":    "https://github.com/victorjonsson/arlima",
     "license":     "GPL2 (http://www.gnu.org/licenses/gpl-2.0.html)",
+    "type":        "wordpress-plugin",
     "authors": [],
     "require": {
         "php": ">= 5.2"

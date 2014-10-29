@@ -25,10 +25,13 @@ class TestArlimaExport extends ExportImportBase {
         $now = time();
         $list = $this->createList();
         $list->setCreated($now);
+
+        remove_all_filters('arlima_rss_link');
+
         $rss = self::$exporter->convertList($list, Arlima_ExportManager::FORMAT_RSS);
         $xml = simplexml_load_string($rss);
 
-        $this->assertEquals('Title (Slug)', (string)$xml->channel->title);
+        $this->assertEquals('Title', (string)$xml->channel->title);
         $this->assertEquals('Arlima v'.Arlima_Plugin::VERSION.' (wordpress plugin)', (string)$xml->channel->generator);
         $this->assertEquals($now, strtotime( (string)$xml->channel->pubDate));
         $this->assertTrue( !empty($xml->channel->link) );

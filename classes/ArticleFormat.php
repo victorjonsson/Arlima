@@ -21,10 +21,10 @@ class Arlima_ArticleFormat
      * @param string $label
      * @param array $templates
      */
-    public static function add($class, $label, $templates = array())
+    public static function add($class, $label, $templates = array(), $ui_color='')
     {
         $id = self::generateFormatId($class, $templates);
-        self::$formats[$id] = array('class' => $class, 'label' => $label, 'templates' => $templates);
+        self::$formats[$id] = array('class' => $class, 'label' => $label, 'templates' => $templates, 'ui_color'=>$ui_color);
     }
 
     /**

@@ -133,6 +133,7 @@ function arlima_is_preview() {
  * @example
  *  arlima_register_format('my-custom-format', 'Cool looking article', array('giant', 'my-other-template'));
  *  arlima_register_format('my-boring-format', 'Serious looking article');
+ *  arlima_register_format('my-funny-format', 'Funny looking article', array(), 'pink');
  *
  * @param string $format_class - The class that will be added to the article container
  * @param string $label - The name of this format, displayed in wp-admin
@@ -140,9 +141,10 @@ function arlima_is_preview() {
  * should only be available for certain templates. The array should contain only the names of
  * the templates where the format should be available, without path and extension. Omit this
  * argument if you want your format to be available on all templates
+ * @param $ui_color String with hex-color. Used as border color on articles having this format in the list manager
  */
-function arlima_register_format($format_class, $label, $templates=array()) {
-    Arlima_ArticleFormat::add($format_class, $label, $templates);
+function arlima_register_format($format_class, $label, $templates=array(), $ui_color='') {
+    Arlima_ArticleFormat::add($format_class, $label, $templates, $ui_color);
 }
 
 /**

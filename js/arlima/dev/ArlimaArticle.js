@@ -84,7 +84,8 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      */
     ArlimaArticle.prototype.updateItemPresentation = function(checkDate) {
 
-        var title = '';
+        var title = '',
+            currentFormatClass = this.$elem.attr('data-format-class');
 
         if(this.data.title)
             title = this.data.title.replace(/__/g, '');
@@ -93,6 +94,22 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
 
         if( this.opt('preTitle') ) {
             title = this.opt('preTitle') + ' ' + title;
+        }
+
+        if( this.opt('format') ) {
+
+            if( currentFormatClass ) {
+                this.$elem.removeClass(currentFormatClass);
+            }
+            var newFormatClass = this.opt('format');
+            this.$elem
+                .addClass(newFormatClass)
+                .attr('data-format-class', newFormatClass);
+
+        } else if( currentFormatClass ) {
+            this.$elem
+                .removeAttr('data-format-class')
+                .removeClass(currentFormatClass);
         }
 
         if( this.opt('sectionDivider') ) {
@@ -342,6 +359,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
         return !oldData ||
                 newData.title != oldData.title ||
                 newData.options.preTitle != oldData.options.preTitle ||
+                newData.options.format != oldData.options.format ||
                 newData.options.adminLock != oldData.options.adminLock ||
                 newData.options.scheduled != oldData.options.scheduled ||
                 newData.options.streamerColor != oldData.options.streamerColor ||

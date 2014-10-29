@@ -43,6 +43,8 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
                 $scripts_to_enqueue[$handle] = array('url'=>$js, 'deps'=>array('jquery'));
         }
 
+        add_action('admin_head', array($this, 'echoFormatColorStyleTag'));
+
         return $scripts_to_enqueue;
     }
 
@@ -93,6 +95,22 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
     {
         parent::enqueueStyles();
         $this->plugin->addTemplateCSS();
+    }
+
+    public function echoFormatColorStyleTag()
+    {
+        ?>
+        <style>
+            <?php foreach(Arlima_ArticleFormat::getAll() as $format) {
+                    if( empty($format['ui_color']) )
+                        continue;
+                    ?>
+                .article.<?php echo $format['class'] ?> {
+                    border-left: <?php echo $format['ui_color']; ?> solid 4px;
+                }
+            <?php } ?>
+        </style>
+        <?php
     }
 
     function enqueueScripts()

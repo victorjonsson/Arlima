@@ -144,8 +144,8 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             if( $this->isFileIncludeArticle($article_data) ) {
                 $count++;
                 $child_articles .= '<div class="arlima-file-include teaser '.$first_or_last_class.
-                                    ( $is_child_split ? ' teaser-split':'').
-                                    '">'.$this->includeArticleFile($article_data).'</div>';
+                    ( $is_child_split ? ' teaser-split':'').
+                    '">'.$this->includeArticleFile($article_data).'</div>';
                 continue;
             }
 

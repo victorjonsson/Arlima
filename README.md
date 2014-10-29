@@ -76,3 +76,4 @@ the list that you created on step 2.
 - http://tidningenelektrikern.se/
 - http://orebrotribune.se/
 - http://handelstrender.se/
+- http://esport.aftonbladet.se/

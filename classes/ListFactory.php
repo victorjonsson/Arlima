@@ -709,7 +709,7 @@ class Arlima_ListFactory {
     /**
      * Loads an array with objects containing list id and options that have teasers that are linked to the post with $post_id
      * @todo rename to loadListsByPostID
-     * @param  int $post_id 
+     * @param  int $post_id
      * @return array
      */
     public function loadListsByArticleId($post_id) {

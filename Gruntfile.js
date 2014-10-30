@@ -5,15 +5,15 @@
  *
  *  $ grunt                 Creates a new release version, the version number will automatically
  *                          be increased (add --new-verions="3.0.dev" to define your own version)
+ *  $ grunt change-version  Bump up version number, also supports --new-version
  *  $ grunt localization    Translates pot files
  *  $ grunt phpunit         Runs php-unit tests
- *  $ grunt validate        Validates the readme file
- *  $ grunt build-js        Concat and minify all js-files in js/arlima/dev/ into arlima.js
+ *  $ grunt validate-readme Validates the readme file
+ *  $ grunt build-js        Concatenate and minify all js-files in js/arlima/dev/ into arlima.js
  *  $ grunt create-release  Copies current source code into the release directory
  *
  * @requirements
  *  - nodejs and npm
- *  - mval has to be installed globally (npm install -g mval)
  *  - grunt has to be installed globally  (npm install -g grunt-cli)
  *  - msgfmt and phpunit.phar has to be installed and added to your $PATH
  *

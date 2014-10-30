@@ -27,7 +27,7 @@ module.exports = function(grunt) {
     var fs = require('fs'),
         sys = require('sys'),
         wrench = require('./node_modules/wrench'),
-        mval = require('mval'),
+        mval = require('./node_modules/mval'),
         exec = require('child_process').exec,
 
         readFile = function(file) {

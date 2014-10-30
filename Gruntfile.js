@@ -27,6 +27,7 @@ module.exports = function(grunt) {
     var fs = require('fs'),
         sys = require('sys'),
         wrench = require('./node_modules/wrench'),
+        mval = require('mval'),
         exec = require('child_process').exec,
 
         readFile = function(file) {
@@ -202,13 +203,10 @@ module.exports = function(grunt) {
      * Validate the readme file
      */
     grunt.registerTask('validate-readme', 'Validate readme.txt', function() {
-        var done = this.async();
-        exec('mval ./readme.txt', function(error, stdout, stderr) {
-            if( !handleProcessError(grunt, stderr, error, stdout) ) {
-                grunt.log.writeln('* readme.txt valid');
-            }
-            done();
-        });
+        var faults = mval.validate('./readme.txt', mval.MANIFEST.WORDPRESS);
+        if( faults.length > 0 ) {
+            throw new Error('Validation of readme failed: \n'+faults.join('\n'));
+        }
     });
 
     /*

@@ -43,7 +43,7 @@ the list that you created on step 2.
 - [Programmatically insert article lists in your template](https://github.com/victorjonsson/Arlima/wiki/Programmatically-insert-lists)
 - [Creating custom article templates](https://github.com/victorjonsson/Arlima/wiki/Custom-article-templates) *(updated for version 3.0)*
 - [Customized streamers](https://github.com/victorjonsson/Arlima/wiki/Custom-streamers)
-- [Article formats](https://github.com/victorjonsson/Arlima/wiki/Custom-formats)
+- [Article formats](https://github.com/victorjonsson/Arlima/wiki/Article-formats)
 - [Cache management](https://github.com/victorjonsson/Arlima/wiki/Cache-management)
 - [How to modify the post search](https://github.com/victorjonsson/Arlima/wiki/Modified-search)
 - [Include PHP files in articles](https://github.com/victorjonsson/Arlima/wiki/File-includes)

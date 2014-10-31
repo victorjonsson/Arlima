@@ -634,8 +634,10 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
 
                             // Update title element
                             var dataAffectingTitleAppearance = ['options:preTitle', 'title',
-                                'options:streamerType', 'options:format', 'options:streamerContent', 'options:streamerColor',
+                                'options:streamerType', 'options:format', 'options:streamerContent',
+                                'options:streamerColor', 'options:template',
                                 'options:adminLock', 'options:scheduled'];
+
                             if($.inArray(prop, dataAffectingTitleAppearance) > -1) {
                                 _this.article.updateItemPresentation(false);
                             }

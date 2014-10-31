@@ -1247,3 +1247,46 @@ class Arlima_ListFactory {
     }
 
 }
+
+/*
+
+Istället för att ha en factory som kan göra allt mellan himmel och jord
+skulle man kunna ha repositories som hantera crud-operationer på listor och versioner
+och sen en builder som kan sätta ihop en lista så som man vill ha den
+
+$build = new Arlima_ListBuilder();
+
+$list = Arlima_List::builder(323) # list id
+            ->loadVersion(1234) # version
+            ->loadPreview()
+            ->includeFuturePosts()
+            ->build();
+
+
+$list_repo = new Arlima_ListRepository();
+$list_repo->load();
+$list_repo->create();
+$list_repo->update();
+$list_repo->delete();
+$list_repo->getListId();
+$list_repo->loadListSlugs();
+
+$version_repo = new Arlima_VersionRepository();
+$version_repo->save($articles, $list_id, $preview=false);
+$version_repo->updateArticlePublishDate( $post );
+$version_repo->updateArticle( );
+$version_repo->getLatestArticle($post_id);
+$version_repo->loadListsByPostId($post_id);
+$version_repo->removeOldVersions($list_id, $num_versions_to_keep=10)
+
+
+Arlima_AbstractDBRepository {  ärvs av våra två repos
+
+    get_result()
+    db_table()
+    install()
+    uninstall()
+
+}
+
+*/

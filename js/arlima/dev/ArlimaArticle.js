@@ -82,36 +82,52 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
     /**
      * Update the title and the style of the item element
      */
-    ArlimaArticle.prototype.updateItemPresentation = function(checkDate) {
+    ArlimaArticle.prototype.updateItemPresentation = function() {
 
         var title = '',
-            currentFormatClass = this.$elem.attr('data-format-class');
+            _this = this;
 
+        /*
+          Construct the title string
+         */
         if(this.data.title)
             title = this.data.title.replace(/__/g, '');
         else if(this.data.content)
             title += '[' + this.data.content.replace(/(<.*?>)/ig,"").substring(0,30) +'...]';
-
         if( this.opt('preTitle') ) {
             title = this.opt('preTitle') + ' ' + title;
         }
 
-        if( this.opt('format') ) {
+        /*
+         Add format and template classes to item
+         */
+        var extraClasses = [
+            {classPrefix: '', attr: 'data-format-class', opt: 'format'},
+            {classPrefix: 'template-', attr: 'data-template-class', opt: 'template'}
+        ];
+        $.each(extraClasses, function(i, data) {
+            var currentClassName = _this.$elem.attr(data.attr),
+                newClassName = data.classPrefix + _this.opt(data.opt),
+                hasChanged = currentClassName != newClassName;
 
-            if( currentFormatClass ) {
-                this.$elem.removeClass(currentFormatClass);
+            if( hasChanged && _this.opt(data.opt) ) {
+                if( currentClassName ) {
+                    _this.$elem.removeClass(currentClassName);
+                }
+                _this.$elem
+                    .addClass(newClassName)
+                    .attr(data.attr, newClassName);
+
+            } else if( currentClassName && hasChanged ) {
+                _this.$elem
+                    .removeAttr(data.attr)
+                    .removeClass(currentClassName);
             }
-            var newFormatClass = this.opt('format');
-            this.$elem
-                .addClass(newFormatClass)
-                .attr('data-format-class', newFormatClass);
+        });
 
-        } else if( currentFormatClass ) {
-            this.$elem
-                .removeAttr('data-format-class')
-                .removeClass(currentFormatClass);
-        }
-
+        /*
+          Is this a section divider
+         */
         if( this.opt('sectionDivider') ) {
             this.$elem.addClass('section-divider');
             title = '&ndash;&ndash;&ndash; '+title+' &ndash;&ndash;&ndash;';
@@ -126,6 +142,10 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
                 this.$elem.css('background', '');
             }
         } else {
+
+            /*
+              Display that it has a streamer
+             */
             if(this.opt('streamerType')) {
                 var color;
                 switch (this.opt('streamerType')) {
@@ -146,6 +166,9 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
             }
         }
 
+        /*
+          Add some icons
+         */
         if( this.opt('adminLock') )
             title = '<span class="fa fa-lock"></span>' + title;
         if( this.opt('scheduled') )
@@ -153,6 +176,9 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
         if( this.opt('fileInclude') )
             title = '<span class="fa fa-bolt"></span>' + title;
 
+        /*
+          Display if its a future article
+         */
         if( !this.isPublished() ) {
             title = '<span class="future-push-date">'+ _getDatePresentation(this.data.published * 1000) +'</span>' + title;
             this.$elem.addClass('future');
@@ -160,15 +186,8 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
             this.$elem.removeClass('future');
         }
 
+        // Update item
         this.$elem.find('.article-title').html(title);
-
-        if( checkDate ) {
-            if( !this.isPublished() ) {
-                this.$elem.addClass('future');
-            } else {
-                this.$elem.removeClass('future');
-            }
-        }
     };
 
     /**

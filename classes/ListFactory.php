@@ -1176,7 +1176,7 @@ class Arlima_ListFactory {
     public static function postToArlimaArticle($post, $text = null, $override=array())
     {
         if( $text === null ) {
-            $text = !empty($post->post_excerpt) ? $post->post_excerpt : get_the_excerpt();
+            $text = !empty($post->post_excerpt) ? $post->post_excerpt : Arlima_Utils::getExcerptByPostId($post->ID);
             if ( stristr($text, '<p>') === false ) {
                 $text = '<p>' . $text . '</p>';
             }
@@ -1200,7 +1200,6 @@ class Arlima_ListFactory {
                 'connected' => true
             );
         }
-
         return Arlima_ListFactory::createArticleDataArray($art_data);
     }
 

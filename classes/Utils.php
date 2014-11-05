@@ -148,4 +148,43 @@ class Arlima_Utils
     {
         return time() + ARLIMA_TIME_ADJUST;
     }
+
+    /**
+     * Returns the excerpt for a post based on post_excerpt or post_content if no post_excerpt is available.
+     * @param $post_id
+     * @return string
+     */
+    public static function getExcerptByPostId($post_id, $excerpt_length = 35, $allowed_tags = '') {
+        if(!$post_id) {
+            return false;
+        }
+        $the_post = get_post($post_id);
+
+        $the_excerpt = $the_post->post_excerpt;
+
+        if(strlen(trim($the_excerpt)) == 0) {
+            // If no excerpt, generate an excerpt from content
+            $the_excerpt = $the_post->post_content;
+            $the_excerpt = self::shorten($the_excerpt, $excerpt_length, $allowed_tags);
+        }
+        return $the_excerpt;
+
+    }
+
+    /**
+     * Shortens any text to number of words.
+     * @param $text
+     * @param int $num_words
+     * @return string
+     */
+    public static function shorten($text, $num_words = 24, $allowed_tags = '') {
+        $text = strip_tags(strip_shortcodes($text), $allowed_tags);
+        $words = explode(' ', $text, $num_words + 1);
+            if(count($words) > $num_words) :
+                array_pop($words);
+                array_push($words, '…');
+                $text = implode(' ', $words);
+            endif;
+        return $text;
+    }
 }

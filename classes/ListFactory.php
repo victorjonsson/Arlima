@@ -839,6 +839,22 @@ class Arlima_ListFactory {
         );";
 
         dbDelta($sql);
+
+        $table_name = $this->dbTable('_future_version');
+
+        $sql = "CREATE TABLE " . $table_name . " (
+        alv_id bigint(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        alv_created bigint(11) DEFAULT '0' NOT NULL,
+        alv_al_id bigint(11) NOT NULL,
+        alv_status tinyint(1) DEFAULT '1' NOT NULL,
+        alv_user_id bigint(11) NOT NULL,
+        UNIQUE KEY id (alv_id),
+        KEY created (alv_created),
+        KEY alid (alv_al_id),
+        KEY alid_created (alv_al_id, alv_created)
+        );";
+
+        dbDelta($sql);
     }
 
     public static function databaseUpdates($version)

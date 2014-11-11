@@ -47,6 +47,10 @@ class Arlima_AdminAjaxManager
         add_action('wp_ajax_arlima_add_list_widget', array($this, 'loadListData'));
         add_action('wp_ajax_arlima_check_for_later_version', array($this, 'checkForLaterVersion'));
         add_action('wp_ajax_arlima_save_list', array($this, 'saveList'));
+        add_action('wp_ajax_arlima_save_future_list', array($this, 'saveFutureList'));
+        add_action('wp_ajax_arlima_load_future_list', array($this, 'loadFutureList'));
+        add_action('wp_ajax_arlima_delete_future_list', array($this, 'deleteFutureList'));
+        add_action('wp_ajax_arlima_get_all_future_list_versions', array($this, 'getAllFutureListVersions'));
         add_action('wp_ajax_arlima_prepend_article', array($this, 'prependArticle'));
         add_action('wp_ajax_arlima_save_list_setup', array($this, 'saveListSetup'));
         add_action('wp_ajax_arlima_get_list_setup', array($this, 'getListSetup'));
@@ -439,6 +443,42 @@ class Arlima_AdminAjaxManager
             $this->saveAndOutputList($list_id, $articles, isset($_POST['preview']));
         }
 
+        die;
+    }
+
+    /**
+     * Save a future version of a list
+     */
+    function saveFutureList()
+    {
+        // todo: implement function
+        die;
+    }
+
+    /**
+     * Load a future version of a list
+     */
+    function loadFutureList()
+    {
+        // todo: implement function
+        die;
+    }
+
+    /**
+     * Delete a future version of a list
+     */
+    function deleteFutureList()
+    {
+        // todo: implement function
+        die;
+    }
+
+    /**
+     * Get all future versions of a list
+     */
+    function getAllFutureListVersions()
+    {
+        // todo: implement function
         die;
     }
 

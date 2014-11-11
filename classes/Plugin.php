@@ -213,6 +213,7 @@ class Arlima_Plugin
         add_action('save_post', array($this, 'savePageMetaBox'));
         add_action('add_meta_boxes', array($this, 'addAttachmentMetaBox'));
         add_filter('plugin_action_links_arlima-dev/arlima.php', array($this, 'settingsLinkOnPluginPage'));
+        // todo: create a scheduled event here that takes care of publishing the scheduled versions
     }
 
     /**

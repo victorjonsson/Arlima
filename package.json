@@ -8,7 +8,7 @@
         "grunt-contrib-concat": "~0.3.0",
         "grunt-contrib-uglify": "~0.2.2",
         "grunt-contrib-less": "~0.5.0",
-        "mval": "1.1.5"
+        "mval": "1.1.6"
     },
     "gruntConfig" : {
         "mainScript" : "arlima.php",

@@ -29,11 +29,12 @@ var ArlimaFileIncludes= (function($, window, ArlimaUtils, ArlimaFormBuilder) {
             this.$elem.find('.file-include').each(function(i, fileElement) {
 
                 var $file = $(fileElement),
-                    fileArgs = $.parseJSON($file.attr('data-args'));
+                    fileArgs = $.parseJSON($file.attr('data-args')),
+                    title = typeof($file.data('args').title !== 'undefined') ? $file.data('args').title : $file.data('label');
 
-                // Create arlima article object, monkey pathc
+                // Create arlima article object, monkey patch
                 fileElement.arlimaArticle = new ArlimaArticle({
-                    title : $file.data('label'),
+                    title : title,
                     options : {
                         fileInclude : $(fileElement).data('file')
                     }

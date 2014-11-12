@@ -43,6 +43,7 @@
             "js/arlima/arlima.js" : [
                 "js/arlima/dev/ArlimaUtils.js",
                 "js/arlima/dev/ArlimaBackend.js",
+                "js/arlima/dev/ArlimaFormBuilder.js",
                 "js/arlima/dev/ArlimaArticleSettingsMenu.js",
                 "js/arlima/dev/ArlimaList.js",
                 "js/arlima/dev/ArlimaArticle.js",
@@ -52,6 +53,7 @@
                 "js/arlima/dev/ArlimaPostSearch.js",
                 "js/arlima/dev/ArlimaListLoader.js",
                 "js/arlima/dev/ArlimaFormBlocker.js",
+                "js/arlima/dev/ArlimaFormBuilder.js",
                 "js/arlima/dev/ArlimaTemplateLoader.js",
                 "js/arlima/dev/ArlimaVersionManager.js",
                 "js/arlima/dev/ArlimaListContainer.js",

@@ -1,4 +1,4 @@
-var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, ArlimaArticleSettingsMenu, ArlimaJS) {
+var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, ArlimaArticleSettingsMenu, ArlimaFormBuilder, ArlimaJS) {
 
     var $document = $(document),
         _this = {
@@ -74,6 +74,8 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
          */
         setupForm : function(list) {
 
+            ArlimaFormBuilder.clear();
+
             ArlimaUtils.log('Setting up article form for '+this.article.data.id);
 
             if( !list ) {
@@ -131,21 +133,32 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
             _editorContent(this.article.data.content);
 
             if( this.opt('fileInclude') ) {
-                var fileInclude = this.opt('fileInclude');
-                var fileName = fileInclude.replace(/^.*[\\\/]/, '');
+                var fileInclude = this.opt('fileInclude'),
+                    $paramInput = this.$form.find('input[data-prop="options:fileArgs"]'),
+                    fieldDef = window.ArlimaFileIncludes.getFormFieldsDefinition(fileInclude);
+
+                // Set input values from article object
+                $.each($paramInput.val().split('&'), function(i, val) {
+                    var argParts = val.split('=');
+                    if( argParts[0] in fieldDef ) {
+                        fieldDef[argParts[0]].value = argParts[1];
+                    }
+                });
+
                 this.$fileIncludeContainer.show();
-
                 this.$fileIncludeContainer.find('.file').text( fileInclude.split('/wp-content')[1] || fileInclude);
-                this.$fileIncludeContainer.find('.args').remove();
 
-                var fileArgs = $('#arlima-article-file-includes').find('[data-label="' + fileName + '"]').attr('data-args');
-                if( fileArgs ) {
-                    var argsHTML = '';
-                    $.each( JSON.parse(fileArgs), function(name, defVal) {
-                        argsHTML += '<strong>'+name+'</strong> = '+ defVal + '<br />';
+                ArlimaFormBuilder.addFields(fieldDef);
+                var $inputs = ArlimaFormBuilder.inputs();
+                $inputs.on('keyup change', function() {
+                    var paramValues = [];
+                    $inputs.each(function() {
+                        var $input = $(this);
+                        paramValues.push($input.attr('data-prop') +'='+ $input.val());
                     });
-                    this.$fileIncludeContainer.append('<p class="args"><span style="color:#999">'+argsHTML+'</span></p>');
-                }
+                    _this.change($paramInput, paramValues.join('&'), true);
+                });
+
             } else {
                 this.$fileIncludeContainer.hide();
             }
@@ -189,6 +202,8 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
 
             // Hide article preview
             ArlimaArticlePreview.hide();
+
+            ArlimaFormBuilder.clear();
 
             // Hide the form
             if( this.$form.is(':visible') ) {
@@ -687,4 +702,4 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
 
     return _this;
 
-})(jQuery, window, ArlimaArticlePreview, ArlimaUtils, ArlimaArticleSettingsMenu, ArlimaJS);
+})(jQuery, window, ArlimaArticlePreview, ArlimaUtils, ArlimaArticleSettingsMenu, ArlimaFormBuilder, ArlimaJS);

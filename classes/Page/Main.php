@@ -54,6 +54,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         $scripts['arlima-js'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaUtils.js';
         $scripts['arlima-js-backend'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaBackend.js';
         $scripts['arlima-js-settings-menu'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticleSettingsMenu.js';
+        $scripts['arlima-js-form-builder'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaFormBuilder.js';
         $scripts['arlima-js-list'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaList.js';
         $scripts['arlima-js-article'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticle.js';
         $scripts['arlima-js-preview'] = ARLIMA_PLUGIN_URL . 'js/arlima/dev/ArlimaArticlePreview.js';
@@ -166,6 +167,7 @@ class Arlima_Page_Main extends Arlima_AbstractAdminPage {
         wp_enqueue_script('jquery-ui-mouse');
         wp_enqueue_script('jquery-ui-widget');
         wp_enqueue_script('jquery-ui-slider');
+        wp_enqueue_script('jquery-ui-datepicker');
 
         wp_enqueue_script('media-upload');
 

@@ -1,25 +1,72 @@
-var ArlimaFileIncludes= (function($, window, ArlimaBackend, ArlimaJS, ArlimaUtils) {
+var ArlimaFileIncludes= (function($, window, ArlimaUtils, ArlimaFormBuilder) {
 
-    var _self = {
+    return {
 
         $elem : false,
 
-        /**
-         * Do the search and add search result to result container
-         * @param {Number} [offset]
-         */
-        search : function(offset) {
+        getFormFieldsDefinition : function(file) {
+            return $.extend(true, {}, this.$elem.find('.file-include[data-file="'+file+'"]').get(0).arlimaFormFields);
+        },
 
-            this.$elem.find('.file-include').each(function(i, file) {
 
-                $(file).get(0).arlimaArticle = new ArlimaArticle({
-                    title : $(file).data('label'),
+        parseQueryString : function(query) {
+            var obj = {};
+            $.each( query.split('&'), function(i, param) {
+                obj[param.split('&')[0]] = param.split('&')[1];
+            });
+            return obj;
+        },
+
+
+        /* * * * * *  INIT * * * * * */
+
+        init : function($elem) {
+
+            this.$elem = $elem;
+
+            ArlimaUtils.makeCollapsing($elem);
+
+            this.$elem.find('.file-include').each(function(i, fileElement) {
+
+                var $file = $(fileElement),
+                    fileArgs = $.parseJSON($file.attr('data-args'));
+
+                // Create arlima article object, monkey pathc
+                fileElement.arlimaArticle = new ArlimaArticle({
+                    title : $file.data('label'),
                     options : {
-                        fileInclude : $(file).data('file')
+                        fileInclude : $(fileElement).data('file')
                     }
                 });
 
-                $(file).draggable({
+                // Parse args into field definitions.. and monkey patch
+                $.each(fileArgs, function(name, val) {
+                    var field = {
+                            type : ArlimaFormBuilder.TYPES.TEXT,
+                            property : name,
+                            value : val,
+                            width : '80%',
+                            label : {
+                                text : name
+                            }
+                        };
+
+                    if( typeof val == 'boolean' ) {
+                        field.type = ArlimaFormBuilder.TYPES.BOOL;
+                    } else if($.isNumeric(val)) {
+                        field.type = ArlimaFormBuilder.TYPES.NUMBER;
+                    } else if( typeof val !== 'string' ) {
+                        field = val;
+                    }
+
+                    fileArgs[name] = $.extend(true, {}, ArlimaFormBuilder.defaultFieldDefinition, field);
+                });
+
+                fileElement.arlimaFormFields = fileArgs;
+
+
+                // Make draggable
+                $file.draggable({
                     appendTo: 'body',
                     helper:'clone',
                     sender:'postlist',
@@ -32,21 +79,8 @@ var ArlimaFileIncludes= (function($, window, ArlimaBackend, ArlimaJS, ArlimaUtil
                     }
                 });
             });
-        },
-
-
-        /* * * * * *  INIT * * * * * */
-
-        init : function($elem) {
-
-            this.$elem = $elem;
-
-            ArlimaUtils.makeCollapsing($elem);
-            this.search();
         }
 
     };
 
-    return _self;
-
-})(jQuery, window, ArlimaBackend, ArlimaJS, ArlimaUtils, ArlimaArticleForm);
+})(jQuery, window, ArlimaUtils, ArlimaFormBuilder);

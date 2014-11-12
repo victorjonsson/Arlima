@@ -22,6 +22,7 @@ jQuery(function($) {
     ArlimaTinyMCE.init();
     ArlimaScheduledIntervalPicker.init($('#scheduled-interval-fancybox'));
     ArlimaArticlePreset.init($('#arlima-article-presets'));
+    ArlimaFormBuilder.init($('#article-form .file-include-container'));
 
     // Fix future notices in all lists
     setTimeout(function() {

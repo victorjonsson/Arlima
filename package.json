@@ -53,7 +53,6 @@
                 "js/arlima/dev/ArlimaPostSearch.js",
                 "js/arlima/dev/ArlimaListLoader.js",
                 "js/arlima/dev/ArlimaFormBlocker.js",
-                "js/arlima/dev/ArlimaFormBuilder.js",
                 "js/arlima/dev/ArlimaTemplateLoader.js",
                 "js/arlima/dev/ArlimaVersionManager.js",
                 "js/arlima/dev/ArlimaListContainer.js",

@@ -385,14 +385,14 @@ $arlima_plugin = new Arlima_Plugin();
                     </tr>
                     </thead>
                     <tbody>
-                        <?php foreach( $file_includes as $label => $file ): if( is_numeric($label) ) $label = basename($file); $file_args = $arlima_file_include->getFileArgs($file); ?>
+                        <?php foreach( $file_includes as $label => $file ): if( is_numeric($label) ) $label = basename($file); ?>
                             <tr>
                                 <td colspan="2">
                                     <div class="file-include" 
-                                        data-args='<?php echo json_encode($file_args) ?>'
+                                        data-args='<?php echo json_encode($arlima_file_include->getFileArgs($file)) ?>'
                                         data-file="<?php echo $file; ?>"
                                         data-label="<?php echo $label ?>">
-                                        <?php echo isset($file_args['title']) ? $file_args['title'] : $label; ?>
+                                        <?php echo $label; ?>
                                     </div>
                                 </td>
                             </tr>

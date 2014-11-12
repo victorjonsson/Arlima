@@ -1,6 +1,5 @@
 <?php
 $args = arlima_file_args(array(
-    'title' => __('Count Down Timer'),
     array(
         'type' => 'date',
         'property' => 'count_down_to',

@@ -242,10 +242,8 @@ $arlima_plugin = new Arlima_Plugin();
                         <strong><?php _e('File', 'arlima') ?>:</strong><br />
                         <span class="file"></span>
                     </p>
-                    <p>
-                        <strong><?php _e('Arguments (query string)', 'arlima'); ?>:</strong><br />
-                        <input type="text" class="data file-args" data-prop="options:fileArgs" />
-                    </p>
+                    <div class="file-arguments"></div>
+                    <input type="hidden" class="data file-args" data-prop="options:fileArgs" />
                 </div>
 
             </div>
@@ -370,8 +368,11 @@ $arlima_plugin = new Arlima_Plugin();
             </div><!-- .inside -->
         </div><!-- #arlima-custom-templates -->
 
-        <?php if( $file_includes = apply_filters('arlima_article_includes', array()) ):
-        $arlima_file_include = new Arlima_FileInclude(); ?>
+        <?php
+        $file_includes = apply_filters('arlima_article_includes', array(dirname(__FILE__).'/count-down.php'));
+        sort($file_includes);
+        $arlima_file_include = new Arlima_FileInclude();
+        ?>
         <div id="arlima-article-file-includes" class="arlima-postbox">
             <div class="collapse-toggle"><br /></div><h3><span><?php _e('File includes', 'arlima') ?></span></h3>
             <div class="inside" style="display:none;">
@@ -401,7 +402,6 @@ $arlima_plugin = new Arlima_Plugin();
             </div><!-- .inside -->
 
         </div><!-- #arlima-article-functions -->
-    <?php endif; ?>
 
     </div><!-- .col-wrap -->
 

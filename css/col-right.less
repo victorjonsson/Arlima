@@ -470,8 +470,42 @@
 }
 
 #article-form .file-include-container {
-  input {
-    width: 80%;
+
+  overflow: auto;
+
+
+  .form-field {
+    padding: 4px 0;
+    clear: both;
+
+    strong {
+      margin-right: 3px;
+      display: inline-block;
+      width: 70px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    input {
+      width: ~"calc(100% - 80px)";
+      max-width: 300px;
+    }
+  }
+
+  .form-field.label-display-block strong {
+    width: auto;
+    display: block;
+    text-overflow: clip;
+  }
+
+  .form-field.inline {
+    float: left;
+    clear: none;
+  }
+
+  .form-field:first-child {
+    padding-top: 24px;
   }
 }
 

@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 3.0.beta.59
+Version: 3.0.beta.61
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -327,7 +327,7 @@ function arlima_file_args($default) {
             // Back compat, they should all be numeric
             if( is_numeric($name) ) {
                 // This is the new way
-                $new_args[$arg['property']] =  empty($file_args[$arg['property']]) ? $arg['value'] : $file_args[$arg['property']];
+                $new_args[$arg['property']] = !isset($file_args[$arg['property']]) ? $arg['value'] : $file_args[$arg['property']];
             }
             elseif( empty($file_args[$name]) ) {
                 $new_args[$name] = is_array($arg) ? $arg['value'] : $arg;

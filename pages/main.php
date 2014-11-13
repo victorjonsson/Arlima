@@ -369,8 +369,8 @@ $arlima_plugin = new Arlima_Plugin();
         </div><!-- #arlima-custom-templates -->
 
         <?php
-        $file_includes = apply_filters('arlima_article_includes', array(dirname(__FILE__).'/count-down.php'));
-        sort($file_includes);
+        $file_includes = apply_filters('arlima_article_includes', array(__('Count Down','arlima') => dirname(__FILE__).'/count-down.php'));
+        ksort($file_includes);
         $arlima_file_include = new Arlima_FileInclude();
         ?>
         <div id="arlima-article-file-includes" class="arlima-postbox">

@@ -369,8 +369,8 @@ $arlima_plugin = new Arlima_Plugin();
         </div><!-- #arlima-custom-templates -->
 
         <?php
-        $file_includes = apply_filters('arlima_article_includes', array(dirname(__FILE__).'/count-down.php'));
-        sort($file_includes);
+        $file_includes = apply_filters('arlima_article_includes', array(__('Count Down','arlima') => dirname(__FILE__).'/count-down.php'));
+        ksort($file_includes);
         $arlima_file_include = new Arlima_FileInclude();
         ?>
         <div id="arlima-article-file-includes" class="arlima-postbox">
@@ -389,7 +389,18 @@ $arlima_plugin = new Arlima_Plugin();
                             <tr>
                                 <td colspan="2">
                                     <div class="file-include" 
-                                        data-args='<?php echo json_encode($arlima_file_include->getFileArgs($file)) ?>'
+                                        data-args='<?php
+                                        // Add prop name to key for faster lookups in js
+                                        $args = array();
+                                        foreach($arlima_file_include->getFileArgs($file) as $name => $data) {
+                                            if( is_numeric($name) ) {
+                                                $args[$data['property']] = $data;
+                                            } else {
+                                                $args[$name] = $data; // Backwards compat
+                                            }
+                                        }
+                                        echo json_encode($args);
+                                        ?>'
                                         data-file="<?php echo $file; ?>"
                                         data-label="<?php echo $label ?>">
                                         <?php echo $label; ?>

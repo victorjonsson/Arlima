@@ -429,6 +429,9 @@ class Arlima_AdminAjaxManager
 
         $list_id = isset($_POST['alid']) ? intval($_POST['alid']) : false;
 
+        // Is the list scheduled for the automatic publishing queue?
+        $schedule_time = isset($_POST['scheduleTime']) ? intval($_POST['scheduleTime']) : false;
+
         if ( $list_id ) {
             if( empty($_POST['articles']) ) {
                 $articles = array();
@@ -440,7 +443,7 @@ class Arlima_AdminAjaxManager
                     throw new Exception('Json error: '.json_last_error());
                 }
             }
-            $this->saveAndOutputList($list_id, $articles, isset($_POST['preview']));
+            $this->saveAndOutputList($list_id, $articles, $schedule_time, isset($_POST['preview']));
         }
 
         die;
@@ -487,7 +490,7 @@ class Arlima_AdminAjaxManager
      * @param $articles
      * @param bool $preview
      */
-    private function saveAndOutputList($list_id, $articles, $preview = false)
+    private function saveAndOutputList($list_id, $articles, $schedule_time, $preview = false)
     {
         $list_factory = $this->loadListFactory();
 
@@ -497,7 +500,7 @@ class Arlima_AdminAjaxManager
             $list = $list_factory->loadList($list_id);
         }
 
-        $list_factory->saveNewListVersion($list, $articles, get_current_user_id(), $preview);
+        $list_factory->saveNewListVersion($list, $articles, get_current_user_id(), $schedule_time, $preview);
 
         // Reload list to get latest version
         $list = $list_factory->loadList($list->getId(), false, true);
@@ -813,6 +816,7 @@ class Arlima_AdminAjaxManager
             'articles' => $list->getArticles(),
             'version' => $list->getVersion(),
             'versionDisplayText' => $list->getVersionInfo(),
+            'savedBy' => $list->getSavedBy(),
             'versions' => $list->getVersions(),
             'titleElement' => $list->getTitleElement(),
             'isImported' => $list->isImported(),

@@ -59,12 +59,13 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
         /**
          * @param {Number} listId
          * @param {Array|Object} articles
+         * @param {Number} scheduleTime
          * @param {Function} [callback]
          */
-        saveList : function(listId, articles, callback) {
+        saveList : function(listId, articles, scheduleTime, callback) {
             this._ajax(
                 "arlima_save_list",
-                'alid='+listId+'&articles='+encodeURIComponent(JSON.stringify(articles)),
+                'alid='+listId+'&articles='+encodeURIComponent(JSON.stringify(articles))+'&scheduleTime='+scheduleTime,
                 callback,
                 'json',
                 true,

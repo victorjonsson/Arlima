@@ -489,3 +489,27 @@ $arlima_plugin = new Arlima_Plugin();
         <img src="<?php echo ARLIMA_PLUGIN_URL.'/images/logo.png' ?>" width="71" alt="Arlima" />
     </div>
 </div>
+
+<div id="arlima-schedule-modal" class="fancybox">
+    <h2><?php _e('Schedule list', 'arlima') ?></h2>
+    <div class="message message-notice hidden"><?php _e('Scheduled date must be in the future.', 'arlima') ?></div>
+        <table class="form-table">
+            <tr>
+                <th scope="row">
+                    <label for="schedule-date"><?php _e('Publish date', 'arlima') ?>:</label>
+                </th>
+                <td>
+                    <input id="schedule-date" type="date" value="<?php echo date( 'Y-m-d' ) ?>">
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    <label for="schedule-time"><?php _e('Publish time', 'arlima') ?>:</label>
+                </th>
+                <td>
+                    <input id="schedule-time" type="time" value="<?php echo date( 'H' , current_time( 'timestamp' ) + 60 * 60) ?>:00">
+                </td>
+            </tr>
+        </table>
+    <button class="button schedule"><?php _e('Schedule', 'arlima') ?></button>
+</div>

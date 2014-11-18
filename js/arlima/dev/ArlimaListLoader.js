@@ -43,10 +43,11 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
 
         /**
          * @param {ArlimaList} list
+         * @param {Timestamp} scheduleTime
          * @param {Function} [callback]
          */
-        save : function(list, callback) {
-            ArlimaBackend.saveList(list.data.id, list.getArticleData(), function(json) {
+        save : function(list, scheduleTime, callback) {
+            ArlimaBackend.saveList(list.data.id, list.getArticleData(), scheduleTime, function(json) {
                 if( typeof callback == 'function' )
                     callback(json);
             });

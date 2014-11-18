@@ -284,7 +284,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
     /**
      * Save current list as a new version
      */
-    ArlimaList.prototype.save = function() {
+    ArlimaList.prototype.save = function(scheduleDate) {
         if( this.hasUnsavedChanges() ) {
 
             this.toggleUnsavedState(false);
@@ -292,7 +292,9 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
             delete this.loadedVersion; // No specific version loaded means we're on the latest created version
 
-            var _self = this;
+            var _self = this,
+                scheduleTime = (typeof scheduleDate === 'undefined') ? '' : scheduleDate.getTime(); // Get timestamp of Date if scheduled
+
 
             ArlimaBackend.getLaterVersion(this.data.id, this.data.version.id, function(json) {
                 if(json) {
@@ -309,7 +311,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     if( !saveList ) {
                         _toggleAjaxPreloader(_self, false);
                     } else {
-                        window.ArlimaListLoader.save(_self, function(data) {
+                        window.ArlimaListLoader.save(_self, scheduleTime, function(data) {
                             _toggleAjaxPreloader(_self, false);
                             if( data ) {
                                 _self.setData(data);
@@ -369,14 +371,30 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     style: window.qtipStyle
                 });
 
-            $versionDropDown.html('');
+            $versionDropDown
+                    .html('');
+
+            var $optionScheduledVersion = $('<option></option>', {
+                value : 'future'
+            })
+                .text('+ '+ ArlimaJS.lang.saveFutureVersion);
+
+            $versionDropDown.append($optionScheduledVersion);
+
+            var $optionSeparator = $('<option></option>', {
+                disabled : 'disabled',
+                class : 'separator'
+            })
+                .text('-- ' + ArlimaJS.lang.publishedVersions + ' --');
+
+            $versionDropDown.append($optionSeparator);
 
             $.each(list.data.versions, function(i, version ) {
                 var $option = $('<option></option>', {
                     value : version,
                     selected : version == loadedVersionID
                 })
-                .text('v. ' + version);
+                .text('# ' + version + ' (' + list.data.savedBy + ')');
                 $versionDropDown.append($option);
             });
         }
@@ -417,7 +435,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             }
             return false;
         });
-        
+
         list.$elem.find('.save').click(function(e) {
             list.save();
             return false;
@@ -448,6 +466,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         // Toggle version dropdown
         if( !list.data.isImported ) {
             var $versionWrapper = list.$elem.find('.version'),
+                $scheduleModalWrapper = $('#arlima-schedule-modal'),
                 hasDropDownFocus = false,
                 $versionDropDown = list.$elem.find('.previous-versions');
 
@@ -464,7 +483,15 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                         }
                     }, 1200);
                 })
-                .bind('change', function() {
+                .bind('change', function(e) {
+                    if($(this.options[e.target.selectedIndex]).val() === 'future') {
+                        $.fancybox({
+                            href : '#arlima-schedule-modal',
+                            height: 400,
+                            width: 300
+                        });
+                        return false;
+                    }
                     list.reload($(this).val());
                 });
 
@@ -475,7 +502,29 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 hasDropDownFocus = true;
                 return false;
             });
+
+            $scheduleModalWrapper.find('button.schedule').click(function() {
+                var ymdArray = $scheduleModalWrapper.find('#schedule-date').val().split('-'),
+                    hsArray = $scheduleModalWrapper.find('#schedule-time').val().split(':'),
+                    scheduleDate = new Date(),
+                    nowDate = new Date();
+
+                scheduleDate.setFullYear(ymdArray[0], (ymdArray[1]-1), ymdArray[2]);
+                scheduleDate.setHours(hsArray[0]);
+                scheduleDate.setMinutes(hsArray[1]);
+
+                // Is date future?
+                if(scheduleDate.getTime() > nowDate.getTime()) {
+                    list.schedule(scheduleDate);
+                    $scheduleModalWrapper.find('.message').addClass('hidden');
+                    return false;
+                } else{
+                    $scheduleModalWrapper.find('.message').removeClass('hidden');
+                }
+                return false;
+            });
         }
+
     };
 
 

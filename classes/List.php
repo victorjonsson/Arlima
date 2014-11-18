@@ -463,7 +463,7 @@ class Arlima_List
                 Arlima_Utils::loadTextDomain();
                 $user_data = get_userdata($version['user_id']);
                 $saved_since = '';
-                $saved_by = 'Unknown';
+                $saved_by = __('Unknown', 'arlima');
                 $lang_saved_since = __(' saved since ', 'arlima');
                 $lang_by = __(' by ', 'arlima');
 
@@ -479,6 +479,22 @@ class Arlima_List
                 return $no_version_text . ($this->is_imported ? ' (IMPORT)' : '');
             }
         }
+    }
+
+    /**
+     * Returns the display name of the user that saved this list
+     * @return string
+     */
+    function getSavedBy() {
+        $version = $this->version;
+        $saved_by = __('Unknown', 'arlima');
+        if ( isset($version['user_id']) ) {
+            $user_data = get_userdata($version['user_id']);
+            if ( $user_data ) {
+                $saved_by = $user_data->display_name;
+            }
+        }
+        return $saved_by;
     }
 
     /**

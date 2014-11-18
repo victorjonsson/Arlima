@@ -10,7 +10,7 @@
  */
 class Arlima_ListFactory {
 
-    const DB_VERSION = '3.0';
+    const DB_VERSION = '3.1';
 
     /**
      * @var wpdb
@@ -220,7 +220,7 @@ class Arlima_ListFactory {
      * @param bool $preview
      * @throws Exception
      */
-    public function saveNewListVersion($list, $articles, $user_id, $preview = false)
+    public function saveNewListVersion($list, $articles, $user_id, $schedule_time = false, $preview = false)
     {
         if(!$list->exists())
             throw new Exception('You can not create a new version of a list that does not exist');
@@ -864,6 +864,7 @@ class Arlima_ListFactory {
         $wpdb->suppress_errors(true);
         $factory = new self($wpdb);
         $article_tbl_name = $factory->dbTable('_article');
+        $version_tbl_name = $factory->dbTable('_version');
 
         if($version < 2.2) {
             $wpdb->query('ALTER TABLE '.$article_tbl_name.' ADD ala_publish_date bigint(11) NOT NULL DEFAULT \'0\'');
@@ -893,6 +894,9 @@ class Arlima_ListFactory {
                 $wpdb->query('ALTER TABLE '.$article_tbl_name.' CHANGE ala_text ala_content text');
                 wp_cache_flush();
             }
+        }
+        elseif($version < 3.1) {
+            $wpdb->query('ALTER TABLE '.$version_tbl_name.' ADD alv_scheduled bigint(11) NOT NULL DEFAULT 0');
         }
     }
 

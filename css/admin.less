@@ -1,5 +1,6 @@
 
 @blue: #3f8fb4;
+@yellow: #e1b621;
 
 .text-wrap() {
   overflow: hidden;
@@ -46,6 +47,12 @@ a:visited,
   -webkit-focus-ring-color: rgba(0, 0, 0, 0);
   -webkit-focus-ring-color: transparent;
   -webkit-focus-ring-color: none;
+}
+.message {
+  font-weight: bold;
+  &.message-notice {
+    color: @yellow;
+  }
 }
 
 select:disabled, input:disabled {

@@ -229,7 +229,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
         // preset
         var _self = this;
-        this.loadedVersion = version;
+        this.loadedVersion = version.id;
         this.$elem.find('.articles').html('');
 
         // Clear form perhaps
@@ -238,13 +238,13 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         }
 
         // Toggle state
-        this.toggleUnsavedState( version && version != this.data.version.id ? true:false );
+        this.toggleUnsavedState( version.id && version.id != this.data.version.id ? true:false );
         _toggleAjaxPreloader(this, true);
 
         // Load the version of the list
         window.ArlimaListLoader.load(this, function() {
             _toggleAjaxPreloader(_self, false);
-        }, version);
+        }, version.id);
     };
 
     /**
@@ -424,10 +424,10 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
             $.each(list.data.versions, function(i, version ) {
                 var $option = $('<option></option>', {
-                    value : version,
-                    selected : version == loadedVersionID
+                    value : version.id,
+                    selected : version.id == loadedVersionID
                 })
-                .text('# ' + version + ' (' + list.data.savedBy + ')');
+                .text('# ' + version.id + ' (' + version.saved_by + ')');
                 $versionDropDown.append($option);
             });
         }

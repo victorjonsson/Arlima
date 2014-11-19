@@ -816,7 +816,6 @@ class Arlima_AdminAjaxManager
             'articles' => $list->getArticles(),
             'version' => $list->getVersion(),
             'versionDisplayText' => $list->getVersionInfo(),
-            'savedBy' => $list->getSavedBy(),
             'versions' => $list->getVersions(),
             'scheduledVersions' => $list->getScheduledVersions(),
             'titleElement' => $list->getTitleElement(),

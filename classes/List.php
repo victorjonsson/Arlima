@@ -502,22 +502,6 @@ class Arlima_List
     }
 
     /**
-     * Returns the display name of the user that saved this list
-     * @return string
-     */
-    function getSavedBy() {
-        $version = $this->version;
-        $saved_by = __('Unknown', 'arlima');
-        if ( isset($version['user_id']) ) {
-            $user_data = get_userdata($version['user_id']);
-            if ( $user_data ) {
-                $saved_by = $user_data->display_name;
-            }
-        }
-        return $saved_by;
-    }
-
-    /**
      * @return bool
      */
     function isLatestPublishedVersion()

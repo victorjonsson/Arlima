@@ -528,6 +528,7 @@ class Arlima_ListFactory {
 
             $versions = array();
             $scheduled_versions = array();
+            $saved_by = __('Unknown', 'arlima');
             $data = $this->executeSQLQuery('get_results', $version_data_sql.' WHERE alv_al_id='.intval($list_id).' AND alv_status != 2 ORDER BY alv_id DESC LIMIT 0,10');
 
             if( empty($data) ) {
@@ -536,18 +537,22 @@ class Arlima_ListFactory {
             } else {
 
                 foreach($data as $row) {
+                    $user_data = get_userdata($row->alv_user_id);
+                    if ( $user_data ) {
+                        $saved_by = $user_data->display_name;
+                    }
                     switch($row->alv_status) {
                         case Arlima_List::STATUS_SCHEDULED :
-                            $scheduled_versions[] = array('created' => $row->alv_created, 'id' => $row->alv_id, 'user_id' => $row->alv_user_id, 'scheduled' => $row->alv_scheduled);
+                            $scheduled_versions[] = array('created' => $row->alv_created, 'id' => $row->alv_id, 'saved_by' => $saved_by, 'scheduled' => $row->alv_scheduled);
                             break;
                         default :
-                            $versions[] = $row->alv_id;
+                            $versions[] = array('created' => $row->alv_created, 'id' => $row->alv_id, 'saved_by' => $saved_by);
                             break;
                     }
                 }
 
                 return array(
-                    array('created' => $data[0]->alv_created, 'id' => $data[0]->alv_id, 'user_id' => $data[0]->alv_user_id, 'status' => $data[0]->alv_status, 'scheduled' => $data[0]->alv_scheduled),
+                    array('created' => $data[0]->alv_created, 'id' => $data[0]->alv_id, 'saved_by' => $saved_by, 'status' => $data[0]->alv_status, 'scheduled' => $data[0]->alv_scheduled),
                     $versions,
                     $scheduled_versions
                 );

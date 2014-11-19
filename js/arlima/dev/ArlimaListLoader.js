@@ -43,7 +43,7 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
 
         /**
          * @param {ArlimaList} list
-         * @param {Timestamp} scheduleTime
+         * @param {Number} scheduleTime
          * @param {Function} [callback]
          */
         save : function(list, scheduleTime, callback) {

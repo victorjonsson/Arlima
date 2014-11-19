@@ -430,7 +430,7 @@ class Arlima_AdminAjaxManager
         $list_id = isset($_POST['alid']) ? intval($_POST['alid']) : false;
 
         // Is the list scheduled for the automatic publishing queue?
-        $schedule_time = isset($_POST['scheduleTime']) ? intval($_POST['scheduleTime']) : false;
+        $schedule_time = (isset($_POST['scheduleTime']) || $_POST['scheduleTime'] == '') ? intval($_POST['scheduleTime']) : false;
 
         if ( $list_id ) {
             if( empty($_POST['articles']) ) {
@@ -490,7 +490,7 @@ class Arlima_AdminAjaxManager
      * @param $articles
      * @param bool $preview
      */
-    private function saveAndOutputList($list_id, $articles, $schedule_time, $preview = false)
+    private function saveAndOutputList($list_id, $articles, $schedule_time = false, $preview = false)
     {
         $list_factory = $this->loadListFactory();
 
@@ -818,6 +818,7 @@ class Arlima_AdminAjaxManager
             'versionDisplayText' => $list->getVersionInfo(),
             'savedBy' => $list->getSavedBy(),
             'versions' => $list->getVersions(),
+            'scheduledVersions' => $list->getScheduledVersions(),
             'titleElement' => $list->getTitleElement(),
             'isImported' => $list->isImported(),
             'exists' => $list->exists(),

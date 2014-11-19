@@ -220,7 +220,7 @@ class Arlima_ListFactory {
      * @param bool $preview
      * @throws Exception
      */
-    public function saveNewListVersion($list, $articles, $user_id, $schedule_time = false, $preview = false)
+    public function saveNewListVersion($list, $articles, $user_id, $schedule_time, $preview = false)
     {
         if(!$list->exists())
             throw new Exception('You can not create a new version of a list that does not exist');
@@ -230,15 +230,19 @@ class Arlima_ListFactory {
         $this->removeOldVersions($list);
         self::sanitizeList($list);
 
+        $status = $preview ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED;
+        $status = $schedule_time ? Arlima_List::STATUS_SCHEDULED : $status;
+
         // Create the new version
         $sql = $this->wpdb->prepare(
             "INSERT INTO " . $this->dbTable('_version') . "
-                (alv_created, alv_al_id, alv_status, alv_user_id)
-                VALUES (%d, %s, %d, %d)",
+                (alv_created, alv_al_id, alv_status, alv_user_id, alv_scheduled)
+                VALUES (%d, %s, %d, %d, %d)",
             time(),
             $list->getId(),
-            $preview ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED,
-            $user_id
+            $status,
+            $user_id,
+            $schedule_time
         );
 
         $this->executeSQLQuery('query', $sql);
@@ -453,6 +457,7 @@ class Arlima_ListFactory {
                 $version_data = $this->queryVersionData($id, false);
                 $article_data['version'] = $version_data[0];
                 $article_data['version_list'] = $version_data[1];
+                $article_data['scheduled_version_list'] = $version_data[2];
                 if( !empty($article_data['version']) ) {
                     $article_data['articles'] = $this->queryListArticles($article_data['version']['id'], $include_future_posts);
                 }
@@ -465,16 +470,18 @@ class Arlima_ListFactory {
                 $list->setStatus( Arlima_List::STATUS_PUBLISHED );
                 $list->setArticles($article_data['articles']);
                 $list->setVersions( $article_data['version_list'] );
+                $list->setScheduledVersions( $article_data['scheduled_version_list'] );
                 $list->setVersion( $article_data['version'] );
             }
         }
 
         // Preview version or specific version (no cache)
         else {
-            list($version_data, $version_list) = $this->queryVersionData($id, $version);
+            list($version_data, $version_list, $scheduled_version_list) = $this->queryVersionData($id, $version);
             if( !empty($version_data) ) {
                 $list->setVersion($version_data);
                 $list->setVersions($version_list);
+                $list->setScheduledVersions($scheduled_version_list);
                 $list->setArticles( $this->queryListArticles($version_data['id'], true) );
                 $list->setStatus( $version === 'preview' ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED);
             }
@@ -515,11 +522,12 @@ class Arlima_ListFactory {
      */
     private function queryVersionData($list_id, $version)
     {
-        $version_data_sql = "SELECT alv_id, alv_created, alv_status, alv_user_id FROM ".$this->dbTable('_version');
+        $version_data_sql = "SELECT alv_id, alv_created, alv_scheduled, alv_status, alv_user_id FROM ".$this->dbTable('_version');
 
         if( !$version  ) {
 
             $versions = array();
+            $scheduled_versions = array();
             $data = $this->executeSQLQuery('get_results', $version_data_sql.' WHERE alv_al_id='.intval($list_id).' AND alv_status != 2 ORDER BY alv_id DESC LIMIT 0,10');
 
             if( empty($data) ) {
@@ -528,12 +536,20 @@ class Arlima_ListFactory {
             } else {
 
                 foreach($data as $row) {
-                    $versions[] = $row->alv_id;
+                    switch($row->alv_status) {
+                        case Arlima_List::STATUS_SCHEDULED :
+                            $scheduled_versions[] = array('created' => $row->alv_created, 'id' => $row->alv_id, 'user_id' => $row->alv_user_id, 'scheduled' => $row->alv_scheduled);
+                            break;
+                        default :
+                            $versions[] = $row->alv_id;
+                            break;
+                    }
                 }
 
                 return array(
-                    array('created' => $data[0]->alv_created, 'id' => $data[0]->alv_id, 'user_id' => $data[0]->alv_user_id, 'status' => $data[0]->alv_status),
-                    $versions
+                    array('created' => $data[0]->alv_created, 'id' => $data[0]->alv_id, 'user_id' => $data[0]->alv_user_id, 'status' => $data[0]->alv_status, 'scheduled' => $data[0]->alv_scheduled),
+                    $versions,
+                    $scheduled_versions
                 );
             }
 
@@ -566,9 +582,18 @@ class Arlima_ListFactory {
                 Arlima_List::STATUS_PUBLISHED
             );
 
+            $scheduled_version_list_sql = $this->wpdb->prepare (
+                "SELECT alv_id FROM " . $this->dbTable('_version') . "
+            WHERE alv_al_id = %d AND alv_status = %d
+            ORDER BY alv_id DESC LIMIT 0,10",
+                (int)$list_id,
+                Arlima_List::STATUS_SCHEDULED
+            );
+
             return array(
                 $this->executeSQLQuery('get_row', $version_data_sql, 'alv_'),
-                $this->executeSQLQuery('get_col', $version_list_sql)
+                $this->executeSQLQuery('get_col', $version_list_sql),
+                $this->executeSQLQuery('get_col', $scheduled_version_list_sql)
             );
         }
     }

@@ -42,7 +42,6 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         var _self = this,
             $articles = this.$elem.find('.articles');
 
-
         this.$elem
             .resizable({
                 containment: 'parent',
@@ -180,7 +179,6 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      */
     ArlimaList.prototype.setData = function(data) {
         this.data = data;
-
         var title = data.title;
 
         var $titleNode = this.$elem.find('.header .title');
@@ -283,6 +281,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
     /**
      * Save current list as a new version
+     * @param {Date} scheduleDate
      */
     ArlimaList.prototype.save = function(scheduleDate) {
         if( this.hasUnsavedChanges() ) {
@@ -293,8 +292,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             delete this.loadedVersion; // No specific version loaded means we're on the latest created version
 
             var _self = this,
-                scheduleTime = (typeof scheduleDate === 'undefined') ? '' : scheduleDate.getTime(); // Get timestamp of Date if scheduled
-
+                scheduleTime = (typeof scheduleDate === 'undefined') ? '' : Math.round(scheduleDate.getTime() / 1000); // Get Unix timestamp of Date if scheduled
 
             ArlimaBackend.getLaterVersion(this.data.id, this.data.version.id, function(json) {
                 if(json) {
@@ -357,7 +355,12 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         else {
             var $versionWrapper = list.$elem.find('.version .number'),
                 $versionDropDown = list.$elem.find('.previous-versions'),
-                loadedVersionID = list.loadedVersion || list.data.version.id;
+                loadedVersionID = list.loadedVersion || list.data.version.id,
+                listContainsSchedule = list.data.scheduledVersions.length > 0,
+                $imgClockIcon = $('<img src="' + ArlimaJS.pluginURL + '/images/clock-icon.png' + '"/>')
+                        .attr('class', 'schedule-clock')
+                        .attr('title', ArlimaJS.lang.scheduledVersions)
+                        .attr('alt', ArlimaJS.lang.scheduledVersions);
 
             $versionWrapper
                 .html('v. '+loadedVersionID)
@@ -371,8 +374,12 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     style: window.qtipStyle
                 });
 
-            $versionDropDown
-                    .html('');
+            // Does list contain scheduled versions?
+            if(listContainsSchedule) {
+                $versionWrapper.prepend($imgClockIcon);
+            }
+
+            $versionDropDown.html('');
 
             var $optionScheduledVersion = $('<option></option>', {
                 value : 'future'
@@ -381,13 +388,39 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
             $versionDropDown.append($optionScheduledVersion);
 
-            var $optionSeparator = $('<option></option>', {
-                disabled : 'disabled',
-                class : 'separator'
-            })
-                .text('-- ' + ArlimaJS.lang.publishedVersions + ' --');
+                var $optionSeparator = $('<option></option>', {
+                    disabled : 'disabled',
+                    class : 'separator'
+                })
+                    .text('--- ' + ArlimaJS.lang.scheduledVersions + ' ---');
 
-            $versionDropDown.append($optionSeparator);
+            if(listContainsSchedule) {
+                $versionDropDown.append($optionSeparator);
+            }
+
+            $.each(list.data.scheduledVersions, function(i, version ) {
+                var scheduleDate = new Date(version.scheduled * 1000),
+                        hours = '0'+scheduleDate.getHours(),
+                        minutes = '0'+scheduleDate.getMinutes();
+
+                var $option = $('<option></option>', {
+                    value : version.id,
+                    selected : version.id == loadedVersionID
+                })
+                .text( ArlimaJS.lang.toPublish + ' '
+                                + scheduleDate.getFullYear()
+                                + '-' + (scheduleDate.getMonth()+1) // Months are offset 1
+                                + '-' + scheduleDate.getDate()
+                                + ' ' + hours.substr(hours.length-2)
+                                + ':' + minutes.substr(minutes.length-2)
+                        );
+                $versionDropDown.append($option);
+            });
+
+            var $optionSeparator2 = $optionSeparator.clone(true);
+            $optionSeparator2.text('--- ' + ArlimaJS.lang.publishedVersions + ' ---');
+
+            $versionDropDown.append($optionSeparator2);
 
             $.each(list.data.versions, function(i, version ) {
                 var $option = $('<option></option>', {
@@ -515,7 +548,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
                 // Is date future?
                 if(scheduleDate.getTime() > nowDate.getTime()) {
-                    list.schedule(scheduleDate);
+                    list.save(scheduleDate);
                     $scheduleModalWrapper.find('.message').addClass('hidden');
                     return false;
                 } else{

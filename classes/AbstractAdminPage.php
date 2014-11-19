@@ -234,7 +234,8 @@ abstract class Arlima_AbstractAdminPage {
                     'unknown' => __('Unknown'),
                     'saveFutureVersion' => __('Save future version', 'arlima'),
                     'publishedVersions' => __('Published versions', 'arlima'),
-                    'futureVersions' => __('Future versions', 'arlima'),
+                    'scheduledVersions' => __('Future versions', 'arlima'),
+                    'toPublish' => __('To publish', 'arlima'),
                     'yes' => __('Yes'),
                     'no' => __('No'),
                 )

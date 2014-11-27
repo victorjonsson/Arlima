@@ -203,11 +203,20 @@ function arlima_has_list() {
 /**
  * Get arlima list of currently visited page
  * @param bool $list_only
+ * @param bool $get_scheduled
  * @return Arlima_List|array|bool
  */
-function arlima_get_list($list_only = true) {
+function arlima_get_list($list_only = true, $get_scheduled = true) {
     static $current_arlima_list = null;
-    if( $current_arlima_list === null ) {
+    $list_is_scheduled = false;
+
+    if( $current_arlima_list != null ) {
+        $alv = $current_arlima_list['list']->getVersion();
+        $list_is_scheduled = $alv['status'] == Arlima_List::STATUS_SCHEDULED;
+    }
+
+    if( $current_arlima_list === null || ($list_is_scheduled && !$get_scheduled) ) {
+
         $current_arlima_list = array('list'=>false, 'post'=>false);
         if( is_page() ) {
             global $wp_query;
@@ -218,13 +227,14 @@ function arlima_get_list($list_only = true) {
                 $relation = $connector->getRelationData($wp_query->post->ID);
                 $is_requesting_preview = arlima_is_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $relation['id'];
                 $version = $is_requesting_preview ? 'preview' : '';
-                $list = $list_factory->loadList($relation['id'], $version, $is_requesting_preview);
+                $list = $list_factory->loadList($relation['id'], $version, $is_requesting_preview, $get_scheduled);
                 if( $list->exists() ) {
                     $current_arlima_list = array('list'=>$list, 'post'=>$wp_query->post->ID);
                 }
             }
         }
     }
+
     return $list_only ? $current_arlima_list['list'] : $current_arlima_list;
 }
 

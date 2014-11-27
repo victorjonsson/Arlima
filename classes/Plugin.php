@@ -25,6 +25,8 @@ class Arlima_Plugin
 
         add_action('init', array($this, 'commonInitHook'));
         add_action('template_redirect', array($this, 'themeInitHook'));
+        add_action('arlima_publish_scheduled_list', array($this, 'publishScheduledList'), 10 ,2);
+
     }
 
     /**
@@ -80,7 +82,6 @@ class Arlima_Plugin
                 arlima_render_list(arlima_get_list(), isset($relation['attr']) ?  $relation['attr'] : array());
             }
         }
-
         return $content;
     }
 
@@ -213,7 +214,6 @@ class Arlima_Plugin
         add_action('save_post', array($this, 'savePageMetaBox'));
         add_action('add_meta_boxes', array($this, 'addAttachmentMetaBox'));
         add_filter('plugin_action_links_arlima-dev/arlima.php', array($this, 'settingsLinkOnPluginPage'));
-        // todo: create a scheduled event here that takes care of publishing the scheduled versions
     }
 
     /**
@@ -976,4 +976,19 @@ class Arlima_Plugin
         file_put_contents($img_file, base64_decode($base64_img));
         return self::saveImageFileAsAttachment($img_file, $file_name, $connected_post);
     }
+
+    /**
+     * Publishes a scheduled arlima list
+     * @param int $list_id
+     * @param int $version_id
+     */
+    public static function publishScheduledList($list_id, $version_id)
+    {
+        $list_factory = new Arlima_ListFactory();
+        $list = $list_factory->loadList($list_id, $version_id);
+        $list_factory->deleteListVersion($list_id, $version_id); // Delete the old scheduled list version
+        $version = $list->getVersion();
+        $list_factory->saveNewListVersion($list, $list->getArticles(), $version['user_id'], 0); // Publish the list as a new version
+    }
+
 }

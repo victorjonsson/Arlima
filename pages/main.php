@@ -513,3 +513,15 @@ $arlima_plugin = new Arlima_Plugin();
         </table>
     <button class="button schedule"><?php _e('Schedule', 'arlima') ?></button>
 </div>
+
+<div id="arlima-reload-alert-modal" class="fancybox">
+    <h2><?php _e('Scheduled list notice', 'arlima') ?></h2>
+    <div>
+        <p>
+            <?php printf( __('Please note: a scheduled list is about to be published in %s seconds.', 'arlima'), '<span id="arlima_countdown" class="notice">0</span>' )  ?>
+        </p>
+        <p>
+            <?php _e('This page will be refreshed automatically.', 'arlima') ?>
+        </p>
+    </div>
+</div>

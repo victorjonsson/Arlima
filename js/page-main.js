@@ -48,6 +48,29 @@ jQuery(function($) {
             return ArlimaJS.lang.unsaved;
         }
     };
+
+    // Scheduled lists count-down auto reload
+    $(document).on('versionInfoLoaded', function() {
+        var seconds = $('#arlima_countdown').text();
+        if(seconds != 0) {
+            var timer = setInterval(function() {
+               $('#arlima_countdown').text(--seconds);
+                // Show notice
+                if(seconds == 60 || seconds == 30 || seconds == 5) {
+                   $.fancybox({
+                       href : '#arlima-reload-alert-modal',
+                       height: 400,
+                       width: 300
+                   });
+                }
+                if (seconds == 0) {
+                   clearInterval(timer);
+                   window.location.reload()
+                }
+            }, 1000);
+        }
+    });
+
 });
 
 if( ArlimaJS.sendJSErrorsToServerLog ) {
@@ -70,7 +93,6 @@ var qtipStyle = {
         color: '#111'
     }
 };
-
 
 /* * * DEPRECATED.... * * * */
 

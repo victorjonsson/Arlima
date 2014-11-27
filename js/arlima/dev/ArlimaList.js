@@ -202,7 +202,8 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         isUnsaved = isUnsaved === true; // typecast
         if(isUnsaved != this._isUnsaved) { // state changed
             this._isUnsaved = isUnsaved;
-            var $title = this.$elem.find('.header .title');
+            var $title = this.$elem.find('.header .title'),
+                    $saveFutureSelectOption = this.$elem.find('.previous-versions option[value="future"]');
             $title.find('.dot').remove();
             if(this._isUnsaved) {
                 this.$elem.addClass('unsaved');
@@ -229,7 +230,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
         // preset
         var _self = this;
-        this.loadedVersion = version.id;
+        this.loadedVersion = version;
         this.$elem.find('.articles').html('');
 
         // Clear form perhaps
@@ -238,13 +239,13 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         }
 
         // Toggle state
-        this.toggleUnsavedState( version.id && version.id != this.data.version.id ? true:false );
+        this.toggleUnsavedState( version && version != this.data.version.id ? true:false );
         _toggleAjaxPreloader(this, true);
 
         // Load the version of the list
         window.ArlimaListLoader.load(this, function() {
             _toggleAjaxPreloader(_self, false);
-        }, version.id);
+        }, version);
     };
 
     /**
@@ -315,6 +316,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                                 _self.setData(data);
                                 if( window.ArlimaArticleForm.isEditing(_self.data.id) ) {
                                     window.ArlimaArticleForm.toggleUnsavedState('saved');
+                                    $.event.trigger('versionInfoLoaded');
                                 }
                             }
                         });
@@ -398,22 +400,30 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 $versionDropDown.append($optionSeparator);
             }
 
+            // Update reload notice with seconds to next scheduled
+            if(list.data.scheduledVersions.length > 0) {
+                var now = new Date(),
+                    scheduleDate = new Date(list.data.scheduledVersions[0].scheduled * 1000);
+                // Added 60 seconds to schedule time for crontab margins
+                $('#arlima_countdown').text(Math.ceil((scheduleDate.getTime() - now.getTime()) / 1000) + 60);
+            }
+
             $.each(list.data.scheduledVersions, function(i, version ) {
                 var scheduleDate = new Date(version.scheduled * 1000),
-                        hours = '0'+scheduleDate.getHours(),
-                        minutes = '0'+scheduleDate.getMinutes();
+                    hours = '0'+scheduleDate.getHours(),
+                    minutes = '0'+scheduleDate.getMinutes();
 
                 var $option = $('<option></option>', {
                     value : version.id,
                     selected : version.id == loadedVersionID
                 })
                 .text( ArlimaJS.lang.toPublish + ' '
-                                + scheduleDate.getFullYear()
-                                + '-' + (scheduleDate.getMonth()+1) // Months are offset 1
-                                + '-' + scheduleDate.getDate()
-                                + ' ' + hours.substr(hours.length-2)
-                                + ':' + minutes.substr(minutes.length-2)
-                        );
+                        + scheduleDate.getFullYear()
+                        + '-' + (scheduleDate.getMonth()+1) // Months are offset +1
+                        + '-' + scheduleDate.getDate()
+                        + ' ' + hours.substr(hours.length-2)
+                        + ':' + minutes.substr(minutes.length-2)
+                    );
                 $versionDropDown.append($option);
             });
 
@@ -431,6 +441,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 $versionDropDown.append($option);
             });
         }
+        setTimeout(function(){ $.event.trigger({ type: 'versionInfoLoaded' }) }, 2000)
     };
 
     var _toggleAjaxPreloader = function(list, toggle) {
@@ -550,7 +561,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 if(scheduleDate.getTime() > nowDate.getTime()) {
                     list.save(scheduleDate);
                     $scheduleModalWrapper.find('.message').addClass('hidden');
-                    return false;
+                    $.fancybox.close();
                 } else{
                     $scheduleModalWrapper.find('.message').removeClass('hidden');
                 }

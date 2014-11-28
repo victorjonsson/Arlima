@@ -54,6 +54,16 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
         },
 
         /**
+         * @param {Number} version
+         */
+        deleteVersion : function(version, callback) {
+            ArlimaBackend.deleteVersion(version, function(json) {
+                if( typeof callback == 'function' )
+                    callback(json);
+            });
+        },
+
+        /**
          * Load a list from backend and add it to the list container
          * @param {Number} listID
          */

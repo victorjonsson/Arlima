@@ -73,6 +73,23 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
             );
         },
 
+
+        /**
+         *
+         * @param {Number} versionId
+         * @param {Function} [callback]
+         */
+        deleteVersion : function(versionId, callback) {
+            this._ajax(
+                    "arlima_delete_list_version",
+                    'alvid='+versionId,
+                    callback,
+                    'json',
+                    true,
+                    false
+            );
+        },
+
         /**
          * @param {Number} listId
          * @param {Array} articles

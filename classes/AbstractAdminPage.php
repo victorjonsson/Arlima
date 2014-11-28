@@ -233,6 +233,8 @@ abstract class Arlima_AbstractAdminPage {
                     'noPostsFound' => __('No posts found', 'arlima'),
                     'onlyImages' => __('You can only add images to articles', 'arlima'),
                     'unknown' => __('Unknown'),
+                    'deleteVersion' => __('Delete this version', 'arlima'),
+                    'confirmDeleteVersion' => __('Are you sure you want to delete this version?', 'arlima'),
                     'saveFutureVersion' => __('Save future version', 'arlima'),
                     'publishedVersions' => __('Published versions', 'arlima'),
                     'scheduledVersions' => __('Future versions', 'arlima'),

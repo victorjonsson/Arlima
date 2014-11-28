@@ -23,10 +23,10 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 '<a href="#" class="refresh" title="'+ArlimaJS.lang.reload+'">' +
                     '<i class="fa fa-refresh"></i>' +
                 '</a>'+
-                '<span class="version">' +
+                '<div class="version">' +
                     '<div class="number"></div>'+
-                    '<select class="previous-versions"></select>' +
-                '</span>' +
+                    '<ul class="previous-versions"></ul>' +
+                '</div>' +
             '</div>'+
         '</div>';
 
@@ -203,7 +203,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         if(isUnsaved != this._isUnsaved) { // state changed
             this._isUnsaved = isUnsaved;
             var $title = this.$elem.find('.header .title'),
-                    $saveFutureSelectOption = this.$elem.find('.previous-versions option[value="future"]');
+                    $saveFutureSelectOption = this.$elem.find('.previous-versions li.future');
             $title.find('.dot').remove();
             if(this._isUnsaved) {
                 this.$elem.addClass('unsaved');
@@ -220,6 +220,17 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      */
     ArlimaList.prototype.toggleAjaxPreLoader = function(toggle) {
         _toggleAjaxPreloader(this, toggle);
+    };
+
+    /**
+     *
+     * @param {Number} version
+     */
+    ArlimaList.prototype.deleteVersion = function(version) {
+        var _self = this;
+        window.ArlimaListLoader.deleteVersion(version, function(){
+            _self.reload();
+        });
     };
 
     /**
@@ -356,13 +367,25 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         }
         else {
             var $versionWrapper = list.$elem.find('.version .number'),
-                $versionDropDown = list.$elem.find('.previous-versions'),
+                $versionList = list.$elem.find('.previous-versions'),
                 loadedVersionID = list.loadedVersion || list.data.version.id,
                 listContainsSchedule = list.data.scheduledVersions.length > 0,
-                $imgClockIcon = $('<img src="' + ArlimaJS.pluginURL + '/images/clock-icon.png' + '"/>')
+                $imgClockIcon = $('<img src="' + ArlimaJS.pluginURL + '/images/clock-icon.png' + '" />')
                         .attr('class', 'schedule-clock')
                         .attr('title', ArlimaJS.lang.scheduledVersions)
-                        .attr('alt', ArlimaJS.lang.scheduledVersions);
+                        .attr('alt', ArlimaJS.lang.scheduledVersions),
+                $deleteLink = $('<a>x</a>')
+                        .attr('href', '#')
+                        .attr('class', 'delete')
+                        .attr('title', ArlimaJS.lang.delete)
+                        .on('click', function(e){
+                            var $versionItem = $(e.target).parent(),
+                            doDelete = confirm(ArlimaJS.lang.confirmDeleteVersion);
+                            if(doDelete) {
+                                list.deleteVersion($versionItem.attr('data-version'));
+                            }
+                            return false;
+                        });
 
             $versionWrapper
                 .html('v. '+loadedVersionID)
@@ -381,23 +404,29 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 $versionWrapper.prepend($imgClockIcon);
             }
 
-            $versionDropDown.html('');
+            $versionList.html('');
 
-            var $optionScheduledVersion = $('<option></option>', {
-                value : 'future'
+            var $optionScheduledVersion = $('<li></li>', {
+                class : 'future'
             })
-                .text('+ '+ ArlimaJS.lang.saveFutureVersion);
+                .text('+ '+ ArlimaJS.lang.saveFutureVersion)
+                .on('click', function(){
+                    $.fancybox({
+                        href : '#arlima-schedule-modal',
+                        height: 400,
+                        width: 300
+                    });
+                });
 
-            $versionDropDown.append($optionScheduledVersion);
+            $versionList.append($optionScheduledVersion);
 
-                var $optionSeparator = $('<option></option>', {
-                    disabled : 'disabled',
+                var $listSectionSeparator = $('<li></li>', {
                     class : 'separator'
                 })
-                    .text('--- ' + ArlimaJS.lang.scheduledVersions + ' ---');
+                    .text(ArlimaJS.lang.scheduledVersions);
 
             if(listContainsSchedule) {
-                $versionDropDown.append($optionSeparator);
+                $versionList.append($listSectionSeparator);
             }
 
             // Update reload notice with seconds to next scheduled
@@ -413,32 +442,30 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     hours = '0'+scheduleDate.getHours(),
                     minutes = '0'+scheduleDate.getMinutes();
 
-                var $option = $('<option></option>', {
-                    value : version.id,
-                    selected : version.id == loadedVersionID
-                })
-                .text( ArlimaJS.lang.toPublish + ' '
+                var $listItem = $('<li></li>')
+                    .attr('data-version', version.id)
+                    .addClass(version.id == loadedVersionID ? 'selected' : '')
+                    .text( ArlimaJS.lang.toPublish + ' '
                         + scheduleDate.getFullYear()
                         + '-' + (scheduleDate.getMonth()+1) // Months are offset +1
                         + '-' + scheduleDate.getDate()
                         + ' ' + hours.substr(hours.length-2)
                         + ':' + minutes.substr(minutes.length-2)
                     );
-                $versionDropDown.append($option);
+                $versionList.append($listItem.append($deleteLink));
             });
 
-            var $optionSeparator2 = $optionSeparator.clone(true);
-            $optionSeparator2.text('--- ' + ArlimaJS.lang.publishedVersions + ' ---');
+            var $listSectionSeparator2 = $listSectionSeparator.clone(true);
+            $listSectionSeparator2.text(ArlimaJS.lang.publishedVersions);
 
-            $versionDropDown.append($optionSeparator2);
+            $versionList.append($listSectionSeparator2);
 
             $.each(list.data.versions, function(i, version ) {
-                var $option = $('<option></option>', {
-                    value : version.id,
-                    selected : version.id == loadedVersionID
-                })
-                .text('# ' + version.id + ' (' + version.saved_by + ')');
-                $versionDropDown.append($option);
+                var $item = $('<li></li>')
+                .attr('data-version', version.id)
+                .addClass(version.id == loadedVersionID ? 'selected' : '')
+                .text('#' + version.id + ' (' + version.saved_by + ')');
+                $versionList.append($item);
             });
         }
         setTimeout(function(){ $.event.trigger({ type: 'versionInfoLoaded' }) }, 2000)
@@ -522,26 +549,20 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     hasDropDownFocus = false;
                     setTimeout(function() {
                         if( $versionDropDown.parent().is(':visible') && !hasDropDownFocus ) {
-                            $versionWrapper.find('.number').show();
+                            $versionWrapper.find('.number').removeClass('active');
                             $versionDropDown.hide();
                         }
                     }, 1200);
                 })
-                .bind('change', function(e) {
-                    if($(this.options[e.target.selectedIndex]).val() === 'future') {
-                        $.fancybox({
-                            href : '#arlima-schedule-modal',
-                            height: 400,
-                            width: 300
-                        });
-                        return false;
+                .bind('click', function(e) {
+                    if( ! $(e.target).hasClass('future')) {
+                        list.reload($(e.target).attr('data-version'));
                     }
-                    list.reload($(this).val());
                 });
 
             // Show version drop down
             $versionWrapper.find('.number').click( function() {
-                $(this).hide();
+                $(this).addClass('active');
                 $versionDropDown.show();
                 hasDropDownFocus = true;
                 return false;

@@ -986,7 +986,7 @@ class Arlima_Plugin
     {
         $list_factory = new Arlima_ListFactory();
         $list = $list_factory->loadList($list_id, $version_id);
-        $list_factory->deleteListVersion($list_id, $version_id); // Delete the old scheduled list version
+        $list_factory->deleteListVersion($version_id); // Delete the old scheduled list version
         $version = $list->getVersion();
         $list_factory->saveNewListVersion($list, $list->getArticles(), $version['user_id'], 0); // Publish the list as a new version
     }

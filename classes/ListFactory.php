@@ -149,25 +149,30 @@ class Arlima_ListFactory {
 
     /**
      * Deletes a version of a list
-     * @param int $list_id
      * @param int $version_id
+     * @param int $list_id
      */
-    public function deleteListVersion($list_id, $version_id) {
+    public function deleteListVersion($version_id) {
 
-        // Delete arlima article relations for version
-        $this->executeSQLQuery('query', sprintf(
-            "DELETE FROM ".$this->dbTable('_article')." WHERE ala_alv_id in (%s)",
-            $version_id)
-        );
+        $list = $this->loadListByVersionId($version_id);
 
-        // Delete version from version table
-        $this->executeSQLQuery('query', sprintf(
-            "DELETE FROM ".$this->dbTable('_version')." WHERE alv_id = %d",
-            intval($version_id)
-        ));
+        if($list->exists()) {
 
-        // Remove cache
-        $this->cache->delete('arlima_list_articles_data_'.$list_id);
+            // Delete arlima article relations for version
+            $this->executeSQLQuery('query', sprintf(
+                "DELETE FROM ".$this->dbTable('_article')." WHERE ala_alv_id in (%s)",
+                $version_id)
+            );
+
+            // Delete version from version table
+            $this->executeSQLQuery('query', sprintf(
+                "DELETE FROM ".$this->dbTable('_version')." WHERE alv_id = %d",
+                intval($version_id)
+            ));
+
+            // Remove cache
+            $this->cache->delete('arlima_list_articles_data_'.$list->getId());
+        }
     }
 
     /**

@@ -13,7 +13,7 @@ defined('ARLIMA_DEV_MODE')
 
 // Make it possible to use pre-compiled less even though in dev-mode
 defined('ARLIMA_COMPILE_LESS_IN_BROWSER')
-    or define('ARLIMA_COMPILE_LESS_IN_BROWSER', ARLIMA_DEV_MODE);
+    or define('ARLIMA_COMPILE_LESS_IN_BROWSER', false);
 
 // Plugin version (only edit this via grunt!)
 define('ARLIMA_FILE_VERSION', '3.0.beta.62' .(ARLIMA_DEV_MODE ? '__'.time():''));

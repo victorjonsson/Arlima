@@ -303,7 +303,6 @@
     padding-top: 4px;
     position: absolute;
     bottom: 0;
-    overflow: auto;
     .list-inner-margins();
 
     a, .ajax-loader {
@@ -321,19 +320,81 @@
     }
 
     .version {
-      display: inline;
-      float: right;
       color: #333;
       font-size: 12px;
       cursor: pointer;
-      margin-right: 3px;
+      position: absolute;
+      right: 30px;
 
-      select {
+      .number {
+        text-align: right;
+
+        &:after {
+          content: '\25B2';
+          padding-left: 3px;
+          vertical-align: middle;
+        }
+
+        &.active:after {
+          content: '\25Bc';
+        }
+      }
+
+      .previous-versions {
+        background: #EEE;
         font-size: 10px;
-        padding: 0;
+
+        border-radius: 5px;
+        box-shadow: 0 0 5px #bbb;
         height: auto;
         margin-left: 3px;
         display: none;
+
+        li {
+
+          padding: 6px 10px;
+          margin: 0;
+          color: #888;
+
+          a.delete {
+            float: right;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 0;
+            margin-left: 10px;
+            color: red;
+          }
+
+          &.separator {
+            background: #666;
+            color: #ddd;
+            font-weight: bold;
+            padding:0 6px;
+            &:hover {
+              background: #666;
+            }
+          }
+
+          &.future {
+            color: #333;
+            font-weight: bold;
+            text-decoration: underline;
+          }
+          &.selected {
+            color: #333;
+
+            &:before {
+              content: '\25B6';
+              padding-right: 3px;
+              vertical-align: middle;
+            }
+          }
+
+          &:hover {
+            background-color: rgba(60, 60, 60, 0.1);
+          }
+        }
+
       }
     }
 

@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Arlima (article list manager) 1.0.9\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/arlima\n"
-"POT-Creation-Date: 2014-11-27 16:35+0100\n"
-"PO-Revision-Date: 2014-11-27 16:41+0100\n"
+"POT-Creation-Date: 2014-12-01 16:03+0100\n"
+"PO-Revision-Date: 2014-12-01 16:07+0100\n"
 "Last-Translator: Andreas Lundgren <andreas.lundgren@norran.se>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sv_SE\n"
@@ -27,174 +27,182 @@ msgstr "Redigera artikellista"
 msgid "This list does not exist"
 msgstr "Den här listan existerar inte"
 
-#: classes/AbstractAdminPage.php:203
+#: classes/AbstractAdminPage.php:202
 msgid "You have one, or more, unsaved article lists, do you wish to proceed?"
 msgstr "Du har en, eller flera, osparade listor. Vill du fortsätta?"
 
-#: classes/AbstractAdminPage.php:204
+#: classes/AbstractAdminPage.php:203
 msgid "It exists an older version of this article list"
 msgstr "Det finns en äldre version av den här listan"
 
-#: classes/AbstractAdminPage.php:205
+#: classes/AbstractAdminPage.php:204
 msgid "Do you still want to save this version of the list?"
 msgstr "Vill du fortfarande spara listan?"
 
-#: classes/AbstractAdminPage.php:206
+#: classes/AbstractAdminPage.php:205
 msgid "This article list has more than one extra-streamer"
 msgstr "Den här artikellistan har fler extra-plattor"
 
-#: classes/AbstractAdminPage.php:207
+#: classes/AbstractAdminPage.php:206
 msgid "You have made changes to this list, do you want to remove it anyway?"
 msgstr ""
 "Du har gjort ändringar i den här artikellistan, vill du fortarande ta bort "
 "den?"
 
-#: classes/AbstractAdminPage.php:208
+#: classes/AbstractAdminPage.php:207
 msgid "Do you want to remove \""
 msgstr "Vill du ta bort \""
 
-#: classes/AbstractAdminPage.php:209
+#: classes/AbstractAdminPage.php:208
 msgid "\" from this article list?"
 msgstr "\" från listan?"
 
-#: classes/AbstractAdminPage.php:210
+#: classes/AbstractAdminPage.php:209
 msgid "Choose image"
 msgstr "Välj bild"
 
-#: classes/AbstractAdminPage.php:211
+#: classes/AbstractAdminPage.php:210
 msgid "This article is locked by admin"
 msgstr "Artikeln är låst av admin"
 
-#: classes/AbstractAdminPage.php:212
+#: classes/AbstractAdminPage.php:211
 msgid "Only administrators can manage article locks"
 msgstr "Endast administratörer kan låsa artiklar"
 
-#: classes/AbstractAdminPage.php:213
+#: classes/AbstractAdminPage.php:212
 msgid "No list is active!"
 msgstr "Ingen lista är aktiv"
 
-#: classes/AbstractAdminPage.php:214
+#: classes/AbstractAdminPage.php:213
 msgid "This article has no related image"
 msgstr "Den här artikeln har inga relaterade bilder"
 
-#: classes/AbstractAdminPage.php:215
+#: classes/AbstractAdminPage.php:214
 msgid "this article is not connected to any post"
 msgstr "Den här artikeln är inte kopplad till någon lista"
 
-#: classes/AbstractAdminPage.php:216
+#: classes/AbstractAdminPage.php:215
 msgid "This list have been removed!"
 msgstr "Den här listan har tagits bort"
 
-#: classes/AbstractAdminPage.php:217
+#: classes/AbstractAdminPage.php:216
 msgid "to save article list"
 msgstr "för att spara listan"
 
-#: classes/AbstractAdminPage.php:218
+#: classes/AbstractAdminPage.php:217
 msgid "This list has no unsaved changes"
 msgstr "Den här listan har inga ändringar att förhandsgranska"
 
-#: classes/AbstractAdminPage.php:219 pages/edit.php:193
+#: classes/AbstractAdminPage.php:218 pages/edit.php:193
 msgid "This list is not yet related to any page"
 msgstr "Den här listan är inte kopplad till någon sida"
 
-#: classes/AbstractAdminPage.php:220
+#: classes/AbstractAdminPage.php:219
 msgid "This list has unsaved changes"
 msgstr "Den här listan har ändringar som inte är sparade"
 
-#: classes/AbstractAdminPage.php:221 pages/main.php:155
+#: classes/AbstractAdminPage.php:220 pages/main.php:161
 msgid "Drag images to this container"
 msgstr "Drag och släpp här"
 
-#: classes/AbstractAdminPage.php:222 pages/main.php:116
+#: classes/AbstractAdminPage.php:221 pages/main.php:122
 msgid "Scheduled"
 msgstr "Schemalagd"
 
-#: classes/AbstractAdminPage.php:223
+#: classes/AbstractAdminPage.php:222
 msgid "Your login session seems to have expired, pls reload the page!"
 msgstr "Du verkar ha blivit utloggad och bör därför ladda om den här sidan."
 
-#: classes/AbstractAdminPage.php:224
+#: classes/AbstractAdminPage.php:223
 msgid "Not a valid color!"
 msgstr "Färgkoden är inte giltig!"
 
-#: classes/AbstractAdminPage.php:225
+#: classes/AbstractAdminPage.php:224
 msgid "This URL seems to be invalid"
 msgstr "Ogiltig webbadress"
 
-#: classes/AbstractAdminPage.php:226
+#: classes/AbstractAdminPage.php:225
 msgid "Nothing found..."
 msgstr "Inget hittades..."
 
-#: classes/AbstractAdminPage.php:227 pages/main.php:471
+#: classes/AbstractAdminPage.php:226 pages/main.php:487
 msgid "Reload all lists"
 msgstr "Ladda alla listor på nytt"
 
-#: classes/AbstractAdminPage.php:228
+#: classes/AbstractAdminPage.php:227
 msgid "Reload list"
 msgstr "Ladda alla listor på nytt"
 
-#: classes/AbstractAdminPage.php:229 pages/main.php:24
+#: classes/AbstractAdminPage.php:228 pages/main.php:25
 msgid "Publish list"
 msgstr "Publicera lista"
 
-#: classes/AbstractAdminPage.php:230 pages/main.php:28
+#: classes/AbstractAdminPage.php:229 pages/main.php:29
 msgid "Preview list"
 msgstr "Förhandsgranska lista"
 
-#: classes/AbstractAdminPage.php:231 pages/main.php:235
+#: classes/AbstractAdminPage.php:230 pages/main.php:245
 msgid "Future post"
 msgstr "Tidsinställd artikel"
 
-#: classes/AbstractAdminPage.php:232
+#: classes/AbstractAdminPage.php:231
 msgid "Add to article"
 msgstr "Använd"
 
-#: classes/AbstractAdminPage.php:233
+#: classes/AbstractAdminPage.php:232
 msgid "No posts found"
 msgstr "Inga artiklar hittades"
 
-#: classes/AbstractAdminPage.php:234
+#: classes/AbstractAdminPage.php:233
 msgid "You can only add images to articles"
 msgstr "Du kan endast koppla en bild till artikeln"
 
-#: classes/AbstractAdminPage.php:235 classes/List.php:486
-#: classes/ListFactory.php:570 classes/ListFactory.php:631
+#: classes/AbstractAdminPage.php:234 classes/List.php:486
+#: classes/ListFactory.php:575 classes/ListFactory.php:636
 msgid "Unknown"
 msgstr "Okänd"
 
+#: classes/AbstractAdminPage.php:235
+msgid "Delete this version"
+msgstr "Radera denna version"
+
 #: classes/AbstractAdminPage.php:236
+msgid "Are you sure you want to delete this version?"
+msgstr "Är du säker på att du vill radera denna version av listan?"
+
+#: classes/AbstractAdminPage.php:237
 msgid "Save future version"
 msgstr "Tidsinställ lista"
 
-#: classes/AbstractAdminPage.php:237
+#: classes/AbstractAdminPage.php:238
 msgid "Published versions"
 msgstr "Publicerade versioner"
 
-#: classes/AbstractAdminPage.php:238
+#: classes/AbstractAdminPage.php:239
 msgid "Future versions"
 msgstr "Tidsinställda versioner"
 
-#: classes/AbstractAdminPage.php:239
+#: classes/AbstractAdminPage.php:240
 msgid "To publish"
 msgstr "Publiceras"
 
-#: classes/AbstractAdminPage.php:240 pages/edit.php:145 pages/edit.php:158
-#: pages/main.php:118 pages/main.php:148 pages/main.php:276
+#: classes/AbstractAdminPage.php:241 pages/edit.php:145 pages/edit.php:158
+#: pages/main.php:124 pages/main.php:154 pages/main.php:292
 #: pages/settings.php:129
 msgid "Yes"
 msgstr "Ja"
 
-#: classes/AbstractAdminPage.php:241 pages/edit.php:148 pages/edit.php:161
-#: pages/main.php:117 pages/main.php:147 pages/main.php:277
+#: classes/AbstractAdminPage.php:242 pages/edit.php:148 pages/edit.php:161
+#: pages/main.php:123 pages/main.php:153 pages/main.php:293
 #: pages/settings.php:132
 msgid "No"
 msgstr "Nej"
 
-#: classes/AdminAjaxManager.php:210
+#: classes/AdminAjaxManager.php:207
 msgid "Example article"
 msgstr "Exempelartikel"
 
-#: classes/AdminAjaxManager.php:225
+#: classes/AdminAjaxManager.php:222
 msgid "Empty article"
 msgstr "Tom artikel"
 
@@ -224,7 +232,7 @@ msgid "Manage lists"
 msgstr "Hantera listor"
 
 #: classes/Page/Settings.php:28 classes/Page/Settings.php:33
-#: classes/Plugin.php:226 pages/main.php:78
+#: classes/Plugin.php:226 pages/main.php:84
 msgid "Settings"
 msgstr "Inställningar"
 
@@ -248,7 +256,7 @@ msgstr "Skapade bildversioner"
 msgid "Delete versions"
 msgstr "Radera"
 
-#: classes/Plugin.php:556 pages/edit.php:68 pages/main.php:430
+#: classes/Plugin.php:556 pages/edit.php:68 pages/main.php:446
 msgid "Choose article list"
 msgstr "Välj artikellista"
 
@@ -272,11 +280,11 @@ msgstr "Lista"
 msgid "No list"
 msgstr "Ingen lista"
 
-#: classes/Plugin.php:620 pages/main.php:439
+#: classes/Plugin.php:620 pages/main.php:455
 msgid "Imported lists"
 msgstr "Importerade listor"
 
-#: classes/Plugin.php:633 pages/main.php:237
+#: classes/Plugin.php:633 pages/main.php:247
 msgid "edit"
 msgstr "redigera"
 
@@ -321,8 +329,8 @@ msgstr "Artikeln skickades till"
 msgid "Widget that displays an article list"
 msgstr "Widget som visar en artikellista"
 
-#: classes/Widget.php:89 pages/edit.php:101 pages/main.php:209
-#: pages/main.php:329
+#: classes/Widget.php:89 pages/edit.php:101 pages/main.php:215
+#: pages/main.php:345
 msgid "Title"
 msgstr "Rubrik"
 
@@ -331,7 +339,7 @@ msgstr "Rubrik"
 msgid "Filter suffix"
 msgstr "Suffix"
 
-#: classes/Widget.php:123 pages/main.php:102
+#: classes/Widget.php:123 pages/main.php:108
 msgid "Template"
 msgstr "Mall"
 
@@ -416,11 +424,11 @@ msgstr "Efter"
 msgid "Default &lt;h2&gt;, &lt;/h2&gt;"
 msgstr "Blir automatiskt &lt;h2&gt;, &lt;/h2&gt; om inga värden anges"
 
-#: pages/edit.php:181 pages/main.php:281
+#: pages/edit.php:181 pages/main.php:297
 msgid "Save"
 msgstr "Spara"
 
-#: pages/edit.php:184 pages/main.php:173
+#: pages/edit.php:184 pages/main.php:179
 msgid "Remove"
 msgstr "Radera"
 
@@ -446,269 +454,279 @@ msgstr "Widget nummer "
 msgid " in "
 msgstr " i "
 
-#: pages/main.php:20
+#: pages/main.php:21
 msgid "Toggle article preview"
 msgstr "Dölj/visa förhandsgranskning av artikel"
 
-#: pages/main.php:37 pages/main.php:165
+#: pages/main.php:38 pages/main.php:171
 msgid "Edit"
 msgstr "Redigera"
 
-#: pages/main.php:45
+#: pages/main.php:46
 msgid "Streamer"
 msgstr "Vinjett"
 
-#: pages/main.php:50
+#: pages/main.php:51
 msgid "Extra"
 msgstr "Extra"
 
-#: pages/main.php:54
+#: pages/main.php:55
 msgid "Image"
 msgstr "Bild"
 
-#: pages/main.php:88
+#: pages/main.php:94
 msgid "Format"
 msgstr "Format"
 
-#: pages/main.php:89 pages/main.php:103
+#: pages/main.php:95 pages/main.php:109
 msgid "Default"
 msgstr "Standard"
 
-#: pages/main.php:123
+#: pages/main.php:129
 msgid "Days"
 msgstr "Dagar"
 
-#: pages/main.php:125
+#: pages/main.php:131
 #, fuzzy
 msgid "Monday"
 msgstr "måndag"
 
-#: pages/main.php:126
+#: pages/main.php:132
 #, fuzzy
 msgid "Tuesday"
 msgstr "tisdag"
 
-#: pages/main.php:127
+#: pages/main.php:133
 #, fuzzy
 msgid "Wednesday"
 msgstr "onsdag"
 
-#: pages/main.php:128
+#: pages/main.php:134
 #, fuzzy
 msgid "Thursday"
 msgstr "torsdag"
 
-#: pages/main.php:129
+#: pages/main.php:135
 #, fuzzy
 msgid "Friday"
 msgstr "fredag"
 
-#: pages/main.php:130
+#: pages/main.php:136
 #, fuzzy
 msgid "Saturday"
 msgstr "lördag"
 
-#: pages/main.php:131
+#: pages/main.php:137
 #, fuzzy
 msgid "Sunday"
 msgstr "söndag"
 
-#: pages/main.php:133 pages/main.php:140
+#: pages/main.php:139 pages/main.php:146
 msgid "Toggle all"
 msgstr "Markera alla"
 
-#: pages/main.php:136
+#: pages/main.php:142
 msgid "Hours"
 msgstr "Timmar"
 
-#: pages/main.php:146
+#: pages/main.php:152
 msgid "Admin lock"
 msgstr "Adminlås"
 
-#: pages/main.php:161
+#: pages/main.php:167
 msgid "Browse"
 msgstr "Bläddra"
 
-#: pages/main.php:169
+#: pages/main.php:175
 msgid "Disconnect"
 msgstr "Frikoppla"
 
-#: pages/main.php:176
+#: pages/main.php:182
 msgid "Full width"
 msgstr "Fullbredd"
 
-#: pages/main.php:177
+#: pages/main.php:183
 msgid "50% wide"
 msgstr "Halvspalt"
 
-#: pages/main.php:178
+#: pages/main.php:184
 msgid "33% wide"
 msgstr "Tredjedelsspalt"
 
-#: pages/main.php:179
+#: pages/main.php:185
 msgid "25% wide"
 msgstr "Fjärdedelsspalt"
 
-#: pages/main.php:180
+#: pages/main.php:186
 msgid "20% wide"
 msgstr "Femtedelsspalt"
 
-#: pages/main.php:181
+#: pages/main.php:187
 msgid "15% wide"
 msgstr "Sjättedelsspalt"
 
-#: pages/main.php:185 pages/main.php:195
+#: pages/main.php:191 pages/main.php:201
 msgid "Align left"
 msgstr "Vänsterjusterad "
 
-#: pages/main.php:189 pages/main.php:196
+#: pages/main.php:195 pages/main.php:202
 msgid "Align right"
 msgstr "Högerjusterad "
 
-#: pages/main.php:197
+#: pages/main.php:203
 msgid "Align none"
 msgstr "Ingen justering"
 
-#: pages/main.php:208
+#: pages/main.php:214
 msgid "Entry word"
 msgstr "Ingångsord"
 
-#: pages/main.php:230 pages/main.php:254
+#: pages/main.php:217
+#, fuzzy
+msgid "Newsbill tag"
+msgstr "tagg"
+
+#: pages/main.php:240 pages/main.php:270
 msgid "Connected to"
 msgstr "Kopplad till"
 
-#: pages/main.php:236
+#: pages/main.php:246
 msgid "change"
 msgstr "byt"
 
-#: pages/main.php:242 pages/main.php:383
+#: pages/main.php:250
+#, fuzzy
+msgid "Hide related:"
+msgstr "Dölj relaterade"
+
+#: pages/main.php:258 pages/main.php:399
 msgid "File"
 msgstr "Fil"
 
-#: pages/main.php:260
+#: pages/main.php:276
 msgid "Connect to post"
 msgstr "Koppla till inlägg"
 
-#: pages/main.php:264
+#: pages/main.php:280
 msgid "Connect to external URL"
 msgstr "Koppla till extern URL"
 
-#: pages/main.php:274
+#: pages/main.php:290
 msgid "Open in a new window"
 msgstr "Öppna i nytt föntster"
 
-#: pages/main.php:286
+#: pages/main.php:302
 msgid "Search for title or post ID..."
 msgstr "Sök på rubrik eller ID..."
 
-#: pages/main.php:287 pages/main.php:319 pages/main.php:451
+#: pages/main.php:303 pages/main.php:335 pages/main.php:467
 msgid "Search"
 msgstr "Sök"
 
-#: pages/main.php:296
+#: pages/main.php:312
 msgid "Articles"
 msgstr "Artikelsök"
 
-#: pages/main.php:303
+#: pages/main.php:319
 msgid "All categories"
 msgstr "Alla kategorier"
 
-#: pages/main.php:310
+#: pages/main.php:326
 msgid "All authors"
 msgstr "Alla författare"
 
-#: pages/main.php:318
+#: pages/main.php:334
 msgid "Search word"
 msgstr "Sökord"
 
-#: pages/main.php:330
+#: pages/main.php:346
 msgid "Author"
 msgstr "Författare"
 
-#: pages/main.php:331
+#: pages/main.php:347
 msgid "Date"
 msgstr "Datum"
 
-#: pages/main.php:340
+#: pages/main.php:356
 msgid "Previous"
 msgstr "Föregående"
 
-#: pages/main.php:346
+#: pages/main.php:362
 msgid "Next"
 msgstr "Nästa"
 
-#: pages/main.php:358
+#: pages/main.php:374
 msgid "Article presets"
 msgstr "Förinställda artiklar"
 
-#: pages/main.php:363
+#: pages/main.php:379
 msgid "Article"
 msgstr "Artikel"
 
-#: pages/main.php:372
+#: pages/main.php:388
 msgid "Count Down"
 msgstr "Nedräkning"
 
-#: pages/main.php:377
+#: pages/main.php:393
 msgid "File includes"
 msgstr "Inkludera filer"
 
-#: pages/main.php:448 pages/settings.php:84
+#: pages/main.php:464 pages/settings.php:84
 msgid "Add"
 msgstr "Lägg till"
 
-#: pages/main.php:468
+#: pages/main.php:484
 msgid "Save setup"
 msgstr "Spara upplägg"
 
-#: pages/main.php:470
+#: pages/main.php:486
 msgid "Update"
 msgstr "Uppdatera"
 
-#: pages/main.php:483
+#: pages/main.php:499
 msgid "New version available"
 msgstr "Ny version tillgänglig"
 
-#: pages/main.php:484
+#: pages/main.php:500
 #, php-format
 msgid "We have upgraded Arlima to version %s"
 msgstr "Vi har uppdaterat till version %s av Arlima."
 
-#: pages/main.php:486
+#: pages/main.php:502
 msgid "Please save your work and update the website in your browser."
 msgstr "Vänligen spara ditt arbete och uppdatera webbläsaren."
 
-#: pages/main.php:494
+#: pages/main.php:510
 msgid "Schedule list"
 msgstr "Tidsinställ lista"
 
-#: pages/main.php:495
+#: pages/main.php:511
 msgid "Scheduled date must be in the future."
 msgstr "Tidsinställt datum måste vara i framtiden."
 
-#: pages/main.php:499
+#: pages/main.php:515
 msgid "Publish date"
 msgstr "Publiceringsdatum"
 
-#: pages/main.php:507
+#: pages/main.php:523
 msgid "Publish time"
 msgstr "Publiceringstid"
 
-#: pages/main.php:514
+#: pages/main.php:530
 msgid "Schedule"
 msgstr "Tidsinställ"
 
-#: pages/main.php:518
+#: pages/main.php:534
 msgid "Scheduled list notice"
 msgstr "Tidsinställd lista"
 
-#: pages/main.php:521
+#: pages/main.php:537
 #, php-format
 msgid "Please note: a scheduled list is about to be published in %s seconds."
 msgstr ""
 "Notera: en tidsinställd lista är inställd att publiceras om %s sekunder. "
 
-#: pages/main.php:524
+#: pages/main.php:540
 msgid "This page will be refreshed automatically."
 msgstr "Denna sida kommer automatiskt att ladda om."
 
@@ -784,8 +802,27 @@ msgstr ""
 msgid "Import list"
 msgstr "Importera"
 
-#: pages/settings.php:212
-#, fuzzy
+#: pages/settings.php:210
+msgid "Permissions"
+msgstr "Behörighet"
+
+#: pages/settings.php:215
+msgid "Allow editors to create section dividers"
+msgstr "Tillåt redaktörer att skapa sektionsavdelare"
+
+#: pages/settings.php:228
+msgid "Newsbill settings"
+msgstr "Inställningar för löpsedel"
+
+#: pages/settings.php:233
+msgid "Replace font size slider with newsbill tag"
+msgstr "Ersätt reglage för textstorlek med fält för pufftagg"
+
+#: pages/settings.php:243
+msgid "Streamer pre-text"
+msgstr "Extra ingångsord för vinjett"
+
+#: pages/settings.php:258
 msgid "Save settings"
 msgstr "Spara inställningar"
 
@@ -832,9 +869,6 @@ msgstr "Spara inställningar"
 
 #~ msgid "Link"
 #~ msgstr "Länk"
-
-#~ msgid "Hide related"
-#~ msgstr "Dölj relaterade"
 
 #~ msgid "Templates"
 #~ msgstr "Mall"

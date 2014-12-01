@@ -7,6 +7,7 @@
  */
 $factory = new Arlima_ListFactory();
 $arlima_plugin = new Arlima_Plugin();
+$settings = $arlima_plugin->loadSettings();
 ?>
 <div id="col-container">
 
@@ -66,6 +67,11 @@ $arlima_plugin = new Arlima_Plugin();
                             endif;
                             ?>
                         </div>
+
+                        <?php if(isset($settings['streamer_pre']) && $settings['streamer_pre'] != '') : ?>
+                            <input class="data streamer content pre" data-prop="options:streamerPre" />
+                        <?php endif; ?>
+
                         <input class="data streamer content" data-prop="options:streamerContent" />
                         <input type="hidden" class="data streamer-type" data-prop="options:streamerType" />
                         <select class="streamer-color" name="options:streamerColor">
@@ -207,10 +213,14 @@ $arlima_plugin = new Arlima_Plugin();
                 <div class="title-container">
                     <input class="pre-title data template-feature" data-feature="title" data-prop="options:preTitle" placeholder="<?php _e('Entry word', 'arlima') ?>" />
                     <input class="title data" data-prop="title" placeholder="<?php _e('Title', 'arlima') ?>" />
+                    <?php if(isset($settings['newsbill_tag']) && $settings['newsbill_tag'] != '') : ?>
+                        <input class="newsbill-tag data template-feature" data-feature="newsbill_tag" data-prop="options:newsbillTag" placeholder="<?php _e('Newsbill tag', 'arlima') ?>" />
+                    <?php else: ?>
                     <span class="template-feature" data-feature="title">
                         <input class="font-size data" data-prop="size" />
                         <div class="font-size-slider"></div>
                     </span>
+                    <?php endif; ?>
                 </div>
 
                 <div class="template-feature" data-feature="editor">
@@ -235,6 +245,12 @@ $arlima_plugin = new Arlima_Plugin();
                     <em class="future-notice">(<?php _e('Future post', 'arlima') ?>)</em>
                     <a href="#" class="change">[<?php _e('change', 'arlima') ?>]</a>
                     <a href="#" class="wp-admin-edit">[<?php _e('edit', 'arlima') ?>]</a>
+                    <?php if(Arlima_Plugin::isWPRelatedPostsInstalled()) : ?>
+                        <label class="alignright">
+                            <?php _e('Hide related:', 'arlima') ?>
+                            <input type="checkbox" class="data hide-related" data-feature="hide_related" data-prop="options:hideRelated" <?php echo $settings['hide_related_posts_default'] != '1' ? '' : 'checked="checked"' ?>/>
+                        </label>
+                    <?php endif; ?>
                 </div>
 
                 <div class="file-include-container">

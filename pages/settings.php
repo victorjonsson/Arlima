@@ -206,6 +206,52 @@ if( isset($message) ): ?>
             </div>
         </div>
 
+        <div class="arlima-postbox">
+            <h3><?php _e('Permissions', 'arlima') ?></h3>
+            <div class="inside">
+                <table>
+                    <tr>
+                        <td>
+                            <?php _e('Allow editors to create section dividers', 'arlima') ?>
+                        </td>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="settings[editor_sections]" <?php echo $settings['editor_sections'] != '' ? ' checked="checked"':'' ?> />
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="arlima-postbox">
+            <h3><?php _e('Newsbill settings', 'arlima') ?></h3>
+            <div class="inside">
+                <table>
+                    <tr>
+                        <td>
+                            <?php _e('Replace font size slider with newsbill tag', 'arlima') ?>
+                        </td>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="settings[newsbill_tag]" <?php echo $settings['newsbill_tag'] != '' ? ' checked="checked"':'' ?> />
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <?php _e('Streamer pre-text', 'arlima') ?>
+                        </td>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="settings[streamer_pre]" <?php echo $settings['streamer_pre'] != '' ? ' checked="checked"':'' ?> />
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
         <?php do_action('arlima_settings_page', $settings); ?>
 
         <p>

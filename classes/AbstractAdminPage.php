@@ -196,7 +196,6 @@ abstract class Arlima_AbstractAdminPage {
                 'devMode' => ARLIMA_DEV_MODE,
                 'groupChildArticles' => ARLIMA_GROUP_CHILD_ARTICLES,
                 'sectionDivsSupportTemplate' => ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES,
-                'listReloadTime' => ARLIMA_LIST_RELOAD_TIME,
                 'previewQueryArg' => Arlima_List::QUERY_ARG_PREVIEW,
                 'sendJSErrorsToServerLog' => ARLIMA_SEND_JS_ERROR_TO_LOG,
                 'lang' => array( // todo: but these args in a separate .js.php file when this array gets to long

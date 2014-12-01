@@ -40,8 +40,3 @@ defined('ARLIMA_SEND_JS_ERROR_TO_LOG')
 // variable to adjust the unix timestamp
 defined('ARLIMA_TIME_ADJUST')
     or define('ARLIMA_TIME_ADJUST', 0); // -3600 to put timestamp back one hour
-
-// Time in seconds for automatic reload in the list editor. This is used for
-// checking for scheduled lists that are to be published.
-defined('ARLIMA_LIST_RELOAD_TIME')
-    or define('ARLIMA_LIST_RELOAD_TIME', 600); // -600 to put timestamp back one hour

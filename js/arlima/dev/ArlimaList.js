@@ -272,7 +272,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      */
     ArlimaList.prototype.fixFutureNotices = function() {
         this.$elem.find('.future').each(function() {
-            if( this.arlimaArticle.isPublished() ) {
+            if( this.arlimaArticle && this.arlimaArticle.isPublished() ) {
                 this.arlimaArticle.updateItemPresentation();
             }
         });

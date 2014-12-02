@@ -303,8 +303,13 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
             delete this.loadedVersion; // No specific version loaded means we're on the latest created version
 
-            var _self = this,
-                scheduleTime = (typeof scheduleDate === 'undefined') ? '' : Math.round(scheduleDate.getTime() / 1000); // Get Unix timestamp of Date if scheduled
+            var _self = this, scheduleTime = '';
+
+            if (scheduleDate) {
+                scheduleTime = Math.round(scheduleDate.getTime() / 1000); // Get Unix timestamp of Date if scheduled
+            } else if (this.data.version.scheduled) {  // editing future version
+                scheduleTime = this.data.version.scheduled;
+            }
 
             ArlimaBackend.getLaterVersion(this.data.id, this.data.version.id, function(json) {
                 if(json) {
@@ -399,9 +404,14 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     style: window.qtipStyle
                 });
 
+            list.$elem.removeClass('scheduled');
+
             // Does list contain scheduled versions?
             if(listContainsSchedule) {
                 $versionWrapper.prepend($imgClockIcon);
+                if (list.data.version.status == 3) {  // Scheduled
+                    list.$elem.addClass('scheduled');
+                }
             }
 
             $versionList.html('');

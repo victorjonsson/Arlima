@@ -370,8 +370,8 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 $versionList = list.$elem.find('.previous-versions'),
                 loadedVersionID = list.loadedVersion || list.data.version.id,
                 listContainsSchedule = list.data.scheduledVersions.length > 0,
-                $imgClockIcon = $('<img src="' + ArlimaJS.pluginURL + '/images/clock-icon.png' + '" />')
-                        .attr('class', 'schedule-clock')
+                $imgClockIcon = $('<i>&nbsp;</i>')
+                        .attr('class', 'fa fa-clock-o schedule-clock')
                         .attr('title', ArlimaJS.lang.scheduledVersions)
                         .attr('alt', ArlimaJS.lang.scheduledVersions),
                 $deleteLink = $('<a>x</a>')

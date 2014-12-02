@@ -541,6 +541,12 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 hasDropDownFocus = false,
                 $versionDropDown = list.$elem.find('.previous-versions');
 
+
+            var hideVersionDropDown = function() {
+                $versionWrapper.find('.number').removeClass('active');
+                $versionDropDown.hide();
+            };
+
             $versionDropDown
                 .bind('mouseenter', function() {
                     hasDropDownFocus = true;
@@ -549,8 +555,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     hasDropDownFocus = false;
                     setTimeout(function() {
                         if( $versionDropDown.parent().is(':visible') && !hasDropDownFocus ) {
-                            $versionWrapper.find('.number').removeClass('active');
-                            $versionDropDown.hide();
+                            hideVersionDropDown();
                         }
                     }, 1200);
                 })
@@ -562,6 +567,10 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
             // Show version drop down
             $versionWrapper.find('.number').click( function() {
+                if ($(this).hasClass('active')) {
+                    hideVersionDropDown();
+                    return false;
+                }
                 $(this).addClass('active');
                 $versionDropDown.show();
                 hasDropDownFocus = true;

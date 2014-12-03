@@ -186,12 +186,12 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             $titleNode.text(title);
         }
 
-        $titleNode.find('.schedule-clock').remove()
-        $titleNode.removeClass('schedule-clock')
+        $titleNode.find('.schedule-clock').remove();
+        $titleNode.removeClass('scheduled');
 
         if (data.version.status == 3) {
             $('<i class="fa fa-clock-o schedule-clock">&nbsp;</i>').prependTo($titleNode);
-            $titleNode.addClass('schedule-clock')
+            $titleNode.addClass('scheduled');
         }
 
         if( ArlimaJS.isAdmin && data.options.supports_sections && !data.isImported ) {
@@ -263,12 +263,26 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         }
 
         // Toggle state
-        this.toggleUnsavedState( version && version != this.data.version.id ? true:false );
+
+        var isChanged = (version && version != this.data.version.id) ? true:false;
+
+        var oldVersion = this.data.version;
+
         _toggleAjaxPreloader(this, true);
 
         // Load the version of the list
         window.ArlimaListLoader.load(this, function() {
             _toggleAjaxPreloader(_self, false);
+
+            if (_self.data.version.status == 3) { // editing scheduled
+                isChanged = false;
+            }
+            if (_self.loadedVersion == _self.data.versions[0].id) { // changed to latest version
+                isChanged = false;
+            }
+
+            _self.toggleUnsavedState(isChanged);
+
         }, version);
     };
 
@@ -493,6 +507,12 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 .addClass(version.id == loadedVersionID ? 'selected' : '')
                 .text('#' + version.id + ' (' + version.saved_by + ')');
                 $versionList.append($item);
+
+                // editing scheduled state. only display latest published version
+                // so that list.data.version don't have to be updated for different states
+                if (list.data.version.status == 3 && i > 0) {
+                    $item.addClass('disabled');
+                }
             });
         }
         setTimeout(function(){ $.event.trigger({ type: 'versionInfoLoaded' }) }, 2000)
@@ -587,7 +607,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     }, 1200);
                 })
                 .bind('click', function(e) {
-                    if( ! $(e.target).hasClass('future')) {
+                    if( ! $(e.target).is('.future, .disabled')) {
                         list.reload($(e.target).attr('data-version'));
                     }
                 });

@@ -595,8 +595,15 @@ class Arlima_ListFactory {
                     }
                 }
 
+                $latest = null;
+                if ($versions) {
+                    $latest = $versions[0];
+                } elseif ($scheduled_versions) {
+                    $latest = $scheduled_versions[0];
+                }
+
                 return array(
-                    array('created' => $data[0]->alv_created, 'id' => $data[0]->alv_id, 'saved_by' => $saved_by, 'user_id' => $data[0]->alv_user_id, 'status' => $data[0]->alv_status, 'scheduled' => $data[0]->alv_scheduled),
+                    $latest ? self::removePrefix($latest, '') : null,
                     $versions,
                     $scheduled_versions
                 );

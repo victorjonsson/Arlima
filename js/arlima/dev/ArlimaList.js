@@ -405,19 +405,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 $imgClockIcon = $('<i>&nbsp;</i>')
                         .attr('class', 'fa fa-clock-o schedule-clock')
                         .attr('title', ArlimaJS.lang.scheduledVersions)
-                        .attr('alt', ArlimaJS.lang.scheduledVersions),
-                $deleteLink = $('<a>x</a>')
-                        .attr('href', '#')
-                        .attr('class', 'delete')
-                        .attr('title', ArlimaJS.lang.delete)
-                        .on('click', function(e){
-                            var $versionItem = $(e.target).parent(),
-                            doDelete = confirm(ArlimaJS.lang.confirmDeleteVersion);
-                            if(doDelete) {
-                                list.deleteVersion($versionItem.attr('data-version'));
-                            }
-                            return false;
-                        });
+                        .attr('alt', ArlimaJS.lang.scheduledVersions);
 
             $versionWrapper
                 .html('v. '+loadedVersionID)
@@ -493,6 +481,20 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                         + ' ' + hours.substr(hours.length-2)
                         + ':' + minutes.substr(minutes.length-2)
                     );
+
+                var $deleteLink = $('<a>x</a>')
+                        .attr('href', '#')
+                        .attr('class', 'delete')
+                        .attr('title', ArlimaJS.lang.delete)
+                        .on('click', function(e){
+                            var $versionItem = $(e.target).parent(),
+                            doDelete = confirm(ArlimaJS.lang.confirmDeleteVersion);
+                            if(doDelete) {
+                                list.deleteVersion($versionItem.attr('data-version'));
+                            }
+                            return false;
+                        });
+
                 $versionList.append($listItem.append($deleteLink));
             });
 

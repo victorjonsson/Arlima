@@ -186,6 +186,14 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             $titleNode.text(title);
         }
 
+        $titleNode.find('.schedule-clock').remove()
+        $titleNode.removeClass('schedule-clock')
+
+        if (data.version.status == 3) {
+            $('<i class="fa fa-clock-o schedule-clock">&nbsp;</i>').prependTo($titleNode);
+            $titleNode.addClass('schedule-clock')
+        }
+
         if( ArlimaJS.isAdmin && data.options.supports_sections && !data.isImported ) {
             this.$elem.find('.add-section').show();
         } else {

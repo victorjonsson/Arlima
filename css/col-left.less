@@ -244,6 +244,13 @@
 
     .title {
       font-weight: bold;
+      .schedule-clock {
+        color: #4693D7;
+        margin-right: 3px;
+      }
+      &.scheduled {
+        color: #4693D7;
+      }
     }
 
     .remove, .title {
@@ -313,6 +320,10 @@
     a.save, a.disabled {
       color: #bbb;
       cursor: default;
+    }
+
+    .schedule-clock {
+      color: #4693D7;
     }
 
     .fa {
@@ -446,6 +457,9 @@
     color: #222;
     cursor: pointer;
   }
+  &.scheduled a.save {
+    color: #4693D7;
+  }
 }
 
 // Imported article list
@@ -464,7 +478,7 @@
 }
 
 
-/* 
+/*
 * SORTABLE STUFF
 */
 .sortable-placeholder {

@@ -216,9 +216,14 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             if(this._isUnsaved) {
                 this.$elem.addClass('unsaved');
                 $title.prepend('<span class="dot">&nbsp;</span>');
+
+                this.$elem.find('.previous-versions .future.save').removeClass('disabled')
+
             }
             else {
                 this.$elem.removeClass('unsaved');
+
+                this.$elem.find('.previous-versions .future.save').addClass('disabled')
             }
         }
     };
@@ -425,10 +430,14 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             $versionList.html('');
 
             var $optionScheduledVersion = $('<li></li>', {
-                class : 'future'
+                class : 'future save'
             })
-                .text('+ '+ ArlimaJS.lang.saveFutureVersion)
+                .text(ArlimaJS.lang.saveFutureVersion)
+                .prepend('<i class="fa fa-save">&nbsp;</i>')
+                .toggleClass('disabled', !list.hasUnsavedChanges())
                 .on('click', function(){
+                    if ($(this).hasClass('disabled')) return false;
+
                     $.fancybox({
                         href : '#arlima-schedule-modal',
                         height: 400,

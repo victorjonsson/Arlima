@@ -303,6 +303,8 @@ class Arlima_ListFactory {
             $this->cache->delete('arlima_list_articles_data_'.$list->getId());
             $this->doSaveListAction($list);
         }
+        
+        return $version_id;
     }
 
     /**
@@ -454,7 +456,7 @@ class Arlima_ListFactory {
      * @param bool $get_scheduled If $version is true and $get_scheduled is false the result will only contain the latest published and not scheduled list
      * @return Arlima_List
      */
-    public function loadList($id, $version=false, $include_future_posts=false, $get_scheduled=true)
+    public function loadList($id, $version=false, $include_future_posts=false, $get_scheduled=false)
     {
         if( !is_numeric( $id ) && substr( $id, 0, 7 ) == 'http://' ) {
             // Import list
@@ -486,7 +488,7 @@ class Arlima_ListFactory {
 
             $article_data = false;
 
-            if($get_scheduled)
+            if(!$get_scheduled)
                 $article_data = $this->cache->get('arlima_list_articles_data_'.$id);
 
             if( !$article_data || $include_future_posts ) {
@@ -500,7 +502,7 @@ class Arlima_ListFactory {
                     $article_data['articles'] = $this->queryListArticles($article_data['version']['id'], $include_future_posts);
                 }
 
-                if( !$include_future_posts || $get_scheduled )
+                if( !$include_future_posts && !$get_scheduled )
                     $this->cache->set('arlima_list_articles_data_'.$id, $article_data);
             }
 
@@ -559,7 +561,7 @@ class Arlima_ListFactory {
      * @param $get_scheduled
      * @return array
      */
-    private function queryVersionData($list_id, $version, $get_scheduled = true)
+    private function queryVersionData($list_id, $version, $get_scheduled = false)
     {
         $version_data_sql = "SELECT alv_id, alv_created, alv_scheduled, alv_status, alv_user_id FROM ".$this->dbTable('_version');
 

@@ -206,7 +206,7 @@ function arlima_has_list() {
  * @param bool $get_scheduled
  * @return Arlima_List|array|bool
  */
-function arlima_get_list($list_only = true, $get_scheduled = true) {
+function arlima_get_list($list_only = true, $get_scheduled = false) {
     static $current_arlima_list = null;
     $list_is_scheduled = false;
 

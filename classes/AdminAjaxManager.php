@@ -479,10 +479,10 @@ class Arlima_AdminAjaxManager
             $list = $list_factory->loadList($list_id);
         }
 
-        $list_factory->saveNewListVersion($list, $articles, get_current_user_id(), $schedule_time, $preview);
+        $version_id = $list_factory->saveNewListVersion($list, $articles, get_current_user_id(), $schedule_time, $preview);
 
         // Reload list to get latest version
-        $list = $list_factory->loadList($list->getId(), false, true);
+        $list = $list_factory->loadList($list->getId(), $version_id, true, true);
 
         $this->outputListData($list);
     }

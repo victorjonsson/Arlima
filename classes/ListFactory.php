@@ -453,10 +453,9 @@ class Arlima_ListFactory {
      * @param int|string $id Either list id, list slug or URL to external list or RSS-feed
      * @param mixed $version Omit this argument, or set it to false, if you want to load the latest published version of the list. This argument won't have any effect if you're loading an external list/feed
      * @param bool $include_future_posts Whether or not the list should include future posts. This argument won't have any effect if you're loading an external list/feed
-     * @param bool $get_scheduled If $version is true and $get_scheduled is false the result will only contain the latest published and not scheduled list
      * @return Arlima_List
      */
-    public function loadList($id, $version=false, $include_future_posts=false, $get_scheduled=false)
+    public function loadList($id, $version=false, $include_future_posts=false)
     {
         if( !is_numeric( $id ) && substr( $id, 0, 7 ) == 'http://' ) {
             // Import list
@@ -483,18 +482,15 @@ class Arlima_ListFactory {
         if( !$list->exists() )
             return $list;
 
-        // Get latest version (using cache)
+        // Get latest published version (using cache)
         if( !$version ) {
 
             $article_data = false;
 
-            if(!$get_scheduled)
-                $article_data = $this->cache->get('arlima_list_articles_data_'.$id);
-
             if( !$article_data || $include_future_posts ) {
 
                 $article_data = array();
-                $version_data = $this->queryVersionData($id, false, $get_scheduled);
+                $version_data = $this->queryVersionData($id, false);
                 $article_data['version'] = $version_data[0];
                 $article_data['version_list'] = $version_data[1];
                 $article_data['scheduled_version_list'] = $version_data[2];
@@ -502,7 +498,7 @@ class Arlima_ListFactory {
                     $article_data['articles'] = $this->queryListArticles($article_data['version']['id'], $include_future_posts);
                 }
 
-                if( !$include_future_posts && !$get_scheduled )
+                if( !$include_future_posts )
                     $this->cache->set('arlima_list_articles_data_'.$id, $article_data);
             }
 
@@ -517,13 +513,17 @@ class Arlima_ListFactory {
 
         // Preview version or specific version (no cache)
         else {
-            list($version_data, $version_list, $scheduled_version_list) = $this->queryVersionData($id, $version, $version ? true : $get_scheduled);
+            list($version_data, $version_list, $scheduled_version_list) = $this->queryVersionData($id, $version);
             if( !empty($version_data) ) {
                 $list->setVersion($version_data);
                 $list->setVersions($version_list);
                 $list->setScheduledVersions($scheduled_version_list);
                 $list->setArticles( $this->queryListArticles($version_data['id'], true) );
-                $list->setStatus( $version === 'preview' ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED);
+                if ($version_data && $version_data['status'] == Arlima_List::STATUS_SCHEDULED) {
+                    $list->setStatus(Arlima_List::STATUS_SCHEDULED);
+                } else {
+                    $list->setStatus( $version === 'preview' ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED);
+                }
             }
         }
 
@@ -561,21 +561,18 @@ class Arlima_ListFactory {
      * @param $get_scheduled
      * @return array
      */
-    private function queryVersionData($list_id, $version, $get_scheduled = false)
+    private function queryVersionData($list_id, $version)
     {
+        /* TODO use the same code for fetching all other versions regardless of if $version is set */
+       
         $version_data_sql = "SELECT alv_id, alv_created, alv_scheduled, alv_status, alv_user_id FROM ".$this->dbTable('_version');
-
-        $and = '';
-
-        if( !$get_scheduled )
-            $and .= ' AND alv_status != '.Arlima_List::STATUS_SCHEDULED;
 
         if( !$version  ) {
 
             $versions = array();
             $scheduled_versions = array();
             $saved_by = __('Unknown', 'arlima');
-            $data = $this->executeSQLQuery('get_results', $version_data_sql.' WHERE alv_al_id='.intval($list_id).' AND alv_status != 2 '.$and.' ORDER BY alv_id DESC LIMIT 0,10');
+            $data = $this->executeSQLQuery('get_results', $version_data_sql.' WHERE alv_al_id='.intval($list_id).' AND alv_status != 2 ORDER BY alv_id DESC LIMIT 0,10');
 
             if( empty($data) ) {
                 // No version yet exists
@@ -599,19 +596,17 @@ class Arlima_ListFactory {
 
                 $latest = null;
                 if ($versions) {
-                    $latest = $versions[0];
-                } elseif ($scheduled_versions) {
-                    $latest = $scheduled_versions[0];
-                }
+                    $latest = self::removePrefix($versions[0], '');
+                } 
 
                 return array(
-                    $latest ? self::removePrefix($latest, '') : null,
+                    $latest,
                     $versions,
                     $scheduled_versions
                 );
             }
 
-        } else {
+        } else {  // load specific version 
 
             // latest preview version
             if( $version === 'preview' ) {
@@ -623,7 +618,7 @@ class Arlima_ListFactory {
             }
 
             // specific version
-            elseif($version !== false) {
+            else {
                 $version_data_sql = $this->wpdb->prepare(
                     $version_data_sql." WHERE alv_id = %d",
                     $version

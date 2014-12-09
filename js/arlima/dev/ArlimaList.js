@@ -341,7 +341,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             ArlimaBackend.getLaterVersion(this.data.id, this.data.version.id, function(json) {
                 if(json) {
                     var saveList = true;
-                    if(json.version) {
+                    if(json.version && !scheduleTime) {
                         // has newer version
                         saveList = confirm(ArlimaJS.lang.laterVersion + ' \r\n ' + json.versioninfo + '\r\n' + ArlimaJS.lang.overWrite);
                     }

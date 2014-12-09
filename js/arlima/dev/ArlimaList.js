@@ -632,6 +632,9 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     scheduleDate = new Date(),
                     nowDate = new Date();
 
+                ymdArray = $.map(ymdArray, function(x) { return parseInt(x, 10)});
+                hsArray = $.map(hsArray, function(x) { return parseInt(x, 10)});
+
                 scheduleDate.setFullYear(ymdArray[0], (ymdArray[1]-1), ymdArray[2]);
                 scheduleDate.setHours(hsArray[0]);
                 scheduleDate.setMinutes(hsArray[1]);

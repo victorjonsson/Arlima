@@ -517,7 +517,7 @@ class Arlima_ListFactory {
 
         // Preview version or specific version (no cache)
         else {
-            list($version_data, $version_list, $scheduled_version_list) = $this->queryVersionData($id, $version);
+            list($version_data, $version_list, $scheduled_version_list) = $this->queryVersionData($id, $version, $get_scheduled);
             if( !empty($version_data) ) {
                 $list->setVersion($version_data);
                 $list->setVersions($version_list);

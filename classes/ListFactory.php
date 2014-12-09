@@ -243,12 +243,14 @@ class Arlima_ListFactory {
 
     /**
      * @param Arlima_List $list
-     * @param array $articles
-     * @param int $user_id
+     * @param $articles
+     * @param $user_id
+     * @param int $schedule_time
      * @param bool $preview
+     * @return int
      * @throws Exception
      */
-    public function saveNewListVersion($list, $articles, $user_id, $schedule_time, $preview = false)
+    public function saveNewListVersion($list, $articles, $user_id, $schedule_time=0, $preview = false)
     {
         if(!$list->exists())
             throw new Exception('You can not create a new version of a list that does not exist');
@@ -297,13 +299,13 @@ class Arlima_ListFactory {
         }
 
         // Reload list
-        $list = $this->loadList($list->getId(), false, true, true);
+        $list = $this->loadList($list->getId(), false, true);
 
         if( !$preview ) {
             $this->cache->delete('arlima_list_articles_data_'.$list->getId());
             $this->doSaveListAction($list);
         }
-        
+
         return $version_id;
     }
 
@@ -517,7 +519,7 @@ class Arlima_ListFactory {
 
         // Preview version or specific version (no cache)
         else {
-            list($version_data, $version_list, $scheduled_version_list) = $this->queryVersionData($id, $version, $get_scheduled);
+            list($version_data, $version_list, $scheduled_version_list) = $this->queryVersionData($id, $version);
             if( !empty($version_data) ) {
                 $list->setVersion($version_data);
                 $list->setVersions($version_list);
@@ -579,7 +581,7 @@ class Arlima_ListFactory {
 
             if( empty($data) ) {
                 // No version yet exists
-                return array( array(), array() );
+                return array( array(), array(), array() );
             } else {
 
                 foreach($data as $row) {

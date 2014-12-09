@@ -502,16 +502,6 @@ class Arlima_List
     }
 
     /**
-     * @return bool
-     */
-    function isLatestPublishedVersion()
-    {
-        return !$this->isPreview() &&
-            isset($this->version['id']) &&
-            (empty($this->versions) || $this->versions[0] == $this->version['id']);
-    }
-
-    /**
      * @return array
      */
     public function toArray()

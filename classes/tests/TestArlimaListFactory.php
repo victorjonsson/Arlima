@@ -63,7 +63,6 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
             $test->assertEquals(array(), $list->getVersions());
             $test->assertFalse($list->isPreview());
             $test->assertFalse($list->isImported());
-            $test->assertTrue($list->isLatestPublishedVersion());
             $test->assertEquals('</h5>', $list->getOption('after_title'));
             $test->assertEquals('', $list->getOption('whateva'));
         };
@@ -95,7 +94,6 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(), $reloaded_list->getVersions());
         $this->assertFalse($reloaded_list->isPreview());
         $this->assertFalse($reloaded_list->isImported());
-        $this->assertTrue($reloaded_list->isLatestPublishedVersion());
         $this->assertEquals('</h5>', $reloaded_list->getOption('after_title'));
         $this->assertEquals('', $reloaded_list->getOption('whateva'));
     }
@@ -124,7 +122,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(2, count( $reloaded_list->getVersions() ));
         $this->assertFalse( $reloaded_list->isPreview() );
-        $this->assertTrue( $reloaded_list->isLatestPublishedVersion() );
+        $this->assertEquals(Arlima_List::STATUS_PUBLISHED, $reloaded_list->getStatus());
         $this->assertEquals(98, (int)$reloaded_list->getVersionAttribute('user_id'));
         $this->assertEquals(2, count($reloaded_list->getArticles())); // Limit was set to two
 
@@ -132,7 +130,6 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
 
         $old_version = self::$factory->loadList($list->id(), $ver_id);
 
-        $this->assertFalse( $old_version->isLatestPublishedVersion() );
         $this->assertEquals($ver_id, $old_version->getVersionAttribute('id'));
         $this->assertEquals(3, count($old_version->getVersions()));
         $this->assertEquals(1, count($old_version->getArticles()));
@@ -154,7 +151,8 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(14, $latest_ver->getVersionAttribute('user_id'));
         $this->assertEquals(10, count($latest_ver->getVersions()));
 
-        $oldest_ver = self::$factory->loadList($list->getSlug(), array_slice($latest_ver->getVersions(), -1));
+        $version_id = current(array_slice($latest_ver->getVersions(), -1));
+        $oldest_ver = self::$factory->loadList($list->getSlug(), $version_id);
         $this->assertEquals(5, $oldest_ver->getVersionAttribute('user_id'));
     }
 

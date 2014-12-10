@@ -62,8 +62,8 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
             $test->assertEquals(Arlima_List::STATUS_EMPTY, $list->getStatus());
             $test->assertEquals(array(), $list->getVersions());
             $test->assertFalse($list->isPreview());
-            $test->assertFalse($list->isImported());
             $test->assertTrue($list->isLatestPublishedVersion());
+            $test->assertFalse($list->isImported());
             $test->assertEquals('</h5>', $list->getOption('after_title'));
             $test->assertEquals('', $list->getOption('whateva'));
         };
@@ -95,7 +95,6 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(), $reloaded_list->getVersions());
         $this->assertFalse($reloaded_list->isPreview());
         $this->assertFalse($reloaded_list->isImported());
-        $this->assertTrue($reloaded_list->isLatestPublishedVersion());
         $this->assertEquals('</h5>', $reloaded_list->getOption('after_title'));
         $this->assertEquals('', $reloaded_list->getOption('whateva'));
     }
@@ -137,6 +136,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(2, count( $reloaded_list->getVersions() ));
         $this->assertFalse( $reloaded_list->isPreview() );
         $this->assertTrue( $reloaded_list->isLatestPublishedVersion() );
+        $this->assertEquals(Arlima_List::STATUS_PUBLISHED, $reloaded_list->getStatus());
         $this->assertEquals(98, (int)$reloaded_list->getVersionAttribute('user_id'));
         $this->assertEquals(2, count($reloaded_list->getArticles())); // Limit was set to two
 

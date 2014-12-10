@@ -243,9 +243,11 @@ class Arlima_ListFactory {
 
     /**
      * @param Arlima_List $list
-     * @param array $articles
-     * @param int $user_id
+     * @param $articles
+     * @param $user_id
+     * @param int $schedule_time
      * @param bool $preview
+     * @return int
      * @throws Exception
      */
     public function saveNewListVersion($list, $articles, $user_id, $schedule_time=0, $preview = false)
@@ -589,8 +591,8 @@ class Arlima_ListFactory {
         }
         else {
             // FIXME previously list id (alv_al_id) was omitted, so that a version from another list
-            // could be returned. Be aware of lists with conflicting slug names and loadList (i.e. alv_id
-            // is wrong for $version)
+            // could be returned. Be aware of lists with conflicting slug names and loadList
+            //  (i.e. alv_id is wrong for $version)
             $single_version_sql = $version_data_sql.' AND alv_id='.(int)$version;
             $latest = $this->executeSQLQuery('get_row', $single_version_sql, 'alv_');
         }

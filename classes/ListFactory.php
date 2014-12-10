@@ -573,11 +573,9 @@ class Arlima_ListFactory {
         $version_data_sql = "SELECT alv_id, alv_created, alv_scheduled, alv_status, alv_user_id FROM ".$this->dbTable('_version');
 
         if( !$version  ) {
-
             $versions = array();
             $scheduled_versions = array();
-            $saved_by = __('Unknown', 'arlima');
-            $data = $this->executeSQLQuery('get_results', $version_data_sql.' WHERE alv_al_id='.intval($list_id).' AND alv_status != 2 ORDER BY alv_id DESC LIMIT 0,10');
+            $data = $this->executeSQLQuery('get_results', $version_data_sql.' WHERE alv_al_id='.intval($list_id).' AND alv_status != 2 ORDER BY alv_id DESC LIMIT 0,10', 'alv_');
 
             if( empty($data) ) {
                 // No version yet exists
@@ -585,24 +583,25 @@ class Arlima_ListFactory {
             } else {
 
                 foreach($data as $row) {
-                    $user_data = get_userdata($row->alv_user_id);
+                    $user_data = get_userdata($row['user_id']);
+
+                    $saved_by = __('Unknown', 'arlima');
                     if ( $user_data ) {
                         $saved_by = $user_data->display_name;
                     }
-                    switch($row->alv_status) {
+                    $row['saved_by'] = $saved_by;
+
+                    switch($row['status']) {
                         case Arlima_List::STATUS_SCHEDULED :
-                            $scheduled_versions[] = array('created' => $row->alv_created, 'id' => $row->alv_id, 'saved_by' => $saved_by, 'user_id' => $row->alv_user_id, 'scheduled' => $row->alv_scheduled, 'status' => $row->alv_status);
+                            $scheduled_versions[] = $row;
                             break;
                         default :
-                            $versions[] = array('created' => $row->alv_created, 'id' => $row->alv_id, 'saved_by' => $saved_by, 'user_id' => $row->alv_user_id, 'status' => $row->alv_status);
+                            $versions[] = $row;
                             break;
                     }
                 }
 
-                $latest = null;
-                if ($versions) {
-                    $latest = self::removePrefix($versions[0], '');
-                }
+                $latest = $versions ? $versions[0] : null;
 
                 return array(
                     $latest,

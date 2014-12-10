@@ -568,97 +568,46 @@ class Arlima_ListFactory {
      */
     private function queryVersionData($list_id, $version)
     {
-        /* TODO use the same code for fetching all other versions regardless of if $version is set */
+        $version_data_sql = "SELECT alv_id, alv_created, alv_scheduled, alv_status, alv_user_id FROM ".$this->dbTable('_version').' WHERE alv_al_id='.(int)$list_id;
 
-        $version_data_sql = "SELECT alv_id, alv_created, alv_scheduled, alv_status, alv_user_id FROM ".$this->dbTable('_version');
-
-        if( !$version  ) {
-            $versions = array();
-            $scheduled_versions = array();
-            $data = $this->executeSQLQuery('get_results', $version_data_sql.' WHERE alv_al_id='.intval($list_id).' AND alv_status != 2 ORDER BY alv_id DESC LIMIT 0,10', 'alv_');
-
-            if( empty($data) ) {
-                // No version yet exists
-                return array( array(), array(), array() );
-            } else {
-
-                foreach($data as $row) {
-                    $user_data = get_userdata($row['user_id']);
-
-                    $saved_by = __('Unknown', 'arlima');
-                    if ( $user_data ) {
-                        $saved_by = $user_data->display_name;
-                    }
-                    $row['saved_by'] = $saved_by;
-
-                    switch($row['status']) {
-                        case Arlima_List::STATUS_SCHEDULED :
-                            $scheduled_versions[] = $row;
-                            break;
-                        default :
-                            $versions[] = $row;
-                            break;
-                    }
-                }
-
-                $latest = $versions ? $versions[0] : null;
-
-                return array(
-                    $latest,
-                    $versions,
-                    $scheduled_versions
-                );
-            }
-
-        } else {  // load specific version
-
-            // latest preview version
-            if( $version === 'preview' ) {
-                $version_data_sql = $this->wpdb->prepare(
-                    $version_data_sql." WHERE alv_al_id = %d AND alv_status = %d",
-                    $list_id,
-                    Arlima_List::STATUS_PREVIEW
-                );
-            }
-
-            // specific version
-            else {
-                $version_data_sql = $this->wpdb->prepare(
-                    $version_data_sql." WHERE alv_id = %d",
-                    $version
-                );
-            }
-
-            $version_data_sql .= ' ORDER BY alv_id DESC LIMIT 0,1';
-
-            $version_list_sql = $this->wpdb->prepare (
-                "SELECT alv_id, alv_user_id, alv_status FROM " . $this->dbTable('_version') . "
-            WHERE alv_al_id = %d AND alv_status = %d
-            ORDER BY alv_id DESC LIMIT 0,10",
-                (int)$list_id,
-                $version === 'preview' ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED
-            );
-            $versions = $this->executeSQLQuery('get_results', $version_list_sql, 'alv_');
-            foreach($versions as &$alv) {
-                $user_data = get_userdata($alv['user_id']);
-                $alv['saved_by'] = $user_data ? $user_data->display_name : __('Unknown', 'arlima');
-            }
-
-            $scheduled_version_list_sql = $this->wpdb->prepare (
-                "SELECT alv_id, alv_scheduled FROM " . $this->dbTable('_version') . "
-            WHERE alv_al_id = %d AND alv_status = %d
-            ORDER BY alv_id DESC LIMIT 0,20",
-                (int)$list_id,
-                Arlima_List::STATUS_SCHEDULED
-            );
-            $scheduled_versions = $this->executeSQLQuery('get_results', $scheduled_version_list_sql, 'alv_');
-
-            return array(
-                $this->executeSQLQuery('get_row', $version_data_sql, 'alv_'),
-                $versions,
-                $scheduled_versions
-            );
+        // version list
+        if ($version === 'preview') {
+            $version_list_sql = $version_data_sql.' AND alv_status = '.Arlima_List::STATUS_PREVIEW;
+        } else {
+            $version_list_sql = $version_data_sql.' AND alv_status = '.Arlima_List::STATUS_PUBLISHED;
         }
+
+        $version_list_data = $this->executeSQLQuery('get_results', $version_list_sql.' ORDER BY alv_id DESC LIMIT 0,10', 'alv_');
+
+        // scheduled list
+        $scheduled_list_sql = $version_data_sql.' AND alv_status='.Arlima_List::STATUS_SCHEDULED;
+
+        $scheduled = $this->executeSQLQuery('get_results', $scheduled_list_sql.' ORDER BY alv_scheduled ASC LIMIT 0,10', 'alv_');
+
+        if (!$version || $version == 'preview') {
+            $latest = $version_list_data ? $version_list_data[0] : null;
+        }
+        else {
+            // FIXME previously list id (alv_al_id) was omitted, so that a version from another list
+            // could be returned. Be aware of lists with conflicting slug names and loadList (i.e. alv_id
+            // is wrong for $version)
+            $single_version_sql = $version_data_sql.' AND alv_id='.(int)$version;
+            $latest = $this->executeSQLQuery('get_row', $single_version_sql, 'alv_');
+        }
+
+        $versions = array();
+        foreach ($version_list_data as $row) {
+            $user_data = get_userdata($row['user_id']);
+            $row['saved_by'] = $user_data ? $user_data->display_name : __('Unknown', 'arlima');
+            $versions[] = $row;
+        }
+
+        return array(
+            $latest,
+            $versions,
+            array_reverse($scheduled),
+        );
+
     }
 
     /**

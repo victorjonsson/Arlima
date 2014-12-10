@@ -168,7 +168,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
 
         $version_info = current(array_slice($latest_ver->getVersions(), -1));
 
-        $oldest_ver = self::$factory->loadList($list->getSlug(), $version_info['id']);
+        $oldest_ver = self::$factory->loadList($list->id(), $version_info['id']);
         $this->assertEquals(5, $oldest_ver->getVersionAttribute('user_id'));
     }
 

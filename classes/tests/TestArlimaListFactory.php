@@ -119,6 +119,18 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(99, $reloaded_list->getVersionAttribute('user_id'));
         $this->assertTrue( is_numeric($ver_id) );
 
+        $scheduled_version = self::$factory->saveNewListVersion($list, array( $article ), 123, time() + 50);
+        // scheduled version should not be latest
+        $new_reloaded_list = self::$factory->loadList($list->id());
+        $this->assertEquals($ver_id, $new_reloaded_list->getVersionAttribute('id'));
+
+        // load scheduled version
+        $new_reloaded_list = self::$factory->loadList($list->id(), $scheduled_version);
+        $this->assertEquals($scheduled_version, $new_reloaded_list->getVersionAttribute('id'));
+        $this->assertEquals($new_reloaded_list->getStatus(), Arlima_List::STATUS_SCHEDULED);
+        $this->assertEquals(123, $new_reloaded_list->getVersionAttribute('user_id'));
+
+        // normal list
         self::$factory->saveNewListVersion($list, array( $article, $article, $article ), 98);
         $reloaded_list = self::$factory->loadList($list->id());
 
@@ -154,7 +166,9 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(14, $latest_ver->getVersionAttribute('user_id'));
         $this->assertEquals(10, count($latest_ver->getVersions()));
 
-        $oldest_ver = self::$factory->loadList($list->getSlug(), array_slice($latest_ver->getVersions(), -1));
+        $version_info = current(array_slice($latest_ver->getVersions(), -1));
+
+        $oldest_ver = self::$factory->loadList($list->getSlug(), $version_info['id']);
         $this->assertEquals(5, $oldest_ver->getVersionAttribute('user_id'));
     }
 
@@ -162,7 +176,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
 
         $list = $this->createList();
         self::$factory->saveNewListVersion($list, array(), 5);
-        self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray() ), 9, true);
+        self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray() ), 9, 0, true);
 
         $latest_version = self::$factory->loadList($list->getId());
         $this->assertEquals(Arlima_List::STATUS_PUBLISHED, $latest_version->getVersionAttribute('status'), 'incorrect version status');

@@ -173,6 +173,7 @@ class Arlima_ListFactory {
             // Remove cache
             $this->cache->delete('arlima_list_articles_data_'.$list->getId());
         }
+
     }
 
     /**
@@ -238,7 +239,7 @@ class Arlima_ListFactory {
     private function loadListByVersionId($version)
     {
         $id = $this->executeSQLQuery('get_var', 'SELECT alv_al_id FROM '.$this->dbTable('_version').' WHERE alv_id='.intval($version));
-        return $id ? $this->loadList($id) : null;
+        return $id ? $this->loadList($id, false, true) : null;
     }
 
     /**
@@ -258,7 +259,6 @@ class Arlima_ListFactory {
             throw new Exception('You can not save a new version of a list that is imported');
 
         $this->removeOldVersions($list);
-        self::sanitizeList($list);
 
         $status = $preview ? Arlima_List::STATUS_PREVIEW : Arlima_List::STATUS_PUBLISHED;
         $status = $schedule_time ? Arlima_List::STATUS_SCHEDULED : $status;
@@ -301,12 +301,30 @@ class Arlima_ListFactory {
         // Reload list
         $list = $this->loadList($list->getId(), $version_id, true);
 
-        if( !$preview ) {
+        if( !$preview && !$schedule_time ) {
             $this->cache->delete('arlima_list_articles_data_'.$list->getId());
             $this->doSaveListAction($list);
         }
 
         return $version_id;
+    }
+
+    /**
+     * @param Arlima_List $list
+     * @param array $articles
+     * @param int $version_id
+     */
+    public function updateListVersion($list, $articles, $version_id)
+    {
+        if(!$list->exists())
+            throw new Exception('You can not save a version of a list that does not exist');
+        if($list->isImported())
+            throw new Exception('You can not save a version of a list that is imported');
+
+        $list = $this->saveArticlesForVersion($list, $articles, $version_id);
+
+        // Reload list
+        $list = $this->loadList($list->getId(), $version_id, true);
     }
 
     /**
@@ -1290,47 +1308,36 @@ class Arlima_ListFactory {
         return $convert_to_std ? (object)$new_array:$new_array;
     }
 
-}
+    /**
+     * @param Arlima_List $list
+     * @param $articles
+     * @param $version_id
+     * @return mixed
+     */
+    protected function saveArticlesForVersion($list, $articles, $version_id)
+    {
+        self::sanitizeList($list);
 
-/*
+        // Update possibly changed published date
+        foreach ($articles as $i => $article) {
+            if (!empty($article['post']) && $connected_post = get_post($article['post'])) {
+                $articles[$i]['published'] = Arlima_Utils::getPostTimeStamp($connected_post);
+            }
+        }
 
-Istället för att ha en factory som kan göra allt mellan himmel och jord
-skulle man kunna ha repositories som hantera crud-operationer på listor och versioner
-och sen en builder som kan sätta ihop en lista så som man vill ha den
+        // Remove all old articles
+        $sql = $this->wpdb->prepare("DELETE FROM " . $this->dbTable('_article') . " WHERE ala_alv_id=%d", $version_id);
+        $this->executeSQLQuery('query', $sql);
 
-$build = new Arlima_ListBuilder();
-
-$list = Arlima_List::builder(323) # list id
-            ->loadVersion(1234) # version
-            ->loadPreview()
-            ->includeFuturePosts()
-            ->build();
-
-
-$list_repo = new Arlima_ListRepository();
-$list_repo->load();
-$list_repo->create();
-$list_repo->update();
-$list_repo->delete();
-$list_repo->getListId();
-$list_repo->loadListSlugs();
-
-$version_repo = new Arlima_VersionRepository();
-$version_repo->save($articles, $list_id, $preview=false);
-$version_repo->updateArticlePublishDate( $post );
-$version_repo->updateArticle( );
-$version_repo->getLatestArticle($post_id);
-$version_repo->loadListsByPostId($post_id);
-$version_repo->removeOldVersions($list_id, $num_versions_to_keep=10)
-
-
-Arlima_AbstractDBRepository {  ärvs av våra två repos
-
-    get_result()
-    db_table()
-    install()
-    uninstall()
+        // Add new articles
+        $count = 0;
+        foreach ($articles as $sort => $article) {
+            $this->saveArticle($version_id, $article, $sort, -1, $count);
+            $count++;
+            if ($count >= $list->getMaxlength())
+                break;
+        }
+        return $list;
+    }
 
 }
-
-*/

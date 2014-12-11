@@ -73,13 +73,29 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
             );
         },
 
+        /**
+         * @param listId
+         * @param versionId
+         * @param articles
+         * @param callback
+         */
+        updateListVersion : function(listId, versionId, articles, callback) {
+            this._ajax(
+                "arlima_update_list_version",
+                'alid='+listId+'&articles='+encodeURIComponent(JSON.stringify(articles))+'&version='+versionId,
+                callback,
+                'json',
+                true,
+                false
+            );
+        },
 
         /**
          *
          * @param {Number} versionId
          * @param {Function} [callback]
          */
-        deleteVersion : function(versionId, callback) {
+        deleteScheduledVersion : function(versionId, callback) {
             this._ajax(
                     "arlima_delete_list_version",
                     'alvid='+versionId,

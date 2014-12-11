@@ -118,7 +118,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(99, $reloaded_list->getVersionAttribute('user_id'));
         $this->assertTrue( is_numeric($ver_id) );
 
-        $scheduled_version = self::$factory->saveNewListVersion($list, array( $article ), 123, time() + 50);
+        $scheduled_version = self::$factory->saveNewListVersion($list, array( $article, array_merge($article, array('title'=>'Second article')) ), 123, time() + 50);
         // scheduled version should not be latest
         $new_reloaded_list = self::$factory->loadList($list->id());
         $this->assertEquals($ver_id, $new_reloaded_list->getVersionAttribute('id'));
@@ -128,6 +128,21 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals($scheduled_version, $new_reloaded_list->getVersionAttribute('id'));
         $this->assertEquals($new_reloaded_list->getStatus(), Arlima_List::STATUS_SCHEDULED);
         $this->assertEquals(123, $new_reloaded_list->getVersionAttribute('user_id'));
+        $articles = $new_reloaded_list->getArticles();
+        $this->assertEquals(2, count($articles));
+        $this->assertEquals('Unknown', $articles[0]['title']);
+        $this->assertEquals('Second article', $articles[1]['title']);
+
+        // Update scheduled version
+        $new_art = Arlima_ListFactory::createArticleDataArray(array('title'=>'New stuff'));
+        self::$factory->updateListVersion($list, array($new_art), $scheduled_version);
+        $new_reloaded_list = self::$factory->loadList($list->id(), $scheduled_version);
+        $this->assertEquals($scheduled_version, $new_reloaded_list->getVersionAttribute('id'));
+        $this->assertEquals($new_reloaded_list->getStatus(), Arlima_List::STATUS_SCHEDULED);
+        $this->assertEquals(123, $new_reloaded_list->getVersionAttribute('user_id'));
+        $articles = $new_reloaded_list->getArticles();
+        $this->assertEquals(1, count($articles));
+        $this->assertEquals($new_art['title'], $articles[0]['title']);
 
         // normal list
         self::$factory->saveNewListVersion($list, array( $article, $article, $article ), 98);

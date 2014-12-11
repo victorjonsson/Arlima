@@ -39,6 +39,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
     function ArlimaList(data) {
         this.$elem = $(listHTML);
         this._isUnsaved = false;
+        this._hasLoadedFutureVersion = false;
         var _self = this,
             $articles = this.$elem.find('.articles');
 
@@ -239,10 +240,23 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      *
      * @param {Number} version
      */
-    ArlimaList.prototype.deleteVersion = function(version) {
-        var _self = this;
-        window.ArlimaListLoader.deleteVersion(version, function(){
-            _self.reload();
+    ArlimaList.prototype.deleteScheduledVersion = function(version) {
+        var _self = this,
+            doReload = this.data.version.id == version;
+
+        window.ArlimaListLoader.deleteScheduledVersion(version, function() {
+            if( doReload ) {
+                _self.reload();
+            }
+            else {
+                $.each(_self.data.scheduledVersions, function(i, obj) {
+                    if( obj.id == version ) {
+                        _self.data.scheduledVersions.splice(i, 1);
+                        return false;
+                    }
+                });
+                _displayVersionInfo(_self);
+            }
         });
     };
 
@@ -266,8 +280,6 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
         var isChanged = (version && version != this.data.version.id) ? true:false;
 
-        var oldVersion = this.data.version;
-
         _toggleAjaxPreloader(this, true);
 
         // Load the version of the list
@@ -276,6 +288,9 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
             if (_self.data.version.status == 3) { // editing scheduled
                 isChanged = false;
+                _self._hasLoadedFutureVersion = true;
+            } else {
+                _self._hasLoadedFutureVersion = false;
             }
             if (_self.loadedVersion == _self.data.versions[0].id) { // changed to latest version
                 isChanged = false;
@@ -291,6 +306,10 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      */
     ArlimaList.prototype.hasUnsavedChanges = function() {
         return this._isUnsaved;
+    };
+
+    ArlimaList.prototype.hasLoadedScheduledVersion = function() {
+        return this._hasLoadedFutureVersion;
     };
 
     /**
@@ -323,49 +342,69 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      * @param {Date} scheduleDate
      */
     ArlimaList.prototype.save = function(scheduleDate) {
+
+        var _self = this,
+            whenSaved = function(data) {
+                _toggleAjaxPreloader(_self, false);
+                if( data ) {
+                    if( _self.data.version.scheduled ) {
+                        data.loadedVersion = _self.data.version.id;
+                        data.version = _self.data.version;
+                        data.versions = _self.data.versions;
+                        data.versionDisplayText = _self.data.versionDisplayText;
+                        data.scheduledVersions = _self.data.scheduledVersions;
+                    }
+                    if( data.version.status == 3 ) {
+                        _self._hasLoadedFutureVersion = true;
+                    } else {
+                        _self._hasLoadedFutureVersion = false;
+                    }
+                    if( window.ArlimaArticleForm.isEditing(_self.data.id) ) {
+                        window.ArlimaArticleForm.toggleUnsavedState('saved');
+                        $.event.trigger('versionInfoLoaded');
+                    }
+                }
+            };
+
         if( this.hasUnsavedChanges() ) {
 
             this.toggleUnsavedState(false);
             _toggleAjaxPreloader(this, true);
 
-            delete this.loadedVersion; // No specific version loaded means we're on the latest created version
+            if( this.hasLoadedScheduledVersion() ) {
+                // currently editing a future version
+                ArlimaBackend.updateListVersion(this.data.id, this.getArticleData(), this.data.version.id, whenSaved);
+            } else {
 
-            var _self = this, scheduleTime = '';
+                delete this.loadedVersion; // No specific version loaded means we're on the latest created version
 
-            if (scheduleDate) {
-                scheduleTime = Math.round(scheduleDate.getTime() / 1000); // Get Unix timestamp of Date if scheduled
-            } else if (this.data.version.scheduled) {  // editing future version
-                scheduleTime = this.data.version.scheduled;
-            }
+                var scheduleTime = '';
 
-            ArlimaBackend.getLaterVersion(this.data.id, this.data.version.id, function(json) {
-                if(json) {
-                    var saveList = true;
-                    if(json.version && !scheduleTime) {
-                        // has newer version
-                        saveList = confirm(ArlimaJS.lang.laterVersion + ' \r\n ' + json.versioninfo + '\r\n' + ArlimaJS.lang.overWrite);
-                    }
-                    if( _self.$elem.find('.streamer-extra').length > 1) {
-                        // has many extra
-                        saveList = confirm( ArlimaJS.lang.severalExtras + '\r\n' +  ArlimaJS.lang.overWrite);
-                    }
 
-                    if( !saveList ) {
-                        _toggleAjaxPreloader(_self, false);
-                    } else {
-                        window.ArlimaListLoader.save(_self, scheduleTime, function(data) {
-                            _toggleAjaxPreloader(_self, false);
-                            if( data ) {
-                                _self.setData(data);
-                                if( window.ArlimaArticleForm.isEditing(_self.data.id) ) {
-                                    window.ArlimaArticleForm.toggleUnsavedState('saved');
-                                    $.event.trigger('versionInfoLoaded');
-                                }
-                            }
-                        });
-                    }
+                if (scheduleDate) {
+                    scheduleTime = Math.round(scheduleDate.getTime() / 1000); // Get Unix timestamp of Date if scheduled
                 }
-            });
+
+                ArlimaBackend.getLaterVersion(this.data.id, this.data.version.id, function(json) {
+                    if(json) {
+                        var saveList = true;
+                        if(json.version && !scheduleTime) {
+                            // has newer version
+                            saveList = confirm(ArlimaJS.lang.laterVersion + ' \r\n ' + json.versioninfo + '\r\n' + ArlimaJS.lang.overWrite);
+                        }
+                        if( _self.$elem.find('.streamer-extra').length > 1) {
+                            // has many extra
+                            saveList = confirm( ArlimaJS.lang.severalExtras + '\r\n' +  ArlimaJS.lang.overWrite);
+                        }
+
+                        if( !saveList ) {
+                            _toggleAjaxPreloader(_self, false);
+                        } else {
+                            window.ArlimaListLoader.save(_self, scheduleTime, whenSaved);
+                        }
+                    }
+                });
+            }
         }
     };
 
@@ -482,7 +521,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                         + ':' + minutes.substr(minutes.length-2)
                     );
 
-                var $deleteLink = $('<a>x</a>')
+                var $deleteLink = $('<a>&times;</a>')
                         .attr('href', '#')
                         .attr('class', 'delete')
                         .attr('title', ArlimaJS.lang.delete)
@@ -490,7 +529,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                             var $versionItem = $(e.target).parent(),
                             doDelete = confirm(ArlimaJS.lang.confirmDeleteVersion);
                             if(doDelete) {
-                                list.deleteVersion($versionItem.attr('data-version'));
+                                list.deleteScheduledVersion($versionItem.attr('data-version'));
                             }
                             return false;
                         });
@@ -556,7 +595,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             return false;
         });
 
-        list.$elem.find('.save').click(function(e) {
+        list.$elem.find('.save:eq(0)').click(function(e) {
             list.save();
             return false;
         });
@@ -609,7 +648,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     }, 1200);
                 })
                 .bind('click', function(e) {
-                    if( ! $(e.target).is('.future, .disabled')) {
+                    if( ! $(e.target).is('.future, .disabled, .schedule')) {
                         list.reload($(e.target).attr('data-version'));
                     }
                 });
@@ -626,7 +665,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 return false;
             });
 
-            $scheduleModalWrapper.find('button.schedule').click(function() {
+            $scheduleModalWrapper.find('button.schedule').unbind('click').click(function() {
                 var ymdArray = $scheduleModalWrapper.find('#schedule-date').val().split('-'),
                     hsArray = $scheduleModalWrapper.find('#schedule-time').val().split(':'),
                     scheduleDate = new Date(),

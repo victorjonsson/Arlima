@@ -55,8 +55,8 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
         /**
          * @param {Number} version
          */
-        deleteVersion : function(version, callback) {
-            ArlimaBackend.deleteVersion(version, function(json) {
+        deleteScheduledVersion : function(version, callback) {
+            ArlimaBackend.deleteScheduledVersion(version, function(json) {
                 if( typeof callback == 'function' )
                     callback(json);
             });

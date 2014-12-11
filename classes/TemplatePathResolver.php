@@ -78,10 +78,7 @@ class Arlima_TemplatePathResolver
      */
     public function fileToUrl($template_file)
     {
-        $content_dir = sprintf('%swp-content%s', DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR);
-        $parts = explode($content_dir, $template_file);
-        $parts = array_splice($parts, 1, 1);
-        $tmpl_url = WP_CONTENT_URL . '/' . current($parts);
+        $tmpl_url = WP_CONTENT_URL . '/' . str_replace(WP_CONTENT_DIR, '', $template_file);
         if ( DIRECTORY_SEPARATOR != '/' ) {
             $tmpl_url = str_replace(DIRECTORY_SEPARATOR, '/', $tmpl_url);
         }

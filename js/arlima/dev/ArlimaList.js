@@ -682,6 +682,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 if(scheduleDate.getTime() > nowDate.getTime()) {
                     list.save(scheduleDate);
                     $scheduleModalWrapper.find('.message').addClass('hidden');
+                    setTimeout(function() { list.$elem.find('.refresh').trigger('click'); }, 1000);
                     $.fancybox.close();
                 } else{
                     $scheduleModalWrapper.find('.message').removeClass('hidden');

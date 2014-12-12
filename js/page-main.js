@@ -66,9 +66,17 @@ jQuery(function($) {
                        width: 300
                    });
                 }
+
                 if (seconds == 0) {
                    clearInterval(timer);
-                   ArlimaListContainer.list(listId).reload();
+                   var doReload = true,
+                       listToReload = ArlimaListContainer.list(listId);
+                   if( listToReload.hasUnsavedChanges() ) {
+                       doReload = confirm(ArlimaJS.lang.hasUnsavedChanges);
+                   }
+                   if( doReload ) {
+                       listToReload.reload();
+                   }
                 }
             }, 1000);
         }

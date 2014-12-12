@@ -47,6 +47,7 @@ class Arlima_AdminAjaxManager
         add_action('wp_ajax_arlima_add_list_widget', array($this, 'loadListData'));
         add_action('wp_ajax_arlima_check_for_later_version', array($this, 'checkForLaterVersion'));
         add_action('wp_ajax_arlima_save_list', array($this, 'saveList'));
+        add_action('wp_ajax_arlima_update_list_version', array($this, 'updateListVersion'));
         add_action('wp_ajax_arlima_delete_list_version', array($this, 'deleteListVersion'));
         add_action('wp_ajax_arlima_prepend_article', array($this, 'prependArticle'));
         add_action('wp_ajax_arlima_save_list_setup', array($this, 'saveListSetup'));
@@ -387,10 +388,9 @@ class Arlima_AdminAjaxManager
         $this->initAjaxRequest();
 
         $version_id = isset($_POST['alvid']) ? $_POST['alvid'] : null;
+        $list_factory = $this->loadListFactory();
 
         if( $version_id ) {
-            $list_factory = $this->loadListFactory();
-
             $list_factory->deleteListVersion($version_id);
         }
 
@@ -436,6 +436,18 @@ class Arlima_AdminAjaxManager
     }
 
     /**
+     * Update a specific version of a list
+     */
+    function updateListVersion() {
+        $this->initAjaxRequest();
+        $factory = $this->loadListFactory();
+        $list = $factory->loadList($_POST['alid']);
+        $factory->updateListVersion($list, $this->getArticlesFromRequest(), $_POST['version']);
+        $this->outputListData($factory->loadList($_POST['alid'], $_POST['version'], true)); // reload the list and send to browser
+        die;
+    }
+
+    /**
      * Save a new version of a list
      */
     function saveList()
@@ -445,19 +457,10 @@ class Arlima_AdminAjaxManager
         $list_id = isset($_POST['alid']) ? intval($_POST['alid']) : false;
 
         // Is the list scheduled for the automatic publishing queue?
-        $schedule_time = (isset($_POST['scheduleTime']) || $_POST['scheduleTime'] == '') ? intval($_POST['scheduleTime']) : false;
+        $schedule_time = (isset($_POST['scheduleTime']) || $_POST['scheduleTime'] == '') ? intval($_POST['scheduleTime']) : 0;
 
         if ( $list_id ) {
-            if( empty($_POST['articles']) ) {
-                $articles = array();
-            } elseif( is_array($_POST['articles']) ) {
-                $articles = $_POST['articles'];
-            } else {
-                $articles = json_decode(stripslashes($_POST['articles']), true);
-                if( $articles === null ) {
-                    throw new Exception('Json error: '.json_last_error());
-                }
-            }
+            $articles = $this->getArticlesFromRequest();
             $this->saveAndOutputList($list_id, $articles, $schedule_time, isset($_POST['preview']));
         }
 
@@ -479,10 +482,10 @@ class Arlima_AdminAjaxManager
             $list = $list_factory->loadList($list_id);
         }
 
-        $list_factory->saveNewListVersion($list, $articles, get_current_user_id(), $schedule_time, $preview);
+        $version_id = $list_factory->saveNewListVersion($list, $articles, get_current_user_id(), $schedule_time, $preview);
 
         // Reload list to get latest version
-        $list = $list_factory->loadList($list->getId(), false, true);
+        $list = $list_factory->loadList($list->getId(), $version_id, true);
 
         $this->outputListData($list);
     }
@@ -806,5 +809,26 @@ class Arlima_AdminAjaxManager
             'previewWidth' => $preview_width,
             'id' => $list->getId()
         ));
+    }
+
+    /**
+     * @return array|mixed
+     * @throws Exception
+     */
+    protected function getArticlesFromRequest()
+    {
+        if (empty($_POST['articles'])) {
+            $articles = array();
+            return $articles;
+        } elseif (is_array($_POST['articles'])) {
+            $articles = $_POST['articles'];
+            return $articles;
+        } else {
+            $articles = json_decode(stripslashes($_POST['articles']), true);
+            if ($articles === null) {
+                throw new Exception('Json error: ' . json_last_error());
+            }
+            return $articles;
+        }
     }
 }

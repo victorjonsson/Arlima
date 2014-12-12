@@ -22,9 +22,8 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
                         // Create list object and it's element
                         list = new ArlimaList(json);
                     } else {
-                        // Update list object
-                        if( version ) {
-                            // Don't overwrite the latest current version of the list
+                        // Only overwrite the latest current version of the list and when editing scheduled
+                        if (! (version && (json.version.status == 3 || !json.versions.length || version == json.versions[0].id ))) {
                             json.loadedVersion = json.version.id;
                             json.version = list.data.version;
                         }
@@ -56,8 +55,8 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
         /**
          * @param {Number} version
          */
-        deleteVersion : function(version, callback) {
-            ArlimaBackend.deleteVersion(version, function(json) {
+        deleteScheduledVersion : function(version, callback) {
+            ArlimaBackend.deleteScheduledVersion(version, function(json) {
                 if( typeof callback == 'function' )
                     callback(json);
             });

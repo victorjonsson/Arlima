@@ -206,7 +206,7 @@ function arlima_has_list() {
  * @param bool $get_scheduled
  * @return Arlima_List|array|bool
  */
-function arlima_get_list($list_only = true, $get_scheduled = true) {
+function arlima_get_list($list_only = true) {
     static $current_arlima_list = null;
     $list_is_scheduled = false;
 
@@ -215,7 +215,7 @@ function arlima_get_list($list_only = true, $get_scheduled = true) {
         $list_is_scheduled = $alv['status'] == Arlima_List::STATUS_SCHEDULED;
     }
 
-    if( $current_arlima_list === null || ($list_is_scheduled && !$get_scheduled) ) {
+    if( $current_arlima_list === null || $list_is_scheduled ) {
 
         $current_arlima_list = array('list'=>false, 'post'=>false);
         if( is_page() ) {
@@ -227,7 +227,7 @@ function arlima_get_list($list_only = true, $get_scheduled = true) {
                 $relation = $connector->getRelationData($wp_query->post->ID);
                 $is_requesting_preview = arlima_is_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $relation['id'];
                 $version = $is_requesting_preview ? 'preview' : '';
-                $list = $list_factory->loadList($relation['id'], $version, $is_requesting_preview, $get_scheduled);
+                $list = $list_factory->loadList($relation['id'], $version, $is_requesting_preview);
                 if( $list->exists() ) {
                     $current_arlima_list = array('list'=>$list, 'post'=>$wp_query->post->ID);
                 }

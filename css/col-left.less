@@ -244,6 +244,13 @@
 
     .title {
       font-weight: bold;
+      .schedule-clock {
+        color: #4693D7;
+        margin-right: 3px;
+      }
+      &.scheduled {
+        color: #4693D7;
+      }
     }
 
     .remove, .title {
@@ -315,6 +322,10 @@
       cursor: default;
     }
 
+    .schedule-clock {
+      color: #4693D7;
+    }
+
     .fa {
       font-size: 14px;
     }
@@ -358,7 +369,7 @@
 
           a.delete {
             float: right;
-            font-size: 12px;
+            font-size: 18px;
             font-weight: bold;
             margin-right: 0;
             margin-left: 10px;
@@ -379,6 +390,9 @@
             color: #333;
             font-weight: bold;
             text-decoration: underline;
+            &.save.disabled {
+              color: #999;
+            }
           }
           &.selected {
             color: #333;
@@ -388,6 +402,10 @@
               padding-right: 3px;
               vertical-align: middle;
             }
+          }
+
+          &.disabled {
+            color: #ccc;
           }
 
           &:hover {
@@ -446,6 +464,9 @@
     color: #222;
     cursor: pointer;
   }
+  &.scheduled a.save {
+    color: #4693D7;
+  }
 }
 
 // Imported article list
@@ -464,7 +485,7 @@
 }
 
 
-/* 
+/*
 * SORTABLE STUFF
 */
 .sortable-placeholder {

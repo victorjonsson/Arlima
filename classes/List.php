@@ -508,7 +508,7 @@ class Arlima_List
     {
         return !$this->isPreview() &&
             isset($this->version['id']) &&
-            (empty($this->versions) || $this->versions[0] == $this->version['id']);
+            (empty($this->versions) || $this->versions[0]['id'] == $this->version['id']);
     }
 
     /**

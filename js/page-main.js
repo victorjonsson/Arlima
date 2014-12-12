@@ -51,7 +51,10 @@ jQuery(function($) {
 
     // Scheduled lists count-down auto reload
     $(document).on('versionInfoLoaded', function() {
-        var seconds = $('#arlima_countdown').text();
+        var $countdown = $('#arlima_countdown');
+        var seconds = $countdown.text(),
+            listId = $countdown.data('list-id');
+
         if(seconds != 0) {
             var timer = setInterval(function() {
                $('#arlima_countdown').text(--seconds);
@@ -65,7 +68,7 @@ jQuery(function($) {
                 }
                 if (seconds == 0) {
                    clearInterval(timer);
-                   window.location.reload()
+                   ArlimaListContainer.list(listId).reload();
                 }
             }, 1000);
         }

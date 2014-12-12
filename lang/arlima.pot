@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Arlima (article list manager) 1.0.9\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/arlima\n"
-"POT-Creation-Date: 2014-12-01 16:03+0100\n"
-"PO-Revision-Date: 2014-12-01 16:07+0100\n"
+"POT-Creation-Date: 2014-12-12 15:13+0100\n"
+"PO-Revision-Date: 2014-12-12 15:14+0100\n"
 "Last-Translator: Andreas Lundgren <andreas.lundgren@norran.se>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sv_SE\n"
@@ -158,7 +158,7 @@ msgid "You can only add images to articles"
 msgstr "Du kan endast koppla en bild till artikeln"
 
 #: classes/AbstractAdminPage.php:234 classes/List.php:486
-#: classes/ListFactory.php:575 classes/ListFactory.php:636
+#: classes/ListFactory.php:621
 msgid "Unknown"
 msgstr "Okänd"
 
@@ -198,11 +198,11 @@ msgstr "Ja"
 msgid "No"
 msgstr "Nej"
 
-#: classes/AdminAjaxManager.php:207
+#: classes/AdminAjaxManager.php:208
 msgid "Example article"
 msgstr "Exempelartikel"
 
-#: classes/AdminAjaxManager.php:222
+#: classes/AdminAjaxManager.php:223
 msgid "Empty article"
 msgstr "Tom artikel"
 
@@ -256,64 +256,64 @@ msgstr "Skapade bildversioner"
 msgid "Delete versions"
 msgstr "Radera"
 
-#: classes/Plugin.php:556 pages/edit.php:68 pages/main.php:446
+#: classes/Plugin.php:555 pages/edit.php:68 pages/main.php:446
 msgid "Choose article list"
 msgstr "Välj artikellista"
 
-#: classes/Plugin.php:567
+#: classes/Plugin.php:566
 msgid "Send"
 msgstr "Skicka"
 
-#: classes/Plugin.php:573
+#: classes/Plugin.php:572
 msgid "Post needs to be published"
 msgstr "Inlägget måste vara publicerad"
 
-#: classes/Plugin.php:601
+#: classes/Plugin.php:600
 msgid "Create your first article list"
 msgstr "Skapa din första lista"
 
-#: classes/Plugin.php:607 classes/Widget.php:93
+#: classes/Plugin.php:606 classes/Widget.php:93
 msgid "List"
 msgstr "Lista"
 
-#: classes/Plugin.php:610
+#: classes/Plugin.php:609
 msgid "No list"
 msgstr "Ingen lista"
 
-#: classes/Plugin.php:620 pages/main.php:455
+#: classes/Plugin.php:619 pages/main.php:455
 msgid "Imported lists"
 msgstr "Importerade listor"
 
-#: classes/Plugin.php:633 pages/main.php:247
+#: classes/Plugin.php:632 pages/main.php:247
 msgid "edit"
 msgstr "redigera"
 
-#: classes/Plugin.php:637
+#: classes/Plugin.php:636
 #, fuzzy
 msgid "Position"
 msgstr "Position"
 
-#: classes/Plugin.php:641
+#: classes/Plugin.php:640
 msgid "Before content"
 msgstr "Före textinnehåll"
 
-#: classes/Plugin.php:644
+#: classes/Plugin.php:643
 msgid "After content"
 msgstr "Efter textinnehåll"
 
-#: classes/Plugin.php:650 classes/Widget.php:107
+#: classes/Plugin.php:649 classes/Widget.php:107
 msgid "Width"
 msgstr "Bredd"
 
-#: classes/Plugin.php:655 classes/Widget.php:111
+#: classes/Plugin.php:654 classes/Widget.php:111
 msgid "Offset"
 msgstr "Starta från artikel"
 
-#: classes/Plugin.php:659 classes/Widget.php:115
+#: classes/Plugin.php:658 classes/Widget.php:115
 msgid "Limit"
 msgstr "Antal artiklar"
 
-#: classes/Plugin.php:757
+#: classes/Plugin.php:756
 msgid ""
 "Are you sure you want to insert this post in the top of selected article "
 "list?"
@@ -321,7 +321,7 @@ msgstr ""
 "Är du säker på att du vill lägga till artikeln i toppen av vald "
 "artikellista? "
 
-#: classes/Plugin.php:760
+#: classes/Plugin.php:759
 msgid "The post is inserted in article list"
 msgstr "Artikeln skickades till"
 
@@ -584,7 +584,7 @@ msgstr "Ingångsord"
 #: pages/main.php:217
 #, fuzzy
 msgid "Newsbill tag"
-msgstr "tagg"
+msgstr "Ersätt reglage för textstorlek med fält för pufftagg"
 
 #: pages/main.php:240 pages/main.php:270
 msgid "Connected to"
@@ -727,8 +727,8 @@ msgstr ""
 "Notera: en tidsinställd lista är inställd att publiceras om %s sekunder. "
 
 #: pages/main.php:540
-msgid "This page will be refreshed automatically."
-msgstr "Denna sida kommer automatiskt att ladda om."
+msgid "The list will be refreshed automatically."
+msgstr "Listan kommer automatiskt att ladda om."
 
 #: pages/settings.php:32
 msgid "Settings was successfully updated"

@@ -537,7 +537,7 @@ $settings = $arlima_plugin->loadSettings();
             <?php printf( __('Please note: a scheduled list is about to be published in %s seconds.', 'arlima'), '<span id="arlima_countdown" class="notice">0</span>' )  ?>
         </p>
         <p>
-            <?php _e('This page will be refreshed automatically.', 'arlima') ?>
+            <?php _e('The list will be refreshed automatically.', 'arlima') ?>
         </p>
     </div>
 </div>

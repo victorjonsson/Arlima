@@ -502,7 +502,9 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 var now = new Date(),
                     scheduleDate = new Date(list.data.scheduledVersions[0].scheduled * 1000);
                 // Added 60 seconds to schedule time for crontab margins
-                $('#arlima_countdown').text(Math.ceil((scheduleDate.getTime() - now.getTime()) / 1000) + 60);
+                $('#arlima_countdown')
+                        .attr('data-list-id', list.data.id)
+                        .text(Math.ceil((scheduleDate.getTime() - now.getTime()) / 1000) + 60);
             }
 
             $.each(list.data.scheduledVersions, function(i, version ) {

@@ -219,6 +219,7 @@ abstract class Arlima_AbstractAdminPage {
                     'hasUnsavedChanges' => __('This list has unsaved changes', 'arlima'),
                     'dragAndDrop' => __('Drag images to this container', 'arlima'),
                     'scheduled' => __('Scheduled', 'arlima'),
+                    'willReload' => __('Will reload in', 'arlima'),
                     'loggedOut' => __('Your login session seems to have expired, pls reload the page!', 'arlima'),
                     'notValidColor' => __('Not a valid color!', 'arlima'),
                     'invalidURL' => __('This URL seems to be invalid', 'arlima'),

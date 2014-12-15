@@ -51,37 +51,34 @@ jQuery(function($) {
 
     // Scheduled lists count-down auto reload
     $(document).on('versionInfoLoaded', function() {
-        var $countdown = $('#arlima_countdown');
-        var seconds = $countdown.text(),
-            listId = $countdown.data('list-id');
+        var $articleLists = $('.article-list');
 
-        if(seconds != 0) {
-            var timer = setInterval(function() {
-               $('#arlima_countdown').text(--seconds);
-                // Show notice
-                if(seconds == 60 || seconds == 30 || seconds == 5) {
-                   $.fancybox({
-                       href : '#arlima-reload-alert-modal',
-                       height: 400,
-                       width: 300
-                   });
-                }
+        // Init count down on scheduled lists
+        $.each($articleLists, function(i, list) {
+            var seconds = $(this).data('schedule-countdown'),
+            $thisList = $(this);
 
-                if (seconds == 0) {
-                   clearInterval(timer);
-                   var doReload = true,
-                       listToReload = ArlimaListContainer.list(listId);
-                   if( listToReload.hasUnsavedChanges() ) {
-                       doReload = confirm(ArlimaJS.lang.hasUnsavedChanges);
-                   }
-                   if( doReload ) {
-                       listToReload.reload();
-                   }
-                }
-            }, 1000);
-        }
+            if(typeof(seconds) != 'undefined' && seconds > 0 && !$thisList.hasClass('counting')) {
+
+                !$thisList.hasClass('counting') ? $thisList.addClass('counting') : '';
+
+                var timer = setInterval(function() {
+                    $thisList.attr('data-schedule-countdown', --seconds);
+                    // Show notice
+                    if($thisList.attr('data-schedule-countdown') > 60 ) {
+                        $thisList.find('.schedule-notice')
+                                .html(' ('+ ArlimaJS.lang.willReload +' '+ seconds +')')
+                    }
+
+                    if (seconds == 0) {
+                       clearInterval(timer);
+                       $thisList.find('.schedule-notice').html('');
+                       ArlimaListContainer.list($thisList.data('list-id')).reload();
+                    }
+                }, 1000);
+            }
+        });
     });
-
 });
 
 if( ArlimaJS.sendJSErrorsToServerLog ) {

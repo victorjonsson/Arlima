@@ -65,7 +65,7 @@ jQuery(function($) {
                 var timer = setInterval(function() {
                     $thisList.attr('data-schedule-countdown', --seconds);
                     // Show notice
-                    if($thisList.attr('data-schedule-countdown') > 60 ) {
+                    if($thisList.attr('data-schedule-countdown') <= parseInt(ArlimaJS.scheduledListReloadTime) ) {
                         $thisList.find('.schedule-notice')
                                 .html(' ('+ ArlimaJS.lang.willReload +' '+ seconds +')')
                     }

@@ -198,6 +198,8 @@ abstract class Arlima_AbstractAdminPage {
                 'sectionDivsSupportTemplate' => ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES,
                 'previewQueryArg' => Arlima_List::QUERY_ARG_PREVIEW,
                 'sendJSErrorsToServerLog' => ARLIMA_SEND_JS_ERROR_TO_LOG,
+                'scheduledListReloadTime' => ARLIMA_LIST_RELOAD_TIME,
+                'scheduledListCountdownOffset' => ARLIMA_LIST_COUNTDOWN_TIME_OFFSET,
                 'lang' => array( // todo: but these args in a separate .js.php file when this array gets to long
                     'unsaved' => __('You have one, or more, unsaved article lists, do you wish to proceed?', 'arlima'),
                     'laterVersion' => __('It exists an older version of this article list', 'arlima'),

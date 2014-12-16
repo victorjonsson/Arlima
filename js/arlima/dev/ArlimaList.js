@@ -473,9 +473,8 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             if(list.data.scheduledVersions.length > 0) {
                 var now = new Date(),
                     scheduleDate = new Date(list.data.scheduledVersions[0].scheduled * 1000);
-                // Added 60 seconds to schedule time for 1 minute crontab margins
                 setTimeout(function(){
-                    $('#arlima-list-'+list.data.id).attr('data-schedule-countdown', Math.ceil((scheduleDate.getTime() - now.getTime()) / 1000) + 60);
+                    $('#arlima-list-'+list.data.id).attr('data-schedule-countdown', Math.ceil((scheduleDate.getTime() - now.getTime()) / 1000) + parseInt(ArlimaJS.scheduledListCountdownOffset));
                 },500);
             }
 
@@ -676,7 +675,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 var ymdArray = $scheduleModalWrapper.find('#schedule-date').val().split('-'),
                     hsArray = $scheduleModalWrapper.find('#schedule-time').val().split(':'),
                     scheduleDate = new Date(),
-                    affectedList = $scheduleModalWrapper.data('list'),
+                    affectedList = $scheduleModalWrapper.attr('data-list'),
                     nowDate = new Date();
 
                 ymdArray = $.map(ymdArray, function(x) { return parseInt(x, 10)});
@@ -690,7 +689,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 if(scheduleDate.getTime() > nowDate.getTime()) {
                     ArlimaListContainer.list(affectedList).save(scheduleDate);
                     $scheduleModalWrapper.find('.message').addClass('hidden');
-                    setTimeout(function() { ArlimaListContainer.list(affectedList).reload() }, 1000);
+                    setTimeout(function() { ArlimaListContainer.list(affectedList).reload() }, 2000);
                     $.fancybox.close();
                 } else{
                     $scheduleModalWrapper.find('.message').removeClass('hidden');

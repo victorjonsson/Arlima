@@ -198,6 +198,8 @@ abstract class Arlima_AbstractAdminPage {
                 'sectionDivsSupportTemplate' => ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES,
                 'previewQueryArg' => Arlima_List::QUERY_ARG_PREVIEW,
                 'sendJSErrorsToServerLog' => ARLIMA_SEND_JS_ERROR_TO_LOG,
+                'scheduledListReloadTime' => ARLIMA_LIST_RELOAD_TIME,
+                'scheduledListCountdownOffset' => ARLIMA_LIST_COUNTDOWN_TIME_OFFSET,
                 'lang' => array( // todo: but these args in a separate .js.php file when this array gets to long
                     'unsaved' => __('You have one, or more, unsaved article lists, do you wish to proceed?', 'arlima'),
                     'laterVersion' => __('It exists an older version of this article list', 'arlima'),
@@ -219,6 +221,7 @@ abstract class Arlima_AbstractAdminPage {
                     'hasUnsavedChanges' => __('This list has unsaved changes', 'arlima'),
                     'dragAndDrop' => __('Drag images to this container', 'arlima'),
                     'scheduled' => __('Scheduled', 'arlima'),
+                    'willReload' => __('Will reload in', 'arlima'),
                     'loggedOut' => __('Your login session seems to have expired, pls reload the page!', 'arlima'),
                     'notValidColor' => __('Not a valid color!', 'arlima'),
                     'invalidURL' => __('This URL seems to be invalid', 'arlima'),

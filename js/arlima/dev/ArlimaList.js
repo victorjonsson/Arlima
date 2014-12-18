@@ -2,34 +2,6 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
     'use strict';
 
-    var listHTML =
-        '<div class="article-list">'+
-            '<div class="header">' +
-                '<span>'+
-                    '<a href="#" class="remove">&times;</a>'+
-                    '<a href="#" class="add-section">+</a>'+
-                    '<span class="title"></span>'+
-                '</span>' +
-            '</div>' +
-            '<div class="articles"></div>'+
-            '<div class="footer">'+
-                '<a href="#" class="preview" title="'+ArlimaJS.lang.preview+'">' +
-                    '<i class="fa fa-eye"></i>' +
-                '</a>'+
-                '<a href="#" class="save" title="'+ArlimaJS.lang.publish+'">' +
-                    '<i class="fa fa-save"></i>' +
-                '</a>'+
-                '<img src="'+ArlimaJS.pluginURL+'/images/ajax-loader-trans.gif" class="ajax-loader" />'+
-                '<a href="#" class="refresh" title="'+ArlimaJS.lang.reload+'">' +
-                    '<i class="fa fa-refresh"></i>' +
-                '</a>'+
-                '<div class="version">' +
-                    '<div class="number"></div>'+
-                    '<ul class="previous-versions"></ul>' +
-                '</div>' +
-            '</div>'+
-        '</div>';
-
     var $document = $(document);
 
     /**
@@ -37,7 +9,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      * @constructor
      */
     function ArlimaList(data) {
-        this.$elem = $(listHTML);
+        this.$elem = $(_getListHtml(data));
         this._isUnsaved = false;
         this._hasLoadedFutureVersion = false;
         var _self = this,
@@ -478,7 +450,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 .toggleClass('disabled', !list.hasUnsavedChanges())
                 .on('click', function(){
                     if ($(this).hasClass('disabled')) return false;
-
+                    $('#arlima-schedule-modal').attr('data-list',list.data.id);
                     $.fancybox({
                         href : '#arlima-schedule-modal',
                         height: 400,
@@ -501,10 +473,9 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             if(list.data.scheduledVersions.length > 0) {
                 var now = new Date(),
                     scheduleDate = new Date(list.data.scheduledVersions[0].scheduled * 1000);
-                // Added 60 seconds to schedule time for crontab margins
-                $('#arlima_countdown')
-                        .attr('data-list-id', list.data.id)
-                        .text(Math.ceil((scheduleDate.getTime() - now.getTime()) / 1000) + 60);
+                setTimeout(function(){
+                    $('#arlima-list-'+list.data.id).attr('data-schedule-countdown', Math.ceil((scheduleDate.getTime() - now.getTime()) / 1000) + parseInt(ArlimaJS.scheduledListCountdownOffset));
+                },500);
             }
 
             $.each(list.data.scheduledVersions, function(i, version ) {
@@ -572,6 +543,39 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         }
     };
 
+    /**
+     * @param data
+     * @private
+     */
+    var _getListHtml = function(data) {
+        return '<div id="arlima-list-'+ data.id +'" data-list-id="'+ data.id +'" class="article-list">'+
+            '<div class="header">' +
+                '<span>'+
+                    '<a href="#" class="remove">&times;</a>'+
+                    '<a href="#" class="add-section">+</a>'+
+                    '<span class="title"></span>'+
+                    '<span class="schedule-notice notice"></span>'+
+                '</span>' +
+            '</div>' +
+            '<div class="articles"></div>'+
+            '<div class="footer">'+
+                '<a href="#" class="preview" title="'+ArlimaJS.lang.preview+'">' +
+                    '<i class="fa fa-eye"></i>' +
+                '</a>'+
+                '<a href="#" class="save" title="'+ArlimaJS.lang.publish+'">' +
+                    '<i class="fa fa-save"></i>' +
+                '</a>'+
+                '<img src="'+ArlimaJS.pluginURL+'/images/ajax-loader-trans.gif" class="ajax-loader" />'+
+                '<a href="#" class="refresh" title="'+ArlimaJS.lang.reload+'">' +
+                    '<i class="fa fa-refresh"></i>' +
+                '</a>'+
+                '<div class="version">' +
+                    '<div class="number"></div>'+
+                    '<ul class="previous-versions"></ul>' +
+                '</div>' +
+            '</div>'+
+        '</div>';
+    };
 
     /**
      * @param {ArlimaList} list
@@ -671,6 +675,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 var ymdArray = $scheduleModalWrapper.find('#schedule-date').val().split('-'),
                     hsArray = $scheduleModalWrapper.find('#schedule-time').val().split(':'),
                     scheduleDate = new Date(),
+                    affectedList = $scheduleModalWrapper.attr('data-list'),
                     nowDate = new Date();
 
                 ymdArray = $.map(ymdArray, function(x) { return parseInt(x, 10)});
@@ -682,9 +687,9 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
                 // Is date future?
                 if(scheduleDate.getTime() > nowDate.getTime()) {
-                    list.save(scheduleDate);
+                    ArlimaListContainer.list(affectedList).save(scheduleDate);
                     $scheduleModalWrapper.find('.message').addClass('hidden');
-                    setTimeout(function() { list.$elem.find('.refresh').trigger('click'); }, 1000);
+                    setTimeout(function() { ArlimaListContainer.list(affectedList).reload() }, 2000);
                     $.fancybox.close();
                 } else{
                     $scheduleModalWrapper.find('.message').removeClass('hidden');

@@ -36,6 +36,17 @@ defined('ARLIMA_GROUP_CHILD_ARTICLES')
 defined('ARLIMA_SEND_JS_ERROR_TO_LOG')
     or define('ARLIMA_SEND_JS_ERROR_TO_LOG', false);
 
+// This is the time limit in seconds to when the count down notice will be displayed for
+// a scheduled list that is about to get published.
+defined('ARLIMA_LIST_RELOAD_TIME')
+    or define('ARLIMA_LIST_RELOAD_TIME', 60); // Seconds
+
+// Depending on the setup of the environment and cron jobs, the exact time of publish for
+// any scheduled lists is be difficult to determine in the front-end. Therefore we add
+// a time offset, increasing chances that the event has actually been published by cron.
+defined('ARLIMA_LIST_COUNTDOWN_TIME_OFFSET')
+    or define('ARLIMA_LIST_COUNTDOWN_TIME_OFFSET', 120); // Seconds
+
 // We have battled the problems with timestamps many times before. Use this
 // variable to adjust the unix timestamp
 defined('ARLIMA_TIME_ADJUST')

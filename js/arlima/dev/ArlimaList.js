@@ -11,7 +11,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
     function ArlimaList(data) {
         this.$elem = $(_getListHtml(data));
         this._isUnsaved = false;
-        this._hasLoadedFutureVersion = false;
+        this._hasLoadedScheduledVersion = false;
         var _self = this,
             $articles = this.$elem.find('.articles');
 
@@ -77,6 +77,29 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
     }
 
     /**
+     * @returns {String}
+     */
+    ArlimaList.prototype.toString = function() {
+        return '"' +this.data.title+ '" (id:'+this.data.id+')';
+    };
+
+    /**
+     * @param message
+     * @param removeInSeconds
+     * @param txtColor
+     */
+    ArlimaList.prototype.displayTitleMessage = function(message, removeInSeconds, txtColor) {
+        if( message ) {
+            this.$elem.find('.schedule-notice')
+                .css('color', txtColor || '#999')
+                .html('('+ message +')')
+                .blink( removeInSeconds ? (removeInSeconds*1000):false );
+        } else {
+            this.$elem.find('.schedule-notice').html('');
+        }
+    };
+
+    /**
      * @return {Array}
      */
     ArlimaList.prototype.getArticleData = function() {
@@ -111,6 +134,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      * @param {Array} articles
      */
     ArlimaList.prototype.setArticles = function(articles) {
+        this.$elem.find('.articles').html('');
         var _self = this,
             addRemoveButton = !this.data.isImported;
 
@@ -186,16 +210,15 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             var $title = this.$elem.find('.header .title'),
                     $saveFutureSelectOption = this.$elem.find('.previous-versions li.future');
             $title.find('.dot').remove();
+
             if(this._isUnsaved) {
                 this.$elem.addClass('unsaved');
                 $title.prepend('<span class="dot">&nbsp;</span>');
-
                 this.$elem.find('.previous-versions .future.save').removeClass('disabled')
-
+                this.displayTitleMessage(false);
             }
             else {
                 this.$elem.removeClass('unsaved');
-
                 this.$elem.find('.previous-versions .future.save').addClass('disabled')
             }
         }
@@ -236,12 +259,12 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
      * Reload the latest version or a specific version
      * @param {Number} [version]
      */
-    ArlimaList.prototype.reload = function(version) {
-
+    ArlimaList.prototype.reload = function(version, callback) {
         // preset
         var _self = this;
         this.loadedVersion = version;
-        this.$elem.find('.articles').html('');
+
+        ArlimaUtils.log('Reloading list '+this+' with version '+version);
 
         // Clear form perhaps
         if( window.ArlimaArticleForm.isEditing(this.data.id) ) {
@@ -260,15 +283,20 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
             if (_self.data.version.status == 3) { // editing scheduled
                 isChanged = false;
-                _self._hasLoadedFutureVersion = true;
+                _self._hasLoadedScheduledVersion = true;
+                _self.displayTitleMessage(false);
             } else {
-                _self._hasLoadedFutureVersion = false;
+                _self._hasLoadedScheduledVersion = false;
             }
+
             if (_self.loadedVersion == _self.data.versions[0].id) { // changed to latest version
                 isChanged = false;
             }
 
             _self.toggleUnsavedState(isChanged);
+
+            if( typeof callback == 'function' )
+                callback(_self);
 
         }, version);
     };
@@ -281,7 +309,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
     };
 
     ArlimaList.prototype.hasLoadedScheduledVersion = function() {
-        return this._hasLoadedFutureVersion;
+        return this._hasLoadedScheduledVersion;
     };
 
     /**
@@ -319,22 +347,24 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             whenSaved = function(data) {
                 _toggleAjaxPreloader(_self, false);
                 if( data ) {
-                    if( _self.data.version.scheduled ) {
-                        data.loadedVersion = _self.data.version.id;
-                        data.version = _self.data.version;
-                        data.versions = _self.data.versions;
-                        data.versionDisplayText = _self.data.versionDisplayText;
-                        data.scheduledVersions = _self.data.scheduledVersions;
-                    }
-                    if( data.version.status == 3 ) {
-                        _self._hasLoadedFutureVersion = true;
+                    _self.loadedVersion = data.loadedVersion;
+                    _self.data.version = data.version;
+                    _self.data.versions = data.versions;
+                    _self.data.versionDisplayText = data.versionDisplayText;
+                    _self.data.scheduledVersions = data.scheduledVersions;
+                    _self.data.version.scheduled = parseInt(_self.data.version.scheduled, 10);
+
+                    if( !scheduleDate ) {
+                        _self._hasLoadedScheduledVersion = false;
                     } else {
-                        _self._hasLoadedFutureVersion = false;
+                        _self._hasLoadedScheduledVersion = true;
                     }
+
                     if( window.ArlimaArticleForm.isEditing(_self.data.id) ) {
                         window.ArlimaArticleForm.toggleUnsavedState('saved');
-                        $.event.trigger('versionInfoLoaded');
                     }
+
+                    _displayVersionInfo(_self);
                 }
             };
 
@@ -345,13 +375,17 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
             if( this.hasLoadedScheduledVersion() ) {
                 // currently editing a future version
-                ArlimaBackend.updateListVersion(this.data.id, this.getArticleData(), this.data.version.id, whenSaved);
+                ArlimaBackend.updateListVersion(this.data.id, this.data.version.id,  this.getArticleData(), function() {
+                    _toggleAjaxPreloader(_self, false);
+                    if( window.ArlimaArticleForm.isEditing(_self.data.id) ) {
+                        window.ArlimaArticleForm.toggleUnsavedState('saved');
+                    }
+                });
             } else {
 
                 delete this.loadedVersion; // No specific version loaded means we're on the latest created version
 
                 var scheduleTime = '';
-
 
                 if (scheduleDate) {
                     scheduleTime = Math.round(scheduleDate.getTime() / 1000); // Get Unix timestamp of Date if scheduled
@@ -528,8 +562,11 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     $item.addClass('disabled');
                 }
             });
+
+            setTimeout(function() {
+                $.event.trigger('versionInfoLoaded');
+            }, 2000);
         }
-        setTimeout(function(){ $.event.trigger({ type: 'versionInfoLoaded' }) }, 2000)
     };
 
     var _toggleAjaxPreloader = function(list, toggle) {
@@ -687,9 +724,8 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
                 // Is date future?
                 if(scheduleDate.getTime() > nowDate.getTime()) {
-                    ArlimaListContainer.list(affectedList).save(scheduleDate);
+                    window.ArlimaListContainer.list(affectedList).save(scheduleDate);
                     $scheduleModalWrapper.find('.message').addClass('hidden');
-                    setTimeout(function() { ArlimaListContainer.list(affectedList).reload() }, 2000);
                     $.fancybox.close();
                 } else{
                     $scheduleModalWrapper.find('.message').removeClass('hidden');

@@ -172,6 +172,18 @@ var ArlimaUtils = (function($, window, undefined) {
             }
         },
 
+        /**
+         * Add some cool highlighting effect to an element for a short while
+         * @param {jQuery} $elem
+         */
+        highlight : function($elem) {
+            try {
+                $elem.effect("highlight", {color:'rgba(255,255,255, .2)'});
+            } catch(e) {
+                // old wordpress does not support this...
+            }
+        },
+
         makeDraggable : function($elem) {
             $elem.draggable({
                 appendTo: 'body',

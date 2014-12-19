@@ -502,9 +502,9 @@ class Arlima_ListFactory {
         if( !$list->exists() )
             return $list;
 
-        // Get latest published version (using cache)
+        // Get latest published version
         if( !$version ) {
-
+            error_log('Loading latest version of list');
             $article_data = false;
 
             if (!$include_future_posts) {

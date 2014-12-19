@@ -132,11 +132,7 @@ function arlimaNestedSortable(list) {
 
         }, 200);
 
-        try {
-            $elem.effect("highlight", {color:'rgba(255,255,255, .2)'});
-        } catch(e) {
-            // old wordpress does not support this...
-        }
+        window.ArlimaUtils.highlight($elem);
 
         if( toggleUnsavedState )
             list.toggleUnsavedState(true);

@@ -39,7 +39,7 @@ defined('ARLIMA_SEND_JS_ERROR_TO_LOG')
 // This is the time limit in seconds to when the count down notice will be displayed for
 // a scheduled list that is about to get published.
 defined('ARLIMA_LIST_RELOAD_TIME')
-    or define('ARLIMA_LIST_RELOAD_TIME', 60); // Seconds
+    or define('ARLIMA_LIST_RELOAD_TIME', 15); // Seconds
 
 // Depending on the setup of the environment and cron jobs, the exact time of publish for
 // any scheduled lists is be difficult to determine in the front-end. Therefore we add

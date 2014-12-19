@@ -18,19 +18,30 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
 
                 if(json && json.exists) {
 
+                    var hasChanged = true;
+                    if( json.version ) {
+                        json.version.scheduled = parseInt(json.version.scheduled, 10);
+                        if( !version && list && json.version.id == list.data.version.id && !list.hasUnsavedChanges() ) {
+                            hasChanged = false;
+                        }
+                    }
+
                     if( !list ) {
                         // Create list object and it's element
                         list = new ArlimaList(json);
                     } else {
                         // Only overwrite the latest current version of the list and when editing scheduled
-                        if (! (version && (json.version.status == 3 || !json.versions.length || version == json.versions[0].id ))) {
+                        if ( version && json.version.status != 3 ) {
                             json.loadedVersion = json.version.id;
                             json.version = list.data.version;
                         }
-                        list.setData(json);
+                        if( hasChanged )
+                            list.setData(json);
                     }
 
-                    list.setArticles(json.articles);
+                    if( hasChanged )
+                        list.setArticles(json.articles);
+
                     callback(list);
 
                 } else {

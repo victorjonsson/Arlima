@@ -25,11 +25,11 @@ jQuery(function($) {
     ArlimaFormBuilder.init($('#article-form .file-include-container'));
 
     // Fix future notices in all lists
-    setTimeout(function() {
+    setInterval(function() {
         $.each(ArlimaListContainer.lists, function(i, list) {
             list.fixFutureNotices();
         });
-    }, 600000);
+    }, 300000);
 
     // Leaving the list manager
     window.onbeforeunload = function(){
@@ -49,8 +49,37 @@ jQuery(function($) {
         }
     };
 
+    // Very unsophisticated Jquery plugin for blinking effect
+    $.fn.blink = function(clearAfter) {
+        var _this = this;
+        this.animate({
+            opacity: 0.1
+        },'fast', function() {
+            _this.animate({
+                opacity: 1
+            },'fast', function() {
+                _this.animate({
+                    opacity: 0.1
+                },'fast', function() {
+                    _this.animate({
+                        opacity: 1
+                    },'fast', function() {
+                        if( clearAfter ) {
+                            setTimeout(function() {
+                                _this.fadeOut(function() {
+                                    _this.html('').fadeIn();
+                                })
+                            }, clearAfter);
+                        }
+                    });
+                });
+            });
+        });
+        return this;
+    };
+
     // Scheduled lists count-down auto reload
-    $(document).on('versionInfoLoaded', function() {
+    $(document).on('versionInfoLoadedzzz', function() {
         var $articleLists = $('.article-list');
 
         // Init count down on scheduled lists
@@ -63,14 +92,17 @@ jQuery(function($) {
                 !$thisList.hasClass('counting') ? $thisList.addClass('counting') : '';
 
                 var timer = setInterval(function() {
+                    console.log('iun here '+parseInt(ArlimaJS.scheduledListReloadTime)+' >= '+$thisList.attr('data-schedule-countdown'));
                     $thisList.attr('data-schedule-countdown', --seconds);
                     // Show notice
                     if($thisList.attr('data-schedule-countdown') <= parseInt(ArlimaJS.scheduledListReloadTime) ) {
+                        console.log('iun here also');
                         $thisList.find('.schedule-notice')
-                                .html(' ('+ ArlimaJS.lang.willReload +' '+ seconds +')')
+                                .html(' ('+ ArlimaJS.lang.willReload +' '+ seconds +')');
                     }
 
                     if (seconds == 0) {
+                        console.log('cleared');
                        clearInterval(timer);
                        $thisList.find('.schedule-notice').html('');
                        ArlimaListContainer.list($thisList.data('list-id')).reload();
@@ -101,6 +133,7 @@ var qtipStyle = {
         color: '#111'
     }
 };
+
 
 /* * * DEPRECATED.... * * * */
 

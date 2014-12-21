@@ -61,6 +61,23 @@ foreach($lists as &$list_data) {
     }
 }
 
+/**
+ * @param Arlima_Plugin $arlima_plugin
+ * @param string $setting
+ */
+function output_yesorno_select($arlima_plugin, $setting) {
+    $val = $arlima_plugin->getSetting($setting);
+    ?>
+    <select name="settings[<?php echo $setting ?>]">
+        <option value="1"<?php echo !empty($val) ? ' selected="selected"':'' ?>>
+            <?php _e('Yes', 'arlima') ?>
+        </option>
+        <option value="0"<?php echo empty($val) ? ' selected="selected"':'' ?>>
+            <?php _e('No', 'arlima') ?>
+        </option>
+    </select>
+<?php }
+
 if( isset($message) ): ?>
     <div id="setting-error-settings_updated" class="updated settings-error success">
         <p><strong><?php echo $message; ?></strong></p>
@@ -124,14 +141,7 @@ if( isset($message) ): ?>
                                 <?php _e('Hide related posts by default.','arlima') ?>
                             </td>
                             <td>
-                                <select name="settings[hide_related_posts_default]">
-                                    <option value="1"<?php echo $arlima_plugin->getSetting('hide_related_posts_default') == '1' ? ' selected="selected"':'' ?>>
-                                        <?php _e('Yes', 'arlima') ?>
-                                    </option>
-                                    <option value="0"<?php echo $arlima_plugin->getSetting('hide_related_posts_default') != '1' ? ' selected="selected"':'' ?>>
-                                        <?php _e('No', 'arlima') ?>
-                                    </option>
-                                </select>
+                                <?php output_yesorno_select($arlima_plugin, 'hide_related_posts_default'); ?>
                             </td>
                         </tr>
                     </table>
@@ -216,7 +226,7 @@ if( isset($message) ): ?>
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" name="settings[editor_sections]" <?php echo $settings['editor_sections'] != '' ? ' checked="checked"':'' ?> />
+                                <?php output_yesorno_select($arlima_plugin, 'editor_sections'); ?>
                             </label>
                         </td>
                     </tr>
@@ -234,7 +244,7 @@ if( isset($message) ): ?>
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" name="settings[newsbill_tag]" <?php echo $settings['newsbill_tag'] != '' ? ' checked="checked"':'' ?> />
+                                <?php output_yesorno_select($arlima_plugin, 'newsbill_tag'); ?>
                             </label>
                         </td>
                     </tr>
@@ -244,7 +254,7 @@ if( isset($message) ): ?>
                         </td>
                         <td>
                             <label>
-                                <input type="checkbox" name="settings[streamer_pre]" <?php echo $settings['streamer_pre'] != '' ? ' checked="checked"':'' ?> />
+                                <?php output_yesorno_select($arlima_plugin, 'streamer_pre'); ?>
                             </label>
                         </td>
                     </tr>

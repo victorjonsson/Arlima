@@ -504,7 +504,6 @@ class Arlima_ListFactory {
 
         // Get latest published version
         if( !$version ) {
-            error_log('Loading latest version of list');
             $article_data = false;
 
             if (!$include_future_posts) {

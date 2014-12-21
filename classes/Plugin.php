@@ -455,6 +455,9 @@ class Arlima_Plugin
 
             if( $current_version < 3.1 ) {
                 Arlima_ListFactory::databaseUpdates($current_version);
+                $settings['newsbill_tag'] = '';
+                $settings['streamer_pre'] = '';
+                $settings['editor_sections'] = '';
             }
 
             $settings['install_version'] = self::VERSION;

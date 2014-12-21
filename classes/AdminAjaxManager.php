@@ -442,8 +442,7 @@ class Arlima_AdminAjaxManager
         $this->initAjaxRequest();
         $factory = $this->loadListFactory();
         $list = $factory->loadList($_POST['alid']);
-        $articles = $this->getArticlesFromRequest();
-        $factory->updateListVersion($list, $articles, $_POST['version']);
+        $factory->updateListVersion($list, $this->getArticlesFromRequest(), $_POST['version']);
         $this->outputListData($factory->loadList($_POST['alid'], $_POST['version'], true)); // reload the list and send to browser
         die;
     }

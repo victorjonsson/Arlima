@@ -816,6 +816,9 @@ msgstr "Extra ingångsord för vinjett"
 msgid "Save settings"
 msgstr "Spara inställningar"
 
+msgid "seconds"
+msgstr "sekunder"
+
 #~ msgid "Scheduled list notice"
 #~ msgstr "Tidsinställd lista"
 

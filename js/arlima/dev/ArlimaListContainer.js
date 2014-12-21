@@ -61,10 +61,10 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
                     } else {
                         list.reloadStep++;
                         if( list.reloadStep == 1 ) {
-                            list.displayTitleMessage('Reloads in 10 seconds', false);
+                            list.displayTitleMessage(ArlimaJS.lang.willReload +' 10 '+ArlimaJS.lang.seconds, false);
                             nextReloadTime = 5;
                         } else if( list.reloadStep == 2 ) {
-                            list.displayTitleMessage('Reloads in 5 seconds', false);
+                            list.displayTitleMessage(ArlimaJS.lang.willReload +' 5 '+ArlimaJS.lang.seconds, false);
                             nextReloadTime = 5;
                         } else {
                             resetReloading();

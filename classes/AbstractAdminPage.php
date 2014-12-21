@@ -241,6 +241,7 @@ abstract class Arlima_AbstractAdminPage {
                     'publishedVersions' => __('Published versions', 'arlima'),
                     'scheduledVersions' => __('Future versions', 'arlima'),
                     'toPublish' => __('To publish', 'arlima'),
+                    'seconds' => __('seconds', 'arlima'),
                     'yes' => __('Yes'),
                     'no' => __('No'),
                 )

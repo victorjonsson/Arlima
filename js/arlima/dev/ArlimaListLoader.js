@@ -22,7 +22,7 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
                     if( json.version ) {
                         json.version.scheduled = parseInt(json.version.scheduled, 10);
                         if( !version && list && json.version.id == list.data.version.id && !list.hasUnsavedChanges() ) {
-                            hasChanged = false;
+                            hasChanged = window.JSON.stringify(json.scheduledVersions || {}) != window.JSON.stringify(list.data.scheduledVersions || {});
                         }
                     }
 

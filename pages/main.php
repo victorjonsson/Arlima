@@ -68,7 +68,7 @@ $settings = $arlima_plugin->loadSettings();
                             ?>
                         </div>
 
-                        <?php if(isset($settings['streamer_pre']) && $settings['streamer_pre'] != '') : ?>
+                        <?php if( !empty($settings['streamer_pre']) ) : ?>
                             <input class="data streamer content pre" data-prop="options:streamerPre" />
                         <?php endif; ?>
 
@@ -213,7 +213,7 @@ $settings = $arlima_plugin->loadSettings();
                 <div class="title-container">
                     <input class="pre-title data template-feature" data-feature="title" data-prop="options:preTitle" placeholder="<?php _e('Entry word', 'arlima') ?>" />
                     <input class="title data" data-prop="title" placeholder="<?php _e('Title', 'arlima') ?>" />
-                    <?php if(isset($settings['newsbill_tag']) && $settings['newsbill_tag'] != '') : ?>
+                    <?php if( !empty($settings['newsbill_tag']) ) : ?>
                         <input class="newsbill-tag data template-feature" data-feature="newsbill_tag" data-prop="options:newsbillTag" placeholder="<?php _e('Newsbill tag', 'arlima') ?>" />
                     <?php else: ?>
                     <span class="template-feature" data-feature="title">
@@ -499,7 +499,7 @@ $settings = $arlima_plugin->loadSettings();
     <h1><?php _e('New version available', 'arlima') ?>!</h1>
     <p><?php printf(__('We have upgraded Arlima to version %s', 'arlima'), '<strong class="version">XX.ZZ</strong>') ?>
         <br />
-        <?php _e('Please save your work and update the website in your browser.', 'arlima') ?>
+        <?php _e('Please save your work and reload this browser tab.', 'arlima') ?>
     </p>
     <div class="logo">
         <img src="<?php echo ARLIMA_PLUGIN_URL.'/images/logo.png' ?>" width="71" alt="Arlima" />

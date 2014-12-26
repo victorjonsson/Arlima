@@ -156,7 +156,7 @@ class Arlima_ListFactory {
 
         $list = $this->loadListByVersionId($version_id);
 
-        if($list->exists()) {
+        if($list && $list->exists()) {
 
             // Delete arlima article relations for version
             $this->executeSQLQuery('query', sprintf(

@@ -194,12 +194,12 @@ abstract class Arlima_AbstractAdminPage {
                 'hasScissors' => Arlima_Plugin::isScissorsInstalled(),
                 'isAdmin' => current_user_can('manage_options'),
                 'devMode' => ARLIMA_DEV_MODE,
+                'allowEditorsCreateSections' => $this->plugin->getSetting('editor_sections', true) ? true:false,
                 'groupChildArticles' => ARLIMA_GROUP_CHILD_ARTICLES,
                 'sectionDivsSupportTemplate' => ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES,
                 'previewQueryArg' => Arlima_List::QUERY_ARG_PREVIEW,
                 'sendJSErrorsToServerLog' => ARLIMA_SEND_JS_ERROR_TO_LOG,
                 'scheduledListReloadTime' => ARLIMA_LIST_RELOAD_TIME,
-                'scheduledListCountdownOffset' => ARLIMA_LIST_COUNTDOWN_TIME_OFFSET,
                 'lang' => array( // todo: but these args in a separate .js.php file when this array gets to long
                     'unsaved' => __('You have one, or more, unsaved article lists, do you wish to proceed?', 'arlima'),
                     'laterVersion' => __('It exists an older version of this article list', 'arlima'),
@@ -242,6 +242,7 @@ abstract class Arlima_AbstractAdminPage {
                     'scheduledVersions' => __('Future versions', 'arlima'),
                     'toPublish' => __('To publish', 'arlima'),
                     'seconds' => __('seconds', 'arlima'),
+                    'updatedBy' => __('Updated by', 'arlima'),
                     'yes' => __('Yes'),
                     'no' => __('No'),
                 )

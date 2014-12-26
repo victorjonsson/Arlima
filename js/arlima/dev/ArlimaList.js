@@ -191,7 +191,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             $titleNode.addClass('scheduled');
         }
 
-        if( ArlimaJS.isAdmin && data.options.supports_sections && !data.isImported ) {
+        if( (ArlimaJS.isAdmin || ArlimaJS.allowEditorsCreateSections) && data.options.supports_sections && !data.isImported ) {
             this.$elem.find('.add-section').show();
         } else {
             this.$elem.find('.add-section').hide();
@@ -503,15 +503,6 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 $versionList.append($listSectionSeparator);
             }
 
-            // Update reload notice with seconds to next scheduled
-            if(list.data.scheduledVersions.length > 0) {
-                var now = new Date(),
-                    scheduleDate = new Date(list.data.scheduledVersions[0].scheduled * 1000);
-                setTimeout(function(){
-                    $('#arlima-list-'+list.data.id).attr('data-schedule-countdown', Math.ceil((scheduleDate.getTime() - now.getTime()) / 1000) + parseInt(ArlimaJS.scheduledListCountdownOffset));
-                },500);
-            }
-
             $.each(list.data.scheduledVersions, function(i, version ) {
                 var scheduleDate = new Date(version.scheduled * 1000),
                     hours = '0'+scheduleDate.getHours(),
@@ -562,10 +553,6 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                     $item.addClass('disabled');
                 }
             });
-
-            setTimeout(function() {
-                $.event.trigger('versionInfoLoaded');
-            }, 2000);
         }
     };
 

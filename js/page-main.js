@@ -77,40 +77,6 @@ jQuery(function($) {
         });
         return this;
     };
-
-    // Scheduled lists count-down auto reload
-    $(document).on('versionInfoLoadedzzz', function() {
-        var $articleLists = $('.article-list');
-
-        // Init count down on scheduled lists
-        $.each($articleLists, function(i, list) {
-            var seconds = $(this).data('schedule-countdown'),
-            $thisList = $(this);
-
-            if(typeof(seconds) != 'undefined' && seconds > 0 && !$thisList.hasClass('counting')) {
-
-                !$thisList.hasClass('counting') ? $thisList.addClass('counting') : '';
-
-                var timer = setInterval(function() {
-                    console.log('iun here '+parseInt(ArlimaJS.scheduledListReloadTime)+' >= '+$thisList.attr('data-schedule-countdown'));
-                    $thisList.attr('data-schedule-countdown', --seconds);
-                    // Show notice
-                    if($thisList.attr('data-schedule-countdown') <= parseInt(ArlimaJS.scheduledListReloadTime) ) {
-                        console.log('iun here also');
-                        $thisList.find('.schedule-notice')
-                                .html(' ('+ ArlimaJS.lang.willReload +' '+ seconds +')');
-                    }
-
-                    if (seconds == 0) {
-                        console.log('cleared');
-                       clearInterval(timer);
-                       $thisList.find('.schedule-notice').html('');
-                       ArlimaListContainer.list($thisList.data('list-id')).reload();
-                    }
-                }, 1000);
-            }
-        });
-    });
 });
 
 if( ArlimaJS.sendJSErrorsToServerLog ) {

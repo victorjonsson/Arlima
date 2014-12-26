@@ -38,7 +38,7 @@ defined('ARLIMA_SEND_JS_ERROR_TO_LOG')
 
 // This is the time limit in seconds between automatic reloading of the lists in the list manager
 defined('ARLIMA_LIST_RELOAD_TIME')
-    or define('ARLIMA_LIST_RELOAD_TIME', 30); // Seconds
+    or define('ARLIMA_LIST_RELOAD_TIME', 180); // Seconds
 
 // We have battled the problems with timestamps many times before. Use this
 // variable to adjust the unix timestamp

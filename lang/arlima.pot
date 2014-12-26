@@ -697,7 +697,7 @@ msgid "We have upgraded Arlima to version %s"
 msgstr "Vi har uppdaterat till version %s av Arlima."
 
 #: pages/main.php:502
-msgid "Please save your work and reload this browser tab"
+msgid "Please save your work and reload this browser tab."
 msgstr "Vänligen spara ditt arbete och ladda om fliken i webbläsaren."
 
 #: pages/main.php:510

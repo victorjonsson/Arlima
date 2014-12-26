@@ -61,6 +61,23 @@ foreach($lists as &$list_data) {
     }
 }
 
+/**
+ * @param Arlima_Plugin $arlima_plugin
+ * @param string $setting
+ */
+function output_yesorno_select($arlima_plugin, $setting) {
+    $val = $arlima_plugin->getSetting($setting);
+    ?>
+    <select name="settings[<?php echo $setting ?>]">
+        <option value="1"<?php echo !empty($val) ? ' selected="selected"':'' ?>>
+            <?php _e('Yes', 'arlima') ?>
+        </option>
+        <option value="0"<?php echo empty($val) ? ' selected="selected"':'' ?>>
+            <?php _e('No', 'arlima') ?>
+        </option>
+    </select>
+<?php }
+
 if( isset($message) ): ?>
     <div id="setting-error-settings_updated" class="updated settings-error success">
         <p><strong><?php echo $message; ?></strong></p>
@@ -124,14 +141,7 @@ if( isset($message) ): ?>
                                 <?php _e('Hide related posts by default.','arlima') ?>
                             </td>
                             <td>
-                                <select name="settings[hide_related_posts_default]">
-                                    <option value="1"<?php echo $arlima_plugin->getSetting('hide_related_posts_default') == '1' ? ' selected="selected"':'' ?>>
-                                        <?php _e('Yes', 'arlima') ?>
-                                    </option>
-                                    <option value="0"<?php echo $arlima_plugin->getSetting('hide_related_posts_default') != '1' ? ' selected="selected"':'' ?>>
-                                        <?php _e('No', 'arlima') ?>
-                                    </option>
-                                </select>
+                                <?php output_yesorno_select($arlima_plugin, 'hide_related_posts_default'); ?>
                             </td>
                         </tr>
                     </table>
@@ -200,6 +210,52 @@ if( isset($message) ): ?>
                                 <?php foreach($import_manager->getImportedLists() as $list_data)
                                     Arlima_ImportManager::displayImportedList($list_data['url'], $list_data['title']); ?>
                             </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="arlima-postbox">
+            <h3><?php _e('Permissions', 'arlima') ?></h3>
+            <div class="inside">
+                <table>
+                    <tr>
+                        <td>
+                            <?php _e('Allow editors to create section dividers', 'arlima') ?>
+                        </td>
+                        <td>
+                            <label>
+                                <?php output_yesorno_select($arlima_plugin, 'editor_sections'); ?>
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="arlima-postbox">
+            <h3><?php _e('Newsbill settings', 'arlima') ?></h3>
+            <div class="inside">
+                <table>
+                    <tr>
+                        <td>
+                            <?php _e('Replace font size slider with newsbill tag', 'arlima') ?>
+                        </td>
+                        <td>
+                            <label>
+                                <?php output_yesorno_select($arlima_plugin, 'newsbill_tag'); ?>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <?php _e('Streamer pre-text', 'arlima') ?>
+                        </td>
+                        <td>
+                            <label>
+                                <?php output_yesorno_select($arlima_plugin, 'streamer_pre'); ?>
+                            </label>
                         </td>
                     </tr>
                 </table>

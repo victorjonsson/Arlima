@@ -155,6 +155,7 @@ module.exports = function(grunt) {
     grunt.registerTask('phpunit', 'Run phpUnit tests', function() {
 
         var finishedTests = 0,
+            numTests = config.phpunit.length,
             done = this.async();
 
         config.phpunit.every(function(file) {
@@ -169,16 +170,24 @@ module.exports = function(grunt) {
                             // to stderr...
                             handleProcessError(grunt, stdout);
                             done();
-                        } else {
+                        } else if(stdout.indexOf('PHPUnit') > -1 ) {
                             grunt.log.writeln('* Successfully ran php-unit file '+file);
+                        } else {
+                            handleProcessError(grunt, 'Unexpected output from phpunit: '+stdout);
+                            done();
                         }
                     }
 
                     finishedTests++;
-                    if( finishedTests == config.phpunit.length ) {
+                    if( finishedTests == numTests ) {
                         done();
                     }
                 });
+            } else {
+                numTests--;
+                if( finishedTests == numTests ) {
+                    done();
+                }
             }
             return true;
         });

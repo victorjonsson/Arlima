@@ -2,6 +2,12 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
 
     'use strict';
 
+    var listReloadTime = parseInt(ArlimaJS.scheduledListReloadTime, 10);
+    if( listReloadTime && listReloadTime < 30 ) {
+        ArlimaUtils.log('You can not set lists to be reloaded more often than every 30 seconds', 'warn');
+        listReloadTime = 30;
+    }
+
     return {
 
         /**
@@ -39,6 +45,51 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
                 _self.lastTouchedList = list.data.id;
             });
 
+            // Handle automatic reloading of lists
+            if( listReloadTime && !list.data.isImported) {
+                var reloadManager = function() {
+                    var nextReloadTime,
+                        resetReloading = function() {
+                            list.displayTitleMessage(false);
+                            list.reloadStep = 0;
+                            nextReloadTime = listReloadTime - 10;
+                        },
+                        shouldIgnoreReload = list.hasUnsavedChanges() ||
+                                            list.hasLoadedScheduledVersion() ||
+                                            window.stopListReload ||
+                                            (list.reloadStep == 2 && ArlimaArticleForm.isEditing(list.data.id));
+
+                    if( shouldIgnoreReload ) {
+                        ArlimaUtils.log('Ignoring background reload of list '+list);
+                        resetReloading();
+                    } else {
+                        list.reloadStep++;
+                        if( list.reloadStep == 1 ) {
+                            list.displayTitleMessage(ArlimaJS.lang.willReload +' 10 '+ArlimaJS.lang.seconds, false);
+                            nextReloadTime = 5;
+                        } else if( list.reloadStep == 2 ) {
+                            list.displayTitleMessage(ArlimaJS.lang.willReload +' 5 '+ArlimaJS.lang.seconds, false);
+                            nextReloadTime = 5;
+                        } else {
+                            resetReloading();
+                            var currentVersion = list.data.version.id;
+                            list.reload(false, function(list) {
+                                if( list.data.version.id != currentVersion ) {
+                                    // hack to get name of last updating author
+                                    var parts = list.data.versionDisplayText.split(' '),
+                                        name = parts.splice(-2).join(' ');
+                                    list.displayTitleMessage(ArlimaJS.lang.updatedBy +' '+ name, 8, '#e1b621');
+                                }
+                            });
+                        }
+                    }
+
+                    list.reloadInterval = setTimeout(reloadManager, nextReloadTime * 1000);
+                };
+
+                list.reloadStep = 0;
+                list.reloadInterval = setTimeout(reloadManager, (listReloadTime-10) * 1000);
+            }
         },
 
         /**
@@ -59,6 +110,11 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
             }
 
             if( doRemove ) {
+
+                if( list.reloadInterval ) {
+                    clearInterval(list.reloadInterval);
+                }
+
                 list.$elem.trigger('removedFromContainer');
                 list.$elem.fadeOut(function() {
                     $(this).remove();

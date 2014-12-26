@@ -1,5 +1,7 @@
 
 @blue: #3f8fb4;
+@yellow: #e1b621;
+@dark_yellow: #997e18;
 
 .text-wrap() {
   overflow: hidden;
@@ -47,6 +49,12 @@ a:visited,
   -webkit-focus-ring-color: transparent;
   -webkit-focus-ring-color: none;
 }
+.message {
+  font-weight: bold;
+  &.message-notice {
+    color: @yellow;
+  }
+}
 
 select:disabled, input:disabled {
   cursor: not-allowed;
@@ -70,6 +78,20 @@ select:disabled, input:disabled {
   }
 }
 
+// --- Schedule modal
+#arlima-schedule-modal {
+  display:none;
+}
+
+img.schedule-clock {
+  vertical-align: top;
+  padding-right: 5px;
+}
+
+.notice {
+  font-weight: bold;
+  color: @yellow;
+}
 
 // --- Page titles
 .wrap.arlima {

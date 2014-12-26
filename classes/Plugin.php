@@ -8,7 +8,7 @@
  */
 class Arlima_Plugin
 {
-    const VERSION = 3.0;
+    const VERSION = 3.1;
     const EXPORT_FEED_NAME = 'arlima-export';
     const PLUGIN_SETTINGS_OPT = 'arlima_plugin_settings';
 
@@ -25,6 +25,8 @@ class Arlima_Plugin
 
         add_action('init', array($this, 'commonInitHook'));
         add_action('template_redirect', array($this, 'themeInitHook'));
+        add_action('arlima_publish_scheduled_list', array($this, 'publishScheduledList'), 10 ,2);
+
     }
 
     /**
@@ -80,7 +82,6 @@ class Arlima_Plugin
                 arlima_render_list(arlima_get_list(), isset($relation['attr']) ?  $relation['attr'] : array());
             }
         }
-
         return $content;
     }
 
@@ -385,7 +386,6 @@ class Arlima_Plugin
         $settings = $plugin->loadSettings();
         $current_version = isset($settings['install_version']) ? $settings['install_version'] : 0;
 
-        #var_dump($current_version); die;
 
         // Time for an update
         if ( $current_version != self::VERSION ) {
@@ -453,8 +453,11 @@ class Arlima_Plugin
                 $settings['image_quality'] = 100;
             }
 
-            if( $current_version < 3 ) {
-                Arlima_ListFactory::databaseUpdates(2.9);
+            if( $current_version < 3.1 ) {
+                Arlima_ListFactory::databaseUpdates($current_version);
+                $settings['newsbill_tag'] = '';
+                $settings['streamer_pre'] = '';
+                $settings['editor_sections'] = '';
             }
 
             $settings['install_version'] = self::VERSION;
@@ -975,4 +978,19 @@ class Arlima_Plugin
         file_put_contents($img_file, base64_decode($base64_img));
         return self::saveImageFileAsAttachment($img_file, $file_name, $connected_post);
     }
+
+    /**
+     * Publishes a scheduled arlima list
+     * @param int $list_id
+     * @param int $version_id
+     */
+    public static function publishScheduledList($list_id, $version_id)
+    {
+        $list_factory = new Arlima_ListFactory();
+        $list = $list_factory->loadList($list_id, $version_id);
+        $list_factory->deleteListVersion($version_id); // Delete the old scheduled list version
+        $version = $list->getVersion();
+        $list_factory->saveNewListVersion($list, $list->getArticles(), $version['user_id'], 0); // Publish the list as a new version
+    }
+
 }

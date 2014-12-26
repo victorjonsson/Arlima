@@ -244,6 +244,13 @@
 
     .title {
       font-weight: bold;
+      .schedule-clock {
+        color: #4693D7;
+        margin-right: 3px;
+      }
+      &.scheduled {
+        color: #4693D7;
+      }
     }
 
     .remove, .title {
@@ -303,7 +310,6 @@
     padding-top: 4px;
     position: absolute;
     bottom: 0;
-    overflow: auto;
     .list-inner-margins();
 
     a, .ajax-loader {
@@ -316,24 +322,94 @@
       cursor: default;
     }
 
+
     .fa {
       font-size: 14px;
     }
 
     .version {
-      display: inline;
-      float: right;
       color: #333;
       font-size: 12px;
       cursor: pointer;
-      margin-right: 3px;
+      position: absolute;
+      right: 30px;
 
-      select {
+      .number {
+        text-align: right;
+
+        &:after {
+          content: '\25B2';
+          padding-left: 3px;
+          vertical-align: middle;
+        }
+
+        &.active:after {
+          content: '\25Bc';
+        }
+      }
+
+      .previous-versions {
+        background: #EEE;
         font-size: 10px;
-        padding: 0;
+
+        border-radius: 5px;
+        box-shadow: 0 0 5px #bbb;
         height: auto;
         margin-left: 3px;
         display: none;
+
+        li {
+
+          padding: 6px 10px;
+          margin: 0;
+          color: #888;
+
+          a.delete {
+            float: right;
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 0;
+            margin-left: 10px;
+            color: red;
+          }
+
+          &.separator {
+            background: #666;
+            color: #ddd;
+            font-weight: bold;
+            padding:0 6px;
+            &:hover {
+              background: #666;
+            }
+          }
+
+          &.future {
+            color: #333;
+            font-weight: bold;
+            text-decoration: underline;
+            &.save.disabled {
+              color: #999;
+            }
+          }
+          &.selected {
+            color: #333;
+
+            &:before {
+              content: '\25B6';
+              padding-right: 3px;
+              vertical-align: middle;
+            }
+          }
+
+          &.disabled {
+            color: #ccc;
+          }
+
+          &:hover {
+            background-color: rgba(60, 60, 60, 0.1);
+          }
+        }
+
       }
     }
 
@@ -357,6 +433,13 @@
     .opacity(60);
   }
 
+}
+
+.scheduled .version {
+  .number,
+  .schedule-clock {
+    color: #4693D7 !important;
+  }
 }
 
 .article-list.unsaved,
@@ -385,6 +468,9 @@
     color: #222;
     cursor: pointer;
   }
+  &.scheduled a.save {
+    color: #4693D7;
+  }
 }
 
 // Imported article list
@@ -403,7 +489,7 @@
 }
 
 
-/* 
+/*
 * SORTABLE STUFF
 */
 .sortable-placeholder {

@@ -25,11 +25,11 @@ jQuery(function($) {
     ArlimaFormBuilder.init($('#article-form .file-include-container'));
 
     // Fix future notices in all lists
-    setTimeout(function() {
+    setInterval(function() {
         $.each(ArlimaListContainer.lists, function(i, list) {
             list.fixFutureNotices();
         });
-    }, 600000);
+    }, 300000);
 
     // Leaving the list manager
     window.onbeforeunload = function(){
@@ -47,6 +47,35 @@ jQuery(function($) {
         if( hasUnsavedList ) {
             return ArlimaJS.lang.unsaved;
         }
+    };
+
+    // Very unsophisticated Jquery plugin for blinking effect
+    $.fn.blink = function(clearAfter) {
+        var _this = this;
+        this.animate({
+            opacity: 0.1
+        },'fast', function() {
+            _this.animate({
+                opacity: 1
+            },'fast', function() {
+                _this.animate({
+                    opacity: 0.1
+                },'fast', function() {
+                    _this.animate({
+                        opacity: 1
+                    },'fast', function() {
+                        if( clearAfter ) {
+                            setTimeout(function() {
+                                _this.fadeOut(function() {
+                                    _this.html('').fadeIn();
+                                })
+                            }, clearAfter);
+                        }
+                    });
+                });
+            });
+        });
+        return this;
     };
 });
 

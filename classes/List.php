@@ -11,6 +11,7 @@ class Arlima_List
 
     const STATUS_PREVIEW = 2;
     const STATUS_PUBLISHED = 1;
+    const STATUS_SCHEDULED = 3;
     const STATUS_EMPTY = -1; // the status it will have when its created and no version yet exists
     const QUERY_ARG_PREVIEW = 'arlima-preview';
 
@@ -58,6 +59,11 @@ class Arlima_List
      * @var array
      */
     private $versions = array();
+
+    /**
+     * @var array
+     */
+    private $scheduled_versions = array();
 
     /**
      * Tells us whether or not this is a list imported from a remote server
@@ -180,6 +186,20 @@ class Arlima_List
     public function setVersions($versions)
     {
         $this->versions = $versions;
+    }
+
+    /**
+     * @param array $scheduled_versions
+     */
+    public function setScheduledVersions($scheduled_versions) {
+        $this->scheduled_versions = $scheduled_versions;
+    }
+
+    /**
+     * @return array
+     */
+    public function getScheduledVersions() {
+        return $this->scheduled_versions;
     }
 
     /**
@@ -463,7 +483,7 @@ class Arlima_List
                 Arlima_Utils::loadTextDomain();
                 $user_data = get_userdata($version['user_id']);
                 $saved_since = '';
-                $saved_by = 'Unknown';
+                $saved_by = __('Unknown', 'arlima');
                 $lang_saved_since = __(' saved since ', 'arlima');
                 $lang_by = __(' by ', 'arlima');
 
@@ -488,7 +508,7 @@ class Arlima_List
     {
         return !$this->isPreview() &&
             isset($this->version['id']) &&
-            (empty($this->versions) || $this->versions[0] == $this->version['id']);
+            (empty($this->versions) || $this->versions[0]['id'] == $this->version['id']);
     }
 
     /**

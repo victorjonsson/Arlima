@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 3.0.beta.61
+Version: 3.0.beta.64
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -203,11 +203,20 @@ function arlima_has_list() {
 /**
  * Get arlima list of currently visited page
  * @param bool $list_only
+ * @param bool $get_scheduled
  * @return Arlima_List|array|bool
  */
 function arlima_get_list($list_only = true) {
     static $current_arlima_list = null;
-    if( $current_arlima_list === null ) {
+    $list_is_scheduled = false;
+
+    if( $current_arlima_list != null ) {
+        $alv = $current_arlima_list['list']->getVersion();
+        $list_is_scheduled = $alv['status'] == Arlima_List::STATUS_SCHEDULED;
+    }
+
+    if( $current_arlima_list === null || $list_is_scheduled ) {
+
         $current_arlima_list = array('list'=>false, 'post'=>false);
         if( is_page() ) {
             global $wp_query;
@@ -225,6 +234,7 @@ function arlima_get_list($list_only = true) {
             }
         }
     }
+
     return $list_only ? $current_arlima_list['list'] : $current_arlima_list;
 }
 

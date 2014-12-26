@@ -16,7 +16,7 @@ defined('ARLIMA_COMPILE_LESS_IN_BROWSER')
     or define('ARLIMA_COMPILE_LESS_IN_BROWSER', ARLIMA_DEV_MODE);
 
 // Plugin version (only edit this via grunt!)
-define('ARLIMA_FILE_VERSION', '3.0.beta.61' .(ARLIMA_DEV_MODE ? '__'.time():''));
+define('ARLIMA_FILE_VERSION', '3.0.beta.64' .(ARLIMA_DEV_MODE ? '__'.time():''));
 
 // Which type of tag to use for images in Arlima RSS feeds
 defined('ARLIMA_RSS_IMG_TAG')
@@ -35,6 +35,10 @@ defined('ARLIMA_GROUP_CHILD_ARTICLES')
 // server log via ajax
 defined('ARLIMA_SEND_JS_ERROR_TO_LOG')
     or define('ARLIMA_SEND_JS_ERROR_TO_LOG', false);
+
+// This is the time limit in seconds between automatic reloading of the lists in the list manager
+defined('ARLIMA_LIST_RELOAD_TIME')
+    or define('ARLIMA_LIST_RELOAD_TIME', 180); // Seconds
 
 // We have battled the problems with timestamps many times before. Use this
 // variable to adjust the unix timestamp

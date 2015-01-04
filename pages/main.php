@@ -245,12 +245,7 @@ $settings = $arlima_plugin->loadSettings();
                     <em class="future-notice">(<?php _e('Future post', 'arlima') ?>)</em>
                     <a href="#" class="change">[<?php _e('change', 'arlima') ?>]</a>
                     <a href="#" class="wp-admin-edit">[<?php _e('edit', 'arlima') ?>]</a>
-                    <?php if(Arlima_Plugin::isWPRelatedPostsInstalled()) : ?>
-                        <label class="alignright">
-                            <?php _e('Hide related:', 'arlima') ?>
-                            <input type="checkbox" class="data hide-related" data-feature="hide_related" data-prop="options:hideRelated" <?php echo $settings['hide_related_posts_default'] != '1' ? '' : 'checked="checked"' ?>/>
-                        </label>
-                    <?php endif; ?>
+                    <?php do_action('arlima_list_manager_article_connection'); ?>
                 </div>
 
                 <div class="file-include-container">

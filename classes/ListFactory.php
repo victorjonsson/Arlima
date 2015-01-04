@@ -1179,7 +1179,6 @@ class Arlima_ListFactory {
             'streamerContent' => '',
             'streamerImage' => '',
             'streamerType' => '',
-            'hideRelated' => false,
             'template' => '',
             'format' => '',
             'sectionDivider' => '',

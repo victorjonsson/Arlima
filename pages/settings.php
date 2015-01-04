@@ -130,26 +130,6 @@ if( isset($message) ): ?>
             </div>
         <?php endif; ?>
 
-        <?php if( Arlima_Plugin::isWPRelatedPostsInstalled() ): ?>
-
-            <div class="arlima-postbox">
-                <h3><?php _e('Related posts', 'arlima'); ?></h3>
-                <div class="inside">
-                    <table>
-                        <tr>
-                            <td>
-                                <?php _e('Hide related posts by default.','arlima') ?>
-                            </td>
-                            <td>
-                                <?php output_yesorno_select($arlima_plugin, 'hide_related_posts_default'); ?>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-        <?php endif; ?>
-
         <div class="arlima-postbox">
             <h3><?php _e('Export', 'arlima') ?></h3>
             <div class="inside">

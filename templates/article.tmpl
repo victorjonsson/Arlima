@@ -14,30 +14,6 @@
 
         {{{html_content}}}
 
-        {{#related}}
-            <div class="teaser-related-posts">
-                <aside>
-                    {{#related.single}}
-                        <h3>Read more</h3>
-                    {{/related.single}}
-                    {{^related.single}}
-                        <h3>Related articles</h3>
-                    {{/related.single}}
-                    <ul>
-                        {{#related.posts}}
-                            <li>
-                                <a href="{{url}}" class="related">{{post_title}}</a>
-                                {{#html_comment_stats}}
-                                    <span title="Number of comments" class="num-comments">
-                                        {{{html_comment_stats}}}
-                                    </span>
-                                {{/html_comment_stats}}
-                            </li>
-                        {{/related.posts}}
-                    </ul>
-                </aside>
-            </div>
-        {{/related}}
     </article>
 
     {{include parts/footer.tmpl}}

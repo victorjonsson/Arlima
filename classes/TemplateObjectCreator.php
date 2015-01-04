@@ -113,7 +113,6 @@ class Arlima_TemplateObjectCreator
      * @param $is_empty
      * @param $post
      * @param $article_counter
-     * @param bool $load_related_articles
      * @param null $template_name
      * @return array
      */
@@ -122,7 +121,6 @@ class Arlima_TemplateObjectCreator
         $is_empty,
         $post,
         $article_counter,
-        $load_related_articles = true,
         $template_name = null
     ) {
         static $child_float_toggle = false;
@@ -184,12 +182,8 @@ class Arlima_TemplateObjectCreator
 
             $this->generateStreamerData($has_streamer, $obj, $article);
 
-            // Related posts
-            // todo: maybe remove?
-            if ( $load_related_articles ) {
-                if ( empty($article['options']['hideRelated']) ) {
-                    $obj['related'] = $this->applyFilter('arlima_article_related_content', $article_counter, $article, $post);
-                }
+            if ( empty($article['options']['hideRelated']) ) {
+                $obj['related'] = $this->applyFilter('arlima_article_related_content', $article_counter, $article, $post);
             }
         }
 

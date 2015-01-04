@@ -13,7 +13,6 @@ class Arlima_Plugin
     const PLUGIN_SETTINGS_OPT = 'arlima_plugin_settings';
 
     private static $is_scissors_installed = null;
-    private static $is_wp_related_post_installed = null;
 
     /**
      * Actions added in the theme
@@ -180,9 +179,8 @@ class Arlima_Plugin
         // Add export feeds
         $this->addExportFeeds();
 
-        // Check if some other plugins might be installed
+        // Check if scissors is installed.
         self::$is_scissors_installed = function_exists('scissors_create_image');
-        self::$is_wp_related_post_installed = function_exists('MRP_get_related_posts');
 
         // Add some formats
         arlima_register_format('format-inverted', 'Inverted', array('giant'));
@@ -835,16 +833,6 @@ class Arlima_Plugin
     public static function isScissorsInstalled()
     {
         return self::$is_scissors_installed;
-    }
-
-    /**
-     * Tells whether or not plugin WP Related Posts is installed
-     * @static
-     * @return bool|null
-     */
-    public static function isWPRelatedPostsInstalled()
-    {
-        return self::$is_wp_related_post_installed;
     }
 
     /**

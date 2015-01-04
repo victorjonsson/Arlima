@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 3.0.beta.66
+Version: 3.0.beta.67
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -68,36 +68,6 @@ function arlima_link_entrywords( $content, $url, $target=false, $extra_classes='
                 -1,
                 $found
             );
-}
-
-
-/**
- * @param bool|int $post_id - Optional
- * @return array|bool
- */
-function arlima_related_posts( $post_id = false) {
-    global $post;
-    $data = false;
-    if( Arlima_Plugin::isWPRelatedPostsInstalled() && ($post_id || is_object($post)) ) {
-        if(!$post_id)
-            $post_id = $post->ID;
-
-        $related_posts = MRP_get_related_posts($post_id, true);
-        if( !empty($related_posts) ) {
-            $data = array('single' => count($related_posts) == 1, 'posts'=>array());
-            foreach ( $related_posts as $related ) {
-                $related->url = get_permalink ( $related->ID );
-                $related->html_comment_stats = 0;
-                $stats = wp_count_comments($post_id);
-                if( is_object($stats) && property_exists($stats, 'approved') )
-                    $related->html_comment_stats = $stats->approved;
-
-                $data['posts'][] = $related;
-            }
-        }
-    }
-
-    return $data;
 }
 
 /**

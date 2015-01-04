@@ -63,7 +63,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         }
 
         this.$elem
-            .bind('addedToContainer', function() {
+            .bind('Arlima.addedToContainer', function() {
                 // Needed for scroll to work
                 $articles.css('height', $articles.height()+'px');
                 arlimaNestedSortable(_self);

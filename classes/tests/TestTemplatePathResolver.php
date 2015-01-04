@@ -28,6 +28,11 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         return current( array_slice(explode('wp-content/plugins/', $file), 1));
     }
 
+    function testTemplateFileToURL() {
+        $url = $this->path_resolver->fileToUrl(ARLIMA_PLUGIN_PATH.'/templates/article.tmpl');
+        $this->assertEquals(ARLIMA_PLUGIN_URL.'templates/article.tmpl', $url);
+    }
+
     function testFindDefaultTemplates() {
 
         $files = $this->path_resolver->getTemplateFiles();

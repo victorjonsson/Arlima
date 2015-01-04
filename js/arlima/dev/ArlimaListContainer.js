@@ -2,7 +2,9 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
 
     'use strict';
 
-    var listReloadTime = parseInt(ArlimaJS.scheduledListReloadTime, 10);
+    var listReloadTime = parseInt(ArlimaJS.scheduledListReloadTime, 10),
+        $window = $(window);
+
     if( listReloadTime && listReloadTime < 30 ) {
         ArlimaUtils.log('You can not set lists to be reloaded more often than every 30 seconds', 'warn');
         listReloadTime = 30;
@@ -38,12 +40,15 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
             this.$elem.append(list.$elem);
             list.$elem.css(pos);
             this.lists[list.data.id.toString()] = list;
-            list.$elem.trigger('addedToContainer');
+
+            list.$elem.trigger('Arlima.addedToContainer');
+            $window.trigger("Arlima.listAddedToContainer", list);
 
             var _self = this;
             list.$elem.bind('change click dragged resized', function() {
                 _self.lastTouchedList = list.data.id;
             });
+
 
             // Handle automatic reloading of lists
             if( listReloadTime && !list.data.isImported) {
@@ -229,7 +234,7 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
             $listContainer.find('.ajax-loader').show();
             this.loadListSetup(function() {
                 $listContainer.find('.ajax-loader').hide();
-                $(window).trigger('arlimaListSetupLoaded');
+                $window.trigger('Arlima.listSetupLoaded');
             });
 
             // Reload all list button

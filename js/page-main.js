@@ -2,7 +2,7 @@ jQuery(function($) {
 
     // Load list by url
     if( window.loadArlimaListOnLoad ) {
-        $(window).on('arlimaListSetupLoaded', function() {
+        $(window).on('Arlima.listSetupLoaded', function() {
             ArlimaListLoader.addListToContainer(window.loadArlimaListOnLoad);
         });
     }

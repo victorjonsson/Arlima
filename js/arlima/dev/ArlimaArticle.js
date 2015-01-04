@@ -102,7 +102,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
          Add format and template classes to item
          */
         var extraClasses = [
-            {classPrefix: '', attr: 'data-format-class', opt: 'format'},
+            {classPrefix: 'format-', attr: 'data-format-class', opt: 'format'},
             {classPrefix: 'template-', attr: 'data-template-class', opt: 'template'}
         ];
         $.each(extraClasses, function(i, data) {

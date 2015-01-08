@@ -28,9 +28,9 @@ class Arlima_CacheManager
      * @param string $key
      * @param mixed $val
      */
-    function set($key, $val)
+    function set($key, $val, $expire=0)
     {
-        wp_cache_set($key, $val, 'arlima-cache');
+        wp_cache_set($key, $val, 'arlima-cache', $expire);
     }
 
     /**

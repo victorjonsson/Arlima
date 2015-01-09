@@ -141,7 +141,7 @@ abstract class Arlima_AbstractListRenderingManager
         list($post, $article_data, $is_empty) = $this->setup($article_data);
 
         // Future article
-        if ( !empty($article_data['published']) && $article_data['published'] > Arlima_Utils::timeStamp() && apply_filters('arlima_omit_future_articles', true) ) {
+        if ( !empty($article_data['published']) && $article_data['published'] > Arlima_Utils::timeStamp() ) {
             return array($index, $this->getFutureArticleContent($article_data, $index, $post));
         }
 

@@ -10,6 +10,8 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
      */
     private static $factory;
 
+    private static $has_created_tables = false;
+
 
     /**
      * Create database tables
@@ -21,6 +23,15 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $wpdb->suppress_errors = false;
         self::$factory = new Arlima_ListFactory(clone $wpdb);
         self::$factory->install();
+        self::$has_created_tables = true;
+    }
+
+    public function __destruct()
+    {
+        // In case exception isn't caught
+        if( self::$has_created_tables ) {
+            self::tearDownAfterClass();
+        }
     }
 
     /**
@@ -74,6 +85,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $test_list_content($this, self::$factory->loadList(1));
         $test_list_content($this, self::$factory->loadList('test'));
     }
+
 
     function testUpdateListProps() {
         $list = $this->createList();
@@ -164,7 +176,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(3, count($old_version->getVersions()));
         $this->assertEquals(1, count($old_version->getArticles()));
 
-        self::$factory->removeOldVersions($old_version, 1);
+        #self::$factory->removeOldVersions($old_version, 1);
 
         $latest_version = self::$factory->loadList($list->id());
         $this->assertTrue( $latest_version->getVersionAttribute('id') > $ver_id );
@@ -262,7 +274,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array('arlima_list_props_'.$list_id, 'arlima_list_articles_data_'.$list_id), $file_cache->log['get']);
 
         $this->assertEquals(2, count( $list->getArticles() ));
-    }
+    } 
 }
 
 

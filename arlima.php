@@ -180,7 +180,7 @@ function arlima_get_list($list_only = true) {
     static $current_arlima_list = null;
     $list_is_scheduled = false;
 
-    if( $current_arlima_list != null ) {
+    if( $current_arlima_list != null && is_object($current_arlima_list['list']) ) {
         $alv = $current_arlima_list['list']->getVersion();
         $list_is_scheduled = $alv['status'] == Arlima_List::STATUS_SCHEDULED;
     }

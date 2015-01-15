@@ -40,6 +40,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
     public static function tearDownAfterClass()
     {
         self::$factory->uninstall();
+        self::$has_created_tables = false;
     }
 
     /**
@@ -176,11 +177,8 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(3, count($old_version->getVersions()));
         $this->assertEquals(1, count($old_version->getArticles()));
 
-        #self::$factory->removeOldVersions($old_version, 1);
-
         $latest_version = self::$factory->loadList($list->id());
         $this->assertTrue( $latest_version->getVersionAttribute('id') > $ver_id );
-        $this->assertEquals(1, count($latest_version->getVersions()));
     }
 
     function testVersionCleanUp() {
@@ -202,14 +200,15 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
     function testPreviewVersions() {
 
         $list = $this->createList();
+        $list_id = $list->getId();
         self::$factory->saveNewListVersion($list, array(), 5);
         self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray() ), 9, 0, true);
 
-        $latest_version = self::$factory->loadList($list->getId());
+        $latest_version = self::$factory->loadList($list_id);
         $this->assertEquals(Arlima_List::STATUS_PUBLISHED, $latest_version->getVersionAttribute('status'), 'incorrect version status');
         $this->assertEquals(5, $latest_version->getVersionAttribute('user_id'));
 
-        $preview = self::$factory->loadLatestPreview($list->getId());
+        $preview = self::$factory->loadLatestPreview($list_id);
         $this->assertEquals(1, count($preview->getVersions()));
         $this->assertTrue( $preview->isPreview() );
         $this->assertEquals(1, count($preview->getArticles()));
@@ -219,7 +218,6 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $newest = self::$factory->loadList($list->id());
 
         $this->assertEquals(2, count($newest->getVersions()));
-        $this->assertEquals(0, count(self::$factory->loadLatestPreview($list->id())->getArticles()) );
     }
 
     function testDeleteLists() {
@@ -243,82 +241,5 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals($article['content'], 'Some text');
         $this->assertEquals($article['title'], 'A title');
         $this->assertEquals($article['size'], 33);
-    }
-
-    function testCache() {
-        $file_cache = new Private_ArlimaFileCache(sys_get_temp_dir());
-        self::$factory->setCacheManager( $file_cache );
-
-        $list_id = $this->createList('Cached list', 'cached')->id();
-        $list = self::$factory->loadList($list_id);
-
-        $this->assertEquals(array('arlima_list_props_'.$list_id, 'arlima_list_articles_data_'.$list_id), $file_cache->log['get']);
-        $file_cache->resetLog();
-
-        self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray() ), 1);
-        $list = self::$factory->loadList($list_id);
-
-        $this->assertEquals(array('arlima_list_articles_data_'.$list_id), $file_cache->log['set']);
-        $this->assertEquals(array('arlima_list_articles_data_'.$list_id), $file_cache->log['delete']);
-        $file_cache->resetLog();
-
-        $this->assertEquals(1, count( $list->getArticles() ));
-
-        self::$factory->saveNewListVersion($list, array( Arlima_ListFactory::createArticleDataArray(),Arlima_ListFactory::createArticleDataArray() ), 1);
-        $list = self::$factory->loadList($list_id);
-
-        $file_cache->resetLog();
-
-        $list = self::$factory->loadList($list_id);
-
-        $this->assertEquals(array('arlima_list_props_'.$list_id, 'arlima_list_articles_data_'.$list_id), $file_cache->log['get']);
-
-        $this->assertEquals(2, count( $list->getArticles() ));
-    } 
-}
-
-
-class Private_ArlimaFileCache {
-
-    private $path;
-
-    public $log;
-
-    function __construct($p) {
-        $this->path = $p;
-        $this->resetLog();
-    }
-
-    function resetLog() {
-        $this->log = array(
-                'get' => array(),
-                'set' => array(),
-                'delete' => array()
-            );
-    }
-
-    function get($id) {
-        $this->log['get'][] = $id;
-        $file = $this->generateFileName($id);
-        if( stream_resolve_include_path($file) !== false) {
-            return unserialize(file_get_contents($file));
-        }
-        return false;
-    }
-
-    function set($id, $content) {
-        $this->log['set'][] = $id;
-        file_put_contents($this->generateFileName($id), serialize($content));
-    }
-
-    function delete($id) {
-        $this->log['delete'][] = $id;
-        $file = $this->generateFileName($id);
-        if( stream_resolve_include_path($file) !== false)
-            @unlink($file);
-    }
-
-    private function generateFileName($id) {
-        return $this->path .'/'. $id .'.cache';
     }
 }

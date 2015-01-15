@@ -15,9 +15,9 @@ defined('ARLIMA_DEV_MODE')
 defined('ARLIMA_COMPILE_LESS_IN_BROWSER')
     or define('ARLIMA_COMPILE_LESS_IN_BROWSER', ARLIMA_DEV_MODE);
 
-// Plugin version (only edit this via grunt!) @todo rename ARLIMA_PLUGIN_VERSION
-define('ARLIMA_FILE_VERSION', '3.0.beta.68' .(ARLIMA_DEV_MODE ? '__'.time():''));
-
+// Plugin version (only edit this via grunt!)
+define('ARLIMA_PLUGIN_VERSION', '3.0.beta.70');
+define('ARLIMA_FILE_VERSION', ARLIMA_PLUGIN_VERSION .(ARLIMA_DEV_MODE ? '__'.time():''));
 
 // Which type of tag to use for images in Arlima RSS feeds
 defined('ARLIMA_RSS_IMG_TAG')
@@ -45,3 +45,7 @@ defined('ARLIMA_LIST_RELOAD_TIME')
 // variable to adjust the unix timestamp
 defined('ARLIMA_TIME_ADJUST')
     or define('ARLIMA_TIME_ADJUST', 0); // -3600 to put timestamp back one hour
+
+
+// The facade class in front of underlying system
+define('ARLIMA_CMS_FACADE', 'Arlima_WP_Facade');

@@ -68,10 +68,11 @@ class Arlima_TemplateEngine
     /**
      * @return string
      */
-    function renderArticle($template_name, $article_counter, $article, $is_empty, $post, $child_articles='', $is_child_split=false)
+    function renderArticle($template_name, $article_counter, $article, $is_empty, $post, $child_articles='', $child_split_state=false)
     {
+
         $this->template_obj_creator->setIsChild( (int)$article['parent'] > -1 );
-        $this->template_obj_creator->setIsChildSplit($is_child_split);
+        $this->template_obj_creator->setChildSplitState($child_split_state);
 
         $template_obj = $this->template_obj_creator->create(
                                 $article,

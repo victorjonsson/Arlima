@@ -203,15 +203,28 @@ body.arlima-preview .teaser-children .tmpl-article {
     overflow: auto;
 }
 
-.teaser-children .tmpl-article.teaser-split.first,
-.teaser-children .tmpl-article.teaser-split.last {
+.teaser-children .child-wrapper {
+    overflow: hidden;
+}
+
+.teaser-children .tmpl-article.teaser-split {
     float: left;
     width: 48% !important;
     clear: none;
+    margin-right: 1%;
+}
+
+.teaser-children .child-wrapper-3 .tmpl-article.teaser-split {
+    width: 32% !important;
+}
+
+.teaser-children .child-wrapper-4 .tmpl-article.teaser-split {
+    width: 24% !important;
 }
 
 .teaser-children .tmpl-article.teaser-split.last {
     float: right;
+    margin-right: 0;
 }
 
 .teaser-children .tmpl-article:last-child {

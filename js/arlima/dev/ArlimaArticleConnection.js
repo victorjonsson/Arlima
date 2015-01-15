@@ -30,14 +30,19 @@ var ArlimaArticleConnection = (function($, ArlimaUtils, ArlimaArticleForm, Arlim
             this.article = article;
             this.isPublishedPost = article.isPublished();
 
-            var postIDs = [];
+            var postIDs = [],
+                collectPostIDs = function(article) {
+                    $.each(article.getChildArticles(), function(i, childArticle) {
+                        collectPostIDs(childArticle);
+                        if( childArticle.data.post )
+                            postIDs.push(childArticle.data.post);
+                    });
+                };
+
             if( article.data.post )
                 postIDs.push(article.data.post);
 
-            $.each(article.getChildArticles(), function(i, childArticle) {
-                if( childArticle.data.post )
-                    postIDs.push(childArticle.data.post);
-            });
+            collectPostIDs(article);
 
             if( postIDs.length == 0 || (postIDs.length == 1 && postIDs[0] == 0) ) {
                 this.posts = {};

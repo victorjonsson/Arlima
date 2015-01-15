@@ -34,7 +34,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
 
             if( this.article ) {
                 // If we're editing another article
-                this.article.$elem.removeClass('editing');
+                this.article.setState('default');
             }
 
             // Show which list we're currently working on
@@ -42,7 +42,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
 
             // setup
             this.article = article;
-            article.$elem.addClass('editing');
+            article.setState('editing');
             var list = window.ArlimaListContainer.list(article.listID);
 
             // show preview/save links
@@ -217,7 +217,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
             this.state = 'saved';
 
             if( this.article && this.article.$elem ) {
-                this.article.$elem.removeClass('editing');
+                this.article.setState('default');
                 this.article = false;
             }
 
@@ -367,9 +367,12 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
          * @param {Number|jQuery} check
          */
         isEditing : function(check) {
-            if(this.article) {
+            if( this.article ) {
                 if( $.isNumeric(check) ) {
                     return check == this.article.listID;
+                }
+                else if( ArlimaArticle.isArticleObj(check) ) {
+                    return check == this.article;
                 }
                 else {
                     return check[0].arlimaArticle && check[0].arlimaArticle == this.article.$elem[0].arlimaArticle;

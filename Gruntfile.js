@@ -125,7 +125,7 @@ module.exports = function(grunt) {
 
         replaceInFile(config.mainScript, 'Version: '+currentVersion, 'Version: '+newVersion);
         replaceInFile('readme.txt', 'Stable tag: '+currentVersion, 'Stable tag: '+newVersion);
-        replaceInFile('constants.php', "'ARLIMA_FILE_VERSION', '"+currentVersion, "'ARLIMA_FILE_VERSION', '"+newVersion);
+        replaceInFile('constants.php', "'ARLIMA_PLUGIN_VERSION', '"+currentVersion, "'ARLIMA_PLUGIN_VERSION', '"+newVersion);
     });
 
     /*

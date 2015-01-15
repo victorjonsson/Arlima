@@ -1,14 +1,15 @@
 <?php
 /**
- * @var Arlima_AbstractAdminPage $this
+ * @var Arlima_WP_AbstractAdminPage $this
  */
 
 $arlima_plugin = $this->getPlugin();
 $settings = $arlima_plugin->loadSettings();
-$export_manager = new Arlima_ExportManager($arlima_plugin);
+
+$export_manager = new Arlima_ExportManager($arlima_plugin, $settings['available_export']);
 $import_manager = new Arlima_ImportManager($arlima_plugin);
-$list_factory = new Arlima_ListFactory();
-$connector = new Arlima_ListConnector();
+$list_repo = new Arlima_ListRepository();
+$sys = Arlima_CMSFacade::load();
 
 if( isset($_POST['settings']) ) {
 
@@ -16,16 +17,19 @@ if( isset($_POST['settings']) ) {
     $settings = array_merge($settings, $_POST['settings']);
     if( !isset($_POST['settings']['streamer_colors']) )
         $settings['streamer_colors'] = array();
+
     $arlima_plugin->saveSettings($settings);
 
     // Save approved for export
     $approved = empty($_POST['approved']) ? array() : $_POST['approved'];
-    $export_manager->setListsAvailableForExport($approved);
+    $settings = $arlima_plugin->loadSettings();
+    $settings['available_export'] = $lists;
+    $arlima_plugin->saveSettings($settings);
 
     // Remove imported lists
     if( !empty($_POST['remove_imported']) ) {
         foreach($_POST['remove_imported'] as $remove) {
-            $import_manager->removeImportedList($remove);
+            $sys->removeImportedList($remove);
         }
     }
 
@@ -37,7 +41,7 @@ if( isset($_POST['settings']) ) {
 // approved for export comes first. Also find out from which
 // page the approved lists can be exported
 $lists_sorted = array();
-$lists = $list_factory->loadListSlugs();
+$lists = $list_repo->loadListSlugs();
 $has_exportable_list = false;
 foreach($lists as &$list_data) {
     if($export_manager->isAvailableForExport($list_data->id)) {
@@ -46,8 +50,7 @@ foreach($lists as &$list_data) {
         // Monkey patch the list object
         $list_data->approved = true;
         $list_data->export_page = false;
-        $connector->setList($list_factory->loadList($list_data->id));
-        $pages = $connector->loadRelatedPages();
+        $pages = $sys->loadRelatedPages( $list_repo->load($list_data->id) );
 
         if(!empty($pages)) { // monkey patch from which page list can be exported
             $list_data->export_page = rtrim(get_permalink($pages[0]->ID),'/') .'/'.Arlima_Plugin::EXPORT_FEED_NAME.'/';

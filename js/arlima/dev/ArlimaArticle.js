@@ -6,7 +6,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
                 '<span class="article-title"></span>' +
                 '<a href="#" class="remove">&times;</a>' +
             '</div>' +
-            '<div class="children-transport"></div>' + 
+            '<div class="children-transport"></div>' +
         '</div>';
 
     /**
@@ -26,12 +26,25 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
             this.$elem.find('.remove').remove();
         }
 
+        if ($.isArray(data.options)) { // php json_encode makes empty objects []. Messes when serializing back to JSON
+            data.options = $.extend({}, data.options);
+        }
+
         this.setData($.extend(true, {}, ArlimaArticle.defaultData, data));
         this.listID = listID;
         this.$elem[0].arlimaArticle = this;
         this.$elem.attr('title', new Date(data.published * 1000));
         this.addClickEvents(addRemoveButton);
     }
+
+    /**
+     * Should tell if given object most probably is an ArlimaArticle objec
+     * @param obj
+     * @return {Boolean}
+     */
+    ArlimaArticle.isArticleObj = function(obj) {
+        return obj.$elem && obj.$elem.arlimaArticle && obj == obj.$elem.arlimaArticle;
+    };
 
     /**
      * Bind (or re-bind) click events that opens the article
@@ -63,6 +76,25 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
     };
 
     /**
+     * @param {String} state (default|editing)
+     */
+    ArlimaArticle.prototype.setState = function(state) {
+        var $wrappedChild = this.getWrappedChildElem();
+        if( state == 'editing' ) {
+            this.$elem.addClass('editing');
+            if( $wrappedChild ) {
+                $wrappedChild.addClass('editing');
+            }
+        } else {
+            // default state
+            this.$elem.removeClass('editing');
+            if( $wrappedChild ) {
+                $wrappedChild.removeClass('editing');
+            }
+        }
+    };
+
+    /**
      * @param {Object} data
      */
     ArlimaArticle.prototype.setData = function(data) {
@@ -84,18 +116,19 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      */
     ArlimaArticle.prototype.updateItemPresentation = function() {
 
-        var title = '',
+        var titleText = '',
+            titleHTML = '',
             _this = this;
 
         /*
           Construct the title string
          */
         if(this.data.title)
-            title = this.data.title.replace(/__/g, '');
+            titleText = this.data.title.replace(/__/g, '');
         else if(this.data.content)
-            title += '[' + this.data.content.replace(/(<.*?>)/ig,"").substring(0,30) +'...]';
+            titleText += '[' + this.data.content.replace(/(<.*?>)/ig,"").substring(0,30) +'...]';
         if( this.opt('preTitle') ) {
-            title = this.opt('preTitle') + ' ' + title;
+            titleText = this.opt('preTitle') + ' ' + titleText;
         }
 
         /*
@@ -125,12 +158,15 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
             }
         });
 
+        // We're done with the title text at this poins
+        titleHTML = titleText;
+
         /*
           Is this a section divider
          */
         if( this.opt('sectionDivider') ) {
             this.$elem.addClass('section-divider');
-            title = '&ndash;&ndash;&ndash; '+title+' &ndash;&ndash;&ndash;';
+            titleHTML = '&ndash;&ndash;&ndash; '+titleHTML+' &ndash;&ndash;&ndash;';
             if(this.opt('streamerType') == 'text' ) {
                 this.$elem.css('background', '#'+this.opt('streamerColor'));
                 if (_isColorLight(this.opt('streamerColor'))) {
@@ -162,7 +198,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
                 if( color == '#' )
                     color = 'black';
 
-                title = '<span class="streamer-indicator" style="background:'+color+'"></span> '+title ;
+                titleHTML = '<span class="streamer-indicator" style="background:'+color+'"></span> '+titleHTML ;
             }
         }
 
@@ -170,24 +206,49 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
           Add some icons
          */
         if( this.opt('adminLock') )
-            title = '<span class="fa fa-lock"></span>' + title;
+            titleHTML = '<span class="fa fa-lock"></span>' + titleHTML;
         if( this.opt('scheduled') )
-            title = '<span class="fa fa-clock-o"></span>' + title;
+            titleHTML = '<span class="fa fa-clock-o"></span>' + titleHTML;
         if( this.opt('fileInclude') )
-            title = '<span class="fa fa-bolt"></span>' + title;
+            titleHTML = '<span class="fa fa-bolt"></span>' + titleHTML;
 
         /*
           Display if its a future article
          */
         if( !this.isPublished() ) {
-            title = '<span class="future-push-date">'+ _getDatePresentation(this.data.published * 1000) +'</span>' + title;
+            titleHTML = '<span class="future-push-date">'+ _getDatePresentation(this.data.published * 1000) +'</span>' + titleText;
             this.$elem.addClass('future');
         } else {
             this.$elem.removeClass('future');
         }
 
         // Update item
-        this.$elem.find('.article-title').html(title);
+        this.$elem.find('.article-title').html(titleHTML);
+
+        // Update title in wrapper
+        var $childWrap = this.getWrappedChildElem();
+        if( $childWrap ) {
+            $childWrap.text(titleText);
+        }
+
+    };
+
+    /**
+     * @returns {boolean|jQuery}
+     */
+    ArlimaArticle.prototype.getWrappedChildElem = function() {
+        var $span = false,
+            _this = this;
+
+        if( this.isWrappedChild() ) {
+            this.getParentArticle().$elem.find('.article-children').children().each(function() {
+                if( this.arlimaArticle == _this ) {
+                    $span = $(this);
+                    return false;
+                }
+            });
+        }
+        return $span;
     };
 
     /**
@@ -243,40 +304,34 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
     };
 
     /**
-     * @return {Number} - Will return -1 if this article isn't a child
+     * Whether or not this is a floating child that is wrapped
+     * @returns {Boolean}
      */
-    ArlimaArticle.prototype.getChildIndex = function() {
-        var index = -1,
-            parent = this.getParentArticle(),
-            _self = this;
-
-        if( parent ) {
-            $.each(parent.getChildArticles(), function(i, art) {
-                if( art.$elem.get(0) == _self.$elem.get(0) ) {
-                    index = i;
-                    return false;
-                }
-            });
-        }
-
-        return index;
+    ArlimaArticle.prototype.isWrappedChild = function() {
+        return this.$elem.hasClass('list-item-depth-2') && this.getParentArticle().$elem.find('.article-children').is(':visible');
     };
 
     /**
      * @return {ArlimaList[]}
      */
     ArlimaArticle.prototype.getChildArticles = function() {
-        if( this.isChild() ) {
-            return []; // Notice: this logic must be looked over if allowing deeper child levels
-        }
+
+       // if( this.isChild() && !allowNestedLevels ) {
+       //     return [];
+       // }
 
         var children = [],
             $next = this.$elem.next(),
             parentIndex = $next.length && $next[0].arlimaArticle ? $next[0].arlimaArticle.data.parent : -1;
 
-        if( parentIndex > -1 ) {
-            while($next.length && $next[0].arlimaArticle.data.parent == parentIndex ) {
-                children.push($next[0].arlimaArticle);
+        if( parentIndex > -1 && parentIndex != this.data.parent ) {
+            while($next.length) {
+                if ($next[0].arlimaArticle.data.parent == parentIndex ) {
+                    children.push($next[0].arlimaArticle);
+                }
+                if ($next[0].arlimaArticle.data.parent == -1 ) {
+                    break;
+                }
                 $next = $next.next();
             }
         }
@@ -306,7 +361,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      */
     ArlimaArticle.prototype.getParentArticle = function() {
         if( this.isChild() ) {
-            var $allArticles = this.$elem.parent().find('.article').not('.list-item-depth-1');
+            var $allArticles = this.$elem.parent().find('.article');
             return $allArticles.get(this.data.parent).arlimaArticle;
         }
     };
@@ -355,7 +410,8 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      */
     ArlimaArticle.prototype.isDivider = function() {
         return this.opt('sectionDivider');
-    }
+    };
+
 
     /**
      * @return {Boolean}

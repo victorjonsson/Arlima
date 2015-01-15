@@ -4,7 +4,11 @@ Contributors: @chredd, @znoid, @victor_jonsson, @lefalque, @aaslun
 Tags: CMS, e-paper, e-magazine, magazine, newspaper, front page, wysiwyg
 Requires at least: 3.8
 Tested up to: 3.9.1
+<<<<<<< Updated upstream
 Stable tag: 3.0.beta.68
+=======
+Stable tag: 3.0.beta.70
+>>>>>>> Stashed changes
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

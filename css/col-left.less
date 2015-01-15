@@ -504,11 +504,11 @@
   margin-right: 0;
 }
 
-@iterations : 10;
+@iterations : 2;
 
 .loopingClass (@index) when (@index > 0) {
   .list-item-depth-@{index} {
-    margin-left: @index*(30px);
+    margin-left:  @index*(30px);
   }
   .list-item-depth-@{index} .children-transport {
     margin-left: @index*(-30px);
@@ -519,3 +519,116 @@
 .loopingClass (0) {}
 
 .loopingClass (@iterations);
+
+/*
+ FLOATING ARTICLES
+ */
+@dark_floating_color : #CDDEE5;
+@darker_floating_color : #b9ccd2;
+@light_floating_color : #F1FAFD;
+
+.article.floating {
+  float: left;
+  width: 40%;
+  clear: none;
+}
+.article.floating.list-item-depth-2 {
+  margin-left: 0;
+  float: right;
+}
+.sortable-placeholder {
+  clear: both;
+}
+.list-item-depth-2,
+.helper-item-depth-2  {
+  background: @light_floating_color;
+  border: @darker_floating_color solid 2px;
+  border-bottom-width: 0;
+  margin-bottom: 0;
+  border-top-width: 0;
+
+  &:hover {
+    background: @dark_floating_color;
+    color: #000;
+  }
+  &.first {
+    border-top-width: 2px;
+    margin-top: -4px;
+  }
+  &.last {
+    margin-bottom: 4px;
+    border-bottom-width: 2px;
+  }
+}
+
+.list-item-depth-2.editing,
+.list-item-depth-2.editing:hover,
+.list-item-depth-1.contains-toggled-children.editing,
+.list-item-depth-1.contains-toggled-children.editing:hover {
+  background: @dark_floating_color;
+  color: #111;
+}
+
+.article-children {
+  display: block;
+  width: 89%;
+  height: 15px;
+  /* border-left: 5px #fff solid; */
+  position: absolute;
+  top: 0px;
+  left: 0;
+
+  .child {
+    display: block;
+    position: absolute;
+    height: 28px;
+    line-height: 28px;
+    padding: 0;
+    left: 0; // overrided by js
+    background: @light_floating_color;
+    border: 1px @darker_floating_color solid;
+    color: rgba(0,0,0, .7);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-indent: 5px;
+
+    &:hover {
+      color: rgb(0,0,0);
+    }
+
+    &.editing,
+    &.editing:hover {
+      background: @dark_floating_color;
+      color: #111;
+    }
+  }
+}
+
+.article.contains-toggled-children {
+  background: @light_floating_color;
+}
+
+.child-toggler {
+  position: absolute;
+  right: 24px;
+  top: 0px;
+  height: 92%;
+  background: @darker_floating_color;
+  padding: 0px 2px;
+  border: 1px @darker_floating_color solid;
+  font-weight: bold;
+  color: #3b4b5f;
+  line-height: 300%;
+  font-size: 10px;
+
+  &:hover {
+
+  }
+
+  &.open {
+    top: 9px;
+    height: 80%;
+    background: @darker_floating_color;
+    line-height: 200%;
+  }
+}

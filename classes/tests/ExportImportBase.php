@@ -20,7 +20,13 @@ class ExportImportBase extends PHPUnit_Framework_TestCase {
         $list = new Arlima_List(true, 99);
         $list->setSlug('Slug');
         $list->setTitle('Title');
-        $list->setArticles( array(Arlima_ListFactory::createArticleDataArray(array('post'=>self::$some_post_id))) );
+        $list->setVersion(array(
+            'status' => Arlima_List::STATUS_PUBLISHED,
+            'user_id' => 1,
+            'created' => time(),
+            'id' => 99
+        ));
+        $list->setArticles( array(Arlima_ListVersionRepository::createArticle(array('post'=>self::$some_post_id))) );
         return $list;
     }
 

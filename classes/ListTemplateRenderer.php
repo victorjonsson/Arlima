@@ -93,7 +93,6 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
     protected function generateArticleHtml($article_data, $index, $post, $is_empty)
     {
         $child_article_html = '';
-        $content = '';
 
         if( !empty($article_data['children']) ) {
             $child_article_html = $this->renderChildArticles($article_data['children']);
@@ -120,24 +119,48 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
         // Configure object creator for child articles
 
-        foreach ($articles as $article_data) {
+        $split_state = null;
+
+        foreach ($articles as $i => $article_data) {
+
+            if ( !empty($article['published']) && $article['published'] > Arlima_Utils::timeStamp() ) {
+                continue;
+            }
 
             $first_or_last_class = '';
-            $is_child_split = false;
+            $is_child_split = !empty($article_data['options']['floating']);
 
-            if(
-                ARLIMA_GROUP_CHILD_ARTICLES && (
-                    ($num_children == 4 && ($count == 1 || $count == 2)) ||
-                    ($num_children == 6 && ($count != 0 && $count != 3)) ||
-                    ($num_children > 1 && $num_children != 4 && $num_children != 6 && ($count != 0 || $has_even_children) )
-                )
-            ) {
-                $is_child_split = true;
-                $first_or_last_class = (($count==1 && $num_children > 2) || ($count==0 && $num_children==2) || $count==3 || ($count==4 && $num_children ==6)? ' first':' last');
-                if( $first_or_last_class == ' first' ) {
-                    $child_articles .= '<div class="arlima child-wrapper">';
+            if ($is_child_split) {
+
+                if (!$split_state) {
+
+                    $following_count = 0;
+                    for ($j = $i + 1; $j < count($articles); $j++) {
+                        if (!empty($articles[$j]['options']['floating'])) {
+                            $following_count++;
+                        } else break;
+                    }
+                    $split_state = array(
+                        'index' => 0,
+                        'count' => $following_count + 1
+                        );
+                } else {
+                    $split_state['index'] += 1;
+                }
+
+                if ($split_state['count'] == 1) { // single floating. reset status!
+                    $is_child_split = false;
+                }
+                elseif ($split_state['index'] == 0 && ARLIMA_GROUP_CHILD_ARTICLES) {
+                    $first_or_last_class = ' first';
+                    $child_articles .= '<div class="arlima child-wrapper child-wrapper-'.$split_state['count'].'">';
                     $has_open_child_wrapper = true;
                 }
+                elseif ($split_state['index'] == $split_state['count'] - 1 && ARLIMA_GROUP_CHILD_ARTICLES) {
+                    $first_or_last_class = ' last';
+                }
+            } else {
+                $split_state = null;
             }
 
             // File include
@@ -151,17 +174,9 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
             list($post, $article, $is_empty) = $this->setup($article_data);
 
-            if ( !empty($article['published']) && $article['published'] > Arlima_Utils::timeStamp() ) {
-                if( ARLIMA_GROUP_CHILD_ARTICLES && $has_open_child_wrapper  && $first_or_last_class == ' last' ) {
-                    $child_articles .= '</div>';
-                    $has_open_child_wrapper = false;
-                }
-                continue;
-            }
-
             $template_name = $this->getTemplateToUse($article);
 
-            $child_articles .= $this->template_engine->renderArticle($template_name, -1, $article, $is_empty, $post, '', $first_or_last_class, $is_child_split);
+            $child_articles .= $this->template_engine->renderArticle($template_name, -1, $article, $is_empty, $post, '', $split_state);
 
             $count++;
             if( $has_open_child_wrapper && $first_or_last_class == ' last') {
@@ -170,8 +185,9 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             }
         }
 
-        if( $has_open_child_wrapper )
+        if( $has_open_child_wrapper ) {
             $child_articles .= '</div>';
+        }
 
         return $child_articles;
     }

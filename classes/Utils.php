@@ -21,7 +21,7 @@ class Arlima_Utils
         if( !empty($article['options']) && !empty($article['options']['overridingURL']) ) {
             return $article['options']['overridingURL'];
         } elseif( !empty($article['post']) ) {
-            return get_permalink($article['post']);
+            return Arlima_CMSFacade::load()->getPostURL($article['post']);
         }
         return '';
     }
@@ -102,45 +102,6 @@ class Arlima_Utils
     }
 
     /**
-     * @param WP_Post $p
-     * @return int
-     */
-    public static function getPostTimeStamp($p)
-    {
-        static $date_prop = null;
-        if( $date_prop === null ) {
-            // wtf?? ask wp why...
-            global $wp_version;
-            if( (float)$wp_version < 3.9 ) {
-                $date_prop = 'post_date';
-            } else {
-                $date_prop = 'post_date_gmt';
-            }
-        }
-        return strtotime( $p->$date_prop );
-    }
-
-    /**
-     * If we get a lot of calls to this function we might as well always make a call
-     * to load_plugin_textdomain on init, and not only in wp-admin
-     *
-     * @static
-     * @return bool
-     */
-    public static function loadTextDomain()
-    {
-        if ( !self::$has_loaded_textdomain ) {
-            self::$has_loaded_textdomain = true;
-            load_plugin_textdomain('arlima', false, basename(ARLIMA_PLUGIN_PATH).'/lang/');
-        }
-    }
-
-    /**
-     * @var bool
-     */
-    private static $has_loaded_textdomain = false;
-
-    /**
      * Get unix timestamp
      * @return int
      */
@@ -150,35 +111,13 @@ class Arlima_Utils
     }
 
     /**
-     * Returns the excerpt for a post based on post_excerpt or post_content if no post_excerpt is available.
-     * @param $post_id
-     * @return string
-     */
-    public static function getExcerptByPostId($post_id, $excerpt_length = 35, $allowed_tags = '') {
-        if(!$post_id) {
-            return false;
-        }
-        $the_post = get_post($post_id);
-
-        $the_excerpt = $the_post->post_excerpt;
-
-        if(strlen(trim($the_excerpt)) == 0) {
-            // If no excerpt, generate an excerpt from content
-            $the_excerpt = $the_post->post_content;
-            $the_excerpt = self::shorten($the_excerpt, $excerpt_length, $allowed_tags);
-        }
-        return $the_excerpt;
-
-    }
-
-    /**
      * Shortens any text to number of words.
      * @param $text
      * @param int $num_words
      * @return string
      */
     public static function shorten($text, $num_words = 24, $allowed_tags = '') {
-        $text = strip_tags(strip_shortcodes($text), $allowed_tags);
+        $text = Arlima_CMSFacade::load()->sanitizeText($text, $allowed_tags);
         $words = explode(' ', $text, $num_words + 1);
             if(count($words) > $num_words) :
                 array_pop($words);
@@ -186,5 +125,28 @@ class Arlima_Utils
                 $text = implode(' ', $words);
             endif;
         return $text;
+    }
+
+    /**
+     * @param string $func
+     * @param string $new
+     */
+    public static function warnAboutDeprecation($func, $new)
+    {
+        if( ARLIMA_DEV_MODE && !defined('ARLIMA_UNIT_TEST') ) {
+            trigger_error('Use of deprecated function '.$func.' use '.$new.' instead', E_USER_NOTICE);
+        }
+    }
+
+    /**
+     * @param string $num
+     * @return float
+     */
+    public static function versionNumberToFloat($num)
+    {
+        $float = str_replace('..', '.', preg_replace('/[^0-9\.]/', '', $num));
+        $pos = strpos($float, '.');
+        $float = substr($float, 0, $pos+1) . str_replace('.', '', substr($float, $pos));
+        return (float)$float;
     }
 }

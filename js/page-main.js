@@ -79,7 +79,7 @@ jQuery(function($) {
     };
 });
 
-if( ArlimaJS.sendJSErrorsToServerLog ) {
+if( window.ArlimaJS && ArlimaJS.sendJSErrorsToServerLog ) {
     window.onerror = function(errMessage, url, lineNumber) {
         ArlimaBackend.logJSError(errMessage, new Error().stack, url, lineNumber);
         return false;

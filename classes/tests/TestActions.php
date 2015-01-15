@@ -203,7 +203,26 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
         $content = arlima_render_list($renderer, array('echo'=>false));
-        $expected = 'hello------<div class="arlima child-wrapper">hello-----childA--_IS_SPLIT_-hello-----childB--_IS_SPLIT_-</div>';
+        $expected = 'hello------hello-----childA---hello-----childB---';
+
+        $this->assertEquals($expected, $content);
+    }
+
+    public function testFloatingChildArticles() {
+        $list = $this->createList(1);
+        $list->setOption('template', 'some-template');
+
+        $articles = $list->getArticles();
+        $articles[0]['children'] = array(
+            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA', 'parent'=>0, 'options' => array('floating' => true))),
+            Arlima_ListFactory::createArticleDataArray(array('title' => 'childB', 'parent'=>0, 'options' => array('floating' => true)))
+        );
+
+        $list->setArticles($articles);
+
+        $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
+        $content = arlima_render_list($renderer, array('echo'=>false));
+        $expected = 'hello------<div class="arlima child-wrapper child-wrapper-2">hello-----childA--_IS_SPLIT_-hello-----childB--_IS_SPLIT_-</div>';
 
         $this->assertEquals($expected, $content);
     }

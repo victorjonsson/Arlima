@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 3.0.beta.68
+Version: 3.0.beta.70
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -13,31 +13,14 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 require_once dirname(__FILE__).'/constants.php';
 
 // Load arlima plugin class
-require_once ARLIMA_CLASS_PATH.'/Plugin.php';
+require_once ARLIMA_CLASS_PATH.'/WP/Plugin.php';
 
 // Register class loader for this plugin
-spl_autoload_register('Arlima_Plugin::classLoader');
+spl_autoload_register('Arlima_WP_Plugin::classLoader');
 
-// Instance plugin helper
-$arlima_plugin = new Arlima_Plugin();
-
-
-if( is_admin() ) {
-
-    // Register install/uninstall procedures
-    register_activation_hook(__FILE__, 'Arlima_Plugin::install');
-    register_deactivation_hook(__FILE__, 'Arlima_Plugin::deactivate');
-    register_uninstall_hook(__FILE__, 'Arlima_Plugin::uninstall');
-
-    // Add actions and filters used in wp-admin
-    $arlima_plugin->initAdminActions();
-}
-else {
-
-    // Add actions and filters used in the theme
-    $arlima_plugin->initThemeActions();
-}
-
+// Instance plugin
+$arlima_plugin = new Arlima_WP_Plugin();
+$arlima_plugin->init();
 
 
 /* * * * * * * * * * * ARLIMA PUBLIC API * * * * * * * * * * * * * * * * *
@@ -144,9 +127,10 @@ function arlima_edit_link($list=false, $message=false) {
         return;
     }
 
-    if( is_user_logged_in() && current_user_can('edit_posts') ) {
+    $sys = Arlima_CMSFacade::load();
+    if( $sys->currentVisitorCanEdit() ) {
         if( !$message ) {
-            Arlima_Utils::loadTextDomain();
+            $sys->initLocalization();
             $message = __('Edit article list', 'arlima').' &quot;'.$list->getTitle().'&quot;';
         }
         ?>
@@ -173,36 +157,29 @@ function arlima_has_list() {
 /**
  * Get arlima list of currently visited page
  * @param bool $list_only
- * @param bool $get_scheduled
  * @return Arlima_List|array|bool
  */
 function arlima_get_list($list_only = true) {
     static $current_arlima_list = null;
-    $list_is_scheduled = false;
 
-    if( $current_arlima_list != null && is_object($current_arlima_list['list']) ) {
-        $alv = $current_arlima_list['list']->getVersion();
-        $list_is_scheduled = $alv['status'] == Arlima_List::STATUS_SCHEDULED;
-    }
-
-    if( $current_arlima_list === null || $list_is_scheduled ) {
+    if( $current_arlima_list === null ) {
 
         $current_arlima_list = array('list'=>false, 'post'=>false);
-        if( is_page() ) {
-            global $wp_query;
-            $connector = new Arlima_ListConnector();
-            $relation = $connector->getRelationData($wp_query->post->ID);
-            if( $relation !== false ) {
-                $list_factory = new Arlima_ListFactory();
-                $relation = $connector->getRelationData($wp_query->post->ID);
-                $is_requesting_preview = arlima_is_preview() && $_GET[Arlima_List::QUERY_ARG_PREVIEW] == $relation['id'];
-                $version = $is_requesting_preview ? 'preview' : '';
-                $list = $list_factory->loadList($relation['id'], $version, $is_requesting_preview);
-                if( $list->exists() ) {
-                    $current_arlima_list = array('list'=>$list, 'post'=>$wp_query->post->ID);
-                }
+        $page_id = Arlima_CMSFacade::load()->getQueriedPageId();
+
+        if( $page_id ) {
+
+            $builder = Arlima_List::builder()->fromPage($page_id);
+
+            if( isset($_GET[Arlima_List::QUERY_ARG_PREVIEW]) )
+                $builder->loadPreview();
+
+            $list = $builder->build();
+            if( $list->exists() ) {
+                $current_arlima_list = array('list'=>$list, 'post'=>$page_id);
             }
         }
+
     }
 
     return $list_only ? $current_arlima_list['list'] : $current_arlima_list;
@@ -216,8 +193,20 @@ function arlima_get_list($list_only = true) {
  * @return Arlima_List
  */
 function arlima_load_list($id_or_slug, $version=false, $include_future_post=false) {
-    $factory = new Arlima_ListFactory();
-    return $factory->loadList($id_or_slug, $version, $include_future_post);
+    $builder = Arlima_List::builder();
+
+    if( $include_future_post ) {
+        $builder->includeFuturePosts();
+    }
+
+    if( filter_var($id_or_slug, FILTER_VALIDATE_URL) !== false ) {
+        $builder->import($id_or_slug);
+    } else {
+        $builder->id($id_or_slug);
+        $builder->version($version);
+    }
+
+    return $builder->build();
 }
 
 /**
@@ -240,10 +229,10 @@ function arlima_render_list($list, $args=array()) {
                 'no_list_message' => true // True meaning the the message will be displayed
             ), $args);
 
-    $factory = new Arlima_ListFactory();
+    $builder = Arlima_List::builder();
 
     if( is_numeric($list) || is_string($list) ) {
-        $renderer = new Arlima_ListTemplateRenderer( $factory->loadList($list) );
+        $renderer = new Arlima_ListTemplateRenderer( $builder->id($list)->build() );
     } elseif( $list instanceof Arlima_AbstractListRenderingManager ) {
         $renderer = $list;
     } else {
@@ -264,6 +253,8 @@ function arlima_render_list($list, $args=array()) {
         $renderer->setLimit( $args['limit'] );
         $renderer->setSection( $args['section'] );
 
+        $sys = Arlima_CMSFacade::load();
+
         if( $renderer->havePosts() ) {
 
             $action_suffix = '';
@@ -272,19 +263,19 @@ function arlima_render_list($list, $args=array()) {
                 $action_suffix = '-'.$args['filter_suffix'];
             }
 
-            do_action('arlima_list_begin'.$action_suffix, $renderer, $args);
+            $sys->doAction('arlima_list_begin'.$action_suffix, $renderer, $args);
             Arlima_TemplateObjectCreator::setArticleWidth($args['width']);
 
             $content = $renderer->renderList($args['echo']);
 
             Arlima_TemplateObjectCreator::setFilterSuffix('');
 
-            do_action('arlima_list_end'.$action_suffix, $renderer, $args);
+            $sys->doAction('arlima_list_end'.$action_suffix, $renderer, $args);
 
             if( $args['echo'] ) {
                 return true;
             } else {
-                return apply_filters('arlima_list_content', $content, $renderer);
+                return $sys->applyFilters('arlima_list_content', $content, $renderer);
             }
         }
     }

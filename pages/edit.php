@@ -6,16 +6,16 @@
  * @since 1.0
  */
 
-$factory = new Arlima_ListFactory();
+$list_repo = new Arlima_ListRepository();
+$sys = Arlima_CMSFacade::load();
 $list_id = !empty( $_REQUEST[ 'alid' ] ) ? (int)$_REQUEST[ 'alid' ] : null;
 
 if( $list_id ) {
-    $list = $factory->loadLatestPreview($list_id);
+    $list = $list_repo->load($list_id);
 } else {
     $list = new Arlima_List(); // We use an empty list as preset
 }
 
-$connector = new Arlima_ListConnector($list);
 
 if( count($_POST) > 0 ) {
 
@@ -26,27 +26,26 @@ if( count($_POST) > 0 ) {
         $list->setSlug( $_POST['slug'] );
         $list->setOptions( $_POST['options'] );
         $list->setMaxlength( $_POST['maxlength'] );
-        $factory->updateListProperties($list);
+        $list_repo->update($list);
         $message = sprintf(__('List %s was successfully updated', 'arlima'), '&quot;'.$list->getTitle().'&quot;');
     }
 
     // Create
     else {
-        $list = $factory->createList($_POST['title'], $_POST['slug'], $_POST['options'], $_POST['maxlength']);
+        $list = $list_repo->create($_POST['title'], $_POST['slug'], $_POST['options'], $_POST['maxlength']);
         $message = sprintf(__('List %s was successfully created', 'arlima'), '&quot;'.$list->getTitle().'&quot;');
     }
 }
 
 // Delete
 elseif($list->exists() && isset($_GET['remove_list'])) {
-    $factory->deleteList($list);
-    $connector->removeAllRelations();
+    $sys->removeAllRelations($list);
+    $list_repo->delete($list);
     $message = sprintf(__('List %s was successfully removed', 'arlima'), '&quot;'.$list->getTitle().'&quot;');
     $list = new Arlima_List();
-    $connector->setList($list);
 }
 
-$available_lists = $factory->loadListSlugs();
+$available_lists = $list_repo->loadListSlugs();
 ?>
     <div id="col-container">
 		<div id="col-right">
@@ -81,7 +80,7 @@ $available_lists = $factory->loadListSlugs();
 				
 				<?php
 				if( $list->exists() ) {
-					$header = '<strong>'.__('Edit list', 'arlima').':</strong> ' . $list->getTitle() . ' (id ' . $list->id() . ')';
+					$header = '<strong>'.__('Edit list', 'arlima').':</strong> ' . $list->getTitle() . ' (id ' . $list->getId() . ')';
 				}else{
 					$header = '<strong>'.__('New list', 'arlima').'</strong>';
 				}
@@ -187,8 +186,8 @@ $available_lists = $factory->loadListSlugs();
                                 <div class="content-relations">
                                     <p><strong><?php _e('Pages') ?>:</strong></p>
                                     <?php
-                                    $pages = $connector->loadRelatedPages();
-                                    $widgets = $connector->loadRelatedWidgets();
+                                    $pages = $sys->loadRelatedPages($list);
+                                    $widgets = $sys->loadRelatedWidgets($list);
                                     if( empty($pages) ):?>
                                         <p><em><?php _e('This list is not yet related to any page', 'arlima') ?></em></p>
                                     <?php else: ?>

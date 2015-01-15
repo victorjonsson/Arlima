@@ -44,7 +44,7 @@ class TestArlimaImageManager extends PHPUnit_Framework_TestCase {
         $this->createSquareImage();
 
         $max_width = 200;
-        $versionizer = new Arlima_ImageVersionManager($this->square_attach_id);
+        $versionizer = new Arlima_WP_ImageVersionManager($this->square_attach_id);
         list($new_version_file) = $versionizer->getVersionFile($max_width);
         list($width, $height) = getimagesize( WP_CONTENT_DIR .'/uploads/'. $new_version_file);
         $this->assertEquals($max_width, $width);
@@ -58,7 +58,7 @@ class TestArlimaImageManager extends PHPUnit_Framework_TestCase {
         $this->assertEquals(250, $width);
         $this->assertEquals(400, $height);
 
-        $versionizer = new Arlima_ImageVersionManager($rectangle_attach_id);
+        $versionizer = new Arlima_WP_ImageVersionManager($rectangle_attach_id);
         list($new_version_file) = $versionizer->getVersionFile(150);
         list($width, $height) = getimagesize( WP_CONTENT_DIR .'/uploads/'. $new_version_file);
         $this->assertEquals(150, $width);
@@ -71,7 +71,7 @@ class TestArlimaImageManager extends PHPUnit_Framework_TestCase {
 
         // Should not make the image larger than original size
         $max_width = 600;
-        $versionizer = new Arlima_ImageVersionManager($this->square_attach_id);
+        $versionizer = new Arlima_WP_ImageVersionManager($this->square_attach_id);
         list($new_version_file) = $versionizer->getVersionFile($max_width);
         list($width, $height) = getimagesize( WP_CONTENT_DIR .'/uploads/'. $new_version_file);
         $this->assertEquals(400, $width);
@@ -81,14 +81,14 @@ class TestArlimaImageManager extends PHPUnit_Framework_TestCase {
     function testRemoveManyFiles()
     {
         $this->createSquareImage();
-        $versionizer = new Arlima_ImageVersionManager($this->square_attach_id);
+        $versionizer = new Arlima_WP_ImageVersionManager($this->square_attach_id);
         $versionizer->getVersionURL(200);
         $versionizer->getVersionURL(250);
         $versionizer->getVersionURL(350);
 
         $this->assertEquals(3, count($versionizer->getVersions()));
 
-        Arlima_ImageVersionManager::removeVersions($this->square_attach_id);
+        Arlima_WP_ImageVersionManager::removeVersions($this->square_attach_id);
 
         $this->assertEquals(0, count($versionizer->getVersions()));
     }

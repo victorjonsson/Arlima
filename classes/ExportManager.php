@@ -37,23 +37,23 @@ class Arlima_ExportManager
     private $available_export;
 
     /**
-     * @var Arlima_Plugin
+     * @var Arlima_CMSInterface
      */
-    private $arlima_plugin;
+    private $cms;
+
 
     /**
-     * @param Arlima_Plugin $arlima_plugin
+     * @param array $avail_for_export
      */
-    public function __construct($arlima_plugin)
+    public function __construct($avail_for_export=array())
     {
-        $settings = $arlima_plugin->loadSettings();
-        $this->available_export = !empty($settings['available_export']) ? $settings['available_export'] : array();
-        $this->arlima_plugin = $arlima_plugin;
+        $this->cms = Arlima_CMSFacade::load();
+        $this->available_export = $avail_for_export;
     }
 
     /**
      * This function provides a small read-only RESTful API. It sends out appropriate response headers
-     * depending on the request being made. It support two response content types, RSS and JSON
+     * depending on the request being made. It support two response content types, RSS and JSON.
      *
      * @param string $page_slug
      * @param string $format
@@ -77,21 +77,17 @@ class Arlima_ExportManager
             $this->sendErrorToClient(self::ERROR_PAGE_NOT_FOUND, '404 Page Not Found', $format);
         } else {
 
-            $factory = new Arlima_ListFactory();
-            $connector = new Arlima_ListConnector();
-            $relation = $connector->getRelationData($page->ID);
+            $list = Arlima_List::builder()
+                        ->fromPage($page->ID)
+                        ->includeFuturePosts()
+                        ->build();
 
-            if ( empty($relation) ) {
-                $this->sendErrorToClient(self::ERROR_MISSING_LIST_REFERENCE, '404 List not found', $format);
+            if ( !$list->exists() ) {
+                $this->sendErrorToClient(self::ERROR_LIST_DOES_NOT_EXIST, '404 List not found', $format);
+            } elseif ( !$this->isAvailableForExport($list) ) {
+                $this->sendErrorToClient(self::ERROR_LIST_BLOCKED_FROM_EXPORT, '403 Forbidden', $format);
             } else {
-                $list = $factory->loadList($relation['id'], false, true);
-                if ( !$list->exists() ) {
-                    $this->sendErrorToClient(self::ERROR_LIST_DOES_NOT_EXIST, '404 List not found', $format);
-                } elseif ( !$this->isAvailableForExport($list) ) {
-                    $this->sendErrorToClient(self::ERROR_LIST_BLOCKED_FROM_EXPORT, '403 Forbidden', $format);
-                } else {
-                    echo $this->convertList($list, $format);
-                }
+                echo $this->convertList($list, $format);
             }
         }
 
@@ -105,16 +101,12 @@ class Arlima_ExportManager
     private function getPageBySlug( $slug ) {
         $page_id = wp_cache_get('arlima_slug_2_page_'.$slug, 'arlima');
         if( !$page_id ) {
-            /* @var wpdb $wpdb */
-            global $wpdb;
-            $page = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_type FROM $wpdb->posts WHERE post_name = %s AND post_type = 'page' ", $slug ) );
-            if ( !empty($page) ) {
-                $page_id = $page[0]->ID;
+            if ( $page_id = $this->cms->getPageIdBySlug($slug) ) {
                 wp_cache_set('arlima_slug_2_page_'.$slug, $page_id, 'arlima', 60);
             }
         }
 
-        return $page_id ? get_post($page_id):false;
+        return $page_id ? $this->cms->loadPost($page_id):false;
     }
 
     /**
@@ -126,7 +118,7 @@ class Arlima_ExportManager
             header_remove();
         }
 
-        header('Arlima-Version: '.ARLIMA_FILE_VERSION);
+        header('Arlima-Version: '.ARLIMA_PLUGIN_VERSION);
 
         switch ($format) {
             case self::FORMAT_RSS:
@@ -166,9 +158,8 @@ class Arlima_ExportManager
      */
     public function convertList($list, $format)
     {
-
         // Modify data exported
-        $base_url = rtrim(home_url(), '/') . '/';
+        $base_url = rtrim($this->cms->getBaseURL(), '/') . '/';
         $articles = $list->getArticles();
         foreach (array_keys($articles) as $key) {
             $this->prepareArticleForExport($articles[$key], $base_url);
@@ -177,7 +168,7 @@ class Arlima_ExportManager
 
         // RSS export
         if ( $format == self::FORMAT_RSS ) {
-            $base_url = get_bloginfo('url');
+            $base_url =
             $rss = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel>
                 <title><![CDATA[' .$list->getTitle(). ']]></title>
                 <description>RSS export for article list &quot;'.$list->getTitle().'&quot;</description>
@@ -185,7 +176,7 @@ class Arlima_ExportManager
                 <lastBuildDate>' . date('r') . '</lastBuildDate>
                 <pubDate>' . date('r', $list->lastModified()) . '</pubDate>
                 <ttl>1</ttl>
-                <generator>Arlima v' . Arlima_Plugin::VERSION . ' (wordpress plugin)</generator>
+                <generator>Arlima v' . ARLIMA_PLUGIN_VERSION . ' (wordpress plugin)</generator>
                 ';
 
             $list_last_mod_time = $list->lastModified();
@@ -242,7 +233,7 @@ class Arlima_ExportManager
             }
         }
 
-        $article_data = apply_filters('arlima_prepare_article_for_export', $article_data);
+        $article_data = $this->cms->applyFilters('arlima_prepare_article_for_export', $article_data);
     }
 
     /**
@@ -260,7 +251,7 @@ class Arlima_ExportManager
         if ( isset($article['image']) && !empty($article['image']['url']) ) {
 
             $node_type = ARLIMA_RSS_IMG_TAG;
-            $img_url = apply_filters('arlima_rss_image', $article['image']['url'], $article['image']);
+            $img_url = $this->cms->applyFilters('arlima_rss_image', $article['image']['url'], $article['image']);
             $img_type = pathinfo($img_url, PATHINFO_EXTENSION);
             $img_type = 'image/'. current(explode('?', $img_type));
 
@@ -277,14 +268,14 @@ class Arlima_ExportManager
         $post_id = intval($article['externalPost']);
         if ( $post_id ) {
             $guid = '/?p=' . $post_id;
-            $date = date('r', Arlima_Utils::getPostTimeStamp(get_post($post_id)) );
+            $date = date('r', $article['published']);
         } else {
             $date = date('r', $last_mod);
         }
 
         return '<item>
                     <title><![CDATA[' . str_replace('__', '', $article['title']) . ']]></title>
-                    <description><![CDATA[' . strip_tags(strip_shortcodes($article['content'])) . ']]></description>
+                    <description><![CDATA[' . $this->cms->sanitizeText($article['content']) . ']]></description>
                     <link>' . apply_filters('arlima_rss_link', $article['externalURL'], $list) . '</link>
                     <guid isPermaLink="false">' . $guid . '</guid>
                     <pubDate>' . $date . '</pubDate>
@@ -298,17 +289,6 @@ class Arlima_ExportManager
     public function getListsAvailableForExport()
     {
         return $this->available_export;
-    }
-
-    /**
-     * @param array $lists
-     */
-    public function setListsAvailableForExport(array $lists)
-    {
-        $this->available_export = $lists;
-        $settings = $this->arlima_plugin->loadSettings();
-        $settings['available_export'] = $lists;
-        $this->arlima_plugin->saveSettings($settings);
     }
 
     /**

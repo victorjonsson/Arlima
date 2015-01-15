@@ -34,7 +34,7 @@ abstract class Arlima_AbstractListRenderingManager
     private $articles_to_render = false;
 
     /**
-     * @var Arlima_WPFacade
+     * @var Arlima_CMSInterface
      */
     protected $system;
 
@@ -44,7 +44,7 @@ abstract class Arlima_AbstractListRenderingManager
      */
     function __construct($list)
     {
-        $this->system = new Arlima_WPFacade();
+        $this->system = Arlima_CMSFacade::load();
         $this->list = $list;
     }
 
@@ -141,7 +141,7 @@ abstract class Arlima_AbstractListRenderingManager
         list($post, $article_data, $is_empty) = $this->setup($article_data);
 
         // Future article
-        if ( !empty($article_data['published']) && $article_data['published'] > Arlima_Utils::timeStamp() && apply_filters('arlima_omit_future_articles', true) ) {
+        if ( !empty($article_data['published']) && $article_data['published'] > Arlima_Utils::timeStamp() ) {
             return array($index, $this->getFutureArticleContent($article_data, $index, $post));
         }
 
@@ -165,11 +165,11 @@ abstract class Arlima_AbstractListRenderingManager
         ));
 
         if( empty($filtered['content']) && $filtered['content'] !== false) {
-            $url = $article_data['post'] ? admin_url('post.php?action=edit&amp;post=' . $post->ID) : $article_data['url'];
+            $url = $article_data['post'] ? $this->system->getPageEditURL($post->ID) : $article_data['url'];
             $filtered['content'] = '<div class="arlima future-post"><p>
                         Hey dude, <a href="' . $url . '" target="_blank">&quot;'.$article_data['title'].'&quot;</a> is
                         connected to a post that isn\'t published yet. The article will become public in '.
-                human_time_diff(Arlima_Utils::timeStamp(), $article_data['published']).'.</p>
+                        $this->system->humanTimeDiff($article_data['published']).'.</p>
                     </div>';
         }
 

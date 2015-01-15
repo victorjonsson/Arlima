@@ -17,11 +17,18 @@ class Arlima_TemplatePathResolver
     private $paths;
 
     /**
+     * @var Arlima_CMSInterface
+     */
+    private $cms;
+
+    /**
      * @param array $paths - Optional
      * @param bool $apply_path_filter - Optional, only for testing
      */
     function __construct($paths = null, $apply_path_filter=true)
     {
+        $this->cms = Arlima_CMSFacade::load();
+
         if ( $paths === null ) {
             $this->paths = array();
         } elseif( is_string($paths)) {
@@ -33,7 +40,7 @@ class Arlima_TemplatePathResolver
         $this->paths[] = ARLIMA_PLUGIN_PATH . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
 
         if( $apply_path_filter )
-            $this->paths = apply_filters('arlima_template_paths', $this->paths);
+            $this->paths = $this->cms->applyFilters('arlima_template_paths', $this->paths);
     }
 
     /**
@@ -52,7 +59,7 @@ class Arlima_TemplatePathResolver
     public function getTemplateFiles()
     {
         $templates = array();
-        $labels = apply_filters('arlima_template_labels', array());
+        $labels = $this->cms->applyFilters('arlima_template_labels', array());
         foreach ($this->getPaths() as $path) {
             $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
             foreach (glob($path . '*' . self::TMPL_EXT) as $file) {
@@ -78,12 +85,7 @@ class Arlima_TemplatePathResolver
      */
     public function fileToUrl($template_file)
     {
-        $tmpl_url = WP_CONTENT_URL . str_replace(WP_CONTENT_DIR, '', $template_file);
-        if ( DIRECTORY_SEPARATOR != '/' ) {
-            $tmpl_url = str_replace(DIRECTORY_SEPARATOR, '/', $tmpl_url);
-        }
-
-        return $tmpl_url;
+        return $this->cms->getFileURL($template_file);
     }
 
     /**

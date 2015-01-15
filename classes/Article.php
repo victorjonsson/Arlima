@@ -38,7 +38,7 @@ class Arlima_Article implements ArrayAccess {
         if( $overriding = $this->opt('overridingURL') ) {
             return $overriding;
         } elseif( $this->hasPost() ) {
-            return get_permalink($this->data['post']);
+            return Arlima_CMSFacade::load()->getPostURL($this->data['post']);
         }
         return '';
     }

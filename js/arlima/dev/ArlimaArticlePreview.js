@@ -169,7 +169,16 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
                 else if( this.article.$elem[0] == article.$elem[0] ) {
                     isInPreview = true;
                 } else if( article.isChild() ) {
-                    var childrenInPreview = this.article.isChild() ? this.article.getParentArticle().getChildArticles() : this.article.getChildArticles();
+                    var childrenInPreview = [],
+                        parent = article.getParentArticle().getParentArticle() || article.getParentArticle(),
+                        collectChildrenInPreview = function(article) {
+                            $.each(article.getChildArticles(), function(i, art) {
+                                childrenInPreview.push(art);
+                                collectChildrenInPreview(art);
+                            })
+                        };
+
+                    collectChildrenInPreview(parent);
                     $.each(childrenInPreview, function(i, childArticle) {
                         if( childArticle.$elem[0] == article.$elem[0] ) {
                             isInPreview = true;
@@ -314,7 +323,11 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
         try {
 
             if( _this.article.isChild() ) {
-                $content = _renderArticle(_this.article.getParentArticle(), false, false, _this.article.getChildIndex());
+                var parent = _this.article.getParentArticle();
+                if (parent.isChild()) {
+                    parent = parent.getParentArticle();
+                }
+                $content = _renderArticle(parent, false, false);
             } else {
                 $content = _renderArticle(_this.article, _this.templateContent);
                 $content.eq(0).addClass('main-article-preview');
@@ -379,11 +392,11 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
      * @param {ArlimaArticle} article
      * @param {String} [templateContent]
      * @param {Boolean} [isChild]
-     * @param {Number} [childIndex] - Will be the index of the article that we're editing, in case its a child article
      * @param {Boolean} [asHTML]
      * @param {String} [extraClasses]
      */
-    _renderArticle = function(article, templateContent, isChild, childIndex, asHTML, extraClasses) {
+    _renderArticle = function(article, templateContent, isChild, asHTML, extraClasses) {
+
         if( !templateContent ) {
             templateContent = window.ArlimaTemplateLoader.templates[article.getTemplate()];
             if( !templateContent ) {
@@ -421,38 +434,40 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
 
             $.each(children, function(i, childArticle) {
                 firstOrLastClass = '';
-                // todo: remove this hellisch piece of logic and instead add a feature that makes it possible
-                // for the editor to choose which articles that is full/half by dragging the article element sideways
-                if( ArlimaJS.groupChildArticles ) {
-                    if(
-                        (children.length == 4 && (i == 1 || i == 2)) ||
-                            (children.length == 6 && (i != 0 && i != 3)) ||
-                            (children.length > 1 && children.length != 4 && children.length != 6 && (i != 0 || hasEvenNumberOfChildren) )
-                        ) {
 
-                        firstOrLastClass = ((i==1 && children.length > 2) || (i==0 && children.length==2) || i==3 || (i==4 && children.length ==6)? ' first':' last');
-                        if( firstOrLastClass == ' first' ) {
-                            childrenHTML += '<div class="arlima child-wrapper">';
-                            hasOpenChildWrapper = true;
+                /* floated children */
+
+                var floatedChildren = childArticle.getChildArticles();
+                if (floatedChildren.length) {
+                    // TODO  check  to see if it's being edited
+                    floatedChildren.unshift(childArticle);
+
+                    childrenHTML += '<div class="arlima child-wrapper child-wrapper-' + floatedChildren.length + '">';
+
+                    $.each(floatedChildren, function(f, floatedChild) {
+                        if (f == 0) {
+                            firstOrLastClass = 'first';
+                        } else if (f == floatedChildren.length - 1) {
+                            firstOrLastClass = 'last';
                         }
-                    }
+                        if (floatedChild == _this.article) {
+                            childrenHTML += _renderArticle(floatedChild, _this.templateContent, true, true, firstOrLastClass+' teaser-child teaser-split');
 
-                    if( firstOrLastClass ) {
-                        firstOrLastClass += ' teaser-split';
-                    }
+                        } else {
+                            childrenHTML += _renderArticle(floatedChild, false, true, true, firstOrLastClass+' teaser-child teaser-split');
+
+                        }
+                    });
+
+                    childrenHTML += '</div>';
+                    return;
                 }
 
-                if( i === childIndex ) {
-                    childrenHTML += _renderArticle(childArticle, _this.templateContent, true, false, true, firstOrLastClass+' teaser-child');
+                /* normal children */
+                if (childArticle == _this.article) {
+                    childrenHTML += _renderArticle(childArticle, _this.templateContent, true, true, firstOrLastClass+' teaser-child');
                 } else {
-                    childrenHTML += _renderArticle(childArticle, false, true, false, true, firstOrLastClass+' teaser-child');
-                }
-
-                if( ArlimaJS.groupChildArticles) {
-                    if( hasOpenChildWrapper && firstOrLastClass == 'last') {
-                        childrenHTML += '</div>';
-                        hasOpenChildWrapper = false;
-                    }
+                    childrenHTML += _renderArticle(childArticle, false, true, true, firstOrLastClass+' teaser-child');
                 }
             });
 

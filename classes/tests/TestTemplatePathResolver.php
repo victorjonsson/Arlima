@@ -101,4 +101,12 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $labels['widget'] = 'GRODA';
         return $labels;
     }
+
+    function testVersionToFloat()
+    {
+        $this->assertEquals(1.0, Arlima_Utils::versionNumberToFloat('1.0.0'));
+        $this->assertEquals(2.0, Arlima_Utils::versionNumberToFloat('2.0'));
+        $this->assertEquals(3.056, Arlima_Utils::versionNumberToFloat('3.0.5.6'));
+        $this->assertEquals(4.122, Arlima_Utils::versionNumberToFloat('4.1.beta.22'));
+    }
 }

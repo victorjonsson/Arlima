@@ -11,34 +11,9 @@
 class Arlima_ImportManager
 {
 
-    /**
-     * @var array
-     */
-    private $imported_lists;
-
-    /**
-     * @var Arlima_Plugin
-     */
-    private $arlima_plugin;
-
-    /**
-     * @param Arlima_Plugin $arlima_plugin[optional=null]
-     */
-    public function __construct($arlima_plugin = null)
+    public function __construct()
     {
-        if ( $arlima_plugin !== null ) {
-            $this->setPlugin($arlima_plugin);
-        }
-    }
-
-    /**
-     * @param Arlima_Plugin $arlima_plugin
-     */
-    function setPlugin($arlima_plugin)
-    {
-        $settings = $arlima_plugin->loadSettings();
-        $this->imported_lists = !empty($settings['imported_lists']) ? $settings['imported_lists'] : array();
-        $this->arlima_plugin = $arlima_plugin;
+        $this->sys = Arlima_CMSFacade::load();
     }
 
     /**
@@ -46,18 +21,7 @@ class Arlima_ImportManager
      */
     function getImportedLists()
     {
-        return $this->imported_lists;
-    }
-
-    /**
-     * @param string $url
-     */
-    function removeImportedList($url)
-    {
-        if ( isset($this->imported_lists[$url]) ) {
-            unset($this->imported_lists[$url]);
-            $this->saveImportedLists();
-        }
+        return $this->sys->getImportedLists();
     }
 
     /**
@@ -70,43 +34,20 @@ class Arlima_ImportManager
      */
     function importList($url, $refresh = true)
     {
-        if ( $refresh || empty($this->imported_lists[$url]) ) {
+        $imported_lists = $this->getImportedLists();
+        if ( $refresh || empty($imported_lists[$url]) ) {
             $list = $this->loadList($url);
             $list_data = array(
                 'title' => $list->getTitle(),
                 'url' => $url
             );
 
-            $this->imported_lists[$url] = $list_data;
-            $this->saveImportedLists();
+            $imported_lists[$url] = $list_data;
+            $this->sys->saveImportedLists($imported_lists);
             return $list_data;
         } else {
-            return $this->imported_lists[$url];
+            return $imported_lists[$url];
         }
-    }
-
-    /**
-     * @param string $url
-     * @return array|WP_Error
-     */
-    protected function loadExternalURL($url)
-    {
-        if ( !class_exists('WP_Http') ) {
-            require ABSPATH . '/wp-includes/class-http.php';
-        }
-        $http = new WP_Http();
-        $response = $http->get($url);
-        return $response;
-    }
-
-    /**
-     * Save an array with all the lists that we use to import
-     */
-    private function saveImportedLists()
-    {
-        $settings = $this->arlima_plugin->loadSettings();
-        $settings['imported_lists'] = $this->imported_lists;
-        $this->arlima_plugin->saveSettings($settings);
     }
 
     /**
@@ -116,7 +57,7 @@ class Arlima_ImportManager
      */
     function loadList($url)
     {
-        return $this->serverResponseToArlimaList($this->loadExternalURL($url), $url);
+        return $this->serverResponseToArlimaList($this->sys->loadExternalURL($url), $url);
     }
 
     /**
@@ -144,10 +85,6 @@ class Arlima_ImportManager
      */
     public function serverResponseToArlimaList($response, $url)
     {
-        if ( $response instanceof WP_Error ) {
-            throw new Exception($response->get_error_message());
-        }
-
         $response_type = $this->getResponseType($response);
 
         if ( $response_type === null ) {
@@ -161,17 +98,34 @@ class Arlima_ImportManager
 
         // Parse response
         $list_data = $this->parseListData($response['body'], $response_type);
-
+       #var_dump(array_values($list_data)); die;
         // Populate the imported list
         $list = new Arlima_List(true, $url, true);
 
+        if( isset($list_data['version_history']) ) {
+            // This may not been set if external arlima site uses an older ARlima version
+            $list->setScheduledVersions($list_data['scheduled_versions']);
+            $list->setPublishedVersions($list_data['version_history']);
+            if( isset($list_data['versions']) ) {
+                unset($list_data['versions']);
+            }
+        }
+
+        #var_dump($list_data['version']); die;
+        $called = [];
         foreach ($list_data as $prop => $val) {
+
+            // @todo: wtf?? fix this the right way
+            if( in_array($prop, $called) ) {
+                continue;
+            }
+            $called[] = $prop;
+
             $set_method = 'set' . ucfirst($prop);
             if ( $prop != 'id' && method_exists($list, $set_method) ) {
                 if ( $val instanceof stdClass ) {
                     $val = (array)$val;
                 }
-
                 call_user_func(array($list, $set_method), $val);
             }
         }
@@ -217,10 +171,10 @@ class Arlima_ImportManager
             }
             if( !empty($list_data['articles']) ) {
                 foreach($list_data['articles'] as $key => $data) {
-                    $list_data['articles'][$key] = Arlima_ListFactory::createArticleDataArray($this->moveURLToOverridingURL($data));
+                    $list_data['articles'][$key] = Arlima_ListVersionRepository::createArticle($this->moveURLToOverridingURL($data));
                     if( !empty($data['children']) ) {
                         foreach($data['children'] as $child_key => $child_article) {
-                            $list_data['articles'][$key]['children'][$child_key] = Arlima_ListFactory::createArticleDataArray($this->moveURLToOverridingURL($child_article));
+                            $list_data['articles'][$key]['children'][$child_key] = Arlima_ListVersionRepository::createArticle($this->moveURLToOverridingURL($child_article));
                         }
                     }
                 }
@@ -276,7 +230,7 @@ class Arlima_ImportManager
         }
 
         // get image from enclosure
-        elseif ( isset($item->enclosure) && $this->isEnlcosureValidImage($item->enclosure) ) {
+        elseif ( isset($item->enclosure) && $this->isEnclosureValidImage($item->enclosure) ) {
             $img_options = $this->generateArticleImageOptions((string)$item->enclosure->attributes()->url);
         }
 
@@ -302,7 +256,7 @@ class Arlima_ImportManager
 
         $post_date = strtotime((string)$item->pubDate);
 
-        $art = Arlima_ListFactory::createArticleDataArray(
+        $art = Arlima_ListVersionRepository::createArticle(
             array(
                 'image' => $img_options,
                 'content' => $description,
@@ -334,7 +288,7 @@ class Arlima_ImportManager
      * @param SimpleXMLElement|stdClass $enc
      * @return bool
      */
-    private function isEnlcosureValidImage($enc)
+    private function isEnclosureValidImage($enc)
     {
         $attr = $enc->attributes();
         return isset($attr->type) && in_array(

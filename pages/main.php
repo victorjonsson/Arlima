@@ -5,7 +5,7 @@
  * @package Arlima
  * @since 1.0
  */
-$factory = new Arlima_ListFactory();
+$list_repo = new Arlima_ListRepository();
 $arlima_plugin = new Arlima_Plugin();
 $settings = $arlima_plugin->loadSettings();
 ?>
@@ -440,7 +440,7 @@ $settings = $arlima_plugin->loadSettings();
                     <select>
                         <option value=""><?php _e('Choose article list', 'arlima') ?></option>
                         <?php
-                        $available_lits = $factory->loadListSlugs();
+                        $available_lits = $list_repo->loadListSlugs();
                         foreach($available_lits as $list_data): ?>
                             <option value="<?php echo $list_data->id; ?>"><?php echo $list_data->title; ?></option>
                         <?php endforeach;

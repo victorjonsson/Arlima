@@ -474,7 +474,9 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                 templateFormatMap = {};
 
             ArlimaArticleSettingsMenu.init($form.find('button.settings'), $form.find('.settings-menu'));
-            ArlimaArticleSettingsMenu.addSelect($formatSelect);
+            if ($formatSelect.length > 0) {
+                ArlimaArticleSettingsMenu.addSelect($formatSelect);
+            }
             ArlimaArticleSettingsMenu.addSelect($templateSelect);
             ArlimaArticleSettingsMenu.addSelect($form.find('.scheduled-settings'));
 

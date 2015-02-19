@@ -14,7 +14,7 @@ class Arlima_CMSFacade {
     /**
      * Load facade in front of underlying system
      * @param mixed $in
-     * @param bool $class
+     * @param string|bool $class
      * @return Arlima_CMSInterface
      */
     public static function load($in=null, $class = false)

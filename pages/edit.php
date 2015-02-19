@@ -67,7 +67,7 @@ $available_lists = $list_repo->loadListSlugs();
                             <option value=""><?php _e('Choose article list', 'arlima') ?></option>
                             <?php
                             foreach( $available_lists as $list_data ): ?>
-                                <option value="<?php echo $list_data->id; ?>" <?php if( $list_data->id == $list->id() ) echo 'selected="selected"'; ?>>
+                                <option value="<?php echo $list_data->id; ?>" <?php if( $list_data->id == $list->getId() ) echo 'selected="selected"'; ?>>
                                     <?php echo $list_data->title; ?>
                                 </option>
                             <?php endforeach; ?>

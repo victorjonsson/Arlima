@@ -237,17 +237,23 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      * @returns {boolean|jQuery}
      */
     ArlimaArticle.prototype.getWrappedChildElem = function() {
+
         var $span = false,
             _this = this;
 
-        if( this.isWrappedChild() ) {
-            this.getParentArticle().$elem.find('.article-children').children().each(function() {
+        if( this.$elem.hasClass('contains-toggled-children') ) {
+            $span = this.$elem.find('.article-children').children().eq(0);
+        } else if( this.isWrappedChild() ) {
+            var $wrappedChildren = this.getParentArticle().$elem.find('.article-children').children();
+            $wrappedChildren.each(function() {
                 if( this.arlimaArticle == _this ) {
                     $span = $(this);
                     return false;
                 }
             });
         }
+
+
         return $span;
     };
 

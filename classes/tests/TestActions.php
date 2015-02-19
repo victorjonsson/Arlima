@@ -1,6 +1,5 @@
 <?php
 
-require_once __DIR__ . '/setup.php';
 
 class TestActions extends PHPUnit_Framework_TestCase {
 
@@ -20,7 +19,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
     private function createList($num_articles = 3) {
         $article_collection = array();
         for($i = 1; $i <= $num_articles; $i++) {
-            $article_collection[] = Arlima_ListFactory::createArticleDataArray(array('title' => 'article'.$i));
+            $article_collection[] = Arlima_ListVersionRepository::createArticle(array('title' => 'article'.$i));
         }
 
         $list = new Arlima_List(true, 99);
@@ -194,10 +193,8 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $list->setOption('template', 'some-template');
 
         $articles = $list->getArticles();
-        $articles[0]['children'] = array(
-            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA', 'parent'=>0)),
-            Arlima_ListFactory::createArticleDataArray(array('title' => 'childB', 'parent'=>0))
-        );
+        $articles[0]->addChild(Arlima_ListVersionRepository::createArticle(array('title' => 'childA', 'parent'=>0))->toArray());
+        $articles[0]->addChild(Arlima_ListVersionRepository::createArticle(array('title' => 'childB', 'parent'=>0))->toArray());
 
         $list->setArticles($articles);
 
@@ -213,10 +210,8 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $list->setOption('template', 'some-template');
 
         $articles = $list->getArticles();
-        $articles[0]['children'] = array(
-            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA', 'parent'=>0, 'options' => array('floating' => true))),
-            Arlima_ListFactory::createArticleDataArray(array('title' => 'childB', 'parent'=>0, 'options' => array('floating' => true)))
-        );
+        $articles[0]->addChild(Arlima_ListVersionRepository::createArticle(array('title' => 'childA', 'parent'=>0, 'options'=>array('floating'=>true)))->toArray());
+        $articles[0]->addChild(Arlima_ListVersionRepository::createArticle(array('title' => 'childB', 'parent'=>0, 'options'=>array('floating'=>true)))->toArray());
 
         $list->setArticles($articles);
 
@@ -232,9 +227,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
         $list->setOption('template', 'some-template');
 
         $articles = $list->getArticles();
-        $articles[0]['children'] = array(
-            Arlima_ListFactory::createArticleDataArray(array('title' => 'childA', 'parent'=>0))
-        );
+        $articles[0]->addChild(Arlima_ListFactory::createArticleDataArray(array('title' => 'childA', 'parent'=>0))->toArray());
 
         $list->setArticles($articles);
 

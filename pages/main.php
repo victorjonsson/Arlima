@@ -6,8 +6,9 @@
  * @since 1.0
  */
 $list_repo = new Arlima_ListRepository();
-$arlima_plugin = new Arlima_Plugin();
+$arlima_plugin = new Arlima_WP_Plugin();
 $settings = $arlima_plugin->loadSettings();
+$cms = Arlima_CMSFacade::load();
 ?>
 <div id="col-container">
 
@@ -75,7 +76,7 @@ $settings = $arlima_plugin->loadSettings();
                         <input class="data streamer content" data-prop="options:streamerContent" />
                         <input type="hidden" class="data streamer-type" data-prop="options:streamerType" />
                         <select class="streamer-color" name="options:streamerColor">
-                            <?php Arlima_Plugin::loadStreamerColors(); ?>
+                            <?php Arlima_WP_Plugin::loadStreamerColors(); ?>
                         </select>
                     </div>
 
@@ -103,7 +104,7 @@ $settings = $arlima_plugin->loadSettings();
 
                     // ARTICLE TEMPLATES
 
-                    $hidden = apply_filters('arlima_hidden_templates', array(), false);
+                    $hidden = apply_filters('arlima_hidden_templates', array('file-include'), false);
                     ?>
                     <select class="data templates" data-prop="options:template" data-label="<?php _e('Template', 'arlima') ?>">
                         <option value=""><?php _e('Default', 'arlima') ?></option>
@@ -237,14 +238,18 @@ $settings = $arlima_plugin->loadSettings();
                 </div>
 
                 <div class="connection-container template-feature" data-feature="connection">
-                    <?php _e('Connected to', 'arlima') ?>:
+                    <strong>
+                        <?php _e('Connected to', 'arlima') ?>:
+                    </strong>
                     <input type="hidden" class="data post" data-prop="post" />
                     <input type="hidden" class="data overriding-url" data-prop="options:overridingURL" />
                     <input type="hidden" class="data overriding-url-target" data-prop="options:target" />
                     <a href="#" class="url"></a>
                     <em class="future-notice">(<?php _e('Future post', 'arlima') ?>)</em>
-                    <a href="#" class="change">[<?php _e('change', 'arlima') ?>]</a>
-                    <a href="#" class="wp-admin-edit">[<?php _e('edit', 'arlima') ?>]</a>
+                    <a href="#" class="change button small button-small">
+                        <i class="fa fa-lg fa-wrench"></i>
+                        <?php _e('Change connection', 'arlima') ?>
+                    </a>
                     <?php do_action('arlima_list_manager_article_connection'); ?>
                 </div>
 
@@ -396,7 +401,13 @@ $settings = $arlima_plugin->loadSettings();
                     </tr>
                     </thead>
                     <tbody>
-                        <?php foreach( $file_includes as $label => $file ): if( is_numeric($label) ) $label = basename($file); ?>
+                        <?php foreach( $file_includes as $label => $file ):
+                            if( is_numeric($label) )
+                                $label = basename($file);
+                            if( $relative_path = $cms->resolveFilePath($file, true) )
+                                $file = $relative_path;
+
+                            ?>
                             <tr>
                                 <td colspan="2">
                                     <div class="file-include" 
@@ -414,7 +425,7 @@ $settings = $arlima_plugin->loadSettings();
                                         ?>'
                                         data-file="<?php echo $file; ?>"
                                         data-label="<?php echo $label ?>">
-                                        <?php echo $label; ?>
+                                        <?php echo $label;  ?>
                                     </div>
                                 </td>
                             </tr>
@@ -444,7 +455,7 @@ $settings = $arlima_plugin->loadSettings();
                         foreach($available_lits as $list_data): ?>
                             <option value="<?php echo $list_data->id; ?>"><?php echo $list_data->title; ?></option>
                         <?php endforeach;
-                        $import_manager = new Arlima_ImportManager(new Arlima_Plugin());
+                        $import_manager = new Arlima_ImportManager();
                         $imported = $import_manager->getImportedLists();
                         if(!empty($imported)): ?>
                             <optgroup label="<?php _e('Imported lists', 'arlima') ?>">

@@ -106,7 +106,8 @@ class Arlima_TemplatePathResolver
     }
 
     /**
-     * Find the path of a template file with given name
+     * Find the path of a template file with given name.
+     *
      * @param string $template_name
      * @return bool|string
      */

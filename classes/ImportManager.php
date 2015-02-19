@@ -98,21 +98,25 @@ class Arlima_ImportManager
 
         // Parse response
         $list_data = $this->parseListData($response['body'], $response_type);
-       #var_dump(array_values($list_data)); die;
+
         // Populate the imported list
         $list = new Arlima_List(true, $url, true);
 
-        if( isset($list_data['version_history']) ) {
-            // This may not been set if external arlima site uses an older ARlima version
-            $list->setScheduledVersions($list_data['scheduled_versions']);
-            $list->setPublishedVersions($list_data['version_history']);
-            if( isset($list_data['versions']) ) {
-                unset($list_data['versions']);
+        if( empty($list_data['version_history']) ) {
+            $list_data['version_history'] = array();
+            foreach($list_data['versions'] as $ver) {
+                $list_data['version_history'][] = array('id' => $ver, 'scheduled'=>0, 'status'=>Arlima_List::STATUS_PUBLISHED, 'user_id'=>0);
             }
         }
 
-        #var_dump($list_data['version']); die;
-        $called = [];
+        // This may not been set if external arlima site uses an older ARlima version
+        $list->setScheduledVersions(empty($list_data['scheduled_versions']) ? array() : $list_data['scheduled_versions']);
+        $list->setPublishedVersions($list_data['version_history']);
+
+        if( isset($list_data['versions']) )
+            unset($list_data['versions']);
+
+        $called = array();
         foreach ($list_data as $prop => $val) {
 
             // @todo: wtf?? fix this the right way
@@ -171,12 +175,13 @@ class Arlima_ImportManager
             }
             if( !empty($list_data['articles']) ) {
                 foreach($list_data['articles'] as $key => $data) {
-                    $list_data['articles'][$key] = Arlima_ListVersionRepository::createArticle($this->moveURLToOverridingURL($data));
-                    if( !empty($data['children']) ) {
-                        foreach($data['children'] as $child_key => $child_article) {
-                            $list_data['articles'][$key]['children'][$child_key] = Arlima_ListVersionRepository::createArticle($this->moveURLToOverridingURL($child_article));
-                        }
+                    $children_copy = $data['children'];
+                    unset($data['children']);
+                    $article = Arlima_ListVersionRepository::createArticle($this->moveURLToOverridingURL($data));
+                    foreach($children_copy as $child_article) {
+                        $article->addChild($this->moveURLToOverridingURL($child_article));
                     }
+                    $list_data['articles'][$key] = $article;
                 }
             }
         }
@@ -193,12 +198,13 @@ class Arlima_ImportManager
             }
 
             $pub_date = isset($xml->channel->pubDate) ? (string)$xml->channel->pubDate : (string)$xml->channel->lastBuildDate;
+            $version = array('id' => 0, 'user' => 0, 'created' => strtotime($pub_date), 'status' => Arlima_List::STATUS_PUBLISHED);
             $list_data = array(
                 'title' => (string)$xml->channel->title,
                 'slug' => sanitize_title((string)$xml->channel->title),
                 'articles' => array(),
-                'versions' => array(),
-                'version' => array('id' => 0, 'user' => 0, 'created' => strtotime($pub_date))
+                'versions' => array($version),
+                'version' => $version
             );
 
             if ( !empty($xml->channel->item) ) {

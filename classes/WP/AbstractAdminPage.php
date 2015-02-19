@@ -5,7 +5,7 @@
  *
  * Using this class reduces the amount of code that needs to be written when
  * wanting to have several admin pages in a plugin. It also reduces code
- * duplication that appears when having several admin pages in one plugin.
+ * duplication that often appears when having several admin pages in one plugin.
  *
  * @since 2.7
  * @package Arlima
@@ -13,13 +13,13 @@
 abstract class Arlima_WP_AbstractAdminPage {
 
     /**
-     * @var Arlima_Plugin
+     * @var Arlima_WP_Plugin
      */
     protected $plugin;
 
 
     /**
-     * @param Arlima_Plugin $arlima_plugin
+     * @param Arlima_WP_Plugin $arlima_plugin
      */
     final public function __construct($arlima_plugin)
     {
@@ -191,7 +191,7 @@ abstract class Arlima_WP_AbstractAdminPage {
                 'imageURL' => ARLIMA_PLUGIN_URL . 'images/',
                 'baseURL' => get_bloginfo('url'),
                 'pluginURL' => ARLIMA_PLUGIN_URL,
-                'hasScissors' => Arlima_Plugin::isScissorsInstalled(),
+                'hasScissors' => Arlima_WP_Plugin::isScissorsInstalled(),
                 'isAdmin' => current_user_can('manage_options'),
                 'devMode' => ARLIMA_DEV_MODE,
                 'allowEditorsCreateSections' => $this->plugin->getSetting('editor_sections', true) ? true:false,

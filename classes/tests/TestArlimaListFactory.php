@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . '/setup.php';
-
-
 class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
 
     /**
@@ -131,7 +128,7 @@ class TestArlimaListFactory extends PHPUnit_Framework_TestCase {
         $this->assertEquals(99, $reloaded_list->getVersionAttribute('user_id'));
         $this->assertTrue( is_numeric($ver_id) );
 
-        $scheduled_version = self::$factory->saveNewListVersion($list, array( $article, array_merge($article, array('title'=>'Second article')) ), 123, time() + 50);
+        $scheduled_version = self::$factory->saveNewListVersion($list, array( $article, array_merge($article->toArray(), array('title'=>'Second article')) ), 123, time() + 50);
         // scheduled version should not be latest
         $new_reloaded_list = self::$factory->loadList($list->id());
         $this->assertEquals($ver_id, $new_reloaded_list->getVersionAttribute('id'));

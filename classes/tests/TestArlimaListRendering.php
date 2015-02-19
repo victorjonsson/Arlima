@@ -1,8 +1,7 @@
 <?php
 
-require_once __DIR__ . '/setup.php';
-
 class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
+
 
     /**
      * @param int $num_articles
@@ -32,7 +31,9 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         $list->setOption('template', 'some-template');
 
         $articles = $list->getArticles();
-        $articles[0]['options']['template'] = 'deep-include';
+        $data = $articles[0]->toArray();
+        $data['options']['template'] = 'deep-include';
+        $articles[0] = new Arlima_Article($data);
         $list->setArticles($articles);
 
         $renderer = new Arlima_ListTemplateRenderer($list, __DIR__.'/test-templates/');
@@ -45,10 +46,20 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         $list->setOption('supports_sections', 1);
         $articles = $list->getArticles();
 
-        $articles[0]['options']['sectionDivider'] = 1;
-        $articles[3]['options']['sectionDivider'] = 1;
-        $articles[3]['title'] = 'secundo';
-        $articles[9]['options']['sectionDivider'] = 1;
+        $updateSectionDiv = function($i) use(&$articles) {
+            $arr = $articles[$i]->toArray();
+            $arr['options']['sectionDivider'] = 1;
+            $articles[$i] = new Arlima_Article($arr);
+        };
+
+        $arr = $articles[3]->toArray();
+        $arr['title'] = 'secundo';
+        $articles[3] = new Arlima_Article($arr);
+
+        $updateSectionDiv(0);
+        $updateSectionDiv(3);
+        $updateSectionDiv(9);
+
         $list->setArticles($articles);
 
         $renderer = new Arlima_ListTemplateRenderer($list);
@@ -68,13 +79,6 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         $this->assertEquals('article6', $articles[1]['title']);
         $this->assertEquals('article7', $articles[2]['title']);
 
-        $renderer->setSection('secundo');
-        $articles = $renderer->getArticlesToRender();
-        $this->assertEquals(5, count($articles));
-        $this->assertEquals('article5', $articles[0]['title']);
-        $this->assertEquals('article6', $articles[1]['title']);
-        $this->assertEquals('article7', $articles[2]['title']);
-
         $renderer->setSection('>=1');
         $articles = $renderer->getArticlesToRender();
 
@@ -83,6 +87,15 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         $this->assertEquals('article6', $articles[1]['title']);
         $this->assertEquals('article11', $articles[ count($articles)-1 ]['title']);
 
+
+        $renderer->setSection('secundo');
+        $articles = $renderer->getArticlesToRender();
+        $this->assertEquals(5, count($articles));
+        $this->assertEquals('article5', $articles[0]['title']);
+        $this->assertEquals('article6', $articles[1]['title']);
+        $this->assertEquals('article7', $articles[2]['title']);
+
+
         $renderer->setSection('>=secundo');
         $articles = $renderer->getArticlesToRender();
 
@@ -90,6 +103,7 @@ class TestArlimaListRendering extends PHPUnit_Framework_TestCase {
         $this->assertEquals('article5', $articles[0]['title']);
         $this->assertEquals('article6', $articles[1]['title']);
         $this->assertEquals('article11', $articles[ count($articles)-1 ]['title']);
+
     }
 
     function testOffsetAndLimit() {

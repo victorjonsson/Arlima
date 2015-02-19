@@ -9,6 +9,7 @@
         "php": ">= 5.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.23"
+        "phpunit/phpunit": "3.7.23",
+        "victorjonsson/markdowndocs": "1.2.8"
     }
 }

@@ -4,14 +4,11 @@
  * Class that has all wp ajax functions used by this plugin. Important that you don't use closures
  * or any other php features that isn't available in php 5.2 in this file
  *
- * @todo: Remove all muting of possibly incorrect ajax requests
- * @todo: Move HTML code to other files
  * @package Arlima
  * @since 2.0
  */
 class Arlima_WP_Ajax
 {
-
     /**
      * @var Arlima_WP_Plugin
      */
@@ -173,7 +170,7 @@ class Arlima_WP_Ajax
                 if( $file ) {
                     $tmp_file = get_temp_dir().'/'.uniqid();
                     copy(WP_CONTENT_DIR .'/uploads/'. $file, $tmp_file);
-                    $new_attach_id = Arlima_Plugin::saveImageFileAsAttachment($tmp_file, basename($file), '');
+                    $new_attach_id = Arlima_WP_Plugin::saveImageFileAsAttachment($tmp_file, basename($file), '');
                     list($attach_url) = wp_get_attachment_image_src($new_attach_id, 'default');
 
                     echo json_encode(
@@ -230,10 +227,10 @@ class Arlima_WP_Ajax
         );
 
         // Make it possible for theme to override templates
+        // @todo: rename from template to preset
         $templates = apply_filters('arlima_teaser_templates', $templates);
-        $ver_repo = new Arlima_ListVersionRepository();
         foreach($templates as $key => $data) {
-            $templates[$key] = $ver_repo->createArticle($data);
+            $templates[$key] = Arlima_ListVersionRepository::createArticle($data)->toArray();
         }
 
         echo json_encode($templates);
@@ -261,7 +258,7 @@ class Arlima_WP_Ajax
         $this->initAjaxRequest();
 
         try {
-            $id = Arlima_Plugin::saveImageAsAttachment(
+            $id = Arlima_WP_Plugin::saveImageAsAttachment(
                         $_POST['image'],
                         $_POST['name'],
                         empty($_POST['postid']) ? '':$_POST['postid']
@@ -420,12 +417,12 @@ class Arlima_WP_Ajax
 
             $list = Arlima_List::builder()
                         ->id($list_id)
-                        ->includeFuturePosts()
+                        ->includeFutureArticles()
                         ->build();
 
             $articles = $list->getArticles();
 
-            array_unshift($articles, $this->postToArlimaArticle($post));
+            array_unshift($articles, $this->cms->postToArlimaArticle($post));
             $this->saveAndOutputList($list, $articles);
             die;
 
@@ -490,9 +487,12 @@ class Arlima_WP_Ajax
             $version_id = $ver_repo->createScheduledVersion($list, $articles, $user_id, $schedule_time);
         } else {
             $version_id = $ver_repo->create($list, $articles, $user_id, $preview);
+            if( $preview ) {
+                $version_id = 'preview';
+            }
         }
 
-        $this->outputListData($list, $version_id);
+        $this->outputListData($list->getId(), $version_id);
     }
 
     /**
@@ -595,12 +595,17 @@ class Arlima_WP_Ajax
      */
     private function outputListData($list_id, $version=false)
     {
-        $list = Arlima_List::builder()
+        $builder = Arlima_List::builder()
                     ->id($list_id)
-                    ->version($version)
-                    ->includeFuturePosts()
-                    ->build();
+                    ->includeFutureArticles();
 
+        if( $version == 'preview' ) {
+            $builder->loadPreview();
+        } else {
+            $builder->version($version);
+        }
+
+        $list = $builder->build();
         $preview_page = current($this->cms->loadRelatedPages($list));
         $preview_url = '';
         $preview_width = '';
@@ -736,7 +741,7 @@ class Arlima_WP_Ajax
 
         $attachment_id = $_POST['attachment'];
 
-        if ( Arlima_Plugin::isScissorsInstalled() ) {
+        if ( Arlima_WP_Plugin::isScissorsInstalled() ) {
 
             $scissors_output = '';
             $thumb = get_post($attachment_id);
@@ -806,7 +811,7 @@ class Arlima_WP_Ajax
             $GLOBALS['post'] = $post; // Soemhting is removing post from global, even though we call setup_postdata
 
             $articles[] = array(
-                'data' => $this->postToArlimaArticle($post),
+                'data' => $this->cms->postToArlimaArticle($post)->toArray(),
                 'post' => $this->setupPostObject($post)
             );
         }
@@ -817,66 +822,6 @@ class Arlima_WP_Ajax
     }
 
     /**
-     * @param $post
-     * @return array
-     */
-    private function postToArlimaArticle($post)
-    {
-        if ( $this->has_preamble_func ) {
-            $text = vk_get_preamble();
-        } else {
-            // weird, "get_the_excerpt" should return the manual excerpt but does not seem to do this in the admin context
-            $text = !empty($post->post_excerpt) ? $post->post_excerpt : get_the_excerpt();
-        }
-        if ( stristr($text, '<p>') === false ) {
-            $text = '<p>' . $text . '</p>';
-        }
-        return self::extractArticleDataFromPost($post, $text);
-    }
-
-
-    /**
-     * Takes a post and returns an Arlima article object
-     * @param $post
-     * @param string|null $text
-     * @param array $override
-     * @return array
-     */
-    public static function extractArticleDataFromPost($post, $text = null, $override=array())
-    {
-        $sys = Arlima_CMSFacade::load();
-
-        if( $text === null ) {
-            $text = !empty($post->post_excerpt) ? $post->post_excerpt : $sys->getExcerpt($post->ID);
-            if ( stristr($text, '<p>') === false ) {
-                $text = '<p>' . $text . '</p>';
-            }
-        }
-        $art_data = array_merge(array(
-            'post' => $post->ID,
-            'title' => $post->post_title,
-            'content' => $text,
-            'size' => 24,
-            'created' => Arlima_Utils::timeStamp(),
-            'published' => $sys->getPostTimeStamp($post)
-        ), $override);
-
-        if ( has_post_thumbnail($post->ID) ) {
-            $attach_id = get_post_thumbnail_id($post->ID);
-            $art_data['image'] = array(
-                'url' => wp_get_attachment_url($attach_id),
-                'attachment' => $attach_id,
-                'size' => 'full',
-                'alignment' => '',
-                'connected' => true
-            );
-        }
-
-        $repo = new Arlima_ListVersionRepository();
-        return $repo->createArticle($art_data);
-    }
-
-    /**
      * @param Arlima_List $list
      * @param string $preview_url
      * @param int $preview_width
@@ -884,16 +829,30 @@ class Arlima_WP_Ajax
      */
     protected function listToJSON($list, $preview_url, $preview_width)
     {
-        // Add user names to version list. Don't do this deeper down, it results in to 10 possibly extra db queries
+        // Add user names to version list. Don't do this deeper
+        // down, it results in up towards 10 possibly extra db queries
+
         $versions = array();
-        foreach($list->getPublishedVersions() as $ver) {
-            $user_data = get_userdata($ver['user_id']);
-            $ver['saved_by'] = $user_data ? $user_data->display_name : __('Unknown', 'arlima');
-            $versions[] = $ver;
+        if( $list->isImported() ) {
+            foreach($list->getPublishedVersions() as $ver) {
+                $ver['saved_by'] = 'Unknown';
+                $versions[] = $ver;
+            }
+        } else {
+            foreach($list->getPublishedVersions() as $ver) {
+                $user_data = get_userdata($ver['user_id']);
+                $ver['saved_by'] = $user_data ? $user_data->display_name : __('Unknown', 'arlima');
+                $versions[] = $ver;
+            }
+        }
+
+        $articles = array();
+        foreach($list->getArticles() as $art) {
+            $articles[] = $art->toArray();
         }
 
         return json_encode(array(
-            'articles' => $list->getArticles(),
+            'articles' => $articles,
             'version' => $list->getVersion(),
             'versionDisplayText' => $this->getVersionInfo($list),
             'versions' => $versions,

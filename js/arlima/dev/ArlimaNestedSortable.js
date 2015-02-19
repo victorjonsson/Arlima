@@ -8,7 +8,7 @@ function arlimaNestedSortable(list) {
         $articles = list.$elem.find('.articles'),
         globalMaxDepth = 2, currentDepth = 0, originalDepth, minDepth, maxDepth,
         prev, next, prevBottom, nextThreshold, helperHeight, transport, isMovingWithChildren,
-        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, canBeChild, $parentArtElem,
+        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, canBeChild,
 
     _updateCurrentDepth = function(ui, depth) {
         _updateDepthClass( ui.placeholder, depth, currentDepth );
@@ -111,7 +111,7 @@ function arlimaNestedSortable(list) {
      */
      _whenDropFinished = function($elem, toggleUnsavedState) {
 
-        window.ArlimaUtils.log('Finished drop for '+list.data.id);
+        window.ArlimaUtils.log('Finished drop on '+list.data.id);
 
         // update parent props for child articles
         _reduceListToMaxSize();
@@ -136,7 +136,7 @@ function arlimaNestedSortable(list) {
 
         window.ArlimaUtils.highlight($elem);
 
-        if( toggleUnsavedState )
+        if( toggleUnsavedState && !list.data.isImported )
             list.toggleUnsavedState(true);
 
         list.$elem.trigger('change');
@@ -176,7 +176,7 @@ function arlimaNestedSortable(list) {
                 ui.item.data('sortableItem').scrollParent = ui.placeholder.parent();
                 ui.item.data('sortableItem').overflowOffset = ui.placeholder.parent().offset();
 
-                var height, width, parent, children, tempHolder;
+                var height, width, parent, children, tempHolder, isFloating, $lastChild;
                 transport = ui.helper.children('.children-transport');
                 window.arlimaMoveBetweenLists = false;
 
@@ -204,11 +204,42 @@ function arlimaNestedSortable(list) {
                     $clone = ui.item.clone(false).show();
                     var clonedArticle = new ArlimaArticle( $.extend(true, {}, ui.item.get(0).arlimaArticle.data), null, $clone, !list.data.isImported);
                     list.addArticle(clonedArticle, false);
+                    $clone
+                        .css('opacity', '0.5')
+                        .insertAfter(ui.item);
+
                     clonedArticle.setState('default');
-                    $(children.get().reverse()).each(function(index) {
+                    
+                    isFloating = false;
+                    $lastChild = null;
+                    $(children.get()).each(function(index) {
+                        
+                        var childArticle = new ArlimaArticle($.extend(true, {}, this.arlimaArticle.data), list.data.id, false, !list.data.isImported);
+
+                        if ( this.arlimaArticle.data.options.floating && isFloating) { // not first
+                            childArticle.$elem.addClass('list-item-depth-2');
+                        }
+                        else {
+                            childArticle.$elem.addClass('list-item-depth-1');
+                        }
+                        isFloating = this.arlimaArticle.data.options.floating;
+                        list.addArticle(childArticle, false);
+
+                        if(!$lastChild) {
+                            childArticle.$elem.insertAfter($clone);
+                            $lastChild = childArticle.$elem;
+                        }
+                        else {
+                            childArticle.$elem.insertAfter($lastChild);
+                        }
+
+                        /*
+
                         var $child = $(this).clone(false);
                         list.addArticle(new ArlimaArticle( $.extend(true, {}, this.arlimaArticle.data), null, $child, !list.data.isImported), false);
                         $child.insertAfter($clone);
+                        */
+
                     });
                 } else {
                     isMovingCopy = false;
@@ -311,18 +342,26 @@ function arlimaNestedSortable(list) {
                 list.updateParentProperties();
                 isNowAChild = ui.item[0].arlimaArticle.isChild();
 
-                if( listContainerElem && (itemIndex != itemStartIndex || isNowAChild != startedOfAsChild) ) {
+                if( listContainerElem && !listContainerElem.arlimaList.data.isImported && (itemIndex != itemStartIndex || isNowAChild != startedOfAsChild) ) {
                     // this item does not come from the search
                     listContainerElem.arlimaList.toggleUnsavedState(true);
                 }
 
-                if( !isMovingCopy && (!listContainerElem || listContainerElem.arlimaList.data.id != list.data.id)) {
-                    list.toggleUnsavedState(true);
+                if( !list.data.isImported ) {
+                    if( !isMovingCopy && (!listContainerElem || listContainerElem.arlimaList.data.id != list.data.id)) {
+                        list.toggleUnsavedState(true);
+                    }
+
+                    if (originalDepth != currentDepth) {
+                        list.toggleUnsavedState(true);
+                    }
                 }
 
-                if (originalDepth != currentDepth) {
-                    list.toggleUnsavedState(true);
+                if( isMovingCopy ) {
+                    $clone.css('opacity', 1);
+                    window.ArlimaUtils.highlight($clone);
                 }
+
 
                 if( !window.arlimaMoveBetweenLists )
                     _whenDropFinished(ui.item, false);
@@ -365,6 +404,7 @@ function arlimaNestedSortable(list) {
                     depth = 1;
                 }
 
+
                 ui.helper[0].className = ui.helper[0].className.replace(/ *helper-item-depth-. */, '') + ' helper-item-depth-' + depth
 
                 if( (prev.length && !prev[0].arlimaArticle.isChild() && !prev[0].arlimaArticle.canHaveChildren()) || !canBeChild ) {
@@ -403,6 +443,8 @@ function arlimaNestedSortable(list) {
                 _whenDropFinished($addedElement, true);
 
                 window.arlimaMoveBetweenLists = true; // prevent that some things gets called twice due to the stop event
+
+                setTimeout(_visualizeFloatedChildren, 200); // have to wait a while for this one....
             }
 
         }).each(function() {

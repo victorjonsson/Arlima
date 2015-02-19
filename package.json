@@ -12,16 +12,6 @@
     },
     "gruntConfig" : {
         "mainScript" : "arlima.php",
-        "phpunit" : [
-            "classes/tests/TestActions.php",
-            "classes/tests/TestArlimaExport.php",
-            "classes/tests/TestArlimaImageManager.php",
-            "classes/tests/TestArlimaImport.php",
-            "classes/tests/TestArlimaListFactory.php",
-            "classes/tests/TestArlimaListRendering.php",
-            "classes/tests/TestTemplateObjectCreator.php",
-            "classes/tests/TestTemplatePathResolver.php"
-        ],
         "excludeFromRelease" : [
             "node_modules",
             "vendor",

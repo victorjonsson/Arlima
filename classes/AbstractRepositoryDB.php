@@ -2,14 +2,17 @@
 
 
 /**
- * @since 2.3
+ * Abstract class that can be extended by object repository classes
+ *
+ * @since 3.1
+ * @package Arlima
  */
 abstract class Arlima_AbstractRepositoryDB {
 
     /**
      * @var Arlima_CMSFacade
      */
-    protected $system;
+    protected $cms;
 
     /**
      * @var string
@@ -22,21 +25,25 @@ abstract class Arlima_AbstractRepositoryDB {
     protected $cache;
 
 
+    /**
+     * @param Arlima_CMSInterface $sys
+     * @param Arlima_CacheInterface $cache
+     */
     public function __construct($sys = null, $cache = null)
     {
-        $this->system = $sys === null ? Arlima_CMSFacade::load() : $sys;
-        if( !($this->system instanceof Arlima_CMSInterface) ) {
-            var_dump($this->system);
+        $this->cms = $sys === null ? Arlima_CMSFacade::load() : $sys;
+        if( !($this->cms instanceof Arlima_CMSInterface) ) {
+            var_dump($this->cms);
         }
 
         $this->cache = $cache === null ? Arlima_CacheManager::loadInstance() : $cache;
-        $this->dbTablePrefix = $this->system->getDBPrefix() .(defined('ARLIMA_DB_PREFIX') ? ARLIMA_DB_PREFIX:'arlima_');
+        $this->dbTablePrefix = $this->cms->getDBPrefix() .(defined('ARLIMA_DB_PREFIX') ? ARLIMA_DB_PREFIX:'arlima_');
     }
 
     /**
-     * @param Arlima_CacheManager $cache_instance
+     * @param Arlima_CacheInterface $cache_instance
      */
-    public function setCacheManager( $cache_instance )
+    public function setCache( $cache_instance )
     {
         $this->cache = $cache_instance;
     }
@@ -46,10 +53,11 @@ abstract class Arlima_AbstractRepositoryDB {
      */
     public function getCMSFacade()
     {
-        return $this->system;
+        return $this->cms;
     }
 
     /**
+     * Get name of database table (adds prefixes used as namespace for arlimas db tables)
      * @param string $type
      * @return string
      */
@@ -61,6 +69,7 @@ abstract class Arlima_AbstractRepositoryDB {
     /**
      * Remove prefix from array keys, will also turn stdClass objects to arrays unless
      * $preserve_std_objects is set to true
+     *
      * @static
      * @param array $array
      * @param string $prefix
@@ -91,11 +100,13 @@ abstract class Arlima_AbstractRepositoryDB {
 
 
     /**
+     * Create database tables needed for this repository
      * @return void
      */
     abstract function createDatabaseTables();
 
     /**
+     * Get database tables used by this repository
      * @return array
      */
     abstract function getDatabaseTables();

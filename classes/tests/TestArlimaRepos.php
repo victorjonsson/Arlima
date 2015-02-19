@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . '/setup.php';
-
-
 class TestArlimaRepos extends PHPUnit_Framework_TestCase {
 
     /**
@@ -22,7 +19,6 @@ class TestArlimaRepos extends PHPUnit_Framework_TestCase {
 
     private static $has_created_tables = false;
 
-
     /**
      * Create database tables
      */
@@ -39,6 +35,8 @@ class TestArlimaRepos extends PHPUnit_Framework_TestCase {
         self::$list_repo->createDatabaseTables();
         self::$ver_repo->createDatabaseTables();
         self::$has_created_tables = true;
+
+        self::$sys->flushCaches();
     }
 
     static function builder()
@@ -84,12 +82,15 @@ class TestArlimaRepos extends PHPUnit_Framework_TestCase {
         self::cleanTables();
     }
 
-
     public function testCreateAndUpdate()
     {
+        remove_all_filters('arlima_template_object');
+
         $list = self::$list_repo->create('Title', 'some-slug', array('test'=>123), 20);
         
         $test_list = function($self, $list, $slug='some-slug') {
+            /** @var Arlima_List $list */
+            /** @var PHPUnit_Framework_TestCase $self */
             $self->assertEquals('Title', $list->getTitle());
             $self->assertEquals(Arlima_List::STATUS_EMPTY, $list->getStatus());
             $self->assertEquals($slug, $list->getSlug());
@@ -209,25 +210,43 @@ class TestArlimaRepos extends PHPUnit_Framework_TestCase {
 
     function testArticleStuff()
     {
+        $article_data = array('title'=>'Heloo__there!',
+                'children'=>array(Arlima_ListVersionRepository::createArticle(array('title'=>'child'))->toArray()),
+                'content' => 'some content'
+            );
+
+        $article = Arlima_ListVersionRepository::createArticle($article_data);
+
+        $this->assertEquals('Heloo there!', $article->getTitle());
+        $this->assertEquals('Heloo<br />there!', $article->getTitle('<br />'));
+        $this->assertEquals(1, count($article->getChildArticles()));
+        $this->assertEquals('child', current($article->getChildArticles())->getTitle());
+        $this->assertEquals(true, $article->canBeRendered());
+        $this->assertEquals('', $article->getImageId());
+        $this->assertEquals('some content', $article->getContent());
+        $time = Arlima_Utils::timeStamp();
+        $this->assertEquals(true, $article->getCreationTime() >= ($time-1) && $article->getCreationTime() <= ($time+1));
+
         $list = self::$list_repo->create('A list', 'some-list');
         self::$ver_repo->create($list, array(Arlima_ListVersionRepository::createArticle(array('title'=>'Heloo'))), 10);
         $list = self::builder()->id($list->getId())->build();
         $arts = $list->getArticles();
         $this->assertEquals(1, count($arts));
 
-        $future_article = Arlima_ListVersionRepository::createArticle(array('published' => time() + 100000));
+        $future_article = Arlima_ListVersionRepository::createArticle(array('published' => Arlima_Utils::timeStamp() + 100000));
 
         self::$ver_repo->update($list, array(
             Arlima_ListVersionRepository::createArticle(array('post'=>99, 'options'=>array('test'=>'a'))),
             Arlima_ListVersionRepository::createArticle(array('post'=>98)),
             Arlima_ListVersionRepository::createArticle(array('post'=>99, 'children' => array(
-                Arlima_ListVersionRepository::createArticle(array('post' => 100))
+                Arlima_ListVersionRepository::createArticle(array('post' => 100))->toArray()
             ))),
             $future_article,  // future post
         ), $list->getVersionAttribute('id'));
 
         $list = self::builder()->id($list->getId())->build();
-        $this->assertEquals(3, count($list->getArticles())); // excluding the future post
+        #var_dump($list->getArticles());
+        $this->assertEquals(3, $list->numArticles()); // excluding the future post
         $this->assertEquals(array(99, 98, 100), $list->getContainingPosts());
         $this->assertTrue( $list->containsPost(99) );
         $this->assertFalse( $list->containsPost(990) );
@@ -235,11 +254,13 @@ class TestArlimaRepos extends PHPUnit_Framework_TestCase {
         $articles = $list->getArticles();
         self::$ver_repo->updateArticle($articles[0]['id'], array('title'=> 'yes...', 'options'=>array('test2'=>'b')));
         $list = self::builder()->id($list->getId())->build();
+
+       # var_dump($list->getArticles());
         $article = current($list->getArticles());
         $this->assertEquals('yes...', $article['title']);
         $this->assertEquals(array('test'=>'a','test2'=>'b'), $article['options']);
 
-        $list = self::builder()->id($list->getId())->includeFuturePosts()->build();
+        $list = self::builder()->id($list->getId())->includeFutureArticles()->build();
         $this->assertEquals(4, $list->numArticles()); // including the future post
 
         $list_data = self::$ver_repo->findListsByPostId(100);
@@ -255,10 +276,17 @@ class TestArlimaRepos extends PHPUnit_Framework_TestCase {
         $listB = self::$list_repo->create('Seconf list', 'second');
 
         // Make future articles published using post id
-        $future_article = Arlima_ListVersionRepository::createArticle(array('post'=>$post_id, 'published' => time() + 100000));
+        $future_article = Arlima_ListVersionRepository::createArticle(array('post'=>$post_id));
 
         self::$ver_repo->create($listA, array($future_article), 12);
         self::$ver_repo->create($listB, array($future_article), 22);
+
+        foreach(array('first', 'second') as $slug) {
+            $list = Arlima_List::builder()->slug($slug)->build();
+            foreach($list->getArticles() as $art) {
+                self::$ver_repo->updateArticle($art['id'], array('published'=>Arlima_Utils::timeStamp()+10000));
+            }
+        }
 
         $this->assertEquals(0, self::builder()->slug('second')->build()->numArticles());
         $this->assertEquals(0, self::builder()->slug('first')->build()->numArticles());
@@ -331,27 +359,146 @@ class TestArlimaRepos extends PHPUnit_Framework_TestCase {
         self::$ver_repo->create($list, array(), 1);
         $id = self::$ver_repo->create($list, array(Arlima_ListVersionRepository::createArticle()), 1);
 
-        var_export( $id );
-
         $all_versions = self::$ver_repo->loadListVersions($list);
         $this->assertEquals(5, count($all_versions['published']));
-        $this->assertEquals(1, self::builder()->id($id)->build()->numArticles());
+        $this->assertEquals(1, self::builder()->id(3)->version($id)->build()->numArticles());
 
         self::$ver_repo->clear($id);
         $this->assertEquals(0, self::builder()->id($id)->build()->numArticles());
+    }
+
+    function testListCache()
+    {
+        self::cleanTables();
+
+        self::$list_repo->create('list', 'list1');
+
+        $tmp_cache = new ___Private_ArlimaFileCache();
+        $repo = new Arlima_ListRepository(null, $tmp_cache);
+
+        $list = $repo->load(1);
+
+        $this->assertEquals(1, $list->getId());
+        $this->assertEquals(array('arlima_list_1'), $tmp_cache->log['get']);
+        $this->assertEquals(array('arlima_list_1'), $tmp_cache->log['set']);
+
+        $tmp_cache->resetLog();
+
+        $this->assertEquals(1, $repo->load(1)->getId());
+        $this->assertEquals(array('arlima_list_1'), $tmp_cache->log['get']);
+        $this->assertEmpty($tmp_cache->log['set']);
+
+        $tmp_cache->resetLog();
+
+        $repo->loadListSlugs();
+        $this->assertEquals(array('arlima_list_slugs'), $tmp_cache->log['get']);
+        $this->assertEquals(array('arlima_list_slugs'), $tmp_cache->log['set']);
+
+        $tmp_cache->resetLog();
+
+        $repo->loadListSlugs();
+        $this->assertEquals(array('arlima_list_slugs'), $tmp_cache->log['get']);
+        $this->assertEmpty($tmp_cache->log['set']);
+
+        $tmp_cache->resetLog();
+
+        $list->setSlug('apas');
+        $repo->update($list);
+
+        $this->assertEquals(array('arlima_list_1','arlima_list_slugs'), $tmp_cache->log['delete']);
+        $this->assertEmpty($tmp_cache->log['set']);
+        $this->assertEmpty($tmp_cache->log['get']);
+
+        $tmp_cache->resetLog();
+
+        $repo->loadListSlugs();
+        $this->assertEquals(array('arlima_list_slugs'), $tmp_cache->log['get']);
+        $this->assertEquals(array('arlima_list_slugs'), $tmp_cache->log['set']);
+        $this->assertEmpty($tmp_cache->log['delete']);
+
+        $tmp_cache->resetLog();
+
+        $this->assertEquals(1, $repo->load(1)->getId());
+        $this->assertEquals(array('arlima_list_1'), $tmp_cache->log['get']);
+        $this->assertEquals(array('arlima_list_1'), $tmp_cache->log['set']);
+
+
+    }
+
+    function testVersionCache()
+    {
+        self::cleanTables();
+
+        self::$list_repo->create('list', 'list1');
+
+        $tmp_cache = new ___Private_ArlimaFileCache();
+        $list_repo = new Arlima_ListRepository();
+        $ver_repo = new Arlima_ListVersionRepository(null, $tmp_cache);
+        $builder = new Arlima_ListBuilder($list_repo, $ver_repo);
+
+        $list = $list_repo->load(1);
+        $ver_repo->create($list, array(Arlima_ListVersionRepository::createArticle()), 1);
+
+        $tmp_cache->resetLog();
+
+        $list = $builder->id('list1')->includeFutureArticles()->build();
+        $this->assertEquals(array('arlima_versions_1'), $tmp_cache->log['get']);
+        $this->assertEquals(array('arlima_versions_1'), $tmp_cache->log['set']);
+        $this->assertEmpty($tmp_cache->log['delete']);
+
+        $tmp_cache->resetLog();
+
+        $list = $builder->id('list1')->includeFutureArticles()->build();
+        $this->assertEquals(array('arlima_versions_1'), $tmp_cache->log['get']);
+        $this->assertEmpty($tmp_cache->log['set']);
+        $this->assertEmpty($tmp_cache->log['delete']);
+
+        $tmp_cache->resetLog();
+
+        $ver_repo->create($list, array(Arlima_ListVersionRepository::createArticle()), 12);
+        $this->assertEquals(array('arlima_versions_1','arlima_latest_articles1'), $tmp_cache->log['delete']);
+
+
+        $tmp_cache->resetLog();
+
+        $list = $builder->id('list1')->includeFutureArticles(false)->build();
+        $this->assertEquals(array('arlima_versions_1','arlima_latest_articles1'), $tmp_cache->log['set']);
+        $this->assertEquals(array('arlima_versions_1','arlima_latest_articles1'), $tmp_cache->log['get']);
+
+        $tmp_cache->resetLog();
+
+        $list = $builder->id('list1')->includeFutureArticles(false)->build();
+        $this->assertEquals(array('arlima_versions_1','arlima_latest_articles1'), $tmp_cache->log['get']);
+        $this->assertEmpty($tmp_cache->log['set']);
+
+        $ver_repo->create($list, array(Arlima_ListVersionRepository::createArticle()), 66);
+
+        $tmp_cache->resetLog();
+
+        $list = $builder->id('list1')->includeFutureArticles(false)->build();
+        $this->assertEquals(array('arlima_versions_1','arlima_latest_articles1'), $tmp_cache->log['set']);
+        $this->assertEquals(array('arlima_versions_1','arlima_latest_articles1'), $tmp_cache->log['get']);
+        $this->assertEquals(66, $list->getVersionAttribute('user_id'));
+
+        $tmp_cache->resetLog();
+
+        $list = $builder->id('list1')->includeFutureArticles(false)->build();
+        $this->assertEquals(array('arlima_versions_1','arlima_latest_articles1'), $tmp_cache->log['get']);
+        $this->assertEmpty($tmp_cache->log['set']);
+        $this->assertEquals(66, $list->getVersionAttribute('user_id'));
 
     }
 }
 
 
-class Private_ArlimaFileCache {
+class ___Private_ArlimaFileCache implements Arlima_CacheInterface {
 
-    private $path;
+
+    private $cache = array();
 
     public $log;
 
-    function __construct($p) {
-        $this->path = $p;
+    function __construct() {
         $this->resetLog();
     }
 
@@ -363,28 +510,24 @@ class Private_ArlimaFileCache {
             );
     }
 
-    function get($id) {
-        $this->log['get'][] = $id;
-        $file = $this->generateFileName($id);
-        if( stream_resolve_include_path($file) !== false) {
-            return unserialize(file_get_contents($file));
-        }
-        return false;
+    function dump()
+    {
+        var_dump($this->log);
     }
 
-    function set($id, $content) {
+    function get($id) {
+        $this->log['get'][] = $id;
+        return isset($this->cache[$id]) ? $this->cache[$id] : false;
+    }
+
+    function set($id, $content, $exp=0) {
         $this->log['set'][] = $id;
-        file_put_contents($this->generateFileName($id), serialize($content));
+        $this->cache[$id] = $content;
     }
 
     function delete($id) {
         $this->log['delete'][] = $id;
-        $file = $this->generateFileName($id);
-        if( stream_resolve_include_path($file) !== false)
-            @unlink($file);
-    }
-
-    private function generateFileName($id) {
-        return $this->path .'/'. $id .'.cache';
+        if( isset($this->cache[$id]) )
+            unset($this->cache[$id]);
     }
 }

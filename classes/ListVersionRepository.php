@@ -28,15 +28,10 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
      */
     public function create($list, $articles, $user_id, $preview=false)
     {
-        // Update possibly changed published date of articles
-        foreach( $articles as $i => $article ) {
-            if( !empty($article['post']) && $connected_post = get_post($article['post']) ) {
-                $articles[$i]['published'] = $this->system->getPostTimeStamp($connected_post);
-            }
-        }
+        $articles = $this->toArray($articles);
 
         // Call action
-        $this->system->doAction('arlima_save_list', $list);
+        $this->cms->doAction('arlima_save_list', $list);
 
         $this->clear_list_cache = false; // cache will be cleared later on
         $list_versions = $this->loadListVersions($list);
@@ -64,6 +59,9 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             $this->cache->delete($this->last_cache_key.$list->getId());
         }
 
+         // Call action
+        $this->cms->doAction('arlima_save_list_complete', $list);
+
         return $version_id;
     }
 
@@ -76,9 +74,10 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
      */
     public function createScheduledVersion($list, $articles, $user_id, $schedule_time)
     {
+        $articles = $this->toArray($articles);
         $version_id = $this->saveVersionData($list, $articles, $user_id, false, $schedule_time);
         $this->cache->delete('arlima_versions_'.$list->getId());
-        $this->system->scheduleEvent($schedule_time, 'arlima_publish_scheduled_list', array( $list->getId(), $version_id ));
+        $this->cms->scheduleEvent($schedule_time, 'arlima_publish_scheduled_list', array( $list->getId(), $version_id ));
         return $version_id;
     }
 
@@ -94,9 +93,12 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         if( !$this->versionBelongsToList($list, $version_id) )
             throw new Exception('Given version_id does not belong to given list');
 
+        $articles = $this->toArray($articles);
+
         // Remove old articles
-        $this->system->runSQLQuery("DELETE FROM " . $this->dbTable('_article') . " WHERE ala_alv_id=".intval($version_id));
+        $this->cms->runSQLQuery("DELETE FROM " . $this->dbTable('_article') . " WHERE ala_alv_id=".intval($version_id));
         $this->saveArticlesForVersion($list, $articles, $version_id);
+        $this->clearArticleCache($list, $version_id);
     }
 
     /**
@@ -106,7 +108,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
     public function clear($version_id)
     {
         $sql = sprintf("DELETE FROM ".$this->dbTable('_article')." WHERE ala_alv_id = %d", (int)$version_id);
-        $this->system->runSQLQuery($sql);
+        $this->cms->runSQLQuery($sql);
         if( $this->clear_list_cache ) {
             $this->clearArticleCache($this->loadListByVersionId($version_id), $version_id);
         }
@@ -131,7 +133,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         }
 
         $sql = sprintf("DELETE FROM ".$this->dbTable('_version')." WHERE alv_id = %d", $version_id);
-        $this->system->runSQLQuery($sql);
+        $this->cms->runSQLQuery($sql);
 
         if( isset($list) ) { // clearing cache
             $this->cache->delete('arlima_versions_'.$list->getId());
@@ -141,53 +143,72 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
 
 
     /**
+     * This function will return array with those columns that were updated
+     *
+     * @example
+     *  <code>
+     *  <?php
+     *      $article_arr = array(...);
+     *      $updated = $repo->updateArticle($article->getId(), $article_arr);
+     *      $not_updated = array_diff($article_arr, $updated);
+     *  </code>
+     *
      * @param int $id
-     * @param array $data
+     * @param array|Arlima_Article $article
+     * @return array
      * @throws Exception
      */
-    public function updateArticle($id, $data)
+    public function updateArticle($id, $article)
     {
-        $sql = $this->system->prepare('SELECT * FROM '.$this->dbTable('_article').' WHERE ala_id=%d', array($id));
-        $cols = $this->system->runSQLQuery($sql, 'ala_');
+        if( $article instanceof Arlima_Article )
+            $data = $article->toArray();
+        else
+            $data = $article;
+
+        $sql = $this->cms->prepare('SELECT * FROM '.$this->dbTable('_article').' WHERE ala_id=%d', array($id));
+        $cols = $this->cms->runSQLQuery($sql);
         $cols = $this->removePrefix(current($cols), 'ala_');
+        $updated = array();
 
         if( !empty($cols) ) {
 
             $sql = 'UPDATE '.$this->dbTable('_article').' SET ';
             foreach($data as $col => $val) {
-                if( !isset($cols[$col]) )
-                    throw new Exception('Trying to update article using unknown column "'.$col.'"');
+                if( isset($cols[$col]) ) {
+                    $updated[] = $col;
+                    if($col == 'options') {
+                        $val = array_merge(unserialize($cols['options']), $val);
+                    }
+                    if($col == 'options' || $col == 'image')
+                        $val = serialize( $val );
 
-                if($col == 'options') {
-                    $val = array_merge(unserialize($cols['options']), $val);
+                    $sql .= " ala_$col = '".esc_sql(stripslashes($val))."', ";
                 }
-                if($col == 'options' || $col == 'image')
-                    $val = serialize( $val );
-
-                $sql .= " ala_$col = '".esc_sql(stripslashes($val))."', ";
             }
 
             $sql = rtrim($sql, ', ') . ' WHERE ala_id = '.intval($id);
 
-            $this->system->runSQLQuery($sql);
+            $this->cms->runSQLQuery($sql);
 
             // Update cache
             $list = $this->loadListByVersionId($cols['alv_id']);
-            if($list !== null) {
-                $this->system->doAction('arlima_save_list', $list);
+            if($list->exists()) {
+                $this->cms->doAction('arlima_save_list', $list);
                 $this->clearArticleCache($list, $cols['alv_id']);
             }
         }
+
+        return $updated;
     }
 
     /**
      * Add articles and current version to given list object
      * @param Arlima_List $list
      * @param int|bool $version
-     * @param bool $include_future_posts
+     * @param bool $include_future_articles
      * @return array
      */
-    public function addArticles($list, $version=false, $include_future_posts=false)
+    public function addArticles($list, $version=false, $include_future_articles=false)
     {
         // Add version info to list if not already added
         $published_versions = $list->getPublishedVersions();
@@ -205,17 +226,24 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
                 $list->setVersion($published_versions[0]);
             }
         } else {
+            $found = false;
             foreach(array_merge($list->getPublishedVersions(), $list->getScheduledVersions()) as $ver) {
                 if( $ver['id'] == $version ) {
                     $list->setVersion($ver);
+                    $found = true;
+                    break;
                 }
+            }
+            if( !$found ) {
+                // @todo : How do we signal this? is it needed?
+                return;
             }
         }
 
         // Decide whether or not to use cache (article collection belonging to latest
         // published version not containing future posts should be cached)
         $do_use_cache = true;
-        if( $include_future_posts ) {
+        if( $include_future_articles ) {
             $do_use_cache = false;
         } elseif( $version ) {
             if( !empty($published_versions) && $published_versions[0] != $version ) {
@@ -223,11 +251,12 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             }
         }
 
+
         // Load articles from db if we shouldn't use cache or if cache is empty
         if( !$do_use_cache || !($articles = $this->cache->get($this->last_cache_key.$list->getId()))) {
-            list($articles, $num_future_posts) = $this->queryListArticles($list->getVersionAttribute('id'), $include_future_posts);
+            list($articles, $num_future_posts) = $this->queryListArticles($list->getVersionAttribute('id'), $include_future_articles);
             if( $do_use_cache ) {
-                $ttl = $num_future_posts ? 60 : 0; // Can not be cached for ever if contains future posts
+                $ttl = $num_future_posts ? 60 : 0; // Can not be cached for ever if containing future posts
                 $this->cache->set($this->last_cache_key.$list->getId(), $articles, $ttl);
             }
         }
@@ -250,7 +279,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
 
         $all_versions = $this->loadListVersions($list);
         if( empty($all_versions['preview']) ) {
-            throw new Exception('No preview version of list exists');
+            throw new Exception('No preview version of list exists', Arlima_List::ERROR_PREVIEW_VERSION_NOT_FOUND);
         }
 
         $list->setVersion($all_versions['preview'][0]);
@@ -278,7 +307,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
     public function deleteListVersions($list)
     {
         $versions = $this->loadListVersions($list);
-        $this->system->runSQLQuery('DELETE FROM '.$this->dbTable('_version').' WHERE alv_al_id='.intval($list->getId()));
+        $this->cms->runSQLQuery('DELETE FROM '.$this->dbTable('_version').' WHERE alv_al_id='.intval($list->getId()));
         $this->cache->delete($this->last_cache_key.$list->getId());
         $this->cache->delete('arlima_versions_'.$list->getId());
         foreach(array_merge($versions['published'],$versions['preview'],$versions['scheduled']) as $id ) {
@@ -306,7 +335,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         );
 
         $sql = 'SELECT * FROM '.$this->dbTable('_version').' WHERE alv_al_id='.intval($list_id).' ORDER BY alv_id DESC';
-        $version_data = $this->system->runSQLQuery($sql);
+        $version_data = $this->cms->runSQLQuery($sql);
         foreach($version_data as $data ) {
             $data = $this->removePrefix($data, 'alv_');
             switch( $data['status'] ) {
@@ -344,13 +373,13 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
                 ) alv on al.al_id = alv.alv_al_id
                 INNER JOIN %s ala ON ala.ala_alv_id = alv.latestversion
                 WHERE ala.ala_post = %d",
-                $this->dbTable(),
-                $this->dbTable('_version'),
-                $this->dbTable('_article'),
-                (int)$post_id
+            $this->dbTable(),
+            $this->dbTable('_version'),
+            $this->dbTable('_article'),
+            (int)$post_id
         );
 
-        $data = $this->system->runSQLQuery($sql);
+        $data = $this->cms->runSQLQuery($sql);
         $data = $this->removePrefix($data, 'al_');
         return $data;
     }
@@ -368,7 +397,8 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             (int)$post_id
         );
 
-        return $this->system->runSQLQuery($sql);
+        $data = $this->cms->runSQLQuery($sql);
+        return empty($data) ? false: $this->removePrefix($data[0], 'ala_');
     }
 
     /**
@@ -379,18 +409,18 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
      */
     public function updateArticlePublishDate($time, $post_id)
     {
-        $prep_statement = $this->system->prepare(
-                                'UPDATE '.$this->dbTable('_article').'
-                                SET ala_published=%d
-                                WHERE ala_post=%d AND ala_published != %d',
-                                array(
-                                    $time,
-                                    (int)$post_id,
-                                    $time
-                                )
-                            );
+        $prep_statement = $this->cms->prepare(
+                            'UPDATE '.$this->dbTable('_article').'
+                            SET ala_published=%d
+                            WHERE ala_post=%d AND ala_published != %d',
+                            array(
+                                $time,
+                                (int)$post_id,
+                                $time
+                            )
+                        );
 
-        $rows_affected = $this->system->runSQLQuery($prep_statement);
+        $rows_affected = $this->cms->runSQLQuery($prep_statement);
 
         // Clear list cache
         if($rows_affected > 0) {
@@ -404,7 +434,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
                             WHERE ala_post=%d
                         )';
 
-            $ids = $this->system->runSQLQuery( $this->system->prepare($sql, array((int)$post_id)) );
+            $ids = $this->cms->runSQLQuery( $this->cms->prepare($sql, array((int)$post_id)) );
             foreach($ids as $id) {
                 $cache_id = $this->last_cache_key.$id->alv_al_id;
                 $this->cache->delete($cache_id);
@@ -444,7 +474,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
      *
      * @static
      * @param array $override[optional=array()]
-     * @return array
+     * @return Arlima_Article
      */
     public static function createArticle($override=array())
     {
@@ -472,8 +502,8 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             'content' => '',
             'title' => 'Unknown',
             'size' => 24,
-            'created' => 0,
-            'published' => 0,
+            'created' => Arlima_Utils::timeStamp(),
+            'published' => Arlima_Utils::timeStamp(),
             'parent' => -1
         );
 
@@ -484,11 +514,13 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             if($key == 'children') {
                 if(!is_array($val))
                     $val = array();
-                foreach($val as $sub_art_key => $sub_art_val)
-                    $val[$sub_art_key] = self::createArticle($sub_art_val);
+                foreach($val as $sub_art_key => $sub_art_val) {
+                    if( $sub_art_val instanceof Arlima_Article )
+                        $val[$sub_art_key] = $sub_art_val->toArray();
+                }
             }
             elseif($key == 'options') {
-                if(is_array($val)) {
+                if( is_array($val) ) {
                     foreach($val as $opt_key => $opt_val) {
                         $article_options[$opt_key] = $opt_val;
                     }
@@ -499,8 +531,8 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             $data[$key] = $val;
         }
 
-        //return new Arlima_Article($data);
-        return $data;
+        return new Arlima_Article($data);
+        //return $data;
     }
 
 
@@ -529,7 +561,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         KEY alid_created (alv_al_id, alv_created)
         );";
 
-        $this->system->dbDelta($sql);
+        $this->cms->dbDelta($sql);
 
         $table_name = $this->dbTable('_article');
 
@@ -556,7 +588,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         KEY postpublishdate (ala_published)
         );";
 
-        $this->system->dbDelta($sql);
+        $this->cms->dbDelta($sql);
     }
 
     /**
@@ -574,23 +606,28 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
     {
         $article_tbl = $this->dbTable('_article');
         $version_tbl = $this->dbTable('_version');
-        
+
         if($currently_installed_version < 3.0) {
 
-            $row = $this->system->runSQLQuery('SELECT * FROM '.$article_tbl.' LIMIT 0,1');
+            $row = $this->cms->runSQLQuery('SELECT * FROM '.$article_tbl.' LIMIT 0,1');
 
             if( empty($row) || isset($row[0]->ala_image_options) ) {
-                $this->system->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_image ala_image_depr varchar(250)');
-                $this->system->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_publish_date ala_published bigint(11)');
-                $this->system->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_post_id ala_post bigint(11)');
-                $this->system->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_title_fontsize ala_size tinyint(2)');
-                $this->system->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_image_options ala_image text');
-                $this->system->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_text ala_content text');
-                $this->system->flushCaches();
+                $this->cms->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_image ala_image_depr varchar(250)');
+                $this->cms->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_publish_date ala_published bigint(11)');
+                $this->cms->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_post_id ala_post bigint(11)');
+                $this->cms->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_title_fontsize ala_size tinyint(2)');
+                $this->cms->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_image_options ala_image text');
+                $this->cms->runSQLQuery('ALTER TABLE '.$article_tbl.' CHANGE ala_text ala_content text');
+                $this->cms->flushCaches();
             }
         }
         elseif($currently_installed_version < 3.1) {
-            $this->system->runSQLQuery('ALTER TABLE '.$version_tbl.' ADD alv_scheduled bigint(11) NOT NULL DEFAULT 0');
+
+            // Check if manual fix was made before
+            $data = $this->cms->runSQLQuery('SELECT * FROM '.$version_tbl.' LIMIT 1');
+            if( !$data || !isset($data[0]->alv_scheduled) ) {
+                $this->cms->runSQLQuery('ALTER TABLE '.$version_tbl.' ADD alv_scheduled bigint(11) NOT NULL DEFAULT 0');
+            }
         }
     }
 
@@ -601,10 +638,10 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
 
     /**
      * @param $version
-     * @param $include_future_posts
+     * @param $include_future_articles
      * @return array
      */
-    private function queryListArticles($version, $include_future_posts)
+    private function queryListArticles($version, $include_future_articles)
     {
         $sql = "SELECT ala_id, ala_created, ala_published, ala_post, ala_title, ala_content,
                 ala_size, ala_options, ala_image, ala_parent, ala_sort
@@ -614,8 +651,13 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         if($version)
             $where .= ' WHERE ala_alv_id = '.intval($version);
 
+        /** @var Arlima_Article[] $articles */
         $articles = array();
-        foreach($this->system->runSQLQuery(sprintf($sql, $where) ) as $row) {
+        $now = Arlima_Utils::timeStamp();
+        $num_future_posts = 0;
+        $removed_future_parents = array();
+
+        foreach($this->cms->runSQLQuery(sprintf($sql, $where) ) as $row) {
 
             if( !empty($row->ala_options) ) { // once upon a time this variable could be an empty string
                 $row->ala_options = unserialize( $row->ala_options );
@@ -630,29 +672,20 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             }
 
             $row->children = array();
-            $article = self::legacyFix($this->removePrefix($row, 'ala_'));
+            $article_data = self::legacyFix($this->removePrefix($row, 'ala_'));
+
+            if( !$include_future_articles && !empty($article_data['published']) && $article_data['published'] > $now) {
+                // Future post, go one
+                $removed_future_parents[] = count($articles);
+                $num_future_posts++;
+                continue;
+            }
 
             if( $row->ala_parent == -1 ) {
-                $articles[] = $article;
-            } else {
-                $articles[ $row->ala_parent ]['children'][] = $article;
+                $articles[] = new Arlima_Article($article_data);
+            } elseif( !in_array((int)$row->ala_parent, $removed_future_parents) ) {
+                $articles[ $row->ala_parent ]->addChild( $article_data );
             }
-        }
-
-        // Remove future posts
-        $num_future_posts = 0;
-        if( !$include_future_posts ) {
-
-            foreach( $articles as $i => $article ) {
-                if( !empty($article['published']) &&  $article['published'] > Arlima_Utils::timeStamp() ) {
-                    unset( $articles[$i] );
-                    $num_future_posts++;
-                }
-            }
-
-            // Reset the numerical order of keys that might have been
-            // mangled when removing future articles
-            $articles = array_values( $articles );
         }
 
         return array($articles, $num_future_posts);
@@ -679,17 +712,17 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         elseif( $preview )
             $state = Arlima_List::STATUS_PREVIEW;
 
-        $sql = $this->system->prepare($sql,
-                array(
-                    Arlima_Utils::timeStamp(),
-                    $list->getId(),
-                    $state,
-                    $user_id,
-                    $schedule_date
-                )
-            );
+        $sql = $this->cms->prepare($sql,
+            array(
+                Arlima_Utils::timeStamp(),
+                $list->getId(),
+                $state,
+                $user_id,
+                $schedule_date
+            )
+        );
 
-        $version_id = $this->system->runSQLQuery($sql);
+        $version_id = $this->cms->runSQLQuery($sql);
         $this->saveArticlesForVersion($list, $articles, $version_id);
 
         return $version_id;
@@ -702,70 +735,96 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
      */
     private function loadListByVersionId($version)
     {
-        $id = $this->system->runSQLQuery('SELECT alv_al_id FROM '.$this->dbTable('_version').' WHERE alv_id='.intval($version));
+        $id = $this->cms->runSQLQuery('SELECT alv_al_id FROM '.$this->dbTable('_version').' WHERE alv_id='.intval($version));
         if( $id ) {
-            $list_repo = new Arlima_ListRepository($this->system, $this->cache);
-            return $list_repo->load($id);
+            $list_repo = new Arlima_ListRepository($this->cms, $this->cache);
+            return $list_repo->load($id[0]->alv_al_id);
         }
-        return null;
+        return new Arlima_List();
     }
 
 
     /**
      * @param int $version_id
-     * @param array $article
+     * @param array $article_data
      * @param mixed $sort,
      * @param int $parent[optional=-1]
      * @param int $offset
      */
-    private function saveArticle($version_id, $article, $sort, $parent=-1, $offset)
+    private function saveArticle($version_id, $article_data, $sort, $parent=-1, $offset)
     {
-        foreach($article as $key => $val) {
+        foreach($article_data as $key => $val) {
             if( is_array($val) ) {
-                foreach($article[$key] as $sub_key => $sub_val) {
-                    $article[$key][$sub_key] = str_replace('\\', '', $sub_val);
+                foreach($article_data[$key] as $sub_key => $sub_val) {
+                    $article_data[$key][$sub_key] = str_replace('\\', '', $sub_val);
                 }
             } else {
-                $article[$key] = str_replace('\\', '', $val);
+                $article_data[$key] = str_replace('\\', '', $val);
+            }
+
+            if( $key == 'title' ) {
+                $article_data[$key] = strip_tags(str_replace(array(
+                    '<br>', '<br/>', '<br />'
+                ), '__', $val));
             }
         }
 
-        if( !isset($article['options']) || !is_array($article['options']) )
-            $article['options'] = array();
-        if( !isset($article['image']) || !is_array($article['image']) )
-            $article['image'] = array();
+        // Don't allow HMTL in titles (convert breaks to the magical __ which later on should be converted)
+        // $article['title'] = strip_tags(str_replace(array('<br>','<br />', '<br/>'), '__', $article['title']));
 
-        $options = serialize( $this->sanitizeArticleOptions($article['options']) );
-        $image_options = serialize( $this->sanitizeImageData($article['image']) );
+        if( !isset($article_data['options']) || !is_array($article_data['options']) )
+            $article_data['options'] = array();
+        if( !isset($article_data['image']) || !is_array($article_data['image']) )
+            $article_data['image'] = array();
 
-        $sql = $this->system->prepare(
+        $this->makeFileIncludePathsRelative($article_data);
+
+        $options = serialize( $this->sanitizeArticleOptions($article_data['options']) );
+        $image_options = serialize( $this->sanitizeImageData($article_data['image']) );
+
+        $sql = $this->cms->prepare(
             "INSERT INTO " . $this->dbTable('_article') . "
                     (ala_created, ala_published, ala_alv_id, ala_post, ala_title,
                     ala_content, ala_sort, ala_size, ala_options,
                     ala_image, ala_parent)
                     VALUES (%d, %d, %d, %d, %s, %s, %d, %d, %s, %s, %d)",
             array(
-                empty($article['created']) ? Arlima_Utils::timeStamp():(int)$article['created'],
-                empty($article['published']) ? Arlima_Utils::timeStamp():(int)$article['published'],
+                empty($article_data['created']) ? Arlima_Utils::timeStamp():(int)$article_data['created'],
+                empty($article_data['published']) ? Arlima_Utils::timeStamp():(int)$article_data['published'],
                 $version_id,
-                isset($article['post']) ? (int)$article['post']:0,
-                $article['title'],
-                $article['content'],
+                isset($article_data['post']) ? (int)$article_data['post']:0,
+                $article_data['title'],
+                isset($article_data['content']) ? $article_data['content']:'',
                 (int)$sort,
-                (int)$article['size'],
+                isset($article_data['size']) ? (int)$article_data['size']:18,
                 $options,
                 $image_options,
                 (int)$parent
             )
         );
 
-        $this->system->runSQLQuery($sql);
+        $this->cms->runSQLQuery($sql);
 
-        if( !empty($article['children']) && is_array($article['children']) ) {
-            foreach( $article['children'] as $sort => $child ) {
+        if( !empty($article_data['children']) && is_array($article_data['children']) ) {
+            foreach( $article_data['children'] as $sort => $child ) {
                 $this->saveArticle($version_id, $child, $sort, $offset, false);
             }
         }
+    }
+
+    /**
+     * Turn path to possible file include relative, if it resides within wordpress
+     * @param array $article
+     */
+    private function makeFileIncludePathsRelative( &$article )
+    {
+        if( !empty($article['options']['fileInclude']) &&
+            strpos($article['options']['fileInclude'], WP_CONTENT_DIR) !== false &&
+            substr($article['options']['fileInclude'], 0, 1) == '/' ) {
+            $root = basename(WP_CONTENT_DIR);
+            $article['options']['fileInclude'] = $root .'/'. str_replace(WP_CONTENT_DIR, '', $article['options']['fileInclude']);
+        }
+
     }
 
     /**
@@ -911,13 +970,42 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
 
     /**
      * Clears article cache if given version is the latest published version
-     * @param $list
-     * @param $version
+     * @param Arlima_List $list
+     * @param int $version_id
      */
-    private function clearArticleCache($list, $version)
+    private function clearArticleCache($list, $version_id)
     {
         $list_versions = $this->loadListVersions($list);
-        if (!empty($list_versions['published']) && $list_versions['published'][0] == $version)
+        if (!empty($list_versions['published']) && $list_versions['published'][0]['id'] == $version_id) {
             $this->cache->delete($this->last_cache_key . $list->getId());
+        }
+    }
+
+    /**
+     * Convert from articles from objects to arrays and update possibly changed
+     * published date of articles
+     *
+     * @param array|Arlima_Article[] $articles
+     * @return mixed
+     */
+    protected function toArray($articles)
+    {
+        foreach ($articles as $i => $art) {
+            if ($art instanceof Arlima_Article) {
+                $articles[$i] = $art->toArray();
+            }
+            if (!empty($art['post'])) {
+                $articles[$i]['published'] = $this->cms->getPostTimeStamp($art['post']);
+            }
+            foreach($articles[$i]['children'] as $j=>$child) {
+                if ($child instanceof Arlima_Article) {
+                    $articles[$i]['children'][$j] = $child->toArray();
+                }
+                if (!empty($child['post'])) {
+                    $articles[$i]['children'][$j]['published'] = $this->cms->getPostTimeStamp($child['post']);
+                }
+            }
+        }
+        return $articles;
     }
 }

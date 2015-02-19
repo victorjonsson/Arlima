@@ -435,6 +435,17 @@
 
 }
 
+.article-list.imported .footer .version .number {
+  &:after {
+    content: '';
+    padding-left: 0px;
+  }
+
+  &.active:after {
+    content: '';
+  }
+}
+
 .scheduled .version {
   .number,
   .schedule-clock {

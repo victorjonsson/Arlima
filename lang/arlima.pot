@@ -466,6 +466,9 @@ msgstr "Dölj/visa förhandsgranskning av artikel"
 msgid "Edit"
 msgstr "Redigera"
 
+msgid "Change connection"
+msgstr "Ändra koppling"
+
 #: pages/main.php:46
 msgid "Streamer"
 msgstr "Vinjett"
@@ -595,8 +598,8 @@ msgid "Connected to"
 msgstr "Kopplad till"
 
 #: pages/main.php:246
-msgid "change"
-msgstr "byt"
+msgid "Change"
+msgstr "Ändra"
 
 #: pages/main.php:250
 #, fuzzy

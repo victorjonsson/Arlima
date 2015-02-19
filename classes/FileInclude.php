@@ -63,7 +63,7 @@ class Arlima_FileInclude {
      * @param string $file
      * @param array $args
      * @param Arlima_AbstractListRenderingManager|null $renderer
-     * @param array|null $article
+     * @param Arlima_Article|null $article
      * @return string
      */
     public function includeFile($file, $args, $renderer=null, $article=null) // Last two arguments should be available in the included file
@@ -74,9 +74,9 @@ class Arlima_FileInclude {
         $cache_name = '';
 
         if( !self::$is_collecting_args ) {
-            $cache_ttl = apply_filters('arlima_file_include_cache_ttl', 0, $file);
+            $cache_ttl = Arlima_CMSFacade::load()->applyFilters('arlima_file_include_cache_ttl', 0, $file);
             if( $cache_ttl ) {
-                $cache_name = 'arlima_fileinc_'.basename($file).implode('_', $args);
+                $cache_name = 'arlima_fileinc_'.basename($file).( is_array($args) ? implode('_', $args) : $args);
                 $cached_content = Arlima_CacheManager::loadInstance()->get($cache_name);
                 if( $cached_content ) {
                     if( $cached_content['expires'] < time() ) {
@@ -89,10 +89,15 @@ class Arlima_FileInclude {
         }
 
         // Include file and capture output
-        ob_start();
-        include $file;
-        $content = ob_get_contents();
-        ob_end_clean();
+        if( $resolved_path = $this->resolvePath($file) ) {
+            ob_start();
+            include $resolved_path;
+            $content = ob_get_contents();
+            ob_end_clean();
+        } else {
+            $content = '';
+            trigger_error('Trying to include an arlima file that does not exist '.$file, E_USER_NOTICE);
+        }
 
         self::$current_file_args = false;
 
@@ -104,4 +109,13 @@ class Arlima_FileInclude {
         return $content;
     }
 
+    private function resolvePath($file)
+    {
+        if( file_exists($file) ) {
+            return $file;
+        } elseif( $resolved = Arlima_CMSFacade::load()->resolveFilePath($file, false)) {
+            return $resolved;
+        }
+        return false;
+    }
 }

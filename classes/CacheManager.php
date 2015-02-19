@@ -13,15 +13,14 @@ class Arlima_CacheManager
     private static $instance = null;
 
     /**
-     * @static
-     * @return Arlima_WP_Cache
+     * @return Arlima_CacheInterface
      */
     public static function loadInstance()
     {
         if ( self::$instance === null ) {
             // Make it possible for other plugin or theme to override
             // the cache manager used by arlima.
-            self::$instance = apply_filters('arlima_cache_class', null);
+            self::$instance = Arlima_CMSFacade::load()->applyFilters('arlima_cache_class', null);
             if ( !is_object(self::$instance) ) {
                 self::$instance = new Arlima_WP_Cache();
             }

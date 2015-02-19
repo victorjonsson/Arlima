@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/setup.php';
-
 
 class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
 
@@ -36,14 +34,15 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
     function testFindDefaultTemplates() {
 
         $files = $this->path_resolver->getTemplateFiles();
-        $this->assertEquals(array('article', 'giant', 'widget'), array_keys($files));
+        $this->assertEquals(array('article', 'file-include', 'giant', 'widget'), array_keys($files));
 
         $this->stripRootPathsFromFiles($files);
 
         $this->assertEquals(array(
                'article'=> array('file'=>$this->base_dir.'/templates/article.tmpl', 'url' => $this->base_dir.'/templates/article.tmpl', 'label' => 'Article', 'name'=>'article'),
                'giant'=> array('file'=>$this->base_dir.'/templates/giant.tmpl', 'url' => $this->base_dir.'/templates/giant.tmpl', 'label' => 'Giant', 'name'=>'giant'),
-               'widget'=> array('file'=>$this->base_dir.'/templates/widget.tmpl', 'url' => $this->base_dir.'/templates/widget.tmpl', 'label' => 'Widget', 'name'=>'widget')
+               'widget'=> array('file'=>$this->base_dir.'/templates/widget.tmpl', 'url' => $this->base_dir.'/templates/widget.tmpl', 'label' => 'Widget', 'name'=>'widget'),
+               'file-include'=> array('file'=>$this->base_dir.'/templates/file-include.tmpl', 'url' => $this->base_dir.'/templates/file-include.tmpl', 'label' => 'File include', 'name'=>'file-include')
             ), $files);
 
         $this->assertEquals($this->base_dir.'/templates/article.tmpl', $this->stripRootPath($this->path_resolver->getDefaultTemplate()) );
@@ -53,7 +52,7 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $this->path_resolver = new Arlima_TemplatePathResolver(array(__DIR__.'/test-templates/'), false);
 
         $files = $this->path_resolver->getTemplateFiles();
-        $this->assertEquals(array('deep-include', 'some-template', 'article', 'giant', 'widget'), array_keys($files));
+        $this->assertEquals(array('deep-include', 'some-template', 'article', 'file-include', 'giant', 'widget'), array_keys($files));
 
         $this->stripRootPathsFromFiles($files);
 
@@ -61,6 +60,7 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
                 'deep-include'=> array('file'=>$this->base_dir.'/classes/tests/test-templates/deep-include.tmpl', 'url' => $this->base_dir.'/classes/tests/test-templates/deep-include.tmpl', 'label' => 'Deep include', 'name'=>'deep-include'),
                 'some-template'=> array('file'=>$this->base_dir.'/classes/tests/test-templates/some-template.tmpl', 'url' => $this->base_dir.'/classes/tests/test-templates/some-template.tmpl', 'label' => 'Some template', 'name'=>'some-template'),
                 'article'=> array('file'=>$this->base_dir.'/templates/article.tmpl', 'url' => $this->base_dir.'/templates/article.tmpl', 'label' => 'Article', 'name'=>'article'),
+                'file-include'=> array('file'=>$this->base_dir.'/templates/file-include.tmpl', 'url' => $this->base_dir.'/templates/file-include.tmpl', 'label' => 'File include', 'name'=>'file-include'),
                 'giant'=> array('file'=>$this->base_dir.'/templates/giant.tmpl', 'url' => $this->base_dir.'/templates/giant.tmpl', 'label' => 'Giant', 'name'=>'giant'),
                 'widget'=> array('file'=>$this->base_dir.'/templates/widget.tmpl', 'url' => $this->base_dir.'/templates/widget.tmpl', 'label' => 'Widget', 'name'=>'widget'),
             ), $files);
@@ -79,6 +79,7 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
                 'deep-include'=> array('file'=>$this->base_dir.'/classes/tests/test-templates/deep-include.tmpl', 'url' => $this->base_dir.'/classes/tests/test-templates/deep-include.tmpl', 'label' => 'Deep include', 'name'=>'deep-include'),
                 'some-template'=> array('file'=>$this->base_dir.'/classes/tests/test-templates/some-template.tmpl', 'url' => $this->base_dir.'/classes/tests/test-templates/some-template.tmpl', 'label' => 'APA', 'name'=>'some-template'),
                 'article'=> array('file'=>$this->base_dir.'/templates/article.tmpl', 'url' => $this->base_dir.'/templates/article.tmpl', 'label' => 'Article', 'name'=>'article'),
+                'file-include'=> array('file'=>$this->base_dir.'/templates/file-include.tmpl', 'url' => $this->base_dir.'/templates/file-include.tmpl', 'label' => 'File include', 'name'=>'file-include'),
                 'giant'=> array('file'=>$this->base_dir.'/templates/giant.tmpl', 'url' => $this->base_dir.'/templates/giant.tmpl', 'label' => 'Giant', 'name'=>'giant'),
                 'widget'=> array('file'=>$this->base_dir.'/templates/widget.tmpl', 'url' => $this->base_dir.'/templates/widget.tmpl', 'label' => 'GRODA', 'name'=>'widget')
             ), $files);
@@ -107,6 +108,7 @@ class TestTemplatePathResolver extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1.0, Arlima_Utils::versionNumberToFloat('1.0.0'));
         $this->assertEquals(2.0, Arlima_Utils::versionNumberToFloat('2.0'));
         $this->assertEquals(3.056, Arlima_Utils::versionNumberToFloat('3.0.5.6'));
-        $this->assertEquals(4.122, Arlima_Utils::versionNumberToFloat('4.1.beta.22'));
+        $this->assertEquals(4.1022, Arlima_Utils::versionNumberToFloat('4.1.beta.22'));
+        $this->assertEquals(4.1022, Arlima_Utils::versionNumberToFloat('4.1.beta.22.RC+1'));
     }
 }

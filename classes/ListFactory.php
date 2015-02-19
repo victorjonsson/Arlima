@@ -5,7 +5,7 @@
  * All direct use of wpdb in the Arlima plugin should be placed in this class, at least as long as
  * the database communication is about getting data related to article lists.
  *
- * @NOTICE This class is deprecated
+ * @deprecated This class is deprecated
  *
  * @see Arlima_ListBuilder
  * @see Arlima_ListRepository
@@ -209,7 +209,7 @@ class Arlima_ListFactory {
             }
 
             if( $include_future_posts )
-                $builder->includeFuturePosts();
+                $builder->includeFutureArticles();
         }
 
         $list = $builder->build();
@@ -340,7 +340,7 @@ class Arlima_ListFactory {
     {
         Arlima_Utils::warnAboutDeprecation(__METHOD__, 'Arlima_ListVersionRepository::updateArticlePublishDate()');
         if( $post && $post->post_type == 'post' ) {
-            $sys = new Arlima_CMSFacade();
+            $sys = Arlima_CMSFacade::load();
             $this->version_repo->updateArticlePublishDate($sys->getPostTimeStamp($post), $post->ID);
         }
     }
@@ -361,7 +361,7 @@ class Arlima_ListFactory {
      *
      * @static
      * @param array $override[optional=array()]
-     * @return array
+     * @return array|Arlima_Article
      */
     public static function createArticleDataArray($override=array())
     {
@@ -373,6 +373,7 @@ class Arlima_ListFactory {
      * Takes a post and returns an Arlima article object
      *
      * @deprecated
+     * @see Arlima_CMSInterface::postToArlimaArticle
      *
      * @param $post
      * @param string|null $text
@@ -381,7 +382,10 @@ class Arlima_ListFactory {
      */
     public static function postToArlimaArticle($post, $text = null, $override=array())
     {
-        Arlima_Utils::warnAboutDeprecation(__METHOD__, 'Arlima_ListVersionRepository::postToArlimaArticle()');
-        return Arlima_WP_Ajax::extractArticleDataFromPost($post, $text, $override);
+        Arlima_Utils::warnAboutDeprecation(__METHOD__, 'Arlima_CMSInterface::postToArlimaArticle');
+        if( $text ) {
+            $override['content'] = $text;
+        }
+        return Arlima_CMSFacade::load()->postToArlimaArticle($post, $override);
     }
 }

@@ -30,4 +30,11 @@ class ExportImportBase extends PHPUnit_Framework_TestCase {
         return $list;
     }
 
+    /**
+     * This test is here only so that phpunit won't break
+     */
+    function testNothing()
+    {
+
+    }
 }

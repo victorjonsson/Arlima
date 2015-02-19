@@ -2,7 +2,7 @@
 
 
 /**
- * Class that can put together list objects following a set of instructions
+ * Class that can put together list objects following a set of instructions. See https://github.com/victorjonsson/Arlima/wiki/Server-side,-in-depth
  *
  * @see Arlima_List::builder()
  * @since 3.1.0
@@ -57,8 +57,8 @@ class Arlima_ListBuilder {
 
 
     /**
-     * @param null $list_repo
-     * @param null $version_repo
+     * @param null|Arlima_ListRepository $list_repo
+     * @param null|Arlima_ListVersionRepository $version_repo
      */
     public function __construct($list_repo=null, $version_repo=null)
     {
@@ -67,7 +67,7 @@ class Arlima_ListBuilder {
     }
 
     /**
-     * @param $in
+     * @param int $in
      * @return Arlima_ListBuilder
      */
     public function id($in)
@@ -77,7 +77,7 @@ class Arlima_ListBuilder {
     }
 
     /**
-     * @param $in
+     * @param string $in
      * @return Arlima_ListBuilder
      */
     public function slug($in)
@@ -87,7 +87,7 @@ class Arlima_ListBuilder {
     }
 
     /**
-     * @param $page_id
+     * @param int $page_id
      * @return Arlima_ListBuilder
      */
     public function fromPage($page_id)
@@ -97,17 +97,18 @@ class Arlima_ListBuilder {
     }
 
     /**
+     * @param bool $toggle
      * @return Arlima_ListBuilder
      */
-    public function includeFuturePosts()
+    public function includeFutureArticles($toggle=true)
     {
-        $this->include_future_posts = true;
+        $this->include_future_posts = (bool)$toggle;
         return $this;
     }
 
     /**
-     * URL of external RSS-feed or Arlima list JSON
-     * @param string $in
+     * URL of external RSS-feed or Arlima list export (set to false to not import anything)
+     * @param string|bool $in
      * @return Arlima_ListBuilder
      */
     public function import($in)
@@ -117,16 +118,19 @@ class Arlima_ListBuilder {
     }
 
     /**
+     * @param bool $toggle
      * @return Arlima_ListBuilder
      */
-    public function saveImportedList()
+    public function saveImportedList($toggle=true)
     {
-        $this->save_imported = true;
+        $this->save_imported = $toggle;
         return $this;
     }
 
     /**
-     * @param $in
+     * Omit calling this function or set $in to false to load the
+     * latest published version of the list
+     * @param int|bool $in
      * @return Arlima_ListBuilder
      */
     public function version($in)
@@ -136,11 +140,12 @@ class Arlima_ListBuilder {
     }
 
     /**
+     * @param bool $toggle
      * @return Arlima_ListBuilder
      */
-    public function loadPreview()
+    public function loadPreview($toggle = true)
     {
-        $this->load_preview = true;
+        $this->load_preview = $toggle;
         return $this;
     }
 
@@ -173,7 +178,16 @@ class Arlima_ListBuilder {
             if( !$list_relation ) {
                 $list = new Arlima_List();
             } else {
-                $list = $this->list_repo->load($list_relation['id']);
+                if( is_numeric( $list_relation['id']) ) {
+                    $list = $this->list_repo->load($list_relation['id']);
+                }
+                elseif( filter_var($list_relation['id'], FILTER_VALIDATE_URL) !== false ) {
+                    $this->import($list_relation['id']);
+                    return $this->assembleExternalList();
+                } else {
+                    // probably slug
+                    $list = $this->list_repo->load($list_relation['id']);
+                }
             }
         } else {
             $list = $this->list_repo->load($this->id_or_slug);
@@ -202,9 +216,8 @@ class Arlima_ListBuilder {
 
         if( !$this->include_future_posts ) {
             $articles = array();
-            $now = time();
             foreach ($list->getArticles() as $art) {
-                if (empty($art['published']) || $art['published'] <= $now) {
+                if ( $art->isPublished() ) {
                     $articles[] = $art;
                 }
             }

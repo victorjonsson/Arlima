@@ -61,6 +61,7 @@ class Arlima_ExportManager
      */
     public function export($page_slug, $format)
     {
+        $format = strtolower($format);
         $this->sendInitialHeaders($format);
 
         if ( !in_array($format, array(self::FORMAT_JSON, self::FORMAT_RSS)) ) {
@@ -68,18 +69,18 @@ class Arlima_ExportManager
         }
 
         if( $page_slug ) {
-            $page = $this->getPageBySlug($page_slug);
+            $page_id = $this->getPageIdBySlug($page_slug);
         } else {
-            $page = get_post(get_option('page_on_front', 0));
+            $page_id = get_option('page_on_front', 0);
         }
 
-        if ( !$page ) {
+        if ( empty($page_id) ) {
             $this->sendErrorToClient(self::ERROR_PAGE_NOT_FOUND, '404 Page Not Found', $format);
         } else {
 
             $list = Arlima_List::builder()
-                        ->fromPage($page->ID)
-                        ->includeFuturePosts()
+                        ->fromPage($page_id)
+                        ->includeFutureArticles()
                         ->build();
 
             if ( !$list->exists() ) {
@@ -98,7 +99,7 @@ class Arlima_ExportManager
      * @param $slug
      * @return bool|mixed
      */
-    private function getPageBySlug( $slug ) {
+    private function getPageIdBySlug( $slug ) {
         $page_id = wp_cache_get('arlima_slug_2_page_'.$slug, 'arlima');
         if( !$page_id ) {
             if ( $page_id = $this->cms->getPageIdBySlug($slug) ) {
@@ -106,7 +107,7 @@ class Arlima_ExportManager
             }
         }
 
-        return $page_id ? $this->cms->loadPost($page_id):false;
+        return $page_id;
     }
 
     /**
@@ -160,15 +161,9 @@ class Arlima_ExportManager
     {
         // Modify data exported
         $base_url = rtrim($this->cms->getBaseURL(), '/') . '/';
-        $articles = $list->getArticles();
-        foreach (array_keys($articles) as $key) {
-            $this->prepareArticleForExport($articles[$key], $base_url);
-        }
-        $list->setArticles($articles);
 
         // RSS export
         if ( $format == self::FORMAT_RSS ) {
-            $base_url =
             $rss = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel>
                 <title><![CDATA[' .$list->getTitle(). ']]></title>
                 <description>RSS export for article list &quot;'.$list->getTitle().'&quot;</description>
@@ -180,19 +175,23 @@ class Arlima_ExportManager
                 ';
 
             $list_last_mod_time = $list->lastModified();
-            foreach ($articles as $article) {
+            foreach ($list->getArticles() as $article) {
                 $rss .= $this->articleToRSSItem($article, $list_last_mod_time, $list);
-                if ( !empty($article['children']) ) {
-                    foreach ($article['children'] as $child_article) {
-                        $rss .= $this->articleToRSSItem($child_article, $list_last_mod_time, $list);
-                    }
+                foreach ($article->getChildArticles() as $child_article) {
+                    $rss .= $this->articleToRSSItem($child_article, $list_last_mod_time, $list);
                 }
             }
-
-            return $rss . '</channel></rss>';
+            $rss .= '</channel></rss>';
+            return $this->cms->applyFilters('arlima_rss_feed', $rss, $list);
         } // JSON export
         else {
-            return json_encode($list->toArray());
+
+            $list_data = $list->toArray();
+            foreach($list_data['articles'] as $i=>$art) {
+                $this->prepareArticleForExport($list_data['articles'][$i], $base_url);
+            }
+
+            return json_encode($list_data);
         }
     }
 
@@ -207,28 +206,33 @@ class Arlima_ExportManager
      */
     private function prepareArticleForExport(&$article_data, $base_url)
     {
-        $article_data['externalURL'] = Arlima_Utils::resolveURL($article_data);
+        if( isset($article_data['url']) ) {
+            $article_data['externalURL'] = $article_data['url'];
+            unset($article_data['url']);
 
-        if ( strpos($article_data['externalURL'], 'http') === false ) {
-            $article_data['externalURL'] = $base_url . ltrim($article_data['externalURL'], '/');
+            if ( strpos($article_data['externalURL'], 'http') === false ) {
+                $article_data['externalURL'] = $base_url . ltrim($article_data['externalURL'], '/');
+            }
+
+        } else {
+            $article_data['externalURL'] = $base_url.'?';
         }
 
-        // Add url for backward compatibility @todo: remove when moving up to version 3.0
-        $article_data['url'] = $article_data['externalURL'];
-
         $article_data['externalPost'] = 0;
-        if ( !empty($article_data['post']) ) {
+        if ( isset($article_data['post']) ) {
             $article_data['externalPost'] = $article_data['post'];
-            $article_data['post'] = 0;
+            unset($article_data['post']);
         }
 
         if ( !empty($article_data['image']) ) {
-            $article_data['image']['externalAttachment'] = isset($article_data['image']['attachment']) ? $article_data['image']['attachment'] : 0;
-            $article_data['image']['attachment'] = 0;
+            if( isset($article_data['image']['attachment']) ) {
+                $article_data['image']['externalAttachment'] = $article_data['image']['attachment'];
+                unset($article_data['image']['attachment']);
+            }
         }
 
         if ( !empty($article_data['children']) ) {
-            foreach (array_keys($article_data['children']) as $key) {
+            foreach ($article_data['children'] as $key => $child_article) {
                 $this->prepareArticleForExport($article_data['children'][$key], $base_url);
             }
         }
@@ -237,21 +241,26 @@ class Arlima_ExportManager
     }
 
     /**
-     * @param array $article
+     * @param Arlima_Article $article
      * @param int $last_mod
      * @param Arlima_List $list
      * @return string
      */
-    private function articleToRSSItem(array $article, $last_mod, $list)
+    private function articleToRSSItem($article, $last_mod, $list)
     {
-        if( !empty($article['options']['sectionDivider']) || !empty($article['options']['fileInclude']) )
+        if( $article->isEmpty() || $article->opt('fileInclude') || $article->opt('sectionDivider') )
             return '';
 
         $img = '';
-        if ( isset($article['image']) && !empty($article['image']['url']) ) {
+        if ( $img_url = $article->getImageURL() ) {
 
             $node_type = ARLIMA_RSS_IMG_TAG;
-            $img_url = $this->cms->applyFilters('arlima_rss_image', $article['image']['url'], $article['image']);
+            $img_data = array(
+                'attachment' => $article->getImageId(),
+                'alignment' => $article->getImageAlignment(),
+                'size' => $article->getImageSize()
+            );
+            $img_url = $this->cms->applyFilters('arlima_rss_image', $img_url, $img_data);
             $img_type = pathinfo($img_url, PATHINFO_EXTENSION);
             $img_type = 'image/'. current(explode('?', $img_type));
 
@@ -264,19 +273,23 @@ class Arlima_ExportManager
             }
         }
 
-        $guid = $article['url'];
-        $post_id = intval($article['externalPost']);
-        if ( $post_id ) {
+
+        $content = $this->cms->sanitizeText($article->getContent());
+        $content = $this->cms->applyFilters('arlima_rss_content', $content, $article, $list);
+        $url = $article->getURL();
+        $guid = $url;
+
+        if ( $post_id = $article->getPostID() ) {
             $guid = '/?p=' . $post_id;
-            $date = date('r', $article['published']);
+            $date = date('r', $article->getPublishTime());
         } else {
             $date = date('r', $last_mod);
         }
 
         return '<item>
-                    <title><![CDATA[' . str_replace('__', '', $article['title']) . ']]></title>
-                    <description><![CDATA[' . $this->cms->sanitizeText($article['content']) . ']]></description>
-                    <link>' . apply_filters('arlima_rss_link', $article['externalURL'], $list) . '</link>
+                    <title><![CDATA[' . $article->getTitle() . ']]></title>
+                    <description><![CDATA[' . $content . ']]></description>
+                    <link>' . $this->cms->applyFilters('arlima_rss_link', $url, $list) . '</link>
                     <guid isPermaLink="false">' . $guid . '</guid>
                     <pubDate>' . $date . '</pubDate>
                     ' . $img . '

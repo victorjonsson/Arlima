@@ -7,7 +7,7 @@
  * @package Arlima
  * @since 2.0
  */
-class Arlima_WP_Cache
+class Arlima_WP_Cache implements Arlima_CacheInterface
 {
 
     /**

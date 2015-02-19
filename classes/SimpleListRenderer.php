@@ -44,14 +44,14 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
 
     /**
      * @param int $article_counter
-     * @param array $article
+     * @param Arlima_Article $article
      * @param WP_Post|bool $post
      * @param Arlima_AbstractListRenderingManager $renderer
      * @param bool $echo
      * @return string
      */
     public static function defaultPostDisplayCallback($article_counter, $article, $post, $renderer, $echo) {
-        return '<p>No callback given for article' . ($post ? '(post &quot;'.$post->post_title.'&quot;' : '').'</p>';
+        return '<p>No callback given for article '.$article->getTitle().'</p>';
     }
 
     /**
@@ -91,14 +91,13 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
     }
 
     /**
-     * @param array $article_data
+     * @param Arlima_Article $article
      * @param int $index
      * @param null|stdClass|WP_Post $post
-     * @param $is_empty
      * @return mixed
      */
-    protected function generateArticleHtml($article_data, $index, $post, $is_empty)
+    protected function generateArticleHtml($article, $index, $post)
     {
-        return call_user_func($this->display_article_callback, $index, $article_data, $post, $this);
+        return call_user_func($this->display_article_callback, $index, $article, $post, $this);
     }
 }

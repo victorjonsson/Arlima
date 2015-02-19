@@ -559,17 +559,28 @@
   margin-top: @article-form-margin;
   margin-left: 5px;
   color: #888;
+  line-height: 150%;
+  cursor: default;
   a {
+    cursor: pointer;
     color: #888;
   }
   a.url {
-    margin: 0 3px 0 0;
-    max-width: 350px;
+    max-width: 250px;
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
-    vertical-align: -2px;
+    vertical-align: -5px;
     white-space: nowrap;
+  }
+  a.button {
+    margin: -3px 1px 0 3px;
+    font-weight: bold;
+    color: #777;
+    i {
+      vertical-align: -12%;
+      margin-right: 2px;
+    }
   }
   a:hover {
     color: #111;

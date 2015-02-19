@@ -29,27 +29,27 @@ abstract class Arlima_AbstractListRenderingManager
     private $section = false;
 
     /**
-     * @var bool|array
+     * @var Arlima_Article[]
      */
     private $articles_to_render = false;
 
     /**
      * @var Arlima_CMSInterface
      */
-    protected $system;
+    protected $cms;
 
     /**
      * Class constructor
-     * @param Arlima_List|stdClass $list
+     * @param Arlima_List $list
      */
     function __construct($list)
     {
-        $this->system = Arlima_CMSFacade::load();
+        $this->cms = Arlima_CMSFacade::load();
         $this->list = $list;
     }
 
     /**
-     * @return array
+     * @return Arlima_Article[]
      */
     public function getArticlesToRender()
     {
@@ -60,30 +60,35 @@ abstract class Arlima_AbstractListRenderingManager
             } else {
                 $articles = array();
                 foreach($this->list->getArticles() as $art) {
-                    if( empty($art['options']['sectionDivider']) ) {
+                    if( !$art->opt('sectionDivider') ) {
                         $articles[] = $art;
                         $this->getPostsFromArticle($post_ids, $art);
                     }
                 }
                 $this->articles_to_render = array_slice($articles, $this->getOffset());
             }
-            $this->system->preLoadPosts($post_ids); // To lower the amount of db questions
+            $this->cms->preLoadPosts($post_ids); // To lower the amount of db questions
         }
         return $this->articles_to_render;
     }
 
+    /**
+     * @param $post_ids
+     * @param Arlima_Article $art
+     */
     private function getPostsFromArticle(&$post_ids, $art)
     {
-        if( !empty($art['post']) && !$this->system->isPreloaded($art['post']) ) {
-            $post_ids[] = $art['post'];
+        $post_id = $art->getPostId();
+        $attach_id = $art->getImageId();
+
+        if( $post_id && !$this->cms->isPreloaded($post_id) ) {
+            $post_ids[] = $post_id;
         }
-        if( !empty($art['image']['attachment']) && !$this->system->isPreloaded($art['image']['attachment'])) {
-            $post_ids[] = $art['image']['attachment'];
+        if( $attach_id && !$this->cms->isPreloaded($attach_id)) {
+            $post_ids[] = $attach_id;
         }
-        if( !empty($art['children']) ) {
-            foreach($art['children'] as $child_article) {
-                $this->getPostsFromArticle($post_ids, $child_article);
-            }
+        foreach($art->getChildArticles() as $child_article) {
+            $this->getPostsFromArticle($post_ids, $child_article);
         }
     }
 
@@ -111,65 +116,59 @@ abstract class Arlima_AbstractListRenderingManager
      */
     function renderList($output = true)
     {
-        $this->system->prepareForPostLoop($this->list);
+        $this->cms->prepareForPostLoop($this->list);
         $content = $this->generateListHtml($output);
-        $this->system->resetAfterPostLoop();
+        $this->cms->resetAfterPostLoop();
         return $content;
     }
 
     /**
-     * @param array|stdClass $article_data
+     * @param Arlima_Article $article
      * @param int $index
      * @return array (index, html_content)
      */
-    protected function renderArticle($article_data, $index)
+    protected function renderArticle($article, $index)
     {
         // File include
-        if ( $this->isFileIncludeArticle($article_data) ) {
+        if ( $article->opt('fileInclude') ) {
             // We're done, go on pls!
-            return array($index + 1, $this->includeArticleFile($article_data));
+            return array($index + 1, $this->includeArticleFile($article, $index));
         }
 
-        // Scheduled article
-        if ( !empty($article_data['options']['scheduled']) ) {
-            if ( !$this->isInScheduledInterval($article_data['options']['scheduledInterval']) ) {
+        if ( !$article->canBeRendered() ) {
+
+            if( !$article->isPublished() ) {
+                return array($index, $this->getFutureArticleContent($article, $index, $this->setup($article)));
+            } else {
                 return array($index, ''); // don't show this scheduled article right now
             }
         }
 
-        // Setup
-        list($post, $article_data, $is_empty) = $this->setup($article_data);
-
-        // Future article
-        if ( !empty($article_data['published']) && $article_data['published'] > Arlima_Utils::timeStamp() ) {
-            return array($index, $this->getFutureArticleContent($article_data, $index, $post));
-        }
-
-        return array($index+1, $this->generateArticleHtml($article_data, $index, $post, $is_empty));
+        return array($index+1, $this->generateArticleHtml($article, $index, $this->setup($article)));
     }
 
     /**
-     * @param $article_data
+     * @param Arlima_Article $article
      * @param $index
      * @param $post
      * @return mixed
      */
-    protected function getFutureArticleContent($article_data, $index, $post)
+    protected function getFutureArticleContent($article, $index, $post)
     {
-        $filtered = $this->system->applyFilters('arlima_future_post', array(
+        $filtered = $this->cms->applyFilters('arlima_future_post', array(
             'post' => $post,
-            'article' => $article_data,
+            'article' => $article,
             'list' => $this->list,
             'count' => $index,
             'content' => ''
         ));
 
         if( empty($filtered['content']) && $filtered['content'] !== false) {
-            $url = $article_data['post'] ? $this->system->getPageEditURL($post->ID) : $article_data['url'];
+            $url = $article['post'] ? $this->cms->getPageEditURL($post) : $article->getURL();
             $filtered['content'] = '<div class="arlima future-post"><p>
-                        Hey dude, <a href="' . $url . '" target="_blank">&quot;'.$article_data['title'].'&quot;</a> is
+                        Hey dude, <a href="' . $url . '" target="_blank">&quot;'.$article->getTitle().'&quot;</a> is
                         connected to a post that isn\'t published yet. The article will become public in '.
-                        $this->system->humanTimeDiff($article_data['published']).'.</p>
+                        $this->cms->humanTimeDiff($article->getPublishTime()).'.</p>
                     </div>';
         }
 
@@ -177,48 +176,34 @@ abstract class Arlima_AbstractListRenderingManager
     }
 
     /**
-     * @param $article_data
-     * @param $index
-     * @param $post
-     * @param $is_empty
+     * @param Arlima_Article $article
+     * @param int $index
+     * @param object $post
      * @return mixed
      */
-    abstract protected function generateArticleHtml($article_data, $index, $post, $is_empty);
+    abstract protected function generateArticleHtml($article, $index, $post);
 
     /**
-     * Use the article object/array and set up the wordpress environment
-     * as if we were in an ordinary wordpress loop, right after having called the_post();
-     *
-     * @param array|stdClass $article
-     * @return array
+     * @param Arlima_Article $article
+     * @return mixed
      */
     protected function setup($article)
     {
-        if ( !empty($article['post']) ) {
-            $GLOBALS['post'] = $this->system->loadPost($article['post']);
-           // setup_postdata($GLOBALS['post']);
+        if ( $post_id = $article->getPostId() ) {
+            $this->cms->setPostInGlobalScope($post_id);
         }
         else {
-            $GLOBALS['post'] = false;
+            $this->cms->setPostInGlobalScope(false);
         }
-
-        $is_empty = false;
-        $has_image = !empty($article['image']) && (isset($article['image']['attachment']) || isset($article['image']['url']));
-
-        if ( empty($article['content']) && empty($article['title']) && !$has_image ) {
-            $is_empty = true;
-        }
-
-        $article['url'] = Arlima_Utils::resolveURL($article);
-
-        return array($GLOBALS['post'], $article, $is_empty);
+        return $this->cms->getPostInGlobalScope();
     }
 
     /**
      * Extract articles that's located in the section that's meant
-     * to be rendered
+     * to be rendered (by calling setSection)
+     *
      * @see AbstractListRenderingManager::setSection()
-     * @param array $articles
+     * @param Arlima_Article[] $articles
      * @param string|int $section
      * @return array
      */
@@ -241,7 +226,7 @@ abstract class Arlima_AbstractListRenderingManager
 
         foreach($articles as $art) {
 
-            $is_section_divider = !empty($art['options']['sectionDivider']);
+            $is_section_divider = (bool)$art->opt('sectionDivider');
 
             if( !$begun && !$is_section_divider ) {
                 // The list does not start with a section
@@ -249,7 +234,7 @@ abstract class Arlima_AbstractListRenderingManager
                 if( $wants_indexed_section && $section_index == $section ) {
                     $start_collecting_articles = true;
                     // Create a fake section divider
-                    self::$current_section_divider = array();
+                    self::$current_section_divider = new Arlima_Article(array());
                 }
             }
 
@@ -273,7 +258,7 @@ abstract class Arlima_AbstractListRenderingManager
                 $section_index++;
                 if( $wants_indexed_section && $section_index == $section ) {
                     $start_collecting_articles = true;
-                } elseif( !$wants_indexed_section && strcasecmp($section, $art['title']) == 0) {
+                } elseif( !$wants_indexed_section && strcasecmp($section, $art->getTitle()) == 0) {
                     $start_collecting_articles = true;
                 }
 
@@ -288,95 +273,27 @@ abstract class Arlima_AbstractListRenderingManager
         if( $section_index == -1 && $section == 0 ) {
             // No sections yet exists in this list. Create "empty" section divider
             // and slice from the beginning of the article array
-            self::$current_section_divider = array();
+            self::$current_section_divider = new Arlima_Article(array());
             return array(array_slice($articles, $offset), $post_ids);
         } else {
             return array($extracted_articles, $post_ids);
         }
     }
 
-
     /**
-     * Will try to parse a schedule-interval-formatted string and determine
-     * if we're currently in this time interval
-     * @example
-     *  isInScheduledInterval('*:*');
-     *  isInScheduledInterval('Mon,Tue,Fri:*');
-     *  isInScheduledInterval('*:10-12');
-     *  isInScheduledInterval('Thu:12,15,18');
-     *
-     * @param string $schedule_interval
-     * @return bool
-     */
-    protected function isInScheduledInterval($schedule_interval)
-    {
-        $interval_part = explode(':', $schedule_interval);
-        if ( count($interval_part) == 2 ) {
-
-            // Check day
-            if ( trim($interval_part[0]) != '*' ) {
-
-                $current_day = strtolower(date('D', Arlima_Utils::timeStamp()));
-                $days = array();
-                foreach (explode(',', $interval_part[0]) as $day) {
-                    $days[] = strtolower(substr(trim($day), 0, 3));
-                }
-
-                if ( !in_array($current_day, $days) ) {
-                    return false; // don't show article today
-                }
-
-            }
-
-            // Check hour
-            if ( trim($interval_part[1]) != '*' ) {
-
-                $current_hour = (int)date('H', Arlima_Utils::timeStamp());
-                $from_to = explode('-', $interval_part[1]);
-                if ( count($from_to) == 2 ) {
-                    $from = (int)trim($from_to[0]);
-                    $to = (int)trim($from_to[1]);
-                    if ( $current_hour < $from || $current_hour > $to ) {
-                        return false; // don't show article this hour
-                    }
-                } else {
-                    $hours = array();
-                    foreach (explode(',', $interval_part[1]) as $hour) {
-                        $hours[] = (int)trim($hour);
-                    }
-
-                    if ( !in_array($current_hour, $hours) ) {
-                        return false; // don't show article this hour
-                    }
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param $article_data
+     * @param Arlima_Article $article
+     * @param int $index
      * @return string
      */
-    protected function includeArticleFile($article_data)
+    protected function includeArticleFile($article, $index)
     {
         $file_include = new Arlima_FileInclude();
         $args = array();
-        if (!empty($article_data['options']['fileArgs'])) {
-            parse_str($article_data['options']['fileArgs'], $args);
+        if ( $query_str = $article->opt('fileArgs') ) {
+            parse_str($query_str, $args);
         }
 
-        return $file_include->includeFile($article_data['options']['fileInclude'], $args, $this, $article_data);
-    }
-
-    /**
-     * @param $article_data
-     * @return bool
-     */
-    protected function isFileIncludeArticle($article_data)
-    {
-        return !empty($article_data['options']) && !empty($article_data['options']['fileInclude']);
+        return $file_include->includeFile($article->opt('fileInclude'), $args, $this, $article);
     }
 
     /**
@@ -385,7 +302,7 @@ abstract class Arlima_AbstractListRenderingManager
     static $current_section_divider = false;
 
     /**
-     * @return bool|array
+     * @return bool|Arlima_Article
      */
     public static function getCurrentSectionDivider()
     {

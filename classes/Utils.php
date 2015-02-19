@@ -9,46 +9,40 @@
  */
 class Arlima_Utils
 {
-
     /**
-     * Uses the overriding url if it exists, otherwise the permalink of the post that
-     * the article is connected to
-     * @param $article
+     * As of 3.1 the article is an object that has this method implemented
+     *
+     * @deprecated Use Arlima_Article::getURL instead ($article->getURL())
+     *
+     * @param Arlima_Article $article
      * @return null|string
      */
     public static function resolveURL($article)
     {
-        if( !empty($article['options']) && !empty($article['options']['overridingURL']) ) {
-            return $article['options']['overridingURL'];
-        } elseif( !empty($article['post']) ) {
-            return Arlima_CMSFacade::load()->getPostURL($article['post']);
-        }
-        return '';
+        self::warnAboutDeprecation(__METHOD__, 'Arlima_Article::getURL');
+        return $article->getURL();
     }
 
-
     /**
-     * @param array $article
+     * @param Arlima_Article $article
      * @param array $options
      * @param array $header_classes
      * @return string
      */
     public static function getTitleHtml($article, $options, $header_classes=array())
     {
-
-        if ( $article['title'] == '' ) {
+        $underscore_replace = !isset($options['convertBreaks']) || $options['convertBreaks'] ? '<br />':'';
+        $title = $article->getTitle($underscore_replace);
+        if ( empty($title) ) {
             return '';
         }
 
-        $underscore_replace = !isset($options['convertBreaks']) || $options['convertBreaks'] ? '<br />':'';
-        $title = str_replace('__', $underscore_replace, $article['title']);
-
-        if ( !empty($article['options']['preTitle']) ) {
-            $title = '<span class="arlima-pre-title">' . $article['options']['preTitle'] . '</span> ' . $title;
+        if ( $pre_txt = $article->opt('preTitle') ) {
+            $title = '<span class="arlima-pre-title">' . $pre_txt . '</span> ' . $title;
         }
 
         $title_html = '';
-        $header_classes[] = 'fsize-' . $article['size'];
+        $header_classes[] = 'fsize-' . $article->getSize();
 
         $start_tag = empty($options['before_title']) ? '<h2>' : $options['before_title'];
         $end_tag = empty($options['after_title']) ? '</h2>' : $options['after_title'];
@@ -69,11 +63,7 @@ class Arlima_Utils
             }
         }
 
-        if ( !empty($article['url']) ) {
-            $title_html .= self::linkWrap($article, $title);
-        } else {
-            $title_html .= $title;
-        }
+        $title_html .= self::linkWrap($article, $title);
 
         return $start_tag . $title_html . $end_tag;
     }
@@ -81,19 +71,22 @@ class Arlima_Utils
 
     /**
      * Wrap given content with an a-element linking to the URL of the article
-     * @param array $article
+     * @param Arlima_Article $article
      * @param string $content
      * @param array $classes
      * @return string
      */
     public static function linkWrap($article, $content, $classes = array())
     {
-        if( !empty($article['url']) ) {
-            $opts = $article['options'];
+        if( $url = $article->getURL() ) {
+            $target = '';
+            if( $link_target = $article->opt('target') ) {
+                $target = ' target="'.$link_target.'"';
+            }
             return sprintf(
                 '<a href="%s"%s%s>%s</a>',
-                $article['url'],
-                empty($opts['target']) ? '':' target="'.$opts['target'].'"',
+                $url,
+                $target,
                 empty($classes) ? '' : ' class="'.implode(' ', $classes).'"',
                 $content
             );
@@ -144,9 +137,15 @@ class Arlima_Utils
      */
     public static function versionNumberToFloat($num)
     {
-        $float = str_replace('..', '.', preg_replace('/[^0-9\.]/', '', $num));
-        $pos = strpos($float, '.');
-        $float = substr($float, 0, $pos+1) . str_replace('.', '', substr($float, $pos));
+        $parts = explode('.', $num);
+        $float = array_shift($parts) . '.';
+        foreach( $parts as $p ) {
+            if( is_numeric($p) ) {
+                $float .= $p;
+            } else {
+                $float .= '0';
+            }
+        }
         return (float)$float;
     }
 }

@@ -35,6 +35,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
             } else if( size != 'full' && alignment == '') {
                 alignment = 'alignleft';
             }
+
              _this.article.data.image = {
                 size : size,
                 url : url,
@@ -72,7 +73,8 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
             // Browser media library
             this.$buttons.filter('.browse').click(function() {
 
-                var postID = _this.article ? _this.article.data.post : null;
+                var postID = _this.article ? parseInt(_this.article.data.post, 10) : null;
+
                 // If the media frame already exists, reopen it.
                 if ( window.wpMediaModal ) {
                     window.wpMediaModal.uploader.uploader.param( 'post_id', postID );
@@ -293,7 +295,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
                 }
                 ArlimaUtils.selectVal(_this.$sizeSelect, img.size, false);
 
-                // Disable alignment options on full articles
+                // Disable alignment options on full articles (need to be done twice)
                 _setAlignmentButtons();
 
             } else {

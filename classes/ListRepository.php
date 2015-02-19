@@ -35,7 +35,7 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
                 (al_created, al_title, al_slug, al_maxlength, al_options)
                 VALUES (%d, %s, %s, %d, %s)';
 
-        $sql = $this->system->prepare($sql, array(
+        $sql = $this->cms->prepare($sql, array(
                     $list->getCreated(),
                     $title,
                     $slug,
@@ -43,7 +43,7 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
                     serialize( $list->getOptions() )
                 ));
 
-        $id = $this->system->runSQLQuery($sql);
+        $id = $this->cms->runSQLQuery($sql);
         $list->setId($id);
 
         $this->cache->delete('arlima_list_slugs');
@@ -71,10 +71,10 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
                     SET al_title = %s, al_slug = %s, al_maxlength=%d, al_options = %s
                     WHERE al_id = %d ';
 
-        $this->system->runSQLQuery($this->system->prepare($sql, $update_data));
+        $this->cms->runSQLQuery($this->cms->prepare($sql, $update_data));
 
         // remove cache
-        $this->cache->delete('arlima_list_props_'.$list->getId());
+        $this->cache->delete('arlima_list_'.$list->getId());
         $this->cache->delete('arlima_list_slugs');
     }
 
@@ -85,7 +85,7 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
     public function delete($list)
     {
         // Remove list properties
-        $this->system->runSQLQuery('DELETE FROM '.$this->dbTable().' WHERE al_id='.$list->getId());
+        $this->cms->runSQLQuery('DELETE FROM '.$this->dbTable().' WHERE al_id='.$list->getId());
 
         // remove cache
         $this->cache->delete('arlima_list_'.$list->getId());
@@ -108,7 +108,7 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
         $list = $this->cache->get('arlima_list_'.$id);
 
         if( !$list ) {
-            $list_data = $this->system->runSQLQuery('SELECT * FROM ' . $this->dbTable() . ' WHERE al_id = '.intval($id));
+            $list_data = $this->cms->runSQLQuery('SELECT * FROM ' . $this->dbTable() . ' WHERE al_id = '.intval($id));
             $list_data = $this->removePrefix(current($list_data), 'al_');
 
             if ( empty($list_data) ) {
@@ -140,7 +140,7 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
                     FROM ' . $this->dbTable() . '
                     ORDER BY al_title ASC';
 
-            $data = $this->system->runSQLQuery($sql);
+            $data = $this->cms->runSQLQuery($sql);
             $data = $this->removePrefix($data, 'al_', true);
             $this->cache->set('arlima_list_slugs', $data);
         }
@@ -184,7 +184,7 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
             KEY slug (al_slug)
         );";
 
-        $this->system->dbDelta($sql);
+        $this->cms->dbDelta($sql);
     }
 
     /**

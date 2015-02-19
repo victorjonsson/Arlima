@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/setup.php';
-
 
 /**
  * @todo: Write tests for images
@@ -10,6 +8,8 @@ require_once __DIR__ . '/setup.php';
 class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
 
     function testCreator() {
+
+        remove_all_filters('arlima_template_object');
 
         $obj_creator = new Arlima_TemplateObjectCreator();
         $obj_creator->setList(new Arlima_List());
@@ -35,8 +35,7 @@ class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
             return $data;
         });
 
-        $article = Arlima_ListFactory::createArticleDataArray(array('url'=>'http://google.se', 'title'=>'Howdy', 'id'=>99));
-
+        $article = Arlima_ListVersionRepository::createArticle(array('options'=>array('overridingURL'=>'http://google.se'), 'title'=>'Howdy', 'id'=>99));
         $template_obj = $obj_creator->create($article, false, false, 1);
 
         $this->assertEquals('http://google.se', $template_obj['url']);
@@ -50,7 +49,7 @@ class TestTemplateObjectCreator extends PHPUnit_Framework_TestCase {
 
     function testUnderScoreToBreakInTitle()
     {
-        $article = Arlima_ListFactory::createArticleDataArray(array('url'=>'http://google.se', 'title'=>'Howdy__there', 'id'=>99));
+        $article = Arlima_ListFactory::createArticleDataArray(array('options'=>array('overridingURL'=>'http://google.se'), 'title'=>'Howdy__there', 'id'=>99));
         $obj_creator = new Arlima_TemplateObjectCreator();
         $obj_creator->setList(new Arlima_List());
         $tmpl_object = $obj_creator->create($article, false, false, 1);

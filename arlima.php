@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 3.0.beta.70
+Version: 3.1.beta.17
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -71,12 +71,11 @@ function arlima_is_preview() {
     static $is_arlima_preview = null;
     if( $is_arlima_preview === null ) {
         $is_arlima_preview =  isset( $_GET[Arlima_List::QUERY_ARG_PREVIEW] ) &&
-                               // has_arlima_list() &&
-                               // get_arlima_list()->id() == $_GET[Arlima_List::QUERY_ARG_PREVIEW] &&
                                 is_user_logged_in();
     }
     return $is_arlima_preview;
 }
+
 
 /**
  * This function makes it possible to add formats (class names) that will be possible
@@ -164,17 +163,27 @@ function arlima_get_list($list_only = true) {
 
     if( $current_arlima_list === null ) {
 
-        $current_arlima_list = array('list'=>false, 'post'=>false);
+        $current_arlima_list = array('list'=>new Arlima_List(), 'post'=>false);
         $page_id = Arlima_CMSFacade::load()->getQueriedPageId();
 
         if( $page_id ) {
 
-            $builder = Arlima_List::builder()->fromPage($page_id);
+            try {
+                $builder = Arlima_List::builder()->fromPage($page_id);
+                if( isset($_GET[Arlima_List::QUERY_ARG_PREVIEW]) )
+                    $builder->loadPreview();
 
-            if( isset($_GET[Arlima_List::QUERY_ARG_PREVIEW]) )
-                $builder->loadPreview();
+                $list = $builder->build();
 
-            $list = $builder->build();
+            } catch (Exception $e) {
+                if( $e->getCode() != Arlima_List::ERROR_PREVIEW_VERSION_NOT_FOUND ) {
+                    throw $e;
+                }
+
+                $list = Arlima_List::builder()->fromPage($page_id)->build();
+            }
+
+
             if( $list->exists() ) {
                 $current_arlima_list = array('list'=>$list, 'post'=>$page_id);
             }
@@ -196,7 +205,7 @@ function arlima_load_list($id_or_slug, $version=false, $include_future_post=fals
     $builder = Arlima_List::builder();
 
     if( $include_future_post ) {
-        $builder->includeFuturePosts();
+        $builder->includeFutureArticles();
     }
 
     if( filter_var($id_or_slug, FILTER_VALIDATE_URL) !== false ) {
@@ -311,12 +320,13 @@ function arlima_file_args($default) {
 }
 
 /**
- * Include arlima file outside of arlima list.
  * @param string $file
- * @param array  $args
+ * @param array $args
+ * @param Arlima_AbstractListRenderingManager $renderer
+ * @param Arlima_Article $article
  * @return string
  */
-function arlima_include_file($file, $args = array()) {
+function arlima_include_file($file, $args = array(), $renderer = null, $article = null) {
     $file_include = new Arlima_FileInclude();
-    return $file_include->includeFile($file, $args);
+    return $file_include->includeFile($file, $args, $renderer, $article);
 }

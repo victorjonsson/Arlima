@@ -1,14 +1,10 @@
 <?php
 
-require_once __DIR__ . '/setup.php';
-require_once __DIR__ . '/ExportImportBase.php';
-
 
 /**
  * @todo: Test that you can set lists as exportable
  */
 class TestArlimaExport extends ExportImportBase {
-
 
     /**
      * @var Arlima_ExportManager
@@ -16,9 +12,8 @@ class TestArlimaExport extends ExportImportBase {
     private static $exporter;
 
     function setUp() {
-        self::$exporter = new Arlima_ExportManager(new Private_ArlimaPluginDummy());
+        self::$exporter = new Arlima_ExportManager();
     }
-
 
     function testExportRSS() {
 

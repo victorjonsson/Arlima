@@ -62,7 +62,7 @@ class Arlima_WP_ImageVersionManager
      */
     public static function registerFilters()
     {
-        add_action('delete_attachment', 'Arlima_ImageVersionManager::removeVersions');
+        add_action('delete_attachment', 'Arlima_WP_ImageVersionManager::removeVersions');
     }
 
     /**

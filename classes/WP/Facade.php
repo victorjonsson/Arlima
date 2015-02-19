@@ -42,10 +42,36 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         return is_user_logged_in() && current_user_can('edit_posts');
     }
 
+    function getContentOfPostInGlobalScope()
+    {
+        return get_the_content();
+    }
+
+    function dbEscape($input)
+    {
+        return esc_sql(stripslashes($input));
+    }
 
     function getPageEditURL($page_id)
     {
-        return admin_url('post.php?action=edit&amp;post=' . $page_id);
+        $id = is_object($page_id) ? $page_id->ID : $page_id;
+        return admin_url('post.php?action=edit&amp;post=' . $id);
+    }
+
+    /**
+     * @param string $path
+     * @param bool $relative
+     * @return bool|string
+     */
+    function resolveFilePath($path, $relative=false)
+    {
+        $paths = explode(basename(WP_CONTENT_DIR), $path);
+        if( count($paths) > 1 ) {
+            $new_path = $paths[1];
+            if( file_exists(WP_CONTENT_DIR .'/'. $paths[1]) )
+                return $relative ? 'wp-content/'.$new_path : WP_CONTENT_DIR .'/'. $new_path;
+        }
+        return false;
     }
 
     function humanTimeDiff($time)
@@ -60,7 +86,7 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
 
     function getPageIdBySlug($slug)
     {
-        $sql = $this->prepare( "SELECT ID, post_type FROM ".$this->getDBPrefix()."_posts WHERE post_name = %s AND post_type = 'page' ", $slug );
+        $sql = $this->prepare( "SELECT ID, post_type FROM ".$this->getDBPrefix()."posts WHERE post_name = %s AND post_type = 'page' ", $slug );
         $data = $this->runSQLQuery( $sql );
         return $data ? $data[0]->ID : false;
     }
@@ -205,7 +231,7 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
      */
     public function relate($list, $post_id, $attr)
     {
-        update_post_meta($post_id, self::META_KEY_LIST, $list->getId());
+        update_post_meta($post_id, self::META_KEY_LIST, is_object($list) ? $list->getId() : $list);
         update_post_meta($post_id, self::META_KEY_ATTR, $attr);
     }
 
@@ -331,10 +357,11 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
 
     public function getFileURL($file)
     {
-        $url = WP_CONTENT_URL . str_replace(WP_CONTENT_DIR, '', $file);
-        if ( DIRECTORY_SEPARATOR != '/' ) {
-            $url = str_replace(DIRECTORY_SEPARATOR, '/', $url);
-        }
+        $file = str_replace(DIRECTORY_SEPARATOR, '/', $file);
+        $content_dir = str_replace(DIRECTORY_SEPARATOR, '/', WP_CONTENT_DIR);
+
+        $url = WP_CONTENT_URL . str_replace($content_dir, '', $file);
+        $url = str_replace(DIRECTORY_SEPARATOR, '/', $url);
 
         return $url;
     }
@@ -415,9 +442,9 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         }
 
         if( is_numeric($p) )
-            $p = $this->loadPost($p);
+            $p = get_post($p);
 
-        return strtotime( $p->$date_prop );
+        return $p instanceof WP_Post ? strtotime( $p->$date_prop ) : 0;
     }
 
     function resetAfterPostLoop()
@@ -434,7 +461,44 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
 
     function setPostInGlobalScope($post)
     {
-        $GLOBALS['post'] = $post;
+        $GLOBALS['post'] = is_numeric($post) ? get_post($post) : $post;
+    }
+
+    /**
+     * @param int|object $post
+     * @param array $override
+     * @return Arlima_Article
+     */
+    function postToArlimaArticle($post, $override=array()) {
+
+        $post = is_numeric($post) ? get_post($post) : $post;
+
+        $text = !empty($post->post_excerpt) ? $post->post_excerpt : $this->getExcerpt($post->ID);
+        if ( stristr($text, '<p>') === false ) {
+            $text = '<p>' . $text . '</p>';
+        }
+
+        $art_data = array_merge(array(
+            'post' => $post->ID,
+            'title' => $post->post_title,
+            'content' => $text,
+            'size' => 24,
+            'created' => Arlima_Utils::timeStamp(),
+            'published' => $this->getPostTimeStamp($post)
+        ), $override);
+
+        if ( has_post_thumbnail($post->ID) ) {
+            $attach_id = get_post_thumbnail_id($post->ID);
+            $art_data['image'] = array(
+                'url' => wp_get_attachment_url($attach_id),
+                'attachment' => $attach_id,
+                'size' => 'full',
+                'alignment' => '',
+                'connected' => true
+            );
+        }
+
+        return Arlima_ListVersionRepository::createArticle($art_data);
     }
 
     function havePostsInLoop()
@@ -442,10 +506,10 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         return have_posts();
     }
 
-    function getPostInLoop()
+    function getPostIDInLoop()
     {
         the_post();
-        return $GLOBALS['post'];
+        return isset($GLOBALS['post']) ? $GLOBALS['post']->ID : 0;
     }
 
     function getArlimaArticleImageFromPost($id)
@@ -530,11 +594,6 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     function isPreloaded($id)
     {
         return wp_cache_get($id, 'posts') ? true : false;
-    }
-
-    function loadPost($id)
-    {
-        return get_post($id);
     }
 
     function getQueriedPageId()

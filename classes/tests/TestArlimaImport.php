@@ -1,6 +1,5 @@
 <?php
 
-require_once __DIR__ . '/setup.php';
 require_once __DIR__ . '/ExportImportBase.php';
 
 
@@ -21,7 +20,6 @@ class TestArlimaImport extends ExportImportBase {
         self::$importer = new Arlima_ImportManager();
     }
 
-
     private function generateServerResponse($body, $content_type, $code = 200)  {
         return array(
             'body' => $body,
@@ -39,7 +37,6 @@ class TestArlimaImport extends ExportImportBase {
        # var_dump($list->toArray());
 
         $json = self::$exporter->convertList($list, Arlima_ExportManager::FORMAT_JSON);
-
         $server_response = $this->generateServerResponse($json, 'application/json');
 
 #        echo PHP_EOL .' ---- '.PHP_EOL;

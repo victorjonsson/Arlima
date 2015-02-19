@@ -8,6 +8,7 @@
  */
 class Arlima_List
 {
+    const ERROR_PREVIEW_VERSION_NOT_FOUND = 99200;
 
     const STATUS_PREVIEW = 2;
     const STATUS_PUBLISHED = 1;
@@ -84,7 +85,7 @@ class Arlima_List
             );
 
     /**
-     * @var array
+     * @var Arlima_Article[]
      */
     private $articles = array();
 
@@ -312,12 +313,12 @@ class Arlima_List
         if( $this->post_ids === false ) {
             $posts = array();
             foreach($this->getArticles() as $article) {
-                if( !empty($article['post']) ) {
-                    $posts[$article['post']] = 1;
+                if( $post_id = $article->getPostId() ) {
+                    $posts[$post_id] = 1;
                 }
-                foreach ($article['children'] as $child) {
-                    if (!empty($child['post'])) {
-                        $posts[$child['post']] = 1;
+                foreach ($article->getChildArticles() as $child) {
+                    if ( $post_id = $child->getPostId() ) {
+                        $posts[$post_id] = 1;
                     }
                 }
             }
@@ -347,7 +348,7 @@ class Arlima_List
     }
 
     /**
-     * @return array
+     * @return Arlima_Article[]
      */
     public function getArticles()
     {
@@ -517,8 +518,14 @@ class Arlima_List
     {
         $arr = array();
         foreach($this as $key => $val) {
-            if( $key !== 'preview' && $key != 'post_ids' )
+            if( $key !== 'preview' && $key != 'post_ids' ) {
                 $arr[$key] = $val;
+            }
+        }
+
+        // Convert articles to arrays
+        foreach($this->getArticles() as $i => $art) {
+            $arr['articles'][$i] = $art->toArray();
         }
 
         // Backwards compat

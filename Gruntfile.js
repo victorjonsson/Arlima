@@ -150,46 +150,45 @@ module.exports = function(grunt) {
     grunt.registerTask('build-js', ['validate-js', 'current-version', 'concat', 'uglify', 'change-version']);
 
     /*
+     * Create class documentation
+     */
+    var docsPath = 'classes/docs.md';
+    grunt.registerTask('create-docs', 'Create markdown-formatted class documentation in '+docsPath, function() {
+        var bin = __dirname+'/vendor/victorjonsson/markdowndocs/bin/phpdoc-md',
+            done = this.async();
+
+        exec(bin+' generate --bootstrap=classes/tests/setup.php --ignore=mustache,tests classes > '+docsPath, function(err, stdout, stderr) {
+            if( err || stderr ) {
+                grunt.log.writeln('!! '+(err || stderr));
+                throw new Error('phpdocs-md is missing, please run $ composer update');
+            } else {
+                grunt.log.writeln('* Class docs written to '+docsPath);
+            }
+            done();
+        });
+    });
+
+    /*
      * Run PHP-unit
      */
     grunt.registerTask('phpunit', 'Run phpUnit tests', function() {
 
-        var finishedTests = 0,
-            numTests = config.phpunit.length,
-            done = this.async();
+        var done = this.async();
 
-        config.phpunit.every(function(file) {
-            if( file.indexOf('#') !== 0 ) {
-                exec('phpunit  --no-globals-backup '+file, function (error, stdout, stderr) {
-                    if( handleProcessError(grunt, stderr, error, stdout) ) {
-                        done();
-                    } else {
-
-                        if( stdout.indexOf('<span style="') > -1 ) {
-                            // h4ck.. in case of a php-error the output will not be sent
-                            // to stderr...
-                            handleProcessError(grunt, stdout);
-                            done();
-                        } else if(stdout.indexOf('PHPUnit') > -1 ) {
-                            grunt.log.writeln('* Successfully ran php-unit file '+file);
-                        } else {
-                            handleProcessError(grunt, 'Unexpected output from phpunit: '+stdout);
-                            done();
-                        }
-                    }
-
-                    finishedTests++;
-                    if( finishedTests == numTests ) {
-                        done();
-                    }
-                });
-            } else {
-                numTests--;
-                if( finishedTests == numTests ) {
-                    done();
+        exec('phpunit', function(err, stdout, stderr) {
+            if( !handleProcessError(grunt, stderr, err, stdout) ) {
+                if( stdout.indexOf('<span style="') > -1 ) {
+                    // h4ck.. in case of a php-error the output will not be sent
+                    // to stderr...
+                    handleProcessError(grunt, stdout);
+                } else if(stdout.indexOf('PHPUnit') > -1 ) {
+                    grunt.log.writeln('* Successfully ran all unit tests ');
+                    grunt.log.writeln(stdout);
+                } else {
+                    handleProcessError(grunt, 'Unexpected output from phpunit: '+stdout);
                 }
             }
-            return true;
+            done();
         });
     });
 
@@ -260,6 +259,7 @@ module.exports = function(grunt) {
         'validate-readme',
         'change-version',
         'localization',
+        'create-docs',
         'less',
         'concat',
         'uglify'

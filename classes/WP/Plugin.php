@@ -40,9 +40,9 @@ class Arlima_WP_Plugin
         if( is_admin() ) {
 
             // Register install/uninstall procedures
-            register_activation_hook(__FILE__, 'Arlima_Plugin::install');
-            register_deactivation_hook(__FILE__, 'Arlima_Plugin::deactivate');
-            register_uninstall_hook(__FILE__, 'Arlima_Plugin::uninstall');
+            register_activation_hook(__FILE__, 'Arlima_WP_Plugin::install');
+            register_deactivation_hook(__FILE__, 'Arlima_WP_Plugin::deactivate');
+            register_uninstall_hook(__FILE__, 'Arlima_WP_Plugin::uninstall');
 
             // Add actions and filters used in wp-admin
             $this->initAdminActions();
@@ -98,10 +98,9 @@ class Arlima_WP_Plugin
         add_shortcode('arlima', array($this, 'arlimaListShortCode'));
 
         if ( is_page() ) {
-            add_filter('the_content', array($this, 'displayArlimaList'));
+            add_filter('the_content', 'Arlima_WP_Plugin::displayArlimaList');
         }
 
-        // Add filters that makes content editable in context
         if( is_user_logged_in() && arlima_is_preview() ) {
             wp_enqueue_script('jquery'); // The list manager uses the jQuery object on this page
         }
@@ -109,11 +108,12 @@ class Arlima_WP_Plugin
 
     /**
      */
-    function displayArlimaList($content)
+    static function displayArlimaList($content)
     {
         if( arlima_has_list() ) {
+            remove_filter('the_content', 'Arlima_WP_Plugin::displayArlimaList');
             global $post;
-            $relation = $this->cms->getRelationData($post->ID);
+            $relation = Arlima_CMSFacade::load()->getRelationData($post->ID);
             if( isset($relation['attr']['position']) && $relation['attr']['position'] == 'after') {
                 $relation['attr']['echo'] = false;
                 $content .= arlima_render_list(arlima_get_list(), $relation['attr']);
@@ -381,7 +381,7 @@ class Arlima_WP_Plugin
         // Add settings
         $plugin = new self();
         $settings = $plugin->loadSettings();
-        $settings['install_version'] = self::VERSION;
+        $settings['install_version'] = ARLIMA_PLUGIN_VERSION;
         $settings['image_quality'] = 100;
         $plugin->saveSettings($settings);
     }
@@ -428,7 +428,7 @@ class Arlima_WP_Plugin
         $current_version = $plugin->getSetting('install_version', 0);
 
         // Time for an update
-        if ( $current_version != ARLIMA_PLUGIN_VERSION ) {
+        if ( $current_version !== ARLIMA_PLUGIN_VERSION ) {
 
             $settings = $plugin->loadSettings();
             $current_version_float = Arlima_Utils::versionNumberToFloat($current_version);
@@ -476,7 +476,7 @@ class Arlima_WP_Plugin
         global $wp_query;
         $format = isset($_REQUEST['format']) ? $_REQUEST['format'] : Arlima_ExportManager::DEFAULT_FORMAT;
         $page_slug = !empty($wp_query->query_vars['pagename']) ? $wp_query->query_vars['pagename'] : '';
-        $export_manager = new Arlima_ExportManager($this, $this->getSetting('available_export'));
+        $export_manager = new Arlima_ExportManager($this->getSetting('available_export'));
         $export_manager->export($page_slug, $format);
         die;
     }
@@ -668,12 +668,11 @@ class Arlima_WP_Plugin
 
             if ( isset($_POST['arlima_nonce']) && wp_verify_nonce($_POST['arlima_nonce'], __FILE__) ) {
 
-
                 if ( empty($_POST['arlima_list']) ) {
                     $this->cms->removeRelation($post_id);
                 } else {
-                    $repo = new Arlima_ListRepository();
-                    $this->cms->relate($repo->load($_POST['arlima_list']), $post_id, array(
+
+                    $this->cms->relate($_POST['arlima_list'], $post_id, array(
                         'width' => (int)$_POST['arlima_width'],
                         'offset' => (int)$_POST['arlima_offset'],
                         'limit' => (int)$_POST['arlima_limit'],
@@ -851,7 +850,7 @@ class Arlima_WP_Plugin
     {
         // Make it possible for theme or other plugins to
         // define their own streamer colors
-        $plugin = new Arlima_Plugin();
+        $plugin = new Arlima_WP_Plugin();
         $colors = apply_filters('arlima_streamer_colors', array());
         if ( empty($colors) ) {
             // http://clrs.cc/
@@ -970,7 +969,7 @@ class Arlima_WP_Plugin
         $list = Arlima_List::builder()
                         ->id($list_id)
                         ->version($version_id)
-                        ->includeFuturePosts()
+                        ->includeFutureArticles()
                         ->build();
 
         if( $list->numArticles() > 0 ) {

@@ -6,7 +6,6 @@
 $arlima_plugin = $this->getPlugin();
 $settings = $arlima_plugin->loadSettings();
 
-$export_manager = new Arlima_ExportManager($arlima_plugin, $settings['available_export']);
 $import_manager = new Arlima_ImportManager($arlima_plugin);
 $list_repo = new Arlima_ListRepository();
 $sys = Arlima_CMSFacade::load();
@@ -22,8 +21,7 @@ if( isset($_POST['settings']) ) {
 
     // Save approved for export
     $approved = empty($_POST['approved']) ? array() : $_POST['approved'];
-    $settings = $arlima_plugin->loadSettings();
-    $settings['available_export'] = $lists;
+    $settings['available_export'] = $approved;
     $arlima_plugin->saveSettings($settings);
 
     // Remove imported lists
@@ -40,6 +38,7 @@ if( isset($_POST['settings']) ) {
 // Create a list of our arlima lists sorted so that those lists
 // approved for export comes first. Also find out from which
 // page the approved lists can be exported
+$export_manager = new Arlima_ExportManager(empty($settings['available_export']) ? array():$settings['available_export']);
 $lists_sorted = array();
 $lists = $list_repo->loadListSlugs();
 $has_exportable_list = false;
@@ -53,7 +52,7 @@ foreach($lists as &$list_data) {
         $pages = $sys->loadRelatedPages( $list_repo->load($list_data->id) );
 
         if(!empty($pages)) { // monkey patch from which page list can be exported
-            $list_data->export_page = rtrim(get_permalink($pages[0]->ID),'/') .'/'.Arlima_Plugin::EXPORT_FEED_NAME.'/';
+            $list_data->export_page = rtrim(get_permalink($pages[0]->ID),'/') .'/'.Arlima_WP_Plugin::EXPORT_FEED_NAME.'/';
         }
 
         array_unshift($lists_sorted, $list_data);
@@ -65,7 +64,7 @@ foreach($lists as &$list_data) {
 }
 
 /**
- * @param Arlima_Plugin $arlima_plugin
+ * @param Arlima_WP_Plugin $arlima_plugin
  * @param string $setting
  */
 function output_yesorno_select($arlima_plugin, $setting) {
@@ -90,6 +89,10 @@ if( isset($message) ): ?>
 
     <form action="admin.php?page=arlima-settings" method="post">
 
+        <p>
+            <strong>Version: </strong> <?php echo $arlima_plugin->getSetting('install_version') ?>
+        </p>
+
         <div class="arlima-postbox">
             <h3><?php _e('Streamer Colors', 'arlima') ?></h3>
             <div class="inside">
@@ -109,7 +112,7 @@ if( isset($message) ): ?>
             </div>
         </div>
 
-        <?php if( Arlima_Plugin::supportsImageEditor() ): ?>
+        <?php if( Arlima_WP_Plugin::supportsImageEditor() ): ?>
             <div class="arlima-postbox">
                 <h3><?php _e('Image Quality', 'arlima') ?></h3>
                 <div class="inside">

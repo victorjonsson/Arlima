@@ -323,7 +323,10 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                     $features.filter('[data-feature="file-include"]').show();
                 }
             } else {
-                blocker.removeBlockers();
+                if( !ArlimaListContainer.list(this.article.listID).data.isImported ) {
+                    blocker.removeBlockers();
+                }
+
                 $features.show();
                 $.each(support, function(name, isSupported) {
                     if( name != 'imageSize' && !isSupported ) {
@@ -597,6 +600,19 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                 _this.$streamerContainer.find('.image').html($img.clone());
                 $('.fancybox-close').trigger('click');
                 _this.change(_this.$streamerContainer.find('.content'), $img[0].src);
+            });
+
+            // Make use the naughty user wont write HTML in our inputs.
+            $form.find('input').each(function() {
+                if( this.type == 'text' ) {
+                    $(this).on('blur', function() {
+                        var val = this.value
+                            .replace(/<br(|\/| \/)>/gi, '__');
+
+                        val = $('<div></div>').html(val).text();
+                        this.value = val;
+                    });
+                }
             });
 
             // Detect change in article form and add data to article

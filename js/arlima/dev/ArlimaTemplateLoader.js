@@ -154,7 +154,7 @@ var ArlimaTemplateLoader = (function($) {
                 supports['image'] = templateContent.indexOf('{{image.url}}') > -1 || templateContent.indexOf('{{{html_image}}}') > -1;
                 supports['streamer'] = templateContent.indexOf('{{html_streamer}}') > -1;
                 supports['editor'] = templateContent.indexOf('{{html_content}}') > -1 || templateContent.indexOf('{{content}}') > -1;
-                supports['title'] = templateContent.indexOf('{{html_title}}') > -1;
+                supports['title'] = templateContent.indexOf('{{html_title}}') > -1 || templateContent.indexOf('{{title}}') > -1;
 
                 _self._templateSupport[name] = supports;
 

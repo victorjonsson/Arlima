@@ -293,7 +293,7 @@ class Arlima_TemplateObjectCreator
             $resized_url = Arlima_CMSFacade::load()->generateImageVersion(
                                 $file,
                                 $attach_url,
-                                $dimension,
+                                $dimension[0],
                                 $attach
                             );
 

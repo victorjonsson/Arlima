@@ -37,6 +37,21 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         }
     }
 
+    /**
+     * Translate current string
+     * @param $str
+     * @return string
+     */
+    function translate($str)
+    {
+        $this->initLocalization();
+        return __('Edit article list', 'arlima');
+    }
+
+    /**
+     * Tells whether or not current website visitor can edit pages/posts
+     * @return bool
+     */
     function currentVisitorCanEdit()
     {
         return is_user_logged_in() && current_user_can('edit_posts');
@@ -47,11 +62,22 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         return get_the_content();
     }
 
+    /**
+     * Make string safe for use in a database query
+     * @param string $input
+     * @return string
+     */
     function dbEscape($input)
     {
         return esc_sql(stripslashes($input));
     }
 
+    /**
+     * Get URL of where post/page with given id can be edited by an
+     * administrator
+     * @param int $page_id
+     * @return string
+     */
     function getPageEditURL($page_id)
     {
         $id = is_object($page_id) ? $page_id->ID : $page_id;
@@ -59,6 +85,7 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     }
 
     /**
+     * Returns the file path if it resides within the directory of the CMS.
      * @param string $path
      * @param bool $relative
      * @return bool|string
@@ -74,16 +101,43 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         return false;
     }
 
+    /**
+     * Get a human readable string explaining how long ago given time is, or how much time
+     * there's left until the time takes place
+     * @param int $time
+     * @return string
+     */
     function humanTimeDiff($time)
     {
         return human_time_diff(Arlima_Utils::timeStamp(), $time);
     }
 
-    function getPostURL($id)
+    /**
+     * Get URL of where arlima list with given id can be edited by an
+     * administrator
+     * @param int $id
+     * @return string
+     */
+    function getListEditURL($id)
     {
-        return get_permalink($id);
+        return admin_url('admin.php?page=arlima-main&open_list='.$id);
     }
 
+    /**
+     * Get URL for post/page with given id
+     * @param int $post_id
+     * @return string
+     */
+    function getPostURL($post_id)
+    {
+        return get_permalink($post_id);
+    }
+
+    /**
+     * Get id of the page/post with given slug name
+     * @param string $slug
+     * @return int|bool
+     */
     function getPageIdBySlug($slug)
     {
         $sql = $this->prepare( "SELECT ID, post_type FROM ".$this->getDBPrefix()."posts WHERE post_name = %s AND post_type = 'page' ", $slug );
@@ -91,16 +145,31 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         return $data ? $data[0]->ID : false;
     }
 
+    /**
+     * Get base URL of the website that the CMS provides
+     * @return string
+     */
     function getBaseURL()
     {
         return get_bloginfo('url');
     }
 
+    /**
+     * Sanitize text from CMS specific tags/code as well as ordinary html tags. Use
+     * $allowed to tell which tags that should'nt become removed
+     * @param string $txt
+     * @param string $allowed
+     * @return string
+     */
     function sanitizeText($txt, $allowed='')
     {
         return strip_tags(strip_shortcodes($txt), $allowed);
     }
 
+    /**
+     * An array with URL:s of external lists
+     * @return array
+     */
     function getImportedLists()
     {
         $plugin = new Arlima_WP_Plugin();
@@ -108,6 +177,10 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         return !empty($settings['imported_lists']) ? $settings['imported_lists'] : array();
     }
 
+    /**
+     * @param string $url
+     * @return void
+     */
     function removeImportedList($url)
     {
         $imported_lists = $this->getImportedLists();
@@ -117,6 +190,12 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         }
     }
 
+    /**
+     * Save an array with URL:s of external lists that should be
+     * available in the list manager
+     * @param array $lists
+     * @return mixed
+     */
     public function saveImportedLists($lists)
     {
         $plugin = new Arlima_WP_Plugin();
@@ -125,6 +204,14 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         $plugin->saveSettings($settings);
     }
 
+    /**
+     * Load the contents of an external URL. This function returns an array
+     * with  'headers', 'body', 'response', 'cookies', 'filename' if request was
+     * successful, or throws an Exception if failed
+     * @param string $url
+     * @return array
+     * @throws Exception
+     */
     public function loadExternalURL($url)
     {
         if ( !class_exists('WP_Http') ) {
@@ -142,16 +229,31 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     /* * * * Event functions * * */
 
 
+    /**
+     * Invoke a system event
+     * @return mixed
+     */
     function doAction()
     {
         return call_user_func_array('do_action', func_get_args());
     }
 
+    /**
+     * Filter data
+     * @return mixed
+     */
     function applyFilters()
     {
         return call_user_func_array('apply_filters', func_get_args());
     }
 
+    /**
+     * Schedule an event to take place in the future
+     * @param int $schedule_time
+     * @param string $event
+     * @param mixed $args
+     * @return void
+     */
     function scheduleEvent($schedule_time, $event, $args)
     {
         wp_schedule_single_event( $schedule_time, $event, $args );
@@ -162,25 +264,32 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     /* * * * DB functions * * * */
 
 
+    /**
+     * Prepare an SQL-statement.
+     * @param string $sql
+     * @param array $params
+     * @return mixed
+     */
     function prepare($sql, $params)
     {
         return $this->wpdb->prepare($sql, $params);
     }
 
-    function dbDelta($sql)
-    {
-        if( !function_exists('dbDelta') ) {
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        }
-
-        return dbDelta($sql);
-    }
-
+    /**
+     * Get the prefix used in database table names
+     * @return string
+     */
     function getDBPrefix()
     {
         return $this->wpdb->prefix;
     }
 
+    /**
+     * Calls a method on DB and throws Exception if db error occurs
+     * @param string $sql
+     * @return mixed
+     * @throws Exception
+     */
     public function runSQLQuery($sql)
     {
         if( $sql instanceof WP_Error) {
@@ -212,6 +321,10 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         }
     }
 
+    /**
+     * Flush all caches affecting arlima
+     * @return void
+     */
     public function flushCaches()
     {
         wp_cache_flush();
@@ -225,9 +338,11 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
 
 
     /**
+     * Relate an Arlima list with a post/page
      * @param Arlima_List $list
-     * @param $post_id
-     * @param $attr
+     * @param int $post_id
+     * @param array $attr
+     * @return void
      */
     public function relate($list, $post_id, $attr)
     {
@@ -236,7 +351,9 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     }
 
     /**
-     * Remove all relations for given list
+     * Remove relations made between pages and given list
+     * @param Arlima_List $list
+     * @return void
      */
     public function removeAllRelations($list)
     {
@@ -246,7 +363,9 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     }
 
     /**
-     * @param int $post_id
+     * Remove possible relation this post/page might have with an Arlima list
+     * @param $post_id
+     * @return void
      */
     public function removeRelation($post_id)
     {
@@ -255,8 +374,9 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     }
 
     /**
+     * Get an array with all pages that give list is related to
      * @param Arlima_List $list
-     * @return stdClass[]
+     * @return array
      */
     public function loadRelatedPages($list)
     {
@@ -317,9 +437,10 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     }
 
     /**
-     * Returns false if not relation is made
+     * Get information about possible relations between given
+     * post/page and Arlima lists
      * @param int $post_id
-     * @return array|bool
+     * @return array
      */
     public function getRelationData($post_id)
     {
@@ -355,6 +476,11 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         );
     }
 
+    /**
+     * Get URL of a file that resides within the directory of the CMS
+     * @param string $file
+     * @return string
+     */
     public function getFileURL($file)
     {
         $file = str_replace(DIRECTORY_SEPARATOR, '/', $file);
@@ -366,6 +492,13 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         return $url;
     }
 
+    /**
+     * Get the excerpt of a post/page
+     * @param int $post_id
+     * @param int $excerpt_length
+     * @param string $allowed_tags
+     * @return string
+     */
     function getExcerpt($post_id, $excerpt_length = 35, $allowed_tags = '') {
         if(!$post_id) {
             return false;
@@ -387,22 +520,27 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
 
 
     /**
-     * @param string $url
-     * @param array $dimension array(width, height)
+     * Generate an image version of given file with given max width (resizing image).
+     * Returns the $attach_url if not possible to create image version
+     * @param string $file
+     * @param string $attach_url
+     * @param int $max_width
      * @param int $img_id
      * @return string
      */
-    function generateImageVersion($url, $dimension, $img_id)
+    function generateImageVersion($file, $attach_url, $max_width, $img_id)
     {
         $version_manager = new Arlima_WP_ImageVersionManager($img_id, new Arlima_WP_Plugin($this));
-        $img_url = $version_manager->getVersionURL($dimension[0]);
-        if( $img_url === false )
-            $img_url = $url;
-
-        return $img_url;
+        $img_url = $version_manager->getVersionURL($max_width);
+        return $img_url ? $img_url : $attach_url;
     }
 
 
+    /**
+     * Get an array with info (height, width, file path) about image with given id
+     * @param int $img_id
+     * @return array
+     */
     function getImageData($img_id)
     {
         $meta = wp_get_attachment_metadata($img_id);
@@ -428,6 +566,11 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         $this->p = $this->getPostInGlobalScope();
     }
 
+    /**
+     * Get publish time for the post with given id
+     * @param int $post_id
+     * @return mixed
+     */
     function getPostTimeStamp($p)
     {
         static $date_prop = null;
@@ -512,6 +655,12 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         return isset($GLOBALS['post']) ? $GLOBALS['post']->ID : 0;
     }
 
+    /**
+     * Get an array with 'attachmend' being image id, 'alignment', 'sizename' and 'url' of the image
+     * that is related to the post/page with given id. Returns false if no image exists
+     * @param $id
+     * @return array|bool
+     */
     function getArlimaArticleImageFromPost($id)
     {
         if( $img = get_post_thumbnail_id($id) ) {
@@ -591,11 +740,20 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         }
     }
 
+    /**
+     * Tells whether or not a page/post with given id is preloaded
+     * @param int $id
+     * @return bool
+     */
     function isPreloaded($id)
     {
         return wp_cache_get($id, 'posts') ? true : false;
     }
 
+    /**
+     * Get id the page/post that currently is being visited
+     * @return int|bool
+     */
     function getQueriedPageId()
     {
         if( is_page() ) {

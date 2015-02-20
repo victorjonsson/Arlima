@@ -4,7 +4,7 @@ Plugin Name: Arlima (article list manager)
 Plugin URI: https://github.com/victorjonsson/Arlima
 Description: Manage the order of posts on your front page, or any page you want. This is a plugin suitable for online newspapers that's in need of a fully customizable front page.
 Author: VK (<a href="http://twitter.com/chredd">@chredd</a>, <a href="http://twitter.com/znoid">@znoid</a>, <a href="http://twitter.com/victor_jonsson">@victor_jonsson</a>, <a href="http://twitter.com/lefalque">@lefalque</a>)
-Version: 3.1.beta.18
+Version: 3.1.beta.19
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -71,7 +71,7 @@ function arlima_is_preview() {
     static $is_arlima_preview = null;
     if( $is_arlima_preview === null ) {
         $is_arlima_preview =  isset( $_GET[Arlima_List::QUERY_ARG_PREVIEW] ) &&
-                                is_user_logged_in();
+                                Arlima_CMSFacade::load()->currentVisitorCanEdit();
     }
     return $is_arlima_preview;
 }
@@ -126,15 +126,15 @@ function arlima_edit_link($list=false, $message=false) {
         return;
     }
 
-    $sys = Arlima_CMSFacade::load();
-    if( $sys->currentVisitorCanEdit() ) {
+    $cms = Arlima_CMSFacade::load();
+
+    if( $cms->currentVisitorCanEdit() ) {
         if( !$message ) {
-            $sys->initLocalization();
-            $message = __('Edit article list', 'arlima').' &quot;'.$list->getTitle().'&quot;';
+            $message = $cms->translate('Edit article list').' &quot;'.$list->getTitle().'&quot;';
         }
         ?>
         <div class="arlima-edit-list admin-tool">
-            <a href="<?php echo admin_url('admin.php?page=arlima-main&open_list='.$list->getId()) ?>" target="_arlima">
+            <a href="<?php echo $cms->getListEditURL($list->getId()) ?>" target="_arlima">
                 <?php echo $message ?>
             </a>
         </div>
@@ -198,21 +198,25 @@ function arlima_get_list($list_only = true) {
  * Load an arlima list
  * @param int|string $id_or_slug Either list id, list slug or URL to external list or RSS-feed
  * @param mixed $version Omit this argument, or set it to false, if you want to load the latest published version of the list. This argument won't have any effect if you're loading an external list/feed
- * @param bool $include_future_post Whether or not the list should include future posts. This argument won't have any effect if you're loading an external list/feed
+ * @param bool $include_future_articles Whether or not the list should include future posts. This argument won't have any effect if you're loading an external list/feed
  * @return Arlima_List
  */
-function arlima_load_list($id_or_slug, $version=false, $include_future_post=false) {
-    $builder = Arlima_List::builder();
+function arlima_load_list($id_or_slug, $version=false, $include_future_articles=false) {
 
-    if( $include_future_post ) {
-        $builder->includeFutureArticles();
-    }
+    $builder = Arlima_List::builder();
+    $builder->includeFutureArticles($include_future_articles);
 
     if( filter_var($id_or_slug, FILTER_VALIDATE_URL) !== false ) {
         $builder->import($id_or_slug);
-    } else {
+    }
+    else {
+
         $builder->id($id_or_slug);
-        $builder->version($version);
+
+        if( $version === 'preview' )
+            $builder->loadPreview();
+        elseif( $version )
+            $builder->version($version);
     }
 
     return $builder->build();
@@ -239,6 +243,7 @@ function arlima_render_list($list, $args=array()) {
             ), $args);
 
     $builder = Arlima_List::builder();
+    $cms = Arlima_CMSFacade::load();
 
     if( is_numeric($list) || is_string($list) ) {
         $renderer = new Arlima_ListTemplateRenderer( $builder->id($list)->build() );
@@ -250,7 +255,7 @@ function arlima_render_list($list, $args=array()) {
 
     if( $args['check_if_exists'] && !$renderer->getList()->exists() ) {
         if( $args['no_list_message'] ) {
-            $msg = '<p>'.__('This list does not exist', 'arlima').'</p>';
+            $msg = '<p>'.$cms->translate('This list does not exist').'</p>';
             if( $args['echo'] )
                 echo $msg;
             else
@@ -262,7 +267,6 @@ function arlima_render_list($list, $args=array()) {
         $renderer->setLimit( $args['limit'] );
         $renderer->setSection( $args['section'] );
 
-        $sys = Arlima_CMSFacade::load();
 
         if( $renderer->havePosts() ) {
 
@@ -272,19 +276,19 @@ function arlima_render_list($list, $args=array()) {
                 $action_suffix = '-'.$args['filter_suffix'];
             }
 
-            $sys->doAction('arlima_list_begin'.$action_suffix, $renderer, $args);
+            $cms->doAction('arlima_list_begin'.$action_suffix, $renderer, $args);
             Arlima_TemplateObjectCreator::setArticleWidth($args['width']);
 
             $content = $renderer->renderList($args['echo']);
 
             Arlima_TemplateObjectCreator::setFilterSuffix('');
 
-            $sys->doAction('arlima_list_end'.$action_suffix, $renderer, $args);
+            $cms->doAction('arlima_list_end'.$action_suffix, $renderer, $args);
 
             if( $args['echo'] ) {
                 return true;
             } else {
-                return $sys->applyFilters('arlima_list_content', $content, $renderer);
+                return $cms->applyFilters('arlima_list_content', $content, $renderer);
             }
         }
     }

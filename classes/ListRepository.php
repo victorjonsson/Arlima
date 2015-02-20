@@ -184,7 +184,7 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
             KEY slug (al_slug)
         );";
 
-        $this->cms->dbDelta($sql);
+        $this->cms->runSQLQuery($sql);
     }
 
     /**

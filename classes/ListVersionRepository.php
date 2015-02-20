@@ -561,7 +561,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         KEY alid_created (alv_al_id, alv_created)
         );";
 
-        $this->cms->dbDelta($sql);
+        $this->cms->runSQLQuery($sql);
 
         $table_name = $this->dbTable('_article');
 
@@ -588,7 +588,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         KEY postpublishdate (ala_published)
         );";
 
-        $this->cms->dbDelta($sql);
+        $this->cms->runSQLQuery($sql);
     }
 
     /**
@@ -684,7 +684,14 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             if( $row->ala_parent == -1 ) {
                 $articles[] = new Arlima_Article($article_data);
             } elseif( !in_array((int)$row->ala_parent, $removed_future_parents) ) {
-                $articles[ $row->ala_parent ]->addChild( $article_data );
+                if( empty($articles[ $row->ala_parent ]) ) {
+                    $log = 'PHP Warning: found child that is referring to a parent article that does not exist, child '.
+                            $article_data['id'].' parent '.$row->ala_parent. ' URL: '.$_SERVER['REQUEST_URI'];
+                    error_log($log);
+                }
+                else {
+                    $articles[ $row->ala_parent ]->addChild( $article_data );
+                }
             }
         }
 

@@ -90,7 +90,7 @@ interface Arlima_CMSInterface
     function setPostInGlobalScope($id);
 
     /**
-     * @return mixed
+     * @return string
      */
     function getContentOfPostInGlobalScope();
 

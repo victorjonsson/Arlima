@@ -175,7 +175,7 @@
 | public | <strong>abstract generateImageVersion(</strong><em>string</em> <strong>$file</strong>, <em>string</em> <strong>$attach_url</strong>, <em>int</em> <strong>$max_width</strong>, <em>int</em> <strong>$img_id</strong>)</strong> : <em>string</em><br /><em>Generate an image version of given file with given max width (resizing image). Returns the $attach_url if not possible to create image version</em> |
 | public | <strong>abstract getArlimaArticleImageFromPost(</strong><em>mixed</em> <strong>$id</strong>)</strong> : <em>array/bool</em><br /><em>Get an array with 'attachmend' being image id, 'alignment', 'sizename' and 'url' of the image that is related to the post/page with given id. Returns false if no image exists</em> |
 | public | <strong>abstract getBaseURL()</strong> : <em>string</em><br /><em>Get base URL of the website that the CMS provides</em> |
-| public | <strong>abstract getContentOfPostInGlobalScope()</strong> : <em>mixed</em> |
+| public | <strong>abstract getContentOfPostInGlobalScope()</strong> : <em>string</em> |
 | public | <strong>abstract getDBPrefix()</strong> : <em>string</em><br /><em>Get the prefix used in database table names</em> |
 | public | <strong>abstract getExcerpt(</strong><em>int</em> <strong>$post_id</strong>, <em>mixed/int</em> <strong>$excerpt_length=35</strong>, <em>string</em> <strong>$allowed_tags=`''`</strong>)</strong> : <em>string</em><br /><em>Get the excerpt of a post/page</em> |
 | public | <strong>abstract getFileURL(</strong><em>string</em> <strong>$file</strong>)</strong> : <em>string</em><br /><em>Get URL of a file that resides within the directory of the CMS</em> |
@@ -639,7 +639,7 @@
 | public | <strong>generateImageVersion(</strong><em>string</em> <strong>$file</strong>, <em>string</em> <strong>$attach_url</strong>, <em>int</em> <strong>$max_width</strong>, <em>int</em> <strong>$img_id</strong>)</strong> : <em>string</em><br /><em>Generate an image version of given file with given max width (resizing image). Returns the $attach_url if not possible to create image version</em> |
 | public | <strong>getArlimaArticleImageFromPost(</strong><em>mixed</em> <strong>$id</strong>)</strong> : <em>array/bool</em><br /><em>Get an array with 'attachmend' being image id, 'alignment', 'sizename' and 'url' of the image that is related to the post/page with given id. Returns false if no image exists</em> |
 | public | <strong>getBaseURL()</strong> : <em>string</em><br /><em>Get base URL of the website that the CMS provides</em> |
-| public | <strong>getContentOfPostInGlobalScope()</strong> : <em>mixed</em> |
+| public | <strong>getContentOfPostInGlobalScope()</strong> : <em>string</em> |
 | public | <strong>getDBPrefix()</strong> : <em>string</em><br /><em>Get the prefix used in database table names</em> |
 | public | <strong>getDefaultListAttributes()</strong> : <em>array</em> |
 | public | <strong>getExcerpt(</strong><em>int</em> <strong>$post_id</strong>, <em>mixed/int</em> <strong>$excerpt_length=35</strong>, <em>string</em> <strong>$allowed_tags=`''`</strong>)</strong> : <em>string</em><br /><em>Get the excerpt of a post/page</em> |
@@ -651,7 +651,7 @@
 | public | <strong>getPageEditURL(</strong><em>int</em> <strong>$page_id</strong>)</strong> : <em>string</em><br /><em>Get URL of where post/page with given id can be edited by an administrator</em> |
 | public | <strong>getPageIdBySlug(</strong><em>string</em> <strong>$slug</strong>)</strong> : <em>int/bool</em><br /><em>Get id of the page/post with given slug name</em> |
 | public | <strong>getPostIDInLoop()</strong> : <em>mixed</em> |
-| public | <strong>getPostInGlobalScope()</strong> : <em>mixed</em> |
+| public | <strong>getPostInGlobalScope()</strong> : <em>bool/mixed</em> |
 | public | <strong>getPostTimeStamp(</strong><em>mixed</em> <strong>$p</strong>)</strong> : <em>mixed</em><br /><em>Get publish time for the post with given id</em> |
 | public | <strong>getPostURL(</strong><em>int</em> <strong>$post_id</strong>)</strong> : <em>string</em><br /><em>Get URL for post/page with given id</em> |
 | public | <strong>getQueriedPageId()</strong> : <em>int/bool</em><br /><em>Get id the page/post that currently is being visited</em> |

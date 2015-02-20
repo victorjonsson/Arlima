@@ -471,7 +471,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
                 }
             });
 
-            if( hasOpenChildWrapper && ArlimaJS.groupChildArticles ) {
+            if( hasOpenChildWrapper ) {
                 childrenHTML += '</div>';
             }
 

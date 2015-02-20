@@ -16,7 +16,7 @@ defined('ARLIMA_COMPILE_LESS_IN_BROWSER')
     or define('ARLIMA_COMPILE_LESS_IN_BROWSER', ARLIMA_DEV_MODE);
 
 // Plugin version (only edit this via grunt!)
-define('ARLIMA_PLUGIN_VERSION', '3.1.beta.19');
+define('ARLIMA_PLUGIN_VERSION', '3.1.beta.20');
 define('ARLIMA_FILE_VERSION', ARLIMA_PLUGIN_VERSION .(ARLIMA_DEV_MODE ? '__'.time():''));
 
 // Which type of tag to use for images in Arlima RSS feeds
@@ -26,11 +26,6 @@ defined('ARLIMA_RSS_IMG_TAG')
 // Whether or not you should be able to set templates on section dividers
 defined('ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES')
     or define('ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES', false);
-
-// Whether or not arlima should apply its own logic for grouping child articles
-// when rendering article lists
-defined('ARLIMA_GROUP_CHILD_ARTICLES')
-    or define('ARLIMA_GROUP_CHILD_ARTICLES', true);
 
 // Whether or not the list manager in wp-admin should send js errors to the
 // server log via ajax

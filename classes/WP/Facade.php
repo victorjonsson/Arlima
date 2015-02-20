@@ -57,6 +57,9 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         return is_user_logged_in() && current_user_can('edit_posts');
     }
 
+    /**
+     * @return string
+     */
     function getContentOfPostInGlobalScope()
     {
         return get_the_content();
@@ -597,6 +600,9 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         wp_reset_query();
     }
 
+    /**
+     * @return bool|mixed
+     */
     function getPostInGlobalScope()
     {
         return isset($GLOBALS['post']) ? $GLOBALS['post']:false;

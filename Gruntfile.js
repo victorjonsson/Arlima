@@ -105,6 +105,21 @@ module.exports = function(grunt) {
     });
 
     /*
+     * Update composer
+     */
+    grunt.registerTask('composer', 'Update composer', function() {
+        var done = this.async();
+        exec('composer update', function(err, stdout, stderr) {
+            if( err || stderr ) {
+                throw new Error(err || stderr);
+            } else {
+                grunt.log.writeln(stdout);
+            }
+            done();
+        });
+    });
+
+    /*
      * Change to new version or the next version number in all files
      * containing the version definition
      */
@@ -254,6 +269,7 @@ module.exports = function(grunt) {
      * Default task - creates a new release version
      */
     var defaultTasks = [
+        'composer',
         'phpunit',
         'validate-js',
         'validate-readme',

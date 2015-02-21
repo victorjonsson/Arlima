@@ -117,6 +117,13 @@
 | public | <strong>opt(</strong><em>string</em> <strong>$opt</strong>, <em>bool/mixed</em> <strong>$default=false</strong>)</strong> : <em>string</em><br /><em>Get an article option, will return the value of $default if the option does'nt exist</em> |
 | public | <strong>toArray()</strong> : <em>array</em><br /><em>Get all data representing the article as an array</em> |
 | protected | <strong>isInScheduledInterval(</strong><em>string</em> <strong>$schedule_interval</strong>)</strong> : <em>bool</em><br /><em>Will try to parse a schedule-interval-formatted string and determine if we're currently in the time interval</em> |
+#### Examples of isInScheduledInterval
+```
+isInScheduledInterval(':');
+isInScheduledInterval('Mon,Tue,Fri:');
+isInScheduledInterval(':10-12');
+isInScheduledInterval('Thu:12,15,18');
+````
 
 *This class implements \ArrayAccess, \Countable*
 
@@ -435,6 +442,13 @@
 | public | <strong>updateDatabaseTables(</strong><em>\float</em> <strong>$currently_installed_version</strong>)</strong> : <em>void</em> |
 | public | <strong>versionBelongsToList(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>int</em> <strong>$version_id</strong>)</strong> : <em>bool</em> |
 | protected | <strong>toArray(</strong><em>array/[\Arlima_Article](#class-arlima_article)[]</em> <strong>$articles</strong>)</strong> : <em>mixed</em><br /><em>Convert from articles from objects to arrays and update possibly changed published date of articles</em> |
+#### Examples of updateArticle
+```php
+<?php
+    $article_arr = array(...);
+    $updated = $repo->updateArticle($article->getId(), $article_arr);
+    $not_updated = array_diff($article_arr, $updated);
+````
 
 *This class extends [\Arlima_AbstractRepositoryDB](#class-arlima_abstractrepositorydb-abstract)*
 
@@ -464,6 +478,18 @@
 ### Class: Arlima_SimpleListRenderer
 
 > The most simple type of list renderer
+
+###### Example
+```php
+<?php
+   $list = $list_factory->loadListBySlug('my-arlima-list');
+   $renderer = new Arlima_SimpleListRenderer($list);
+   $renderer->setDisplayPostCallback(function($article_counter, $article, $post, $list) {
+return '...';
+   });
+ 
+   $renderer->renderList();
+````
 
 | Visibility | Function |
 |:-----------|:---------|

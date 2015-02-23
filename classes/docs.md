@@ -119,10 +119,10 @@
 | protected | <strong>isInScheduledInterval(</strong><em>string</em> <strong>$schedule_interval</strong>)</strong> : <em>bool</em><br /><em>Will try to parse a schedule-interval-formatted string and determine if we're currently in the time interval</em> |
 #### Examples of isInScheduledInterval
 ```
-isInScheduledInterval(':');
-isInScheduledInterval('Mon,Tue,Fri:');
-isInScheduledInterval(':10-12');
-isInScheduledInterval('Thu:12,15,18');
+isInScheduledInterval('*:*'); // All days of the week and all hours of the day
+ isInScheduledInterval('Mon,Tue,Fri:*'); // All hours of the day on monday, tuesday and friday
+ isInScheduledInterval('*:10-12'); // The hours 10, 11 and twelve all days of the week
+ isInScheduledInterval('Thu:12,15,18'); /7 Only on thursday and at the hours 12, 15 and 18
 ````
 
 *This class implements \ArrayAccess, \Countable*
@@ -445,9 +445,9 @@ isInScheduledInterval('Thu:12,15,18');
 #### Examples of updateArticle
 ```php
 <?php
-    $article_arr = array(...);
-    $updated = $repo->updateArticle($article->getId(), $article_arr);
-    $not_updated = array_diff($article_arr, $updated);
+  $article_arr = array(...);
+  $updated = $repo->updateArticle($article->getId(), $article_arr);
+  $not_updated = array_diff($article_arr, $updated);
 ````
 
 *This class extends [\Arlima_AbstractRepositoryDB](#class-arlima_abstractrepositorydb-abstract)*
@@ -482,13 +482,13 @@ isInScheduledInterval('Thu:12,15,18');
 ###### Example
 ```php
 <?php
-   $list = $list_factory->loadListBySlug('my-arlima-list');
-   $renderer = new Arlima_SimpleListRenderer($list);
-   $renderer->setDisplayPostCallback(function($article_counter, $article, $post, $list) {
-return '...';
-   });
- 
-   $renderer->renderList();
+     $list = Arlima_List::builder()->slug('frontpage')->build();
+     $renderer = new Arlima_SimpleListRenderer($list);
+     $renderer->setDisplayPostCallback(function($article_counter, $article, $post, $list) {
+  return '...';
+     });
+
+     $renderer->renderList();
 ````
 
 | Visibility | Function |
@@ -583,7 +583,7 @@ return '...';
 <hr /> 
 ### Class: Arlima_WP_AbstractAdminPage (abstract)
 
-> Base class extended by classes representing admin pages in wordpress.  Using this class reduces the amount of code that needs to be written when wanting to have several admin pages in a plugin. It also reduces code duplication that often appears when having several admin pages in one plugin.
+> Base class extended by classes representing admin pages in wordpress. Using this class reduces the amount of code that needs to be written when wanting to have several admin pages in a plugin. It also reduces code duplication that often appears when having several admin pages in one plugin.
 
 | Visibility | Function |
 |:-----------|:---------|

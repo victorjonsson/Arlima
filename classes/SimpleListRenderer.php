@@ -7,13 +7,13 @@
  * @example
  *  <code>
  *  <?php
- *  $list = $list_factory->loadListBySlug('my-arlima-list');
- *  $renderer = new Arlima_SimpleListRenderer($list);
- *  $renderer->setDisplayPostCallback(function($article_counter, $article, $post, $list) {
- *      return '...';
- *  });
+ *      $list = Arlima_List::builder()->slug('frontpage')->build();
+ *      $renderer = new Arlima_SimpleListRenderer($list);
+ *      $renderer->setDisplayPostCallback(function($article_counter, $article, $post, $list) {
+ *          return '...';
+ *      });
  *
- *  $renderer->renderList();
+ *      $renderer->renderList();
  *  </code>
  *
  * @package Arlima

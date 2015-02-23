@@ -100,10 +100,11 @@ class Arlima_ExportManager
      * @return bool|mixed
      */
     private function getPageIdBySlug( $slug ) {
-        $page_id = wp_cache_get('arlima_slug_2_page_'.$slug, 'arlima');
+        $cache = Arlima_CacheManager::loadInstance();
+        $page_id = $cache->get('arlima_slug_2_page_'.$slug, 'arlima');
         if( !$page_id ) {
             if ( $page_id = $this->cms->getPageIdBySlug($slug) ) {
-                wp_cache_set('arlima_slug_2_page_'.$slug, $page_id, 'arlima', 60);
+                $cache->set('arlima_slug_2_page_'.$slug, $page_id, 'arlima', 60);
             }
         }
 

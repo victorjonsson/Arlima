@@ -232,8 +232,8 @@ class Arlima_Article implements ArrayAccess, Countable {
      * @example
      *  isInScheduledInterval('*:*'); // All days of the week and all hours of the day
      *  isInScheduledInterval('Mon,Tue,Fri:*'); // All hours of the day on monday, tuesday and friday
-     *  isInScheduledInterval('*:10-12'); // The hours 10, 11 and twelve all days of the week
-     *  isInScheduledInterval('Thu:12,15,18'); /7 Only on thursday and at the hours 12, 15 and 18
+     *  isInScheduledInterval('*:10-12'); // The hours 10, 11 and 12 all days of the week
+     *  isInScheduledInterval('Thu:12,15,18'); // Only on thursday and at the hours 12, 15 and 18
      *
      * @param string $schedule_interval
      * @return bool

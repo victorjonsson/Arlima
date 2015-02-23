@@ -79,7 +79,7 @@ class Arlima_TemplatePathResolver
     }
 
     /**
-     * Takes a file path to somewhere inside wp-content and turns it into an url.
+     * Takes a file path to somewhere within the CMS directory and turns it into an url.
      * @param string $template_file
      * @return string
      */

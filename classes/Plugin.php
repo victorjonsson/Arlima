@@ -4,7 +4,7 @@
 /**
  * Utility class for the Arlima plugin.
  *
- * @deprecated
+ * @deprecated Use Arlima_WP_Plugin instead
  * @see Arlima_WP_Plugin
  *
  * @package Arlima

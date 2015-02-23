@@ -2,7 +2,7 @@
 
 
 /**
- * Wrapper for wp_cache functions.
+ * Wrapper for cache functions provided by the CMS
  *
  * @package Arlima
  * @since 2.0

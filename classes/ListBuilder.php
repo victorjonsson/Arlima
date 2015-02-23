@@ -57,8 +57,8 @@ class Arlima_ListBuilder {
 
 
     /**
-     * @param null|Arlima_ListRepository $list_repo
-     * @param null|Arlima_ListVersionRepository $version_repo
+     * @param Arlima_ListRepository $list_repo
+     * @param Arlima_ListVersionRepository $version_repo
      */
     public function __construct($list_repo=null, $version_repo=null)
     {

@@ -121,8 +121,8 @@
 ```
 isInScheduledInterval('*:*'); // All days of the week and all hours of the day
  isInScheduledInterval('Mon,Tue,Fri:*'); // All hours of the day on monday, tuesday and friday
- isInScheduledInterval('*:10-12'); // The hours 10, 11 and twelve all days of the week
- isInScheduledInterval('Thu:12,15,18'); /7 Only on thursday and at the hours 12, 15 and 18
+ isInScheduledInterval('*:10-12'); // The hours 10, 11 and 12 all days of the week
+ isInScheduledInterval('Thu:12,15,18'); // Only on thursday and at the hours 12, 15 and 18
 ````
 
 *This class implements \ArrayAccess, \Countable*
@@ -152,7 +152,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 <hr /> 
 ### Class: Arlima_CacheManager
 
-> Wrapper for wp_cache functions.
+> Wrapper for cache functions provided by the CMS
 
 | Visibility | Function |
 |:-----------|:---------|
@@ -340,7 +340,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 
 | Visibility | Function |
 |:-----------|:---------|
-| public | <strong>__construct(</strong><em>mixed/null/[\Arlima_ListRepository](#class-arlima_listrepository)</em> <strong>$list_repo=null</strong>, <em>mixed/null/[\Arlima_ListVersionRepository](#class-arlima_listversionrepository)</em> <strong>$version_repo=null</strong>)</strong> : <em>void</em> |
+| public | <strong>__construct(</strong><em>[\Arlima_ListRepository](#class-arlima_listrepository)</em> <strong>$list_repo=null</strong>, <em>[\Arlima_ListVersionRepository](#class-arlima_listversionrepository)</em> <strong>$version_repo=null</strong>)</strong> : <em>void</em> |
 | public | <strong>build()</strong> : <em>[\Arlima_List](#class-arlima_list)</em><br /><em>This function will always return a List object even if it might not exists, thus you should call $list->exists() on returned list to verify that the list actually do exist</em> |
 | public | <strong>fromPage(</strong><em>int</em> <strong>$page_id</strong>)</strong> : <em>[\Arlima_ListBuilder](#class-arlima_listbuilder)</em> |
 | public | <strong>id(</strong><em>int</em> <strong>$in</strong>)</strong> : <em>[\Arlima_ListBuilder](#class-arlima_listbuilder)</em> |
@@ -453,9 +453,9 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 *This class extends [\Arlima_AbstractRepositoryDB](#class-arlima_abstractrepositorydb-abstract)*
 
 <hr /> 
-### Class: Arlima_Plugin
+### <strike>Class: Arlima_Plugin</strike>
 
-> Utility class for the Arlima plugin.
+> **DEPRECATED** Use Arlima_WP_Plugin instead
 
 | Visibility | Function |
 |:-----------|:---------|
@@ -558,7 +558,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | Visibility | Function |
 |:-----------|:---------|
 | public | <strong>__construct(</strong><em>mixed/array</em> <strong>$paths=null</strong>, <em>bool</em> <strong>$apply_path_filter=true</strong>)</strong> : <em>void</em> |
-| public | <strong>fileToUrl(</strong><em>string</em> <strong>$template_file</strong>)</strong> : <em>string</em><br /><em>Takes a file path to somewhere inside wp-content and turns it into an url.</em> |
+| public | <strong>fileToUrl(</strong><em>string</em> <strong>$template_file</strong>)</strong> : <em>string</em><br /><em>Takes a file path to somewhere within the CMS directory and turns it into an url.</em> |
 | public | <strong>find(</strong><em>string</em> <strong>$template_name</strong>)</strong> : <em>bool/string</em><br /><em>Find the path of a template file with given name.</em> |
 | public | <strong>getDefaultTemplate()</strong> : <em>string</em> |
 | public | <strong>getPaths()</strong> : <em>array</em><br /><em>Returns all registered template paths</em> |

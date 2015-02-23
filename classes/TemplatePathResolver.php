@@ -108,6 +108,13 @@ class Arlima_TemplatePathResolver
     /**
      * Find the path of a template file with given name.
      *
+     * @example
+     * <code>
+     *  <?php
+     *      $resolver = new Arlima_TemplatePathResolver();
+     *      $abs_path = $resolve->find('article.tmpl');
+     * </code>
+     *
      * @param string $template_name
      * @return bool|string
      */

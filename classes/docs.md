@@ -564,6 +564,12 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>getPaths()</strong> : <em>array</em><br /><em>Returns all registered template paths</em> |
 | public | <strong>getTemplateFiles()</strong> : <em>array</em><br /><em>Returns all files having the extension .tmpl located in registered template paths</em> |
 | public static | <strong>isTemplateFile(</strong><em>string</em> <strong>$path</strong>)</strong> : <em>bool</em> |
+#### Examples of find
+```php
+<?php
+  $resolver = new Arlima_TemplatePathResolver();
+  $abs_path = $resolve->find('article.tmpl');
+````
 
 <hr /> 
 ### Class: Arlima_Utils

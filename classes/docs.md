@@ -117,7 +117,7 @@
 | public | <strong>opt(</strong><em>string</em> <strong>$opt</strong>, <em>bool/mixed</em> <strong>$default=false</strong>)</strong> : <em>string</em><br /><em>Get an article option, will return the value of $default if the option does'nt exist</em> |
 | public | <strong>toArray()</strong> : <em>array</em><br /><em>Get all data representing the article as an array</em> |
 | protected | <strong>isInScheduledInterval(</strong><em>string</em> <strong>$schedule_interval</strong>)</strong> : <em>bool</em><br /><em>Will try to parse a schedule-interval-formatted string and determine if we're currently in the time interval</em> |
-#### Examples of isInScheduledInterval
+###### Examples of Arlima_Article::isInScheduledInterval()
 ```
 isInScheduledInterval('*:*'); // All days of the week and all hours of the day
  isInScheduledInterval('Mon,Tue,Fri:*'); // All hours of the day on monday, tuesday and friday
@@ -442,7 +442,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>updateDatabaseTables(</strong><em>\float</em> <strong>$currently_installed_version</strong>)</strong> : <em>void</em> |
 | public | <strong>versionBelongsToList(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>int</em> <strong>$version_id</strong>)</strong> : <em>bool</em> |
 | protected | <strong>toArray(</strong><em>array/[\Arlima_Article](#class-arlima_article)[]</em> <strong>$articles</strong>)</strong> : <em>mixed</em><br /><em>Convert from articles from objects to arrays and update possibly changed published date of articles</em> |
-#### Examples of updateArticle
+###### Examples of Arlima_ListVersionRepository::updateArticle()
 ```php
 <?php
   $article_arr = array(...);
@@ -564,7 +564,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>getPaths()</strong> : <em>array</em><br /><em>Returns all registered template paths</em> |
 | public | <strong>getTemplateFiles()</strong> : <em>array</em><br /><em>Returns all files having the extension .tmpl located in registered template paths</em> |
 | public static | <strong>isTemplateFile(</strong><em>string</em> <strong>$path</strong>)</strong> : <em>bool</em> |
-#### Examples of find
+###### Examples of Arlima_TemplatePathResolver::find()
 ```php
 <?php
   $resolver = new Arlima_TemplatePathResolver();

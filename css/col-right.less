@@ -555,15 +555,20 @@
 
 
 // -- Post connection
-.connection-container {
+.wrap .connection-container {
   margin-top: @article-form-margin;
   margin-left: 5px;
   color: #888;
   line-height: 150%;
   cursor: default;
-  a {
+  a:link, a:visited {
     cursor: pointer;
+    text-decoration: underline;
     color: #888;
+  }
+  a:hover, a:active {
+    color: #111;
+    text-decoration: none;
   }
   a.url {
     max-width: 250px;
@@ -572,18 +577,17 @@
     text-overflow: ellipsis;
     vertical-align: -5px;
     white-space: nowrap;
+    margin: 0 2px;
   }
   a.button {
     margin: -3px 1px 0 3px;
     font-weight: bold;
+    text-decoration: none !important;
     color: #777;
     i {
       vertical-align: -12%;
       margin-right: 2px;
     }
-  }
-  a:hover {
-    color: #111;
   }
 }
 #article-connection {

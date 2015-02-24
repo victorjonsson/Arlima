@@ -99,7 +99,7 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
         if( count($paths) > 1 ) {
             $new_path = $paths[1];
             if( file_exists(WP_CONTENT_DIR .'/'. $paths[1]) )
-                return $relative ? 'wp-content/'.$new_path : WP_CONTENT_DIR .'/'. $new_path;
+                return $relative ? 'wp-content'.$new_path : WP_CONTENT_DIR .'/'. $new_path;
         }
         return false;
     }

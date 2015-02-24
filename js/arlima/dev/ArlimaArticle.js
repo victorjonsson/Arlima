@@ -322,20 +322,22 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      */
     ArlimaArticle.prototype.getChildArticles = function() {
 
-       // if( this.isChild() && !allowNestedLevels ) {
-       //     return [];
-       // }
+        if( this.isWrappedChild() ) {
+             return [];
+        }
 
         var children = [],
             $next = this.$elem.next(),
-            parentIndex = $next.length && $next[0].arlimaArticle ? $next[0].arlimaArticle.data.parent : -1;
+            parentIndex = $next.length && $next[0].arlimaArticle ? $next[0].arlimaArticle.data.parent : -1,
+            isGettingChildrenOfAChild = this.isChild() && !this.isWrappedChild();
 
         if( parentIndex > -1 && parentIndex != this.data.parent ) {
+
             while($next.length) {
-                if ($next[0].arlimaArticle.data.parent == parentIndex ) {
+                if ($next[0].arlimaArticle.data.parent == parentIndex && ($next[0].arlimaArticle.data.options.inlineWithChild === undefined || isGettingChildrenOfAChild) ) {
                     children.push($next[0].arlimaArticle);
                 }
-                if ($next[0].arlimaArticle.data.parent == -1 ) {
+                if ($next[0].arlimaArticle.data.parent == -1) {
                     break;
                 }
                 $next = $next.next();

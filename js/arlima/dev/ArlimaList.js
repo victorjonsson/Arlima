@@ -51,6 +51,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 _self.$elem.find('.article .remove').remove();
                 _self.$elem.find('.footer .save').remove();
                 _self.$elem.find('.footer .preview').remove();
+                _self.$elem.find('.header').attr('title', data.id);
             }, 50);
 
             var reloadInterval = setInterval(function() {
@@ -101,13 +102,13 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
     };
 
     /**
->>>>>>> origin/master
      * @return {Array}
      */
     ArlimaList.prototype.getArticleData = function() {
-        var articles = [];
-
-        var all_articles = [];
+        var articles = [],
+            all_articles = [],
+            childeIndex = -1,
+            inlineWith = false;
 
         this.$elem.find('.article').each(function() {
 
@@ -115,15 +116,19 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             this.arlimaArticle.data.options.floating = false;
 
             if( this.arlimaArticle.isChild() ) {
+                childeIndex++;
                 var parent = all_articles[parseInt(this.arlimaArticle.data.parent, 10)];
                 if (parent.parent != -1) { // third level: set floating on children and parent, and merge levels
                     parent.options.floating = true;
                     this.arlimaArticle.data.options.floating = true;
-                    all_articles[parent.parent].children.push(this.arlimaArticle.data)
+                    this.arlimaArticle.data.options.inlineWithChild = inlineWith;
+                    all_articles[parent.parent].children.push(this.arlimaArticle.data);
                 } else {
+                    inlineWith = childeIndex; // Will be captured by next floating child
                     parent.children.push(this.arlimaArticle.data);
                 }
             } else {
+                childeIndex = -1;
                 articles.push(this.arlimaArticle.data);
             }
             all_articles.push(this.arlimaArticle.data);
@@ -183,23 +188,23 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         var _self = this,
             addRemoveButton = !this.data.isImported;
 
-        var isFloating;
+        var previousWasFloating;
 
         $.each(articles, function(i , articleData) {
 
             _self.addArticle(new ArlimaArticle(articleData, _self.data.id, false, addRemoveButton), false);
-            isFloating = false;
+            previousWasFloating = false;
             if( articleData.children.length > 0 ) {
                 $.each(articleData.children, function(j, childArticleData) {
                     var childArticle = new ArlimaArticle(childArticleData, _self.data.id, false, addRemoveButton);
 
-                    if ( childArticleData.options.floating && isFloating) { // not first
+                    if ( childArticleData.options.floating && previousWasFloating &&  childArticleData.options.inlineWithChild !== undefined ) { // not first
                         childArticle.$elem.addClass('list-item-depth-2');
                     }
                     else {
                         childArticle.$elem.addClass('list-item-depth-1');
                     }
-                    isFloating = childArticleData.options.floating;
+                    previousWasFloating = childArticleData.options.floating;
                     _self.addArticle(childArticle, false);
                 });
             }
@@ -208,7 +213,11 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         this.updateParentProperties(); // may be changed by floatings
     };
 
+    /**
+     *
+     */
     ArlimaList.prototype.makeFloatedChildrenCollapsible = function() {
+
         var _this = this;
         ArlimaUtils.log('Making floated children collapsible for '+this.data.id);
         $('.child-toggler, .article-children', this.$elem).remove();
@@ -216,6 +225,8 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
         $('.list-item-depth-1', this.$elem).each(function() {
             var children = [],
                 cur = this;
+
+            delete this.arlimaArticle.data.options.inlineWithChild; // in case it was a child
 
             while (cur = $(cur).next()) {
                 if ($(cur).hasClass('list-item-depth-2')) {
@@ -256,7 +267,6 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 .removeClass('first')
                 .each(function(i, child) {
                     var $span = addChildToContainer(this, i+1);
-
                     if( ArlimaArticleForm.isEditing($span) ) {
                         $span[0].arlimaArticle.setState('editing'); // re-set state so child will appear edited
                     }
@@ -436,7 +446,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
                 _self._hasLoadedScheduledVersion = false;
             }
 
-            if (_self.loadedVersion == _self.data.versions[0].id) { // changed to latest version
+            if ( !_self.data.versions[0] || _self.loadedVersion == _self.data.versions[0].id) { // changed to latest version
                 isChanged = false;
             }
 

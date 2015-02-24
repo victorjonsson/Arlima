@@ -518,12 +518,13 @@ class Arlima_List
     {
         $arr = array();
         foreach($this as $key => $val) {
-            if( $key !== 'preview' && $key != 'post_ids' ) {
+            if( $key !== 'preview' && $key != 'post_ids' && $key != 'articles') {
                 $arr[$key] = $val;
             }
         }
 
         // Convert articles to arrays
+        $arr['articles'] = array();
         foreach($this->getArticles() as $i => $art) {
             $arr['articles'][$i] = $art->toArray();
         }

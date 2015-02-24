@@ -132,18 +132,21 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
             if ($is_child_split) {
 
-                if (!$split_state) {
+                if (!$split_state || ($split_state && $art->opt('inlineWithChild') === false)) {
 
                     $following_count = 0;
                     for ($j = $i + 1; $j < count($articles); $j++) {
-                        if ( $articles[$j]->opt('floating') ) {
+                        if ( $articles[$j]->opt('floating') && $articles[$j]->opt('inlineWithChild') !== false ) {
                             $following_count++;
-                        } else break;
+                        } else {
+                            break;
+                        }
                     }
                     $split_state = array(
-                        'index' => 0,
-                        'count' => $following_count + 1
-                        );
+                            'index' => 0,
+                            'count' => $following_count + 1
+                         );
+
                 } else {
                     $split_state['index'] += 1;
                 }

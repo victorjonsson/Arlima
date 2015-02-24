@@ -429,8 +429,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
             var childrenHTML = '',
                 firstOrLastClass = '',
                 hasOpenChildWrapper = false,
-                children = article.getChildArticles(),
-                hasEvenNumberOfChildren = children.length % 2 === 0;
+                children = article.getChildArticles();
 
             $.each(children, function(i, childArticle) {
                 firstOrLastClass = '';
@@ -564,7 +563,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
         if( article.opt('format') ) {
             classes.push(article.opt('format'));
         }
-        return classes.join(' ');
+        return classes.join(' ') + ' ';
     },
     _getStreamerHTML = function(article) {
         if( article.opt('streamerType') == 'text' ) {

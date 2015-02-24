@@ -211,7 +211,7 @@ class TestActions extends PHPUnit_Framework_TestCase {
 
         $articles = $list->getArticles();
         $articles[0]->addChild(Arlima_ListVersionRepository::createArticle(array('title' => 'childA', 'parent'=>0, 'options'=>array('floating'=>true)))->toArray());
-        $articles[0]->addChild(Arlima_ListVersionRepository::createArticle(array('title' => 'childB', 'parent'=>0, 'options'=>array('floating'=>true)))->toArray());
+        $articles[0]->addChild(Arlima_ListVersionRepository::createArticle(array('title' => 'childB', 'parent'=>0, 'options'=>array('floating'=>true, 'inlineWithChild'=>0)))->toArray());
 
         $list->setArticles($articles);
 

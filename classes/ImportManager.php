@@ -136,7 +136,12 @@ class Arlima_ImportManager
 
         $base_url = str_replace(array('http://', 'www.'), '', $url);
         $base_url = substr($base_url, 0, strpos($base_url, '/'));
-        $list->setTitle('[' . $base_url . '] ' . $list->getTitle());
+        if( $list->getTitle() ) {
+            $list->setTitle('[' . $base_url . '] ' . $list->getTitle());
+        } else {
+            $parts = explode('/', $url);
+            $list->setTitle('[' . $base_url . '] ...' . implode('/', array_slice($parts, -2)));
+        }
 
         return $list;
     }
@@ -200,7 +205,7 @@ class Arlima_ImportManager
             $pub_date = isset($xml->channel->pubDate) ? (string)$xml->channel->pubDate : (string)$xml->channel->lastBuildDate;
             $version = array('id' => 0, 'user' => 0, 'created' => strtotime($pub_date), 'status' => Arlima_List::STATUS_PUBLISHED);
             $list_data = array(
-                'title' => (string)$xml->channel->title,
+                'title' => rtrim((string)$xml->channel->title),
                 'slug' => sanitize_title((string)$xml->channel->title),
                 'articles' => array(),
                 'versions' => array($version),
@@ -267,11 +272,12 @@ class Arlima_ImportManager
                 'image' => $img_options,
                 'content' => $description,
                 'title' => (string)$item->title,
-                'published' => $post_date
+                'published' => $post_date,
+                'options' => array(
+                    'overridingURL' => (string)$item->link
+                )
             )
         );
-
-        $art['options']['overridingURL'] = (string)$item->link;
 
         return $art;
     }

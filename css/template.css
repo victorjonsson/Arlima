@@ -27,6 +27,7 @@
     margin: 0;
     padding: 0;
     border:0;
+    overflow: auto;
 }
 
 .tmpl-article.img-full {
@@ -186,11 +187,12 @@ a.teaser-entryword:hover {
 
 .teaser-children {
     overflow: auto;
+    padding-top: 10px;
 }
 
 .teaser-children .tmpl-article,
 body.arlima-preview .teaser-children .tmpl-article {
-    padding: 10px 0 0;
+    padding: 0;
     border: 0;
     overflow: visible;
     margin-bottom: 18px;
@@ -207,7 +209,8 @@ body.arlima-preview .teaser-children .tmpl-article {
     overflow: hidden;
 }
 
-.teaser-children .tmpl-article.teaser-split {
+.teaser-children .tmpl-article.teaser-split,
+body.arlima-preview .teaser-children .tmpl-article.teaser-split {
     float: left;
     width: 48% !important;
     clear: none;

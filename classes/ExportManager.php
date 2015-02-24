@@ -215,6 +215,8 @@ class Arlima_ExportManager
                 $article_data['externalURL'] = $base_url . ltrim($article_data['externalURL'], '/');
             }
 
+        } elseif( isset($article_data['options']) && isset($article_data['options']['overridingURL'])) {
+            $article_data['externalURL'] = $article_data['options']['overridingURL'];
         } else {
             $article_data['externalURL'] = $base_url.'?';
         }

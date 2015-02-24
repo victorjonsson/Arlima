@@ -222,7 +222,8 @@ function arlimaNestedSortable(list) {
                         else {
                             childArticle.$elem.addClass('list-item-depth-1');
                         }
-                        isFloating = this.arlimaArticle.data.options.floating;
+                        isFloating = this.arlimaArticle.data.options.floating && !this.arlimaArticle.data.options.inlineWithChild;
+
                         list.addArticle(childArticle, false);
 
                         if(!$lastChild) {
@@ -232,14 +233,6 @@ function arlimaNestedSortable(list) {
                         else {
                             childArticle.$elem.insertAfter($lastChild);
                         }
-
-                        /*
-
-                        var $child = $(this).clone(false);
-                        list.addArticle(new ArlimaArticle( $.extend(true, {}, this.arlimaArticle.data), null, $child, !list.data.isImported), false);
-                        $child.insertAfter($clone);
-                        */
-
                     });
                 } else {
                     isMovingCopy = false;

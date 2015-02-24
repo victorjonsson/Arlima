@@ -111,14 +111,18 @@ class Arlima_WP_Plugin
     static function displayArlimaList($content)
     {
         if( arlima_has_list() ) {
-            remove_filter('the_content', 'Arlima_WP_Plugin::displayArlimaList');
+
             global $post;
             $relation = Arlima_CMSFacade::load()->getRelationData($post->ID);
+            if( !isset($relation['attr']) )
+                $relation['attr'] = array();
+
+            $relation['attr']['echo'] = false;
+
             if( isset($relation['attr']['position']) && $relation['attr']['position'] == 'after') {
-                $relation['attr']['echo'] = false;
                 $content .= arlima_render_list(arlima_get_list(), $relation['attr']);
             } else {
-                arlima_render_list(arlima_get_list(), isset($relation['attr']) ?  $relation['attr'] : array());
+                $content = arlima_render_list(arlima_get_list(), $relation['attr']) . $content;
             }
         }
         return $content;

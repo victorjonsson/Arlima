@@ -33,7 +33,11 @@ var ArlimaListPreview = (function($, window, ArlimaUtils, ArlimaArticleConnectio
             this.list = list;
 
             if( this.previewWindow ) {
-                this.previewWindow.close();
+                try {
+                    this.previewWindow.close();
+                } catch(e) {
+                    // This actually can happen....
+                }
             }
 
             window.ArlimaBackend.savePreview(list.data.id, list.getArticleData(), function(json) {

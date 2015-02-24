@@ -24,7 +24,7 @@ var ArlimaListPreview = (function($, window, ArlimaUtils, ArlimaArticleConnectio
 
             if( !list.hasUnsavedChanges() ) {
                 // add preview arg only so that Arlima adds jQuery to page
-                var listURL = _appendPreviewArgToURL(list.data.previewURL, 'yes');
+                var listURL = _appendPreviewArgToURL(list.data.previewURL, new Date().getTime(), '_');
                 _putWindowInfront(_createWindow(listURL));
                 return;
             }
@@ -102,8 +102,9 @@ var ArlimaListPreview = (function($, window, ArlimaUtils, ArlimaArticleConnectio
         }
     };
 
-    var _appendPreviewArgToURL = function(url, preview) {
-        return url +(url.indexOf('?') > -1 ? '&':'?')+ window.ArlimaJS.previewQueryArg+'='+preview;
+    var _appendPreviewArgToURL = function(url, preview, arg) {
+        arg = arg || window.ArlimaJS.previewQueryArg;
+        return url +(url.indexOf('?') > -1 ? '&':'?')+ arg +'='+preview;
     };
 
     var _addSaveMessage = function($windowBody) {

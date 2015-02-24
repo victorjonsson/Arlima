@@ -78,7 +78,6 @@ class Arlima_WP_Ajax
                     $_POST['line'],
                     $_POST['stack']);
 
-        error_log($log);
         die(json_encode(array('log'=>'saved')));
     }
 

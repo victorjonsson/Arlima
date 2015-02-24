@@ -104,7 +104,7 @@ class Arlima_ExportManager
         $page_id = $cache->get('arlima_slug_2_page_'.$slug, 'arlima');
         if( !$page_id ) {
             if ( $page_id = $this->cms->getPageIdBySlug($slug) ) {
-                $cache->set('arlima_slug_2_page_'.$slug, $page_id, 'arlima', 60);
+                $cache->set('arlima_slug_2_page_'.$slug, $page_id, 60);
             }
         }
 

@@ -467,6 +467,9 @@ class Arlima_WP_Plugin
      */
     function loadExportFeed()
     {
+        if( is_404() )
+            return;
+        
         // Make sure URL always ends with slash
         $path = explode('?', $_SERVER['REQUEST_URI']);
         if( substr($path[0], -1) != '/' ) {

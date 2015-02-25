@@ -16,6 +16,9 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
             $articles = this.$elem.find('.articles');
 
         this.$elem
+            .on('mousedown', function() {
+                window.ArlimaListContainer.focus(_self);
+            })
             .resizable({
                 containment: 'parent',
                 start : function() {

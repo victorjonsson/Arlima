@@ -3,6 +3,8 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
     'use strict';
 
     var listReloadTime = parseInt(ArlimaJS.scheduledListReloadTime, 10),
+        currentlyFocusedList = false,
+        addedLists = 0,
         $window = $(window);
 
     if( listReloadTime && listReloadTime < 30 ) {
@@ -24,11 +26,17 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
 
         lastTouchedList : null,
 
+
         /**
          * @param {ArlimaList} list
          * @param {Object} [pos]
          */
         add : function(list, pos) {
+            this.$elem.append(list.$elem);
+            addedLists++;
+            if( Number.MAX_VALUE == addedLists ) {
+                addedLists = 1; // well, you never know :)
+            }
             if( !pos ) {
                 pos = {
                     left : '5px',
@@ -37,9 +45,12 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
                     height: '400px'
                 };
             }
-            this.$elem.append(list.$elem);
+            pos.zIndex = addedLists;
+            list.zIndex = addedLists;
             list.$elem.css(pos);
             this.lists[list.data.id.toString()] = list;
+
+            currentlyFocusedList = list.data.id;
 
             list.$elem.trigger('Arlima.addedToContainer');
             $window.trigger("Arlima.listAddedToContainer", list);
@@ -95,6 +106,56 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
                 list.reloadStep = 0;
                 list.reloadInterval = setTimeout(reloadManager, (listReloadTime-10) * 1000);
             }
+        },
+
+        /**
+         * Put list in front of all lists in the container
+         * @param {ArlimaList|Number} list
+         */
+        focus : function(list) {
+            if( currentlyFocusedList != list.data.id ) {
+
+                currentlyFocusedList = list.data.id;
+
+                var zIndexListMap = {},
+                    zIndexes = [],
+                    pushBackTo = false;
+
+                $.each(this.lists, function(i, list) {
+                    zIndexListMap[list.zIndex] = list;
+                    zIndexes.push(list.zIndex);
+                });
+
+                zIndexes.sort();
+                $.each(zIndexes, function(i, zIndex) {
+                    if( pushBackTo ) {
+                        var copy = pushBackTo;
+                        pushBackTo = zIndex;
+                        zIndexListMap[zIndex].zIndex = copy;
+                        zIndexListMap[zIndex].$elem.css('z-index', copy);
+                    }
+                    else if( zIndexListMap[zIndex].data.id == list.data.id ) {
+                        pushBackTo = zIndex;
+                    }
+                });
+
+                if( pushBackTo ) {
+                    list.zIndex = pushBackTo;
+                    list.$elem.css('z-index', pushBackTo);
+                }
+            }
+        },
+
+        /**
+         * Other frameworks sometimes messes with the z-index of our lists.
+         * Call this function to clean up the mess.
+         */
+        updateZIndexes : function() {
+            $.each(this.lists, function(i, list) {
+                if( list.zIndex && list.zIndex != list.$elem.css('z-index') ) {
+                    list.$elem.css('z-index', list.zIndex);
+                }
+            })
         },
 
         /**

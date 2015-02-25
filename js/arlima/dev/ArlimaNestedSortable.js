@@ -438,6 +438,9 @@ function arlimaNestedSortable(list) {
                 window.arlimaMoveBetweenLists = true; // prevent that some things gets called twice due to the stop event
 
                 setTimeout(_visualizeFloatedChildren, 200); // have to wait a while for this one....
+
+                window.ArlimaListContainer.updateZIndexes();
+                window.ArlimaListContainer.focus(list);
             }
 
         }).each(function() {

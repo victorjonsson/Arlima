@@ -80,12 +80,14 @@ var ArlimaListLoader = (function($, window, ArlimaBackend, ArlimaJS) {
          */
         addListToContainer : function(listID) {
             if( listID ) {
-                if( listID in window.ArlimaListContainer.lists ) {
-                    ArlimaUtils.shake(window.ArlimaListContainer.lists[listID]);
+                var container = window.ArlimaListContainer;
+                if( listID in container.lists ) {
+                    container.focus(container.lists[listID]);
+                    ArlimaUtils.shake(container.lists[listID]);
                 } else {
                     _this.load(listID, function(list) {
                         if( list ) {
-                            window.ArlimaListContainer.add(list, {
+                            container.add(list, {
                                 left : '25px',
                                 top: '25px',
                                 width: '300px',

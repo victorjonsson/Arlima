@@ -481,9 +481,6 @@ class Arlima_WP_Ajax
         }
 
         $user_id = get_current_user_id();
-
-        error_log(print_r($articles, true));
-
         if( $schedule_time ) {
             $version_id = $ver_repo->createScheduledVersion($list, $articles, $user_id, $schedule_time);
         } else {

@@ -779,12 +779,6 @@ class Arlima_WP_Plugin
                     wp_enqueue_style('arlima_template_css_'.$i);
                 }
             }
-            elseif( $style_sheets !== false ) {
-                var_dump($style_sheets);
-                // theme has not applied any css, then let the plugin add its own css
-                wp_enqueue_style('arlima_template_css-typo', ARLIMA_PLUGIN_URL . 'css/template-typo.css', array(), ARLIMA_FILE_VERSION);
-                wp_enqueue_style('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css', array(), ARLIMA_FILE_VERSION);
-            }
         }
     }
 
@@ -793,7 +787,11 @@ class Arlima_WP_Plugin
      */
     function getTemplateStylesheets()
     {
-        return apply_filters('arlima_template_stylesheets', array());
+        $styles = apply_filters('arlima_template_stylesheets', array());
+        if( empty($styles) && $styles !== false ) { // false meaning that we should not append any styles at all
+            $styles = array(ARLIMA_PLUGIN_URL . 'css/template-typo.css', ARLIMA_PLUGIN_URL . 'css/template.css');
+        }
+        return $styles;
     }
 
     /**

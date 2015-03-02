@@ -771,35 +771,21 @@ class Arlima_WP_Plugin
      */
     function addTemplateCSS()
     {
-        $style_sheets = $this->getTemplateStylesheets();
-        if( empty($style_sheets) ) {
-            // Old way
-            $css = self::getTemplateCSS();
-            if( !empty($css) ) {
-                wp_enqueue_style('arlima_template_css', $css, array(), null);
-            }
-            else {
-                // theme has not applied any css, neither the old nor the new way
-                // then let the plugin add the css
-                if( is_admin() ) {
-                    add_filter('arlima_template_stylesheets', array($this, 'templateStylesheetsInListManager'));
-                } else {
-                    wp_enqueue_style('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css', array(), ARLIMA_FILE_VERSION);
-                    wp_enqueue_style('arlima_template_css_queries', ARLIMA_PLUGIN_URL . 'css/template-media-queries.css', array(), ARLIMA_FILE_VERSION);
+        if( !is_admin() ) {
+            $style_sheets = $this->getTemplateStylesheets();
+            if( !empty($style_sheets) ) {
+                foreach($style_sheets as $i => $css) {
+                    wp_register_style('arlima_template_css_'.$i, $css, array(), ARLIMA_FILE_VERSION);
+                    wp_enqueue_style('arlima_template_css_'.$i);
                 }
             }
+            elseif( $style_sheets !== false ) {
+                var_dump($style_sheets);
+                // theme has not applied any css, then let the plugin add its own css
+                wp_enqueue_style('arlima_template_css-typo', ARLIMA_PLUGIN_URL . 'css/template-typo.css', array(), ARLIMA_FILE_VERSION);
+                wp_enqueue_style('arlima_template_css', ARLIMA_PLUGIN_URL . 'css/template.css', array(), ARLIMA_FILE_VERSION);
+            }
         }
-    }
-
-    /**
-     * @param $files
-     * @return array
-     */
-    public function templateStylesheetsInListManager($files)
-    {
-        $files[] = ARLIMA_PLUGIN_URL . 'css/template-typo.css';
-        $files[] = ARLIMA_PLUGIN_URL . 'css/template.css';
-        return $files;
     }
 
     /**
@@ -807,8 +793,7 @@ class Arlima_WP_Plugin
      */
     function getTemplateStylesheets()
     {
-        $style_sheets = apply_filters('arlima_template_stylesheets', array());
-        return is_array($style_sheets) ? $style_sheets : array();
+        return apply_filters('arlima_template_stylesheets', array());
     }
 
     /**

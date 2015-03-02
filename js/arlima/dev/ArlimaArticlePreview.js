@@ -71,7 +71,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
 
             this.article = article;
             this.width = width;
-            if (this.width instanceof Array) {
+            if ( this.width instanceof Array) {
                 this.iframesCount = this.width.length;
                 elemWidth = width[0]+20;  // 20 px for scrollbar
                 leftMargin = Math.max.apply(Math, width)+20; // 20 px for scrollbar
@@ -236,7 +236,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
             this.$elem = $elem;
 
             // Create preview iframe
-            $elem.html('<iframe name="arlima-preview-iframe" id="arlima-preview-iframe" style="overflow: hidden; width: 100%; height:0" scrolling="no" border="0" frameborder="0"></iframe>');
+            $elem.html('<iframe name="arlima-preview-iframe" id="arlima-preview-iframe" scrolling="no" border="0" frameborder="0"></iframe>');
 
             // Setup object props
             this.$iframe = this.$elem.find('iframe').contents();
@@ -343,6 +343,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
 
                 for (i=_this.$iframe.length; i<_this.width.length;i++) {
                     _this.$elem.append('<iframe name="arlima-preview-iframe" id="arlima-preview-iframe-'+i+'" style="overflow: hidden; width: '+_this.width[i]+'px; height:0" scrolling="no" border="0" frameborder="0"></iframe>');
+                   // _this.$elem.append('<div class="iframe-wrapper"><iframe name="arlima-preview-iframe" id="arlima-preview-iframe-'+i+'" style="width: '+_this.width[i]+'px;" scrolling="no" border="0" frameborder="0"></iframe></div>');
                     var anotherPreview = _this.$elem.find('#arlima-preview-iframe-'+i).contents();
 
                     // Add stylesheets

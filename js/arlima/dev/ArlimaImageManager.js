@@ -172,6 +172,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
             var $img = $('<img src="'+_this.article.data.image.url+'" />');
             $img.load(function() {
                 $(window).trigger('arlimaFormImageLoaded');
+                _makeImageElemDroppable(this);
             });
             _this.$imageWrapper
                 .html($img)
@@ -228,6 +229,10 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
             }
         }
         return 'full';
+    },
+
+    _makeImageElemDroppable = function(img) {
+        window.ArlimaImageUploader.createDropZone(img);
     },
 
     _setupForm = function() {

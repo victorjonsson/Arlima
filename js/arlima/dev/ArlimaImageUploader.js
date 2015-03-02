@@ -6,128 +6,78 @@ var ArlimaImageUploader = (function($, window, ArlimaArticleForm, ArlimaJS, plup
     'use strict';
 
     var acceptedTypes = ['jpeg', 'jpg', 'gif', 'png'],
-        maxMegaBytes = 5,
+        maxMegaBytes = 5, _uploader,
 
-        _this = {
+        _addDroppableHoverEffects = function(elem) {
+            elem.ondragover = function(event) {
+                event.dataTransfer.dropEffect = "copy";
+            };
 
-        $notifyElement : false,
+            elem.ondragenter = function() {
+                $(elem).addClass("dragover");
+            };
 
-        $mainUploadElement : false,
+            elem.ondragleave = function() {
+                $(elem).removeClass("dragover");
+            };
 
-        showPreloader : function() {
-            var html = '<i class="fa fa-cog fa-spin large fa-5x"></i>';
-            this.$mainUploadElement.find('img').css('opacity', '0.75');
-            if( !this.$notifyElement )
-                this.showNotice(html);
-            else
-                this.$notifyElement.html(html);
+            elem.ondrop = function() {
+                $(elem).removeClass("dragover");
+            };
         },
 
-        removeNotice : function() {
-            if( this.$notifyElement ) {
-                this.$mainUploadElement.find('img').css('opacity', '1');
-                this.$notifyElement.fadeOut('slow', function() {
-                    $(this).remove();
-                });
-                this.$notifyElement = false;
-            }
-        },
+        _onFileDropped = function(type, size, name, imgContent) {
+            var denied = true;
+            $.each(acceptedTypes, function(i, imgType) {
+                if( type.toLowerCase().indexOf(imgType) > -1 ) {
+                    denied = false;
+                    return false;
+                }
+            });
 
-        showNotice : function(content) {
-            if( !this.$notifyElement ) {
-                this.$notifyElement = $('<div class="file-progress"></div>');
-                this.$notifyElement.appendTo(this.$mainUploadElement);
-            }
-
-            if( content.indexOf('<') !== 0 ) {
-                content = '<p>'+content+'</p>';
-            }
-
-            this.$notifyElement.html('').append(content);
-        },
-
-        init : function($uploadElem, dropZoneID) {
-
-            if (!('FileReader' in window) )
+            // Validate file
+            if( denied ) {
+                ArlimaImageUploader.showNotice('File was not an image');
+                setTimeout(function() {
+                    ArlimaImageUploader.removeNotice();
+                }, 2000);
                 return;
+            }
 
-            this.$mainUploadElement = $uploadElem.find('.image');
-
-            var uploader = new plupload.Uploader({
-                runtimes : 'html5,html4',
-                drop_element : dropZoneID,
-                container : 'fake-container',
-                dragdrop : true
-            });
-
-            uploader.bind('Init', function(up, params) {
-                if (uploader.features.dragdrop) {
-                    var $target = $("#"+dropZoneID);
-                    $target[0].ondragover = function(event) {
-                        event.dataTransfer.dropEffect = "copy";
-                    };
-
-                    $target[0].ondragenter = function() {
-                        $target.addClass("dragover");
-                    };
-
-                    $target[0].ondragleave = function() {
-                        $target.removeClass("dragover");
-                    };
-
-                    $target[0].ondrop = function() {
-                        $target.removeClass("dragover");
-                    };
-                }
-            });
-
-            uploader.bind('FilesAdded', function(up, files) {
-
-                var denied = true;
-                $.each(acceptedTypes, function(i, imgType) {
-                    if( files[0].native.type.toLowerCase().indexOf(imgType) > -1 ) {
-                        denied = false;
-                        return false;
-                    }
-                });
-
-                // Validate file
-                if( denied ) {
-                    _this.showNotice('File was not an image');
-                    setTimeout(function() {
-                        _this.removeNotice();
-                    }, 2000);
-                    return;
-                }
-
-                if( (maxMegaBytes * 1024 * 1024) < files[0].native.size ) {
-                    _this.showNotice('Image is to big (max '+maxMegaBytes+' MB)');
-                    setTimeout(function() {
-                        _this.removeNotice();
-                    }, 2000);
-                    return;
-                }
+            if( (maxMegaBytes * 1024 * 1024) < size ) {
+                ArlimaImageUploader.showNotice('Image is to big (max '+maxMegaBytes+' MB)');
+                setTimeout(function() {
+                    ArlimaImageUploader.removeNotice();
+                }, 2000);
+                return;
+            }
 
 
-                var reader = new window.FileReader();
-
-                // Upload file once its in memory
-                reader.onloadend = function () {
-                    var content = reader.result;
+            var reader = new window.FileReader(),
+                onContentReadyForSending = function(content) {
                     if( content.indexOf('data:') === 0 ) {
                         content = content.substr(content.indexOf(',')+1);
                     }
-                    _this.showPreloader();
+                    ArlimaImageUploader.showPreloader();
                     window.ArlimaBackend.saveImage(
                         content,
                         ArlimaArticleForm.article ? ArlimaArticleForm.article.data.post:'',
-                        files[0].native.name,
+                        name,
                         function(json) {
-                            _this.removeNotice();
+                            ArlimaImageUploader.removeNotice();
                             if( json )
                                 ArlimaImageManager.setNewImage(json.url, json.attachment, ArlimaArticleForm.article.data.post ? true:false);
                         }
                     )
+                };
+
+            if( typeof imgContent == 'string' ) {
+                onContentReadyForSending(imgContent);
+            } else {
+
+                // Upload file once its in memory
+                reader.onloadend = function () {
+                    onContentReadyForSending(reader.result);
                 };
 
                 // When reader fails for some reason
@@ -147,17 +97,114 @@ var ArlimaImageUploader = (function($, window, ArlimaArticleForm, ArlimaJS, plup
                             mess = 'Unkown...';
                             break;
                     }
-                    _this.showNotice(mess);
+                    ArlimaImageUploader.showNotice(mess);
                 };
 
                 // Read file into memory
-                reader.readAsDataURL(files[0].native);
-            });
+                reader.readAsDataURL(imgContent);
+            }
+        },
 
-            uploader.init();
-        }
-    };
+        ArlimaImageUploader = {
 
-    return _this;
+            $notifyElement : false,
+
+            $mainUploadElement : false,
+
+            showPreloader : function() {
+                var html = '<i class="fa fa-cog fa-spin large fa-5x"></i>';
+                this.$mainUploadElement.find('img').css('opacity', '0.75');
+                if( !this.$notifyElement )
+                    this.showNotice(html);
+                else
+                    this.$notifyElement.html(html);
+            },
+
+            removeNotice : function() {
+                if( this.$notifyElement ) {
+                    this.$mainUploadElement.find('img').css('opacity', '1');
+                    this.$notifyElement.fadeOut('slow', function() {
+                        $(this).remove();
+                    });
+                    this.$notifyElement = false;
+                }
+            },
+
+            showNotice : function(content) {
+                if( !this.$notifyElement ) {
+                    this.$notifyElement = $('<div class="file-progress"></div>');
+                    this.$notifyElement.appendTo(this.$mainUploadElement);
+                }
+
+                if( content.indexOf('<') !== 0 ) {
+                    content = '<p>'+content+'</p>';
+                }
+
+                this.$notifyElement.html('').append(content);
+            },
+
+            createDropZone : function(elem) {
+                if( !('mOxie' in window) )
+                    return; // Not possible yet...
+
+                var dropzone = new window.mOxie.FileDrop({
+                    drop_zone: elem
+                });
+                new mOxie.Image();
+                // When the event is fired, the context (ie, this)
+                // is the actual dropzone. As such, you can access
+                // the files using any of the following:
+                // --
+                // * this.files
+                // * dropzone.files
+                // * event.target.files
+                dropzone.ondrop = function( event ) {
+                    var preloader = new mOxie.Image();
+                    preloader.onload = function() {
+                        _onFileDropped(dropzone.files[0].type, dropzone.files[0].size, dropzone.files[0].name, preloader.getAsDataURL());
+                    };
+                    preloader.load( dropzone.files[0] );
+                };
+
+                dropzone.bind('init', function(up, params) {
+                    if (_uploader.features.dragdrop) {
+                        _addDroppableHoverEffects(elem);
+                    }
+                });
+
+                dropzone.init();
+
+                _addDroppableHoverEffects(elem);
+            },
+
+            init : function($uploadElem, dropZoneID) {
+
+                if (!('FileReader' in window) )
+                    return;
+
+                this.$mainUploadElement = $uploadElem.find('.image');
+
+                _uploader = new plupload.Uploader({
+                    runtimes : 'html5,html4',
+                    drop_element : dropZoneID,
+                    container : 'fake-container',
+                    dragdrop : true
+                });
+
+                _uploader.bind('Init', function(up, params) {
+                    if (_uploader.features.dragdrop) {
+                       _addDroppableHoverEffects($("#"+dropZoneID).get(0));
+                    }
+                });
+
+                _uploader.bind('FilesAdded', function(up, files) {
+                    return _onFileDropped(files[0].native.type, files[0].native.size, files[0].native.name, files[0].native);
+                });
+
+                _uploader.init();
+            }
+        };
+
+    return ArlimaImageUploader;
 
 })(jQuery, window, ArlimaArticleForm, ArlimaJS, plupload);

@@ -207,7 +207,7 @@ $cms = Arlima_CMSFacade::load();
                         <input type="hidden" class="data img-align" data-prop="image:alignment" />
                         <input type="hidden" class="data image-attach" data-prop="image:attachment" />
                     </div>
-                    <div id="arlima-article-attachments" class="fancybox attachments-fancybox" style="width: 400px"></div>
+                    <div id="arlima-article-attachments" class="fancybox attachments-fancybox" style="width:520px"></div>
                 </div>
                 <div id="image-scissors-popup" style="width: 600px; height: 600px; display: none"></div>
 

@@ -826,7 +826,6 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>settingsLinkOnPluginPage(</strong><em>array</em> <strong>$links</strong>)</strong> : <em>array</em><br /><em>Add a settings link to given links</em> |
 | public | <strong>setupWidgets()</strong> : <em>void</em><br /><em>Register our widgets and widget filters</em> |
 | public static | <strong>supportsImageEditor()</strong> : <em>bool</em> |
-| public | <strong>templateStylesheetsInListManager(</strong><em>mixed</em> <strong>$files</strong>)</strong> : <em>array</em> |
 | public | <strong>themeInitHook()</strong> : <em>void</em><br /><em>function called on init in the theme</em> |
 | public static | <strong>uninstall()</strong> : <em>void</em><br /><em>Uninstall procedure for this plugin - Removes plugin settings - Removes database tables</em> |
 | public static | <strong>update()</strong> : <em>void</em><br /><em>Update procedure for this plugin. Since wordpress is lacking this feature we should call this function on a regular basis.</em> |

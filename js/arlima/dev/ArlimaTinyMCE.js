@@ -39,6 +39,17 @@ var ArlimaTinyMCE = (function($, window, ArlimaArticlePreview, ArlimaVersionMana
             // is activated
             var _this = this,
                 editorContent = '',
+                preventKeyboardShortCuts = function(editor, evt) {
+                    var eventObj = (evt || editor);
+                    if( ArlimaKeyBoardShortCuts.call(eventObj, tinyMCECommandKeys) ) {
+                        eventObj.preventDefault();
+                        return false;
+                    }
+                    return true;
+                },
+                pullOutEditorContent = function() {
+                    editorContent = $.trim(ArlimaArticleForm.getEditorContent());
+                },
                 onTinyMCEContentChange = function() {
                     var newContent = $.trim(ArlimaArticleForm.getEditorContent());
                     if( newContent != editorContent ) {
@@ -51,22 +62,19 @@ var ArlimaTinyMCE = (function($, window, ArlimaArticlePreview, ArlimaVersionMana
                         // tinymce is initiated, stop interval
                         clearInterval(tinyMCEEventInterval);
 
-                        // Capture initial content to determine when content change onkeyup
-                        window.tinyMCE.editors[0].onSetContent.add(function() {
-                            editorContent = $.trim(ArlimaArticleForm.getEditorContent());
-                        });
+                        if( window.tinyMCE.majorVersion > 3 ) {
+                            window.tinyMCE.editors[0].on('setContent', pullOutEditorContent);
+                            window.tinyMCE.editors[0].on('change', onTinyMCEContentChange);
+                            window.tinyMCE.editors[0].on('keyUp', onTinyMCEContentChange);
+                            window.tinyMCE.editors[0].on('keyDown', preventKeyboardShortCuts);
+                        } else {
+                            window.tinyMCE.editors[0].onSetContent.add(pullOutEditorContent);
+                            window.tinyMCE.editors[0].onKeyUp.add(onTinyMCEContentChange);
+                            window.tinyMCE.editors[0].onChange.add(onTinyMCEContentChange);
+                            window.tinyMCE.editors[0].onKeyDown.add(preventKeyboardShortCuts);
+                        }
 
-                        // Trigger change in form when content changes
-                        window.tinyMCE.editors[0].onKeyUp.add(onTinyMCEContentChange);
-                        window.tinyMCE.editors[0].onChange.add(onTinyMCEContentChange);
 
-                        // listen to keyboard short cuts
-                        window.tinyMCE.editors[0].onKeyDown.add(function(editor, evt) {
-                            if( ArlimaKeyBoardShortCuts.call(evt, tinyMCECommandKeys) ) {
-                                evt.preventDefault();
-                                return false;
-                            }
-                        });
                     }
                 }, 500);
 

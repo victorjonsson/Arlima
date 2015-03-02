@@ -794,7 +794,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>addAttachmentMetaBox()</strong> : <em>void</em><br /><em>Adds attachment meta box</em> |
 | public | <strong>addExportFeeds()</strong> : <em>void</em><br /><em>Adds arlima export feed to Wordpress</em> |
 | public | <strong>addMetaBox()</strong> : <em>void</em><br /><em>Adds meta box to post edit/create page</em> |
-| public | <strong>addTemplateCSS()</strong> : <em>void</em><br /><em>Will enqueue the css for the presentation of articles in an arlima list. There is two ways to add the template CSS. Old way:    return URL to css file in filter arlima_template_css. The css file will be added to the header in arlima admin New way:    return array with URL´s to stylesheets that will be added to iframe in arlima admin</em> |
+| public | <strong>addTemplateCSS()</strong> : <em>void</em><br /><em>Will enqueue the css for the presentation of articles in an arlima list.</em> |
 | public | <strong>adminBar()</strong> : <em>void</em> |
 | public | <strong>adminInitHook()</strong> : <em>void</em><br /><em>Function called on init in wp-admin</em> |
 | public | <strong>adminMenu()</strong> : <em>void</em><br /><em>Creates the menu in wp-admin for this plugin</em> |

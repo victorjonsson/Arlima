@@ -342,8 +342,8 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
                 iframes.push(_this.$iframeBody[0]);
 
                 for (i=_this.$iframe.length; i<_this.width.length;i++) {
-                    _this.$elem.append('<iframe name="arlima-preview-iframe" id="arlima-preview-iframe-'+i+'" style="overflow: hidden; width: '+_this.width[i]+'px; height:0" scrolling="no" border="0" frameborder="0"></iframe>');
-                   // _this.$elem.append('<div class="iframe-wrapper"><iframe name="arlima-preview-iframe" id="arlima-preview-iframe-'+i+'" style="width: '+_this.width[i]+'px;" scrolling="no" border="0" frameborder="0"></iframe></div>');
+                    //_this.$elem.append('<iframe name="arlima-preview-iframe" id="arlima-preview-iframe-'+i+'" style="overflow: hidden; width: '+_this.width[i]+'px; height:0" scrolling="no" border="0" frameborder="0"></iframe>');
+                    _this.$elem.append('<div class="iframe-wrapper"><iframe name="arlima-preview-iframe" id="arlima-preview-iframe-'+i+'" style="width: '+_this.width[i]+'px;" scrolling="no" border="0" frameborder="0"></iframe></div>');
                     var anotherPreview = _this.$elem.find('#arlima-preview-iframe-'+i).contents();
 
                     // Add stylesheets

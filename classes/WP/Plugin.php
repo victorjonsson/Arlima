@@ -763,11 +763,6 @@ class Arlima_WP_Plugin
 
     /**
      * Will enqueue the css for the presentation of articles in an arlima list.
-     * There is two ways to add the template CSS.
-     *  Old way:    return URL to css file in filter arlima_template_css. The css
-     *              file will be added to the header in arlima admin
-     *  New way:    return array with URL´s to stylesheets that will be added to
-     *              iframe in arlima admin
      */
     function addTemplateCSS()
     {

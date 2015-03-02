@@ -258,7 +258,6 @@ module.exports = function(grunt) {
         'validate-js',
         'validate-readme',
         'change-version',
-        'change-version',
         'localization',
         'create-docs',
         'less',

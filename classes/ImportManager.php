@@ -11,6 +11,8 @@
 class Arlima_ImportManager
 {
 
+    /**
+     */
     public function __construct()
     {
         $this->sys = Arlima_CMSFacade::load();
@@ -96,52 +98,11 @@ class Arlima_ImportManager
             throw new Exception('Remote server responded with error: ' . $error_message . ' (status ' . $response['response']['code'] . ')');
         }
 
-        // Parse response
-        $list_data = $this->parseListData($response['body'], $response_type);
-
-        // Populate the imported list
         $list = new Arlima_List(true, $url, true);
-
-        if( empty($list_data['version_history']) ) {
-            $list_data['version_history'] = array();
-            foreach($list_data['versions'] as $ver) {
-                $list_data['version_history'][] = array('id' => $ver, 'scheduled'=>0, 'status'=>Arlima_List::STATUS_PUBLISHED, 'user_id'=>0);
-            }
-        }
-
-        // This may not been set if external arlima site uses an older ARlima version
-        $list->setScheduledVersions(empty($list_data['scheduled_versions']) ? array() : $list_data['scheduled_versions']);
-        $list->setPublishedVersions($list_data['version_history']);
-
-        if( isset($list_data['versions']) )
-            unset($list_data['versions']);
-
-        $called = array();
-        foreach ($list_data as $prop => $val) {
-
-            // @todo: wtf?? fix this the right way
-            if( in_array($prop, $called) ) {
-                continue;
-            }
-            $called[] = $prop;
-
-            $set_method = 'set' . ucfirst($prop);
-            if ( $prop != 'id' && method_exists($list, $set_method) ) {
-                if ( $val instanceof stdClass ) {
-                    $val = (array)$val;
-                }
-                call_user_func(array($list, $set_method), $val);
-            }
-        }
-
-        $base_url = str_replace(array('http://', 'www.'), '', $url);
-        $base_url = substr($base_url, 0, strpos($base_url, '/'));
-        if( $list->getTitle() ) {
-            $list->setTitle('[' . $base_url . '] ' . $list->getTitle());
-        } else {
-            $parts = explode('/', $url);
-            $list->setTitle('[' . $base_url . '] ...' . implode('/', array_slice($parts, -2)));
-        }
+        $list_data = $this->parseListData($response['body'], $response_type);
+        $this->populateList($list_data, $list);
+        $this->setListVersionInfo($list_data, $list);
+        $this->setListTitle($url, $list);
 
         return $list;
     }
@@ -233,53 +194,17 @@ class Arlima_ImportManager
      */
     private function itemNodeToArticle($item)
     {
-        $img_options = array();
-
-        // get image from node
-        if ( isset($item->image) ) {
-            $img_options = $this->generateArticleImageOptions((string)$item->image);
-        }
-
-        // get image from enclosure
-        elseif ( isset($item->enclosure) && $this->isEnclosureValidImage($item->enclosure) ) {
-            $img_options = $this->generateArticleImageOptions((string)$item->enclosure->attributes()->url);
-        }
-
-        // Try to find an image in the description
-        else {
-            preg_match('/<img[^>]+\>/i', (string)$item->description, $matches);
-            if ( isset($matches[0]) ) {
-                preg_match('/src="([^"]*)"/i', $matches[0], $src);
-                if ( isset($src[1]) ) {
-                    $source = trim($src[1]);
-                    $ext = strtolower(substr($source, -4));
-                    if ( $ext == '.jpg' || $ext == 'jpeg' || $ext == '.png' || $ext == '.gif' ) {
-                        $img_options = $this->generateArticleImageOptions($source);
-                    }
-                }
-            }
-        }
-
-        // description cleanup
-        $description = strip_tags((string)$item->description, '<em><strong><span><cite><code><pre>');
-        $description = force_balance_tags('<p>' . trim($description) . '</p>', true);
-        $description = $description == '<p></p>' ? '<p>...</p>' : str_replace(array('"', '”'), '&quot;', $description);
-
-        $post_date = strtotime((string)$item->pubDate);
-
-        $art = Arlima_ListVersionRepository::createArticle(
-            array(
-                'image' => $img_options,
-                'content' => $description,
-                'title' => (string)$item->title,
-                'published' => $post_date,
-                'options' => array(
-                    'overridingURL' => (string)$item->link
-                )
+        $data = array(
+            'image' => $this->getImageDataFromRSSItem($item),
+            'content' => $this->getDescriptionFromRSSItem($item),
+            'title' => (string)$item->title,
+            'published' => strtotime((string)$item->pubDate),
+            'options' => array(
+                'overridingURL' => (string)$item->link
             )
         );
 
-        return $art;
+        return Arlima_ListVersionRepository::createArticle($data);
     }
 
     /**
@@ -356,5 +281,118 @@ class Arlima_ImportManager
             <a href="<?php echo $url ?>" target="_blank"><?php echo $url ?></a>
         </div>
         <?php
+    }
+
+    /**
+     * @param string $url
+     * @param Arlima_List $list
+     */
+    private function setListTitle($url, $list)
+    {
+        $base_url = str_replace(array('http://', 'www.'), '', $url);
+        $base_url = substr($base_url, 0, strpos($base_url, '/'));
+        if ($list->getTitle()) {
+            $list->setTitle('[' . $base_url . '] ' . $list->getTitle());
+        } else {
+            $parts = explode('/', $url);
+            $list->setTitle('[' . $base_url . '] ...' . implode('/', array_slice($parts, -2)));
+        }
+    }
+
+    /**
+     * @param array $list_data
+     * @param Arlima_List $list
+     * @return mixed
+     */
+    private function setListVersionInfo(&$list_data, $list)
+    {
+        if (empty($list_data['version_history'])) {
+            $list_data['version_history'] = array();
+            foreach ($list_data['versions'] as $ver) {
+                $list_data['version_history'][] = array('id' => $ver, 'scheduled' => 0, 'status' => Arlima_List::STATUS_PUBLISHED, 'user_id' => 0);
+            }
+        }
+
+        // This may not been set if external arlima site uses an older ARlima version
+        $list->setScheduledVersions(empty($list_data['scheduled_versions']) ? array() : $list_data['scheduled_versions']);
+        $list->setPublishedVersions($list_data['version_history']);
+
+        if (isset($list_data['versions']))
+            unset($list_data['versions']);return $list_data;
+    }
+
+    /**
+     * Throw all data in $list_data into the list (except version info and list title which is managed by
+     * two other functions)
+     * @param array $list_data
+     * @param Arlima_List $list
+     */
+    private function populateList($list_data, $list)
+    {
+        $called = array();
+        foreach ($list_data as $prop => $val) {
+
+            // @todo: wtf?? fix this the right way
+            if (in_array($prop, $called)) {
+                continue;
+            }
+            $called[] = $prop;
+
+            $set_method = 'set' . ucfirst($prop);
+            if ($prop != 'id' && method_exists($list, $set_method)) {
+                if ($val instanceof stdClass) {
+                    $val = (array)$val;
+                }
+                call_user_func(array($list, $set_method), $val);
+            }
+        }
+    }
+
+    /**
+     * @param $item
+     * @return mixed|string
+     */
+    private function getDescriptionFromRSSItem($item)
+    {
+        $description = strip_tags((string)$item->description, '<em><strong><span><cite><code><pre>');
+        $description = force_balance_tags('<p>' . trim($description) . '</p>', true);
+        $description = $description == '<p></p>' ? '<p>...</p>' : str_replace(array('"', '”'), '&quot;', $description);
+        return $description;
+    }
+
+    /**
+     * @param \SimpleXMLElement|\stdClass $item
+     * @return array
+     */
+    private function getImageDataFromRSSItem($item)
+    {
+        $img_options = array();
+
+        // get image from node
+        if (isset($item->image)) {
+            $img_options = $this->generateArticleImageOptions((string)$item->image);
+            return $img_options;
+        } // get image from enclosure
+        elseif (isset($item->enclosure) && $this->isEnclosureValidImage($item->enclosure)) {
+            $img_options = $this->generateArticleImageOptions((string)$item->enclosure->attributes()->url);
+            return $img_options;
+        } // Try to find an image in the description
+        else {
+            preg_match('/<img[^>]+\>/i', (string)$item->description, $matches);
+            if (isset($matches[0])) {
+                preg_match('/src="([^"]*)"/i', $matches[0], $src);
+                if (isset($src[1])) {
+                    $source = trim($src[1]);
+                    $ext = strtolower(substr($source, -4));
+                    if ($ext == '.jpg' || $ext == 'jpeg' || $ext == '.png' || $ext == '.gif') {
+                        $img_options = $this->generateArticleImageOptions($source);
+                        return $img_options;
+                    }
+                    return $img_options;
+                }
+                return $img_options;
+            }
+            return $img_options;
+        }
     }
 }

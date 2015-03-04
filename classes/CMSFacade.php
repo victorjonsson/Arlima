@@ -9,6 +9,9 @@
  */
 class Arlima_CMSFacade {
 
+    /**
+     * @var Arlima_CMSInterface
+     */
     private static $instance = null;
 
     /**

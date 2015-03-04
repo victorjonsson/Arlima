@@ -562,7 +562,6 @@ class Arlima_WP_Ajax
             return sprintf(__('Last modified %s a go', 'arlima'), human_time_diff($list->getVersionAttribute('created')));
         } else {
             if ( $list->getStatus() != Arlima_List::STATUS_EMPTY ) {
-                Arlima_CMSFacade::load()->initLocalization();
                 $user_data = get_userdata($list->getVersionAttribute('user_id'));
                 $saved_since = '';
                 $saved_by = __('Unknown', 'arlima');

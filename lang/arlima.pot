@@ -825,6 +825,9 @@ msgstr "sekunder"
 msgid "Updated by"
 msgstr "Uppdaterad av"
 
+msgid "Inverted"
+msgstr "Inverterad"
+
 #~ msgid "Scheduled list notice"
 #~ msgstr "Tidsinställd lista"
 

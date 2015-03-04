@@ -60,7 +60,7 @@
 | public | <strong>setSection(</strong><em>int/bool/string</em> <strong>$section</strong>)</strong> : <em>void</em><br /><em>- Set to false if you want to render entire list (default) - Set to a string if you want to render the section with given name - Set to a number if you want to render the section at given index - Set to eg. >=2 if you want to render all articles, starting from the second section</em> |
 | protected | <strong>extractSectionArticles(</strong><em>[\Arlima_Article](#class-arlima_article)[]</em> <strong>$articles</strong>, <em>string/int</em> <strong>$section</strong>)</strong> : <em>array</em><br /><em>Extract articles that's located in the section that's meant to be rendered (by calling setSection)</em> |
 | protected | <strong>abstract generateArticleHtml(</strong><em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>, <em>int</em> <strong>$index</strong>, <em>object</em> <strong>$post</strong>)</strong> : <em>mixed</em> |
-| protected | <strong>abstract generateListHtml(</strong><em>bool</em> <strong>$output=true</strong>)</strong> : <em>string</em><br /><em>Render the list of articles</em> |
+| protected | <strong>abstract generateListHtml(</strong><em>bool</em> <strong>$echo_output=true</strong>)</strong> : <em>string</em><br /><em>Render the list of articles</em> |
 | protected | <strong>getFutureArticleContent(</strong><em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>, <em>mixed</em> <strong>$index</strong>, <em>mixed</em> <strong>$post</strong>)</strong> : <em>mixed</em> |
 | protected | <strong>includeArticleFile(</strong><em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>, <em>int</em> <strong>$index</strong>)</strong> : <em>string</em> |
 | protected | <strong>renderArticle(</strong><em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>, <em>int</em> <strong>$index</strong>)</strong> : <em>array (index, html_content)</em> |
@@ -152,8 +152,6 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 <hr /> 
 ### Class: Arlima_CacheManager
 
-> Wrapper for cache functions provided by the CMS
-
 | Visibility | Function |
 |:-----------|:---------|
 | public static | <strong>loadInstance()</strong> : <em>[\Arlima_CacheInterface](#interface-arlima_cacheinterface)</em> |
@@ -192,13 +190,13 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>abstract getListEditURL(</strong><em>int</em> <strong>$id</strong>)</strong> : <em>string</em><br /><em>Get URL of where arlima list with given id can be edited by an administrator</em> |
 | public | <strong>abstract getPageEditURL(</strong><em>int</em> <strong>$page_id</strong>)</strong> : <em>string</em><br /><em>Get URL of where post/page with given id can be edited by an administrator</em> |
 | public | <strong>abstract getPageIdBySlug(</strong><em>string</em> <strong>$slug</strong>)</strong> : <em>int/bool</em><br /><em>Get id of the page/post with given slug name</em> |
-| public | <strong>abstract getPostIDInLoop()</strong> : <em>mixed</em><br /><em>Get ID of the current post in</em> |
+| public | <strong>abstract getPostIDInLoop()</strong> : <em>int</em><br /><em>Get ID of the current post in</em> |
 | public | <strong>abstract getPostInGlobalScope()</strong> : <em>mixed</em> |
 | public | <strong>abstract getPostTimeStamp(</strong><em>int</em> <strong>$post_id</strong>)</strong> : <em>mixed</em><br /><em>Get publish time for the post/page with given id</em> |
 | public | <strong>abstract getPostURL(</strong><em>mixed</em> <strong>$post_id</strong>)</strong> : <em>string</em><br /><em>Get URL for post/page with given id</em> |
 | public | <strong>abstract getQueriedPageId()</strong> : <em>int/bool</em><br /><em>Get id the page/post that currently is being visited</em> |
 | public | <strong>abstract getRelationData(</strong><em>int</em> <strong>$post_id</strong>)</strong> : <em>array</em><br /><em>Get information about possible relations between given post/page and Arlima lists</em> |
-| public | <strong>abstract havePostsInLoop()</strong> : <em>mixed</em> |
+| public | <strong>abstract havePostsInLoop()</strong> : <em>bool</em> |
 | public | <strong>abstract humanTimeDiff(</strong><em>int</em> <strong>$time</strong>)</strong> : <em>string</em><br /><em>Get a human readable string explaining how long ago given time is, or how much time there's left until the time takes place</em> |
 | public | <strong>abstract isPreloaded(</strong><em>int</em> <strong>$id</strong>)</strong> : <em>bool</em><br /><em>Tells whether or not a page/post with given id is preloaded</em> |
 | public | <strong>abstract loadExternalURL(</strong><em>string</em> <strong>$url</strong>)</strong> : <em>array</em><br /><em>Load the contents of an external URL. This function returns an array with  'headers', 'body', 'response', 'cookies', 'filename' if request was successful, or throws an Exception if failed</em> |
@@ -230,13 +228,13 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 |:-----------|:---------|
 | public | <strong>__construct(</strong><em>mixed/string</em> <strong>$template_path=null</strong>)</strong> : <em>void</em> |
 | public static | <strong>defaultHeaderCallback(</strong><em>int</em> <strong>$article_counter</strong>, <em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>, <em>\stdClass</em> <strong>$post_id</strong>, <em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>)</strong> : <em>mixed</em> |
-| public | <strong>generateListHtml(</strong><em>bool</em> <strong>$output=true</strong>)</strong> : <em>string</em> |
+| public | <strong>generateListHtml(</strong><em>bool</em> <strong>$echo_output=true</strong>)</strong> : <em>string</em><br /><em>Set $echo_output to false to rendered list as a string</em> |
 | public | <strong>getExcludePosts()</strong> : <em>array</em> |
 | public | <strong>havePosts()</strong> : <em>bool</em> |
 | public | <strong>setDefaultArticleProperties(</strong><em>mixed</em> <strong>$arr</strong>)</strong> : <em>void</em> |
 | public | <strong>setExcludePosts(</strong><em>array</em> <strong>$exclude_posts</strong>)</strong> : <em>void</em> |
 | public | <strong>setHeaderCallback(</strong><em>\Closure</em> <strong>$callback</strong>)</strong> : <em>void</em> |
-| protected | <strong>extractTemplateData(</strong><em>int</em> <strong>$post_id</strong>, <em>int</em> <strong>$article_counter</strong>)</strong> : <em>array</em> |
+| protected | <strong>createArticleFromPost(</strong><em>int</em> <strong>$post_id</strong>, <em>int</em> <strong>$article_counter</strong>)</strong> : <em>[\Arlima_Article](#class-arlima_article)</em> |
 
 *This class extends [\Arlima_ListTemplateRenderer](#class-arlima_listtemplaterenderer)*
 
@@ -409,7 +407,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 |:-----------|:---------|
 | public | <strong>__construct(</strong><em>[\Arlima_List](#class-arlima_list)/\stdClass</em> <strong>$list</strong>, <em>mixed/string</em> <strong>$template_path=null</strong>)</strong> : <em>void</em><br /><em>Class constructor</em> |
 | protected | <strong>generateArticleHtml(</strong><em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>, <em>int</em> <strong>$index</strong>, <em>mixed</em> <strong>$post</strong>)</strong> : <em>array</em> |
-| protected | <strong>generateListHtml(</strong><em>bool</em> <strong>$output=true</strong>)</strong> : <em>string</em><br /><em>Will render all articles in the arlima list using templates. The template to be used is an option in the article list object (Arlima_List). If no template exists in declared template paths we will fall back on default templates (plugins/arlima/template/[name].tmpl)</em> |
+| protected | <strong>generateListHtml(</strong><em>bool</em> <strong>$echo_output=true</strong>)</strong> : <em>string</em><br /><em>Will render all articles in the arlima list using templates. The template to be used is an option in the article list object (Arlima_List). If no template exists in declared template paths we will fall back on default templates (plugins/arlima/template/[name].tmpl)</em> |
 | protected | <strong>getTemplateToUse(</strong><em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>)</strong> : <em>null/string</em> |
 | protected | <strong>includeArticleFile(</strong><em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>, <em>int</em> <strong>$index</strong>)</strong> : <em>string</em> |
 
@@ -426,7 +424,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>addPreviewArticles(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>)</strong> : <em>void</em><br /><em>Add articles and version of latest preview version to given list object</em> |
 | public | <strong>addVersionHistory(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>)</strong> : <em>array</em><br /><em>Add version history data to list and return an array with all published versions</em> |
 | public | <strong>clear(</strong><em>int</em> <strong>$version_id</strong>)</strong> : <em>void</em><br /><em>Removes all articles in a version.</em> |
-| public | <strong>create(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>array</em> <strong>$articles</strong>, <em>mixed</em> <strong>$user_id</strong>, <em>bool</em> <strong>$preview=false</strong>)</strong> : <em>int</em> |
+| public | <strong>create(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>array</em> <strong>$articles</strong>, <em>int</em> <strong>$user_id</strong>, <em>bool</em> <strong>$preview=false</strong>)</strong> : <em>mixed</em> |
 | public static | <strong>createArticle(</strong><em>array</em> <strong>$override=array()</strong>)</strong> : <em>[\Arlima_Article](#class-arlima_article)</em><br /><em>The article data is in fact created with javascript in front-end so you can't see this function as the sole creator of article objects. For that reason it might be good to take look at this function once in a while, making sure it generates a similar object as generated with javascript in front-end.</em> |
 | public | <strong>createDatabaseTables()</strong> : <em>void</em> |
 | public | <strong>createScheduledVersion(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>array</em> <strong>$articles</strong>, <em>int</em> <strong>$user_id</strong>, <em>int</em> <strong>$schedule_time</strong>)</strong> : <em>int</em> |
@@ -438,7 +436,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>loadListVersions(</strong><em>[\Arlima_List](#class-arlima_list)/int</em> <strong>$list</strong>)</strong> : <em>array</em><br /><em>Get an array with all versions that a list has</em> |
 | public | <strong>update(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>array</em> <strong>$articles</strong>, <em>int</em> <strong>$version_id</strong>)</strong> : <em>void</em><br /><em>Change the article collection belonging to a list version</em> |
 | public | <strong>updateArticle(</strong><em>int</em> <strong>$id</strong>, <em>array/[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>)</strong> : <em>array</em><br /><em>This function will return array with those columns that were updated</em> |
-| public | <strong>updateArticlePublishDate(</strong><em>mixed</em> <strong>$time</strong>, <em>mixed</em> <strong>$post_id</strong>)</strong> : <em>void</em><br /><em>Updates publish date for all arlima articles related to given post and clears the cache of the lists where they appear</em> |
+| public | <strong>updateArticlePublishDate(</strong><em>int</em> <strong>$time</strong>, <em>int</em> <strong>$post_id</strong>)</strong> : <em>void</em><br /><em>Updates publish date for all arlima articles related to given post and clears the cache of the lists where they appear</em> |
 | public | <strong>updateDatabaseTables(</strong><em>\float</em> <strong>$currently_installed_version</strong>)</strong> : <em>void</em> |
 | public | <strong>versionBelongsToList(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>int</em> <strong>$version_id</strong>)</strong> : <em>bool</em> |
 | protected | <strong>toArray(</strong><em>array/[\Arlima_Article](#class-arlima_article)[]</em> <strong>$articles</strong>)</strong> : <em>mixed</em><br /><em>Convert from articles from objects to arrays and update possibly changed published date of articles</em> |
@@ -495,7 +493,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 |:-----------|:---------|
 | public | <strong>__construct(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>bool</em> <strong>$echo=true</strong>)</strong> : <em>void</em> |
 | public static | <strong>defaultPostDisplayCallback(</strong><em>int</em> <strong>$article_counter</strong>, <em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>, <em>\WP_Post/bool</em> <strong>$post</strong>, <em>[\Arlima_AbstractListRenderingManager](#class-arlima_abstractlistrenderingmanager-abstract)</em> <strong>$renderer</strong>, <em>bool</em> <strong>$echo</strong>)</strong> : <em>string</em> |
-| public | <strong>generateListHtml(</strong><em>bool</em> <strong>$output=true</strong>)</strong> : <em>string</em> |
+| public | <strong>generateListHtml(</strong><em>bool</em> <strong>$echo_output=true</strong>)</strong> : <em>string</em> |
 | public | <strong>setDisplayArticleCallback(</strong><em>\Closure</em> <strong>$func</strong>)</strong> : <em>void</em> |
 | protected | <strong>generateArticleHtml(</strong><em>[\Arlima_Article](#class-arlima_article)</em> <strong>$article</strong>, <em>int</em> <strong>$index</strong>, <em>null/\stdClass/\WP_Post</em> <strong>$post</strong>)</strong> : <em>mixed</em> |
 
@@ -690,7 +688,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>getRelationData(</strong><em>int</em> <strong>$post_id</strong>)</strong> : <em>array</em><br /><em>Get information about possible relations between given post/page and Arlima lists</em> |
 | public | <strong>havePostsInLoop()</strong> : <em>bool</em> |
 | public | <strong>humanTimeDiff(</strong><em>int</em> <strong>$time</strong>)</strong> : <em>string</em><br /><em>Get a human readable string explaining how long ago given time is, or how much time there's left until the time takes place</em> |
-| public | <strong>initLocalization()</strong> : <em>void</em> |
+| public static | <strong>initLocalization()</strong> : <em>void</em> |
 | public | <strong>isPreloaded(</strong><em>int</em> <strong>$id</strong>)</strong> : <em>bool</em><br /><em>Tells whether or not a page/post with given id is preloaded</em> |
 | public | <strong>loadExternalURL(</strong><em>string</em> <strong>$url</strong>)</strong> : <em>array</em><br /><em>Load the contents of an external URL. This function returns an array with  'headers', 'body', 'response', 'cookies', 'filename' if request was successful, or throws an Exception if failed</em> |
 | public | <strong>loadRelatedPages(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>)</strong> : <em>array</em><br /><em>Get an array with all pages that give list is related to</em> |
@@ -824,8 +822,10 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>savePageMetaBox(</strong><em>mixed</em> <strong>$post_id</strong>)</strong> : <em>void</em> |
 | public | <strong>saveSettings(</strong><em>array</em> <strong>$setting</strong>)</strong> : <em>void</em> |
 | public | <strong>settingsLinkOnPluginPage(</strong><em>array</em> <strong>$links</strong>)</strong> : <em>array</em><br /><em>Add a settings link to given links</em> |
+| public static | <strong>setupArlimaListRendering()</strong> : <em>void</em> |
 | public | <strong>setupWidgets()</strong> : <em>void</em><br /><em>Register our widgets and widget filters</em> |
 | public static | <strong>supportsImageEditor()</strong> : <em>bool</em> |
+| public static | <strong>tearDownArlimaListRendering()</strong> : <em>void</em> |
 | public | <strong>themeInitHook()</strong> : <em>void</em><br /><em>function called on init in the theme</em> |
 | public static | <strong>uninstall()</strong> : <em>void</em><br /><em>Uninstall procedure for this plugin - Removes plugin settings - Removes database tables</em> |
 | public static | <strong>update()</strong> : <em>void</em><br /><em>Update procedure for this plugin. Since wordpress is lacking this feature we should call this function on a regular basis.</em> |

@@ -64,10 +64,10 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
 
     /**
      * @see Arlima_SimpleListRendered::setDisplayPostCallback()
-     * @param bool $output
+     * @param bool $echo_output
      * @return string
      */
-    function generateListHtml($output = true)
+    function generateListHtml($echo_output = true)
     {
         $content = '';
         $article_counter = 0;
@@ -75,7 +75,7 @@ class Arlima_SimpleListRenderer extends Arlima_AbstractListRenderingManager
 
             list($index, $article_content) = $this->renderArticle($article, $article_counter);
 
-            if( $output ) {
+            if( $echo_output ) {
                 echo $article_content;
             } else {
                 $content .= $article_content;

@@ -22,9 +22,9 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
     /**
      * @param Arlima_List $list
      * @param array $articles
+     * @param int $user_id
      * @param bool $preview
-     * @return int
-     * @throws Exception
+     * @return mixed
      */
     public function create($list, $articles, $user_id, $preview=false)
     {
@@ -166,39 +166,17 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             $data = $article;
 
         $sql = $this->cms->prepare('SELECT * FROM '.$this->dbTable('_article').' WHERE ala_id=%d', array($id));
-        $cols = $this->cms->runSQLQuery($sql);
-        $cols = $this->removePrefix(current($cols), 'ala_');
-        $updated = array();
+        $row_set = $this->cms->runSQLQuery($sql);
+        $row_set = $this->removePrefix(current($row_set), 'ala_');
 
-        if( !empty($cols) ) {
-
-            $sql = 'UPDATE '.$this->dbTable('_article').' SET ';
-            foreach($data as $col => $val) {
-                if( isset($cols[$col]) ) {
-                    $updated[] = $col;
-                    if($col == 'options') {
-                        $val = array_merge(unserialize($cols['options']), $val);
-                    }
-                    if($col == 'options' || $col == 'image')
-                        $val = serialize( $val );
-
-                    $sql .= " ala_$col = '".esc_sql(stripslashes($val))."', ";
-                }
-            }
-
-            $sql = rtrim($sql, ', ') . ' WHERE ala_id = '.intval($id);
-
+        if( !empty($row_set) ) {
+            list($sql, $updated) = $this->generateUpdateArticleSQL($id, $data, $row_set);
             $this->cms->runSQLQuery($sql);
-
-            // Update cache
-            $list = $this->loadListByVersionId($cols['alv_id']);
-            if($list->exists()) {
-                $this->cms->doAction('arlima_save_list', $list);
-                $this->clearArticleCache($list, $cols['alv_id']);
-            }
+            $this->clearListCacheByVersionId($row_set['alv_id']);
+            return $updated;
         }
 
-        return $updated;
+        return array();
     }
 
     /**
@@ -250,7 +228,6 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
                 $do_use_cache = false;
             }
         }
-
 
         // Load articles from db if we shouldn't use cache or if cache is empty
         if( !$do_use_cache || !($articles = $this->cache->get($this->last_cache_key.$list->getId()))) {
@@ -405,7 +382,8 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
      * Updates publish date for all arlima articles related to given post and clears the cache
      * of the lists where they appear
      *
-     * @param stdClass|WP_Post $post
+     * @param int $time
+     * @param int $post_id
      */
     public function updateArticlePublishDate($time, $post_id)
     {
@@ -1014,5 +992,47 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
             }
         }
         return $articles;
+    }
+
+    /**
+     * @param $list_version_id
+     */
+    private function clearListCacheByVersionId($list_version_id)
+    {
+        $list = $this->loadListByVersionId($list_version_id);
+        if ($list->exists()) {
+            $this->cms->doAction('arlima_save_list', $list);
+            $this->clearArticleCache($list, $list_version_id);
+        }
+    }
+
+    /**
+     * Returns an array with the SQL-statement and another array with columns
+     * that will be updated by the query
+     *
+     * @param int  $id
+     * @param array $new_data
+     * @param array $db_rowset
+     * @return array
+     */
+    private function generateUpdateArticleSQL($id, $new_data, $db_rowset)
+    {
+        $sql = 'UPDATE ' . $this->dbTable('_article') . ' SET ';
+        $updated = array();
+        foreach ($new_data as $col => $val) {
+            if (isset($db_rowset[$col])) {
+                $updated[] = $col;
+                if ($col == 'options') {
+                    $val = array_merge(unserialize($db_rowset['options']), $val);
+                }
+                if ($col == 'options' || $col == 'image')
+                    $val = serialize($val);
+
+                $sql .= " ala_$col = '" . esc_sql(stripslashes($val)) . "', ";
+            }
+        }
+
+        $sql = rtrim($sql, ', ') . ' WHERE ala_id = ' . intval($id);
+        return array($sql, $updated);
     }
 }

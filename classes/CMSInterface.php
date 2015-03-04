@@ -69,12 +69,12 @@ interface Arlima_CMSInterface
 
     /**
      * Get ID of the current post in
-     * @return mixed
+     * @return int
      */
     function getPostIDInLoop();
 
     /**
-     * @return mixed
+     * @return bool
      */
     function havePostsInLoop();
 

@@ -105,10 +105,10 @@ abstract class Arlima_AbstractListRenderingManager
     /**
      * Render the list of articles
      * @abstract
-     * @param bool $output[optional=true]
+     * @param bool $echo_output[optional=true]
      * @return string
      */
-    abstract protected function generateListHtml($output = true);
+    abstract protected function generateListHtml($echo_output = true);
 
     /**
      * @param bool $output

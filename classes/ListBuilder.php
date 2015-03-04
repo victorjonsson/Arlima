@@ -174,28 +174,13 @@ class Arlima_ListBuilder {
     protected function assembleList()
     {
         if( $this->from_page ) {
-            $list_relation = $this->list_repo->getCMSFacade()->getRelationData( $this->from_page );
-            if( !$list_relation ) {
-                $list = new Arlima_List();
-            } else {
-                if( is_numeric( $list_relation['id']) ) {
-                    $list = $this->list_repo->load($list_relation['id']);
-                }
-                elseif( filter_var($list_relation['id'], FILTER_VALIDATE_URL) !== false ) {
-                    $this->import($list_relation['id']);
-                    return $this->assembleExternalList();
-                } else {
-                    // probably slug
-                    $list = $this->list_repo->load($list_relation['id']);
-                }
-            }
+            $list = $this->loadListRelatedToPage($this->from_page);
         } else {
             $list = $this->list_repo->load($this->id_or_slug);
         }
 
         if( $list->exists() ) {
             $this->version_repo->addVersionHistory($list);
-
             if ($this->load_preview) {
                 $this->version_repo->addPreviewArticles($list);
             } else {
@@ -204,6 +189,29 @@ class Arlima_ListBuilder {
         }
 
         return $list;
+    }
+
+    /**
+     * @param int $page_id
+     * @return Arlima_List
+     */
+    private function loadListRelatedToPage($page_id)
+    {
+        $list_relation = $this->list_repo->getCMSFacade()->getRelationData( $page_id );
+        if( $list_relation ) {
+            if( is_numeric( $list_relation['id']) ) {
+                return $this->list_repo->load($list_relation['id']);
+            }
+            elseif( filter_var($list_relation['id'], FILTER_VALIDATE_URL) !== false ) {
+                $this->import($list_relation['id']);
+                return $this->assembleExternalList();
+            } else {
+                // probably slug
+                return $this->list_repo->load($list_relation['id']);
+            }
+        }
+
+        return new Arlima_List(); // return none-existent list
     }
 
     /**

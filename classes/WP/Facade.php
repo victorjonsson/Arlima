@@ -29,7 +29,9 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
      */
     private static $has_loaded_textdomain = false;
 
-    function initLocalization()
+    /**
+     */
+    static function initLocalization()
     {
         if ( !self::$has_loaded_textdomain ) {
             self::$has_loaded_textdomain = true;
@@ -44,8 +46,8 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
      */
     function translate($str)
     {
-        $this->initLocalization();
-        return __('Edit article list', 'arlima');
+        self::initLocalization();
+        return __($str, 'arlima');
     }
 
     /**

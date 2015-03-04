@@ -70,45 +70,64 @@ class Arlima_FileInclude {
     {
         self::$current_file_args = $args;
 
-        $cache_ttl = 0;
-        $cache_name = '';
+        $cache_name = false;
+        $cache_ttl = Arlima_CMSFacade::load()->applyFilters('arlima_file_include_cache_ttl', 0, $file);
 
-        if( !self::$is_collecting_args ) {
-            $cache_ttl = Arlima_CMSFacade::load()->applyFilters('arlima_file_include_cache_ttl', 0, $file);
-            if( $cache_ttl ) {
-                $cache_name = 'arlima_fileinc_'.basename($file).( is_array($args) ? implode('_', $args) : $args);
-                $cached_content = Arlima_CacheManager::loadInstance()->get($cache_name);
-                if( $cached_content ) {
-                    if( $cached_content['expires'] < time() ) {
-                        Arlima_CacheManager::loadInstance()->delete($cache_name);
-                    } else {
-                        return $cached_content['content'];
-                    }
-                }
-            }
+        // Load content from cache
+        if( $cache_ttl ) {
+            $cache_name = $this->generateCacheName($file, $args);
+            $content = $this->loadFileContentFromCache($file, $args, $cache_name, $cache_ttl);
+            if( $content )
+                return $content;
         }
 
-        // Include file and capture output
-        if( $resolved_path = $this->resolvePath($file) ) {
-            ob_start();
-            include $resolved_path;
-            $content = ob_get_contents();
-            ob_end_clean();
-        } else {
-            $content = '';
-            trigger_error('Trying to include an arlima file that does not exist '.$file, E_USER_NOTICE);
-        }
+        // Load content from file
+        $content = $this->getFileContents($file, $renderer, $article);
 
         self::$current_file_args = false;
 
         if( $cache_ttl ) {
-            $content = "<!-- arlima file cache $cache_name ( ".date('Y-m-d H:i:s')." ttl: $cache_ttl )  -->\n".$content;
-            Arlima_CacheManager::loadInstance()->set($cache_name, array('expires' => time()+$cache_ttl, 'content'=>$content));
+            $content = $this->saveFileContentToCache($cache_name, $cache_ttl, $content);
         }
 
         return $content;
     }
 
+    /**
+     * @param string $file
+     * @param array $args
+     * @return string
+     */
+    private function generateCacheName($file, $args)
+    {
+        return  'arlima_fileinc_'.basename($file).( is_array($args) ? implode('_', $args) : $args);
+    }
+
+    /**
+     * @param $file
+     * @param $args
+     * @param $cache_name
+     * @return bool|string
+     */
+    private function loadFileContentFromCache($file, $args, $cache_name)
+    {
+        if( !self::$is_collecting_args ) {
+            $cached_content = Arlima_CacheManager::loadInstance()->get($cache_name);
+            if( $cached_content ) {
+                if( $cached_content['expires'] < time() ) {
+                    Arlima_CacheManager::loadInstance()->delete($cache_name);
+                } else {
+                    return $cached_content['content'];
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @params string $file
+     * @return bool|string
+     */
     private function resolvePath($file)
     {
         if( file_exists($file) ) {
@@ -117,5 +136,39 @@ class Arlima_FileInclude {
             return $resolved;
         }
         return false;
+    }
+
+    /**
+     * @param $file
+     * @param null $renderer
+     * @param null $article
+     * @return string
+     */
+    private function getFileContents($file, $renderer=null, $article=null)
+    {
+        if ($resolved_path = $this->resolvePath($file)) {
+            ob_start();
+            include $resolved_path;
+            $content = ob_get_contents();
+            ob_end_clean();
+            return $content;
+        } else {
+            $content = '';
+            trigger_error('Trying to include an arlima file that does not exist ' . $file, E_USER_NOTICE);
+            return $content;
+        }
+    }
+
+    /**
+     * @param string $cache_name
+     * @param int $cache_ttl
+     * @param string $content
+     * @return string
+     */
+    private function saveFileContentToCache($cache_name, $cache_ttl, $content)
+    {
+        $content = "<!-- arlima file cache $cache_name ( " . date('Y-m-d H:i:s') . " ttl: $cache_ttl )  -->\n" . $content;
+        Arlima_CacheManager::loadInstance()->set($cache_name, array('expires' => time() + $cache_ttl, 'content' => $content));
+        return $content;
     }
 }

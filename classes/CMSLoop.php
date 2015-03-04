@@ -9,7 +9,6 @@
  */
 class Arlima_CMSLoop extends Arlima_ListTemplateRenderer
 {
-
     /**
      * @var array
      */
@@ -78,69 +77,41 @@ class Arlima_CMSLoop extends Arlima_ListTemplateRenderer
     }
 
     /**
-     * @param bool $output
+     * Set $echo_output to false to rendered list as a string
+     * @param bool $echo_output
      * @return string
      */
-    function generateListHtml($output = true)
+    function generateListHtml($echo_output = true)
     {
-        $article_counter = 0;
-        $content = '';
-
         // Set default template
         try {
             $this->template_engine->setDefaultTemplate($this->list->getOption('template'));
         } catch(Exception $e) {
             $message = 'You are using a default template for the list "'.$this->list->getTitle().'" that could not be found';
-            if( $output ) {
+            if( $echo_output ) {
                 echo $message;
             } else {
                 return $message;
             }
         }
 
-        while ( $this->cms->havePostsInLoop() ) {
-            if ( $this->getOffset() > $article_counter ) {
-                $article_counter++;
-                continue;
-            }
-
-            $post_id = $this->cms->getPostIDInLoop();
-            $template_data = $this->extractTemplateData($post_id, $article_counter);
-
-            if( $template_data && !in_array($post_id, $this->exclude_posts) ) {
-
-                list($article_counter, $article_content) = $this->renderArticle(
-                    $template_data,
-                    $article_counter
-                );
-
-                if ( $output ) {
-                    echo $article_content;
-
-                } else {
-                    $content .= $article_content;
-                }
-            }
-
-            if ( $article_counter >= 50 || ($this->getLimit() > -1 && $this->getLimit() <= $article_counter) ) {
-                break;
-            }
-        }
-
-        return $content;
+        return $this->runArticleLoop($echo_output);
     }
 
     /**
      * @param int $post_id
      * @param int $article_counter
-     * @return array
+     * @return Arlima_Article
      */
-    protected function extractTemplateData($post_id, $article_counter)
+    protected function createArticleFromPost($post_id, $article_counter)
     {
         $article = $this->cms->postToArlimaArticle($post_id, $this->default_article_props);
-        $article['html_title'] = call_user_func($this->header_callback, $article_counter, $article, $post_id, $this->list);
-        $article['html_content'] = $this->cms->applyFilters('the_content', $this->cms->getContentOfPostInGlobalScope(), 'arlima-list');
-        $article['image'] = $this->cms->getArlimaArticleImageFromPost($post_id);
+        $article_data = $article->toArray();
+        $article_data['title'] = call_user_func($this->header_callback, $article_counter, $article, $post_id, $this->list);
+        $article_data['content'] = $this->cms->applyFilters('the_content', $this->cms->getContentOfPostInGlobalScope(), 'arlima-list');
+        $article_data['image'] = $this->cms->getArlimaArticleImageFromPost($post_id);
+
+        $article = new Arlima_Article($article_data);
         $article = $this->cms->applyFilters('arlima_wp_loop_article', $article, $post_id); // Backwards compat
         return $this->cms->applyFilters('arlima_cms_loop_article', $article, $post_id);
     }
@@ -151,5 +122,45 @@ class Arlima_CMSLoop extends Arlima_ListTemplateRenderer
     public function setDefaultArticleProperties($arr)
     {
         $this->default_article_props = $arr;
+    }
+
+    /**
+     * @param bool $echo_output
+     * @return string|void
+     */
+    private function runArticleLoop($echo_output)
+    {
+        $article_counter = 0;
+        $content = '';
+
+        while ($this->cms->havePostsInLoop()) {
+            if ($this->getOffset() > $article_counter) {
+                $article_counter++;
+                continue;
+            }
+
+            $post_id = $this->cms->getPostIDInLoop();
+            $article = $this->createArticleFromPost($post_id, $article_counter);
+
+            if (!in_array($post_id, $this->exclude_posts)) {
+
+                list($article_counter, $article_content) = $this->renderArticle(
+                    $article,
+                    $article_counter
+                );
+
+                if ($echo_output) {
+                    echo $article_content;
+                } else {
+                    $content .= $article_content;
+                }
+            }
+
+            if ($article_counter >= 50 || ($this->getLimit() > -1 && $this->getLimit() <= $article_counter)) {
+                break;
+            }
+        }
+
+        return $content;
     }
 }

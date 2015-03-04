@@ -45,10 +45,10 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
      * used is an option in the article list object (Arlima_List). If no template exists in declared
      * template paths we will fall back on default templates (plugins/arlima/template/[name].tmpl)
      *
-     * @param bool $output[optional=true]
+     * @param bool $echo_output[optional=true]
      * @return string
      */
-    protected function generateListHtml($output = true)
+    protected function generateListHtml($echo_output = true)
     {
         $count = 0;
         $list_content = '';
@@ -58,7 +58,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             $this->template_engine->setDefaultTemplate($this->default_template_name);
         } catch(Exception $e) {
             $message = 'You are using a default template for the list "'.$this->list->getTitle().'" that could not be found';
-            if( $output ) {
+            if( $echo_output ) {
                 echo $message;
             } else {
                 return $message;
@@ -69,7 +69,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
 
             list($count, $content) = $this->renderArticle($article_data, $count);
 
-            if ( $output ) {
+            if ( $echo_output ) {
                 echo $content;
             } else {
                 $list_content .= $content;
@@ -128,9 +128,9 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
         foreach ($articles as $i => $art) {
 
             $first_or_last_class = '';
-            $is_child_split = (bool)$art->opt('floating');
+            $is_floating = (bool)$art->opt('floating');
 
-            if ($is_child_split) {
+            if ($is_floating) {
 
                 if (!$split_state || ($split_state && $art->opt('inlineWithChild') === false)) {
 
@@ -152,7 +152,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
                 }
 
                 if ($split_state['count'] == 1) { // single floating. reset status!
-                    $is_child_split = false;
+                    $is_floating = false;
                 }
                 elseif ( $split_state['index'] == 0 ) {
                     $first_or_last_class = ' first';
@@ -174,7 +174,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             }
             elseif( $art->opt('fileInclude') ) {
                 $child_articles .= '<div class="arlima-file-include teaser '.$first_or_last_class.
-                    ( $is_child_split ? ' teaser-split':'').
+                    ( $is_floating ? ' teaser-split':'').
                     '">'.$this->includeArticleFile($art, -1).'</div>';
             }
             else {

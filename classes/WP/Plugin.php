@@ -2,7 +2,7 @@
 
 
 /**
- * Utility class for the Arlima plugin.
+ * Utility class for the Arlima plugin. 
  *
  * @package Arlima
  * @since 3.1
@@ -98,12 +98,27 @@ class Arlima_WP_Plugin
         add_shortcode('arlima', array($this, 'arlimaListShortCode'));
 
         if ( is_page() ) {
-            add_filter('the_content', 'Arlima_WP_Plugin::displayArlimaList');
+            add_action('loop_start', 'Arlima_WP_Plugin::setupArlimaListRendering');
+            add_action('loop_end', 'Arlima_WP_Plugin::tearDownArlimaListRendering');
         }
 
         if( is_user_logged_in() && arlima_is_preview() ) {
             wp_enqueue_script('jquery'); // The list manager uses the jQuery object on this page
         }
+    }
+
+    /**
+     */
+    static function setupArlimaListRendering()
+    {
+        add_filter('the_content', 'Arlima_WP_Plugin::displayArlimaList');
+    }
+
+    /**
+     */
+    static function tearDownArlimaListRendering()
+    {
+        remove_filter('the_content', 'Arlima_WP_Plugin::displayArlimaList');
     }
 
     /**
@@ -173,7 +188,7 @@ class Arlima_WP_Plugin
         /* @var WP_Admin_Bar $wp_admin_bar */
         global $wp_admin_bar;
         if ( is_admin_bar_showing() ) {
-            Arlima_CMSFacade::load()->initLocalization();
+            Arlima_WP_Facade::initLocalization();
             $admin_url = admin_url('admin.php?page=arlima-main');
             $wp_admin_bar->add_menu(
                 array(
@@ -226,7 +241,7 @@ class Arlima_WP_Plugin
         self::$is_scissors_installed = function_exists('scissors_create_image');
 
         // Add some formats
-        arlima_register_format('format-inverted', 'Inverted', array('giant'));
+        arlima_register_format('format-inverted', $this->cms->translate('Inverted'), array('giant'));
         arlima_register_format('format-serif', 'Serif');
 
         // Invoke an action meant for the theme or other plugins to hook into
@@ -251,7 +266,7 @@ class Arlima_WP_Plugin
     function adminInitHook()
     {
         self::update();
-        Arlima_CMSFacade::load()->initLocalization();
+        Arlima_WP_Facade::initLocalization();
         add_action('save_post', array($this, 'savePageMetaBox'));
         add_action('add_meta_boxes', array($this, 'addAttachmentMetaBox'));
         add_filter('plugin_action_links_arlima-dev/arlima.php', array($this, 'settingsLinkOnPluginPage'));

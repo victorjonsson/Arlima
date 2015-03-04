@@ -1,8 +1,7 @@
 <?php
 
 /**
- * @deprecated
- * @see Arlima_CMSLoop
+ * @deprecated Use Arlima_CMSLoop instead
  *
  * @package Arlima
  * @since 2.0

@@ -599,7 +599,8 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
                 $this->cms->flushCaches();
             }
         }
-        elseif($currently_installed_version < 3.1) {
+
+        if($currently_installed_version < 3.1) {
 
             // Check if manual fix was made before
             $data = $this->cms->runSQLQuery('SELECT * FROM '.$version_tbl.' LIMIT 1');

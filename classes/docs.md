@@ -847,7 +847,9 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 *This class extends \WP_Widget*
 
 <hr /> 
-### Class: Arlima_WPLoop
+### <strike>Class: Arlima_WPLoop</strike>
+
+> **DEPRECATED** Use Arlima_CMSLoop instead
 
 | Visibility | Function |
 |:-----------|:---------|

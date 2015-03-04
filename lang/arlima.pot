@@ -396,7 +396,7 @@ msgstr "Standardmall"
 
 #: pages/edit.php:141
 msgid "Allow editors to switch template on articles in the list manager"
-msgstr "Tillåt redaktörer att byta mall på enskilda artiklar"
+msgstr "Ska redaktörer kunna byta mall på enskilda artiklar?"
 
 #: pages/edit.php:154
 msgid "Should this list support sections (read wiki for more info)"
@@ -828,107 +828,8 @@ msgstr "Uppdaterad av"
 msgid "Inverted"
 msgstr "Inverterad"
 
-#~ msgid "Scheduled list notice"
-#~ msgstr "Tidsinställd lista"
+msgid "Available templates"
+msgstr "Tillgänliga mallar"
 
-#~ msgid ""
-#~ "Please note: a scheduled list is about to be published in %s seconds."
-#~ msgstr ""
-#~ "Notera: en tidsinställd lista är inställd att publiceras om %s sekunder. "
-
-#~ msgid "The list will be refreshed automatically."
-#~ msgstr "Listan kommer automatiskt att ladda om."
-
-#~ msgid "Help"
-#~ msgstr "Dokumentation"
-
-#~ msgid "Here you will see the article list..."
-#~ msgstr "Här kommer du att kunna se din artikellista."
-
-#~ msgid ""
-#~ "No list slug is defined. Please add custom field &quot;arlima&quot; to "
-#~ "this page with the slug name of the list that you want to display"
-#~ msgstr ""
-#~ "Ingen lista är definerad. Du måste lägga till ett eget fält med namnet "
-#~ "\"arlima\"innehållandes namnet på den artikellista du vill visa på den "
-#~ "här sidan."
-
-#~ msgid "It does not exist any arlima list with the slug"
-#~ msgstr "Det finns ingen artikellista med namnet"
-
-#~ msgid "Please feed me some articles, I'm hungry"
-#~ msgstr "Det saknas artiklar!"
-
-#~ msgid "Preview URL"
-#~ msgstr "URL till förhandsgranskningssida"
-
-#~ msgid "eg. \"/\" or \"/home\""
-#~ msgstr "tex. \"/\" eller \"/min-sida\""
-
-#~ msgid "Custom"
-#~ msgstr "Egen text"
-
-#~ msgid "Choose streamer"
-#~ msgstr "Välj vinjett"
-
-#~ msgid "Drag images to here"
-#~ msgstr "Dra bilder hit"
-
-#~ msgid "Align center"
-#~ msgstr "Centrerad"
-
-#~ msgid "Style"
-#~ msgstr "Anpassad rubrik"
-
-#~ msgid "Link"
-#~ msgstr "Länk"
-
-#~ msgid "Templates"
-#~ msgstr "Mall"
-
-#~ msgid "Arlima (article list manager)"
-#~ msgstr "Arlima (article list manager)"
-
-#~ msgid "Teaser templates"
-#~ msgstr "Artikelmallar"
-
-#~ msgid ""
-#~ "This list is not related to any page! Create a new page with a custom "
-#~ "field named arlima having %s as value."
-#~ msgstr ""
-#~ "Den här listan är inte kopplad till någon sida! Skapa en sida med ett "
-#~ "eget fält som du ger namnet arlima och värdet %s "
-
-#~ msgid "imported list"
-#~ msgstr "importerad"
-
-#~ msgid "This list is missing a preview page"
-#~ msgstr "Den här listan saknar en förhandsgranskningssida"
-
-#~ msgid "Interval"
-#~ msgstr "Intervall"
-
-#~ msgid "Quick Edit"
-#~ msgstr "Snabbredigering"
-
-#~ msgid ""
-#~ "This is an experimental feature that makes it possible to edit articles "
-#~ "directly on your front page."
-#~ msgstr ""
-#~ "Den här funktionen gör det möjligt att redigera artiklar direkt på "
-#~ "startsidan."
-
-#~ msgid "Enabled"
-#~ msgstr "Aktivterad"
-
-#~ msgid "Disabled"
-#~ msgstr "Inaktivterad"
-
-#~ msgid "Read more"
-#~ msgstr "Läs mer"
-
-#~ msgid "[open]"
-#~ msgstr "[öppna]"
-
-#~ msgid "Arguments (query string)"
-#~ msgstr "Argument (query-sträng)"
+msgid "Notice that templates hidden by the filter <em>arlima_hidden_templates</em> can not be made available in the list manager."
+msgstr "Notera att man inte kan tillgängligöra mallar som döljts med filtret: <em>arlima_hidden_templates</em>."

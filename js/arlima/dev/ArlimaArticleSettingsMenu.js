@@ -48,6 +48,41 @@ var ArlimaArticleSettingsMenu = (function($, ArlimaUtils) {
             } else {
                 // Make it possible to switch template
                 this.$dropDown.find('.nav.template .disabled').removeClass('disabled');
+                var $tmplItems = this.$dropDown.find('.nav.template .nav');
+
+                // Disable templates that isn't available in  current list
+                if($.isArray(list.data.options.available_templates) && list.data.options.available_templates.length) {
+
+                    $tmplItems.not(':eq(0)').addClass('disabled');
+                    $.each(list.data.options.available_templates, function(i, template) {
+                        $tmplItems.filter('[data-value="'+template+'"]')
+                            .removeClass('disabled')
+                            .insertAfter($tmplItems.eq(0));
+                    });
+
+                    // now also sorted, putting available first
+                    this.$dropDown.attr('data-template-sort', 'available');
+
+                } else {
+                    // sort templates by name
+                    if( this.$dropDown.attr('data-template-sort') != 'name' ) {
+                        this.$dropDown.attr('data-template-sort', 'name');
+                        var clones = {},
+                            cloneKeys = [];
+
+                        $tmplItems.not(':eq(0)').each(function() {
+                            var $node = $(this);
+                            clones[$node.attr('data-value')] = $node.clone(true);
+                            cloneKeys.push($node.attr('data-value'));
+                            $node.remove();
+                        });
+
+                        cloneKeys.sort();
+                        $.each(cloneKeys, function(i, key) {
+                            $tmplItems.parent().append(clones[key]);
+                        });
+                    }
+                }
             }
 
             if( !article.canPreview() ) {

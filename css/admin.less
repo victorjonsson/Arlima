@@ -172,28 +172,29 @@ img.schedule-clock {
 }
 
 
-#export-list {
+.scroll-window {
+  width: 100%;
+  max-width: none;
   background: #F2F2F2;
   border: #E2E2E2 solid 1px;
   height: 200px;
   overflow-x: hidden;
   overflow-y: scroll;
-  max-width: 65%;
 }
 
-#export-list p {
+.scroll-window p {
   padding: 8px 12px;
   border-bottom: #E2E2E2 solid 1px;
   border-top: #FFF solid 1px;
-  margin: 0;
+  margin: 0 !important;
   line-height: 160%;
 }
 
-#export-list p:first-child {
+.scroll-window p:first-child {
   border-top: 0;
 }
 
-#export-list p input {
+.scroll-window p input {
   margin-right: 4px;
 }
 
@@ -204,7 +205,7 @@ img.schedule-clock {
   }
 }
 
-#export-list .gray-small {
+.scroll-window .gray-small {
   display: block;
 }
 
@@ -214,6 +215,12 @@ img.schedule-clock {
 */
 
 .wrap.arlima.arlima-edit {
+
+  p.small {
+    color :#777;
+    font-weight: normal;
+  }
+
   .tablenav {
     width: 600px;
     text-align: right;

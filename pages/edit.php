@@ -10,6 +10,10 @@ $list_repo = new Arlima_ListRepository();
 $sys = Arlima_CMSFacade::load();
 $list_id = !empty( $_REQUEST[ 'alid' ] ) ? (int)$_REQUEST[ 'alid' ] : null;
 
+$tmpl_path_resolver = new Arlima_TemplatePathResolver();
+$article_templates = $tmpl_path_resolver->getTemplateFiles();
+
+
 if( $list_id ) {
     $list = $list_repo->load($list_id);
 } else {
@@ -18,6 +22,17 @@ if( $list_id ) {
 
 
 if( count($_POST) > 0 ) {
+
+    // Add default template to available templates if not already there
+    if( empty($_POST['options']['available_templates']) || !in_array($_POST['options']['template'], $_POST['options']['available_templates'])) {
+        $_POST['options']['available_templates'][] = $_POST['options']['template'];
+    }
+
+    // If all templates is set as available then remove the option completely which means
+    // that all current template and all future templates will be available
+    if( count($_POST['options']['available_templates']) == count($article_templates) ) {
+        $_POST['options']['available_templates'] = false;
+    }
 
     // Update
     if($list->exists()) {
@@ -46,6 +61,7 @@ elseif($list->exists() && isset($_GET['remove_list'])) {
 }
 
 $available_lists = $list_repo->loadListSlugs();
+
 ?>
     <div id="col-container">
 		<div id="col-right">
@@ -92,7 +108,7 @@ $available_lists = $list_repo->loadListSlugs();
 						
 						<form method="post" id="arlima-edit-list" action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>">
 							<?php if( $list->exists() ): ?>
-								<input type="hidden" name="alid" id="alid" value="<?php echo $list->id(); ?>" />
+								<input type="hidden" name="alid" id="alid" value="<?php echo $list->getId(); ?>" />
 							<?php endif; ?>
 							<table class="form-table">
 								<tbody>
@@ -122,20 +138,44 @@ $available_lists = $list_repo->loadListSlugs();
 									<th scope="row"><label for="article-template"><?php _e('Default template', 'arlima'); ?></label></th>
 									<td>
                                         <select name="options[template]" id="article-template">
-                                            <?php
-                                            $tmpl = new Arlima_TemplatePathResolver();
-                                            foreach($tmpl->getTemplateFiles() as $file) {
+                                            <?php foreach($article_templates as $file) {
                                                 $selected = $file['name'] == $list->getOption('template') ? ' selected="selected"':'';
                                                 printf(
                                                     '<option value="%s"%s>%s</option>',
                                                     $file['name'],
-                                                    $selected, $file['label'] . ($file['name'] != $file['label'] ? ' ('.$file['name']. $tmpl::TMPL_EXT .')':'')
+                                                    $selected, $file['label'] . ($file['name'] != $file['label'] ? ' ('.$file['name']. Arlima_TemplatePathResolver::TMPL_EXT .')':'')
                                                 );
                                             }
                                             ?>
                                         </select>
                                     </td>
 								</tr>
+                                <tr valign="top">
+                                    <th scope="row">
+                                        <label for="article-template"><?php _e('Available templates', 'arlima'); ?></label>
+                                        <p class="small">
+                                            <?php _e('Notice that templates hidden by the filter <em>arlima_hidden_templates</em> can not be made available in the list manager.', 'arlima') ?>
+                                        </p>
+                                    </th>
+                                    <td>
+                                        <div class="scroll-window">
+                                            <?php
+                                            $hidden_templates = apply_filters('arlima_hidden_templates', array('file-include'), null);
+                                            foreach($article_templates as $file):
+                                                if( in_array($file['name'], $hidden_templates) )
+                                                    continue;
+                                            ?>
+                                                <p>
+                                                    <label>
+                                                        <input type="checkbox" name="options[available_templates][]" value="<?php echo basename($file['name']) ?>"<?php
+                                                            if( $list->isAvailable($file['name'])) echo ' checked="checked"'; ?> />
+                                                        <strong><?php echo $file['label'] . ($file['name'] != $file['label'] ? ' ('.$file['name']. Arlima_TemplatePathResolver::TMPL_EXT .')':'') ?></strong>
+                                                    </label>
+                                                </p>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </td>
+                                </tr>
                                 <tr valign="top">
                                     <th scope="row"><label for="allows_switch"><?php _e('Allow editors to switch template on articles in the list manager', 'arlima') ?></label></th>
                                     <td>

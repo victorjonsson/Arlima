@@ -119,7 +119,10 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
                 $list->setTitle($list_data['title']);
                 $list->setSlug($list_data['slug']);
                 $list->setMaxlength($list_data['maxlength']);
-                $list->setOptions( unserialize($list_data['options']) );
+
+                // Need to sanitize options also when list is loaded due to make it backwards compat
+                $list->setOptions( self::sanitizeListOptions(unserialize($list_data['options'])) );
+
                 $this->cache->set('arlima_list_'.$list->getId(), $list);
             }
         }
@@ -230,10 +233,8 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
      */
     private function sanitizeListOptions($options)
     {
-        $empty_list = new Arlima_List();
-
         // Override default options
-        foreach($empty_list->getOptions() as $name => $val) {
+        foreach(Arlima_List::getDefaultListOptions() as $name => $val) {
             if( !isset($options[$name]) )
                 $options[$name] = $val;
         }

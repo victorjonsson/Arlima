@@ -201,7 +201,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>abstract isPreloaded(</strong><em>int</em> <strong>$id</strong>)</strong> : <em>bool</em><br /><em>Tells whether or not a page/post with given id is preloaded</em> |
 | public | <strong>abstract loadExternalURL(</strong><em>string</em> <strong>$url</strong>)</strong> : <em>array</em><br /><em>Load the contents of an external URL. This function returns an array with  'headers', 'body', 'response', 'cookies', 'filename' if request was successful, or throws an Exception if failed</em> |
 | public | <strong>abstract loadRelatedPages(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>)</strong> : <em>array</em><br /><em>Get an array with all pages that give list is related to</em> |
-| public | <strong>abstract loadRelatedWidgets(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>)</strong> : <em>void</em><br /><em>Get all "widgets" that displays given Arlima list</em> |
+| public | <strong>abstract loadRelatedWidgets(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>)</strong> : <em>array</em><br /><em>Get all "widgets" that displays given Arlima list</em> |
 | public | <strong>abstract postToArlimaArticle(</strong><em>int/object</em> <strong>$post</strong>, <em>mixed/null/string</em> <strong>$text=null</strong>)</strong> : <em>[\Arlima_Article](#class-arlima_article)</em> |
 | public | <strong>abstract preLoadPosts(</strong><em>array</em> <strong>$post_ids</strong>)</strong> : <em>mixed</em><br /><em>Preloads posts/pages with given ids. Use this function to lower the amount of db queries sent when using any of the post-functions provided by this class</em> |
 | public | <strong>abstract prepare(</strong><em>string</em> <strong>$sql</strong>, <em>array</em> <strong>$params</strong>)</strong> : <em>mixed</em><br /><em>Prepare an SQL-statement.</em> |
@@ -293,9 +293,10 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>getArticles()</strong> : <em>[\Arlima_Article](#class-arlima_article)[]</em> |
 | public | <strong>getContainingPosts()</strong> : <em>array</em><br /><em>Returns a list with id numbers of the posts that has a connection to one or more articles in this list</em> |
 | public | <strong>getCreated()</strong> : <em>int</em> |
+| public static | <strong>getDefaultListOptions()</strong> : <em>array</em> |
 | public | <strong>getId()</strong> : <em>int</em> |
 | public | <strong>getMaxlength()</strong> : <em>int</em> |
-| public | <strong>getOption(</strong><em>mixed</em> <strong>$name</strong>)</strong> : <em>string/null</em> |
+| public | <strong>getOption(</strong><em>string</em> <strong>$name</strong>, <em>mixed</em> <strong>$default=null</strong>)</strong> : <em>string/null</em> |
 | public | <strong>getOptions()</strong> : <em>array</em> |
 | public | <strong>getPublishedVersions()</strong> : <em>array</em> |
 | public | <strong>getScheduledVersions()</strong> : <em>array</em> |
@@ -308,6 +309,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>getVersions()</strong> : <em>array</em><br /><em>A list with the latest created versions of this list</em> |
 | public | <strong>hasOption(</strong><em>string</em> <strong>$name</strong>)</strong> : <em>bool</em> |
 | public | <strong>id()</strong> : <em>int</em> |
+| public | <strong>isAvailable(</strong><em>string</em> <strong>$template</strong>)</strong> : <em>bool</em><br /><em>Tells whether or not this list allows use of given template</em> |
 | public | <strong>isImported()</strong> : <em>bool</em><br /><em>Tells whether or not this arlima list is loaded from a remote host</em> |
 | public | <strong>isLatestPublishedVersion()</strong> : <em>bool</em> |
 | public | <strong>isPreview()</strong> : <em>bool</em><br /><em>Tells whether or not the list contains a preview version</em> |

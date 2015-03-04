@@ -118,7 +118,7 @@ interface Arlima_CMSInterface
     /**
      * Get all "widgets" that displays given Arlima list
      * @param Arlima_List $list
-     * @return void
+     * @return array
      */
     function loadRelatedWidgets($list);
 

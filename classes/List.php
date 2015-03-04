@@ -74,15 +74,9 @@ class Arlima_List
 
     /**
      * @var array
+     * @see Arlima_List::getDefaultOptions
      */
-    private $options = array(
-                'template' => 'article',
-                'pages_to_purge' => '',
-                'supports_sections' => "0", // translates to bool false
-                'allows_template_switching' => "1",
-                'before_title' => '<h2>',
-                'after_title' => '</h2>'
-            );
+    private $options = array();
 
     /**
      * @var Arlima_Article[]
@@ -101,9 +95,26 @@ class Arlima_List
      */
     function __construct($exists = false, $id = 0, $is_imported = false)
     {
+        $this->options = self::getDefaultListOptions();
         $this->exists = $exists;
         $this->is_imported = $is_imported;
         $this->id = $id;
+    }
+
+    /**
+     * @return array
+     */
+    static function getDefaultListOptions()
+    {
+        return array(
+            'template' => 'article',
+            'available_templates' => false, // not set meaning all will be available
+            'pages_to_purge' => '',
+            'supports_sections' => "0", // translates to bool false
+            'allows_template_switching' => "1",
+            'before_title' => '<h2>',
+            'after_title' => '</h2>'
+        );
     }
 
     /**
@@ -149,6 +160,19 @@ class Arlima_List
     public function isPublished()
     {
         return $this->getStatus() == self::STATUS_PUBLISHED;
+    }
+
+    /**
+     * Tells whether or not this list allows use of given template
+     * @param string $template
+     * @return bool
+     */
+    public function isAvailable($template)
+    {
+        if( $this->hasOption('available_templates') ) {
+            return in_array(basename($template), $this->getOption('available_templates'));
+        }
+        return true;
     }
 
     /**
@@ -250,12 +274,13 @@ class Arlima_List
     }
 
     /**
-     * @param $name
+     * @param string $name
+     * @param mixed $default
      * @return string|null
      */
-    public function getOption($name)
+    public function getOption($name, $default=null)
     {
-        return isset($this->options[$name]) ? $this->options[$name] : null;
+        return isset($this->options[$name]) ? $this->options[$name] : $default;
     }
 
     /**

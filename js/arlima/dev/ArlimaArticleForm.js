@@ -176,7 +176,7 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
             // Setup preview
             ArlimaArticlePreview.setArticle(
                 this.article,
-                window.ArlimaTemplateLoader.templates[this.article.getTemplate()],
+                window.ArlimaTemplateLoader.templates[this.article.getTemplate()] || '!! unknown template "'+this.article.getTemplate()+'"',
                 list.data.previewWidth || 468,
                 false,
                 list.data.isImported

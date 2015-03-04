@@ -146,7 +146,7 @@ if( isset($message) ): ?>
                         </td>
                         <td style="width:400px">
                             <input type="hidden" name="type" value="export" />
-                            <div id="export-list" style="width: 100%; max-width: none">
+                            <div id="export-list" class="scroll-window">
                                 <?php $i=0; foreach($lists_sorted as $list_data): $i++; ?>
                                     <p>
                                         <label for="list<?php echo $i; ?>">

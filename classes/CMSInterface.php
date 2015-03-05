@@ -275,6 +275,12 @@ interface Arlima_CMSInterface
      */
     function runSQLQuery($sql);
 
+    /**
+     * @param string $tbl
+     * @return bool
+     */
+    function dbTableExists($tbl);
+
 
 
     /* * * * POSTS / PAGES * * */

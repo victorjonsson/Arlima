@@ -40,8 +40,8 @@ class Arlima_WP_Plugin
         if( is_admin() ) {
 
             // Register install/uninstall procedures
-            add_action('activate_arlima/arlima.php', 'Arlima_WP_Plugin::install');
-            add_action('deactivate_arlima/arlima.php', 'Arlima_WP_Plugin::deactivate');
+            register_activation_hook('arlima/arlima.php', 'Arlima_WP_Plugin::install');
+            register_deactivation_hook('arlima/arlima.php', 'Arlima_WP_Plugin::deactivate');
             register_uninstall_hook('arlima/arlima.php', 'Arlima_WP_Plugin::uninstall');
 
             // Add actions and filters used in wp-admin
@@ -377,6 +377,20 @@ class Arlima_WP_Plugin
     }
 
     /**
+     * @param Arlima_AbstractRepositoryDB[] $repos
+     * @return bool
+     */
+    static function hasCreatedDBTables($repos)
+    {
+        $has_tables = false;
+        foreach($repos[0]->getDatabaseTables() as $table) {
+            $has_tables = Arlima_CMSFacade::load()->dbTableExists($table);
+            break;
+        }
+        return $has_tables;
+    }
+
+    /**
      * Install procedure for this plugin
      *  - Adds database tables
      *  - Adds version number in db
@@ -386,23 +400,35 @@ class Arlima_WP_Plugin
      */
     public static function install()
     {
-        // Add db tables
-        foreach(self::loadRepos() as $repo) {
-            $repo->createDatabaseTables();
+        if( is_network_admin() ) {
+            throw new Exception('You can not install Arlima for an entire multi-site network.');
         }
 
-        // Add feed
-        global $wp_rewrite;
-        $plugin = new self();
-        $plugin->addExportFeeds();
-        $wp_rewrite->flush_rules();
+        $repos = self::loadRepos();
 
-        // Add settings
-        $plugin = new self();
-        $settings = $plugin->loadSettings();
-        $settings['install_version'] = ARLIMA_PLUGIN_VERSION;
-        $settings['image_quality'] = 100;
-        $plugin->saveSettings($settings);
+        if( self::hasCreatedDBTables($repos) ) {
+            self::update();
+        }
+        else {
+
+            // Add db tables
+            foreach($repos as $repo) {
+                $repo->createDatabaseTables();
+            }
+
+            // Add feed
+            global $wp_rewrite;
+            $plugin = new self();
+            $plugin->addExportFeeds();
+            $wp_rewrite->flush_rules();
+
+            // Add settings
+            $plugin = new self();
+            $settings = $plugin->loadSettings();
+            $settings['install_version'] = ARLIMA_PLUGIN_VERSION;
+            $settings['image_quality'] = 100;
+            $plugin->saveSettings($settings);
+        }
     }
 
     /**
@@ -446,6 +472,11 @@ class Arlima_WP_Plugin
         $plugin = new self();
         $current_version = $plugin->getSetting('install_version', 0);
 
+        if( is_multisite() && !self::hasCreatedDBTables(self::loadRepos()) ) {
+            self::install();
+            return;
+        }
+
         // Time for an update
         if ( $current_version !== ARLIMA_PLUGIN_VERSION ) {
 
@@ -457,6 +488,10 @@ class Arlima_WP_Plugin
                 $settings['newsbill_tag'] = '';
                 $settings['streamer_pre'] = '';
                 $settings['editor_sections'] = '';
+            }
+
+            if( $current_version < 3.1 ) {
+                delete_option('arlima_db_version');
             }
 
             // Let the repos do their thang

@@ -327,6 +327,16 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     }
 
     /**
+     * @param string $tbl
+     * @return bool
+     */
+    public function dbTableExists($tbl)
+    {
+        $this->wpdb->query('SHOW TABLES LIKE \''.$tbl.'\'');
+        return $this->wpdb->num_rows == 1;
+    }
+
+    /**
      * Flush all caches affecting arlima
      * @return void
      */
@@ -337,6 +347,7 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
 
 
     /* * * Relation between lists and posts * * * * */
+
 
     const META_KEY_LIST = '_arlima_list';
     const META_KEY_ATTR = '_arlima_list_data';

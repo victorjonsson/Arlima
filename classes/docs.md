@@ -175,6 +175,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>abstract applyFilters()</strong> : <em>mixed</em><br /><em>Filter data</em> |
 | public | <strong>abstract currentVisitorCanEdit()</strong> : <em>bool</em><br /><em>Tells whether or not current website visitor can edit pages/posts</em> |
 | public | <strong>abstract dbEscape(</strong><em>string</em> <strong>$input</strong>)</strong> : <em>string</em><br /><em>Make string safe for use in a database query</em> |
+| public | <strong>abstract dbTableExists(</strong><em>string</em> <strong>$tbl</strong>)</strong> : <em>bool</em> |
 | public | <strong>abstract doAction()</strong> : <em>void</em><br /><em>Invoke a system event</em> |
 | public | <strong>abstract flushCaches()</strong> : <em>void</em><br /><em>Flush all caches affecting arlima</em> |
 | public | <strong>abstract generateImageVersion(</strong><em>string</em> <strong>$file</strong>, <em>string</em> <strong>$attach_url</strong>, <em>int</em> <strong>$max_width</strong>, <em>int</em> <strong>$img_id</strong>)</strong> : <em>string</em><br /><em>Generate an image version of given file with given max width (resizing image). Returns the $attach_url if not possible to create image version</em> |
@@ -666,6 +667,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>applyFilters()</strong> : <em>mixed</em><br /><em>Filter data</em> |
 | public | <strong>currentVisitorCanEdit()</strong> : <em>bool</em><br /><em>Tells whether or not current website visitor can edit pages/posts</em> |
 | public | <strong>dbEscape(</strong><em>string</em> <strong>$input</strong>)</strong> : <em>string</em><br /><em>Make string safe for use in a database query</em> |
+| public | <strong>dbTableExists(</strong><em>string</em> <strong>$tbl</strong>)</strong> : <em>bool</em> |
 | public | <strong>doAction()</strong> : <em>mixed</em><br /><em>Invoke a system event</em> |
 | public | <strong>flushCaches()</strong> : <em>void</em><br /><em>Flush all caches affecting arlima</em> |
 | public | <strong>generateImageVersion(</strong><em>string</em> <strong>$file</strong>, <em>string</em> <strong>$attach_url</strong>, <em>int</em> <strong>$max_width</strong>, <em>int</em> <strong>$img_id</strong>)</strong> : <em>string</em><br /><em>Generate an image version of given file with given max width (resizing image). Returns the $attach_url if not possible to create image version</em> |
@@ -807,6 +809,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>getSetting(</strong><em>string</em> <strong>$name</strong>, <em>bool</em> <strong>$default=false</strong>)</strong> : <em>mixed</em> |
 | public static | <strong>getTemplateCSS()</strong> : <em>string</em><br /><em>Get the path to the CSS file that controls the presentation of articles in an arlima list</em> |
 | public | <strong>getTemplateStylesheets()</strong> : <em>array</em> |
+| public static | <strong>hasCreatedDBTables(</strong><em>[\Arlima_AbstractRepositoryDB](#class-arlima_abstractrepositorydb-abstract)[]</em> <strong>$repos</strong>)</strong> : <em>bool</em> |
 | public | <strong>init()</strong> : <em>void</em> |
 | public | <strong>initAdminActions()</strong> : <em>void</em><br /><em>Actions added in wp-admin</em> |
 | public | <strong>initThemeActions()</strong> : <em>void</em><br /><em>Actions added in the theme</em> |

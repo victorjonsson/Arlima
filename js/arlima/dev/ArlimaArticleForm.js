@@ -112,10 +112,14 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                 }
             });
 
+            // Setup image settings
+            window.ArlimaImageManager.setup(this.article);
+            window.ArlimaImageUploader.removeNotice();
+
             // Toggle features that is supported by template
             this.toggleEditorFeatures();
 
-            // block form if not possible to edit
+            // block entire form if not possible to edit
             if( list.data.isImported || (this.opt('adminLock') && !ArlimaJS.isAdmin) ) {
                 window.ArlimaFormBlocker.removeBlockers();
                 window.ArlimaFormBlocker.toggleFormBlocker(true, list.data.isImported ? false:ArlimaJS.lang.adminLock);
@@ -168,10 +172,6 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
 
             // Setup connection between this article and a wp post
             window.ArlimaArticleConnection.setup(this.article);
-
-            // Setup image manager
-            window.ArlimaImageManager.setup(this.article);
-            window.ArlimaImageUploader.removeNotice();
 
             // Setup preview
             ArlimaArticlePreview.setArticle(
@@ -324,17 +324,26 @@ var ArlimaArticleForm = (function($, window, ArlimaArticlePreview, ArlimaUtils, 
                 }
             } else {
                 if( !ArlimaListContainer.list(this.article.listID).data.isImported ) {
-                    blocker.removeBlockers();
+                    blocker.removeBlockers(); // remove the small blockers since the entire form will be blocked
                 }
 
+                // Block or hide inputs
+
                 $features.show();
-                $.each(support, function(name, isSupported) {
-                    if( name != 'imageSize' && !isSupported ) {
-                        if( !blocker.addBlocker(name) ) {
-                            $features.filter('[data-feature="'+name+'"]').hide();
+                $.each(support, function(featureName, isSupported) {
+                    if( featureName != 'imageSize' && !isSupported ) {
+                        if( !blocker.addBlocker(featureName) ) {
+                            $features.filter('[data-feature="'+featureName+'"]').hide();
+                        }
+                        if( !isSupported && featureName == 'image' ) {
+                            blocker.toggleImageAlignBlocker(false);
                         }
                     }
                 });
+
+                if( support.image && this.article.data.image && this.article.data.image.size == 'full' ) {
+                    blocker.toggleImageAlignBlocker(true);
+                }
             }
         },
 

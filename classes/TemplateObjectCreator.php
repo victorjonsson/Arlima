@@ -91,7 +91,7 @@ class Arlima_TemplateObjectCreator
     }
 
     /**
-     * @return Arlima_List 
+     * @return Arlima_List
      */
     public function getList()
     {
@@ -172,7 +172,7 @@ class Arlima_TemplateObjectCreator
         }
         if( $this->child_split_state ) {
             $obj['class'] .= ' teaser-split'; // is one out of many children
-            
+
             if ($this->child_split_state['index'] == 0) {
                 $obj['class'] .= ' first';
             }
@@ -205,7 +205,7 @@ class Arlima_TemplateObjectCreator
         $obj['article_end'] = $this->applyFilter('arlima_article_end', $article_counter, $article, $post);
 
         return $this->cms->applyFilters('arlima_template_object'. (self::$filter_suffix ? '-'.self::$filter_suffix:''),
-                        $obj, $article, $this->list, $template_name);
+            $obj, $article, $this->list, $template_name);
     }
 
     /**
@@ -283,7 +283,9 @@ class Arlima_TemplateObjectCreator
                 null,
                 null,
                 $article_width,
-                $dimension
+                $dimension,
+                '',
+                $data
             );
 
             if( !empty($filtered['content']) )
@@ -291,11 +293,11 @@ class Arlima_TemplateObjectCreator
 
             $attach_url = $sys->getImageURL($attach);
             $resized_url = Arlima_CMSFacade::load()->generateImageVersion(
-                                $file,
-                                $attach_url,
-                                $dimension[0],
-                                $attach
-                            );
+                $file,
+                $attach_url,
+                $dimension[0],
+                $attach
+            );
 
             $filtered = self::filter(
                 'arlima_article_image',
@@ -510,7 +512,8 @@ class Arlima_TemplateObjectCreator
      */
     private static function filter($filter, $article_counter, &$article,
                                    $post, $list, $img_size=false, $source_url = false,
-                                   $resized_url=false, $width=false, $dim=false, $content='')
+                                   $resized_url=false, $width=false, $dim=false,
+                                   $content='', $img_file_data=false)
     {
         $data = array(
             'article' => $article,
@@ -528,6 +531,9 @@ class Arlima_TemplateObjectCreator
         }
         if( $dim ) {
             $data['dimensions'] = $dim;
+        }
+        if( $img_file_data ) {
+            $data['original_img'] = $img_file_data;
         }
 
         if( !empty(self::$filter_suffix) )

@@ -274,6 +274,7 @@ class Arlima_List
     }
 
     /**
+     * Get a list option (also has an aliased function named opt())
      * @param string $name
      * @param mixed $default
      * @return string|null
@@ -281,6 +282,17 @@ class Arlima_List
     public function getOption($name, $default=null)
     {
         return isset($this->options[$name]) ? $this->options[$name] : $default;
+    }
+
+    /**
+     * Alias for getOption($name, $default=null)
+     * @param $name
+     * @param $default
+     * @return string|null
+     */
+    public function opt($name, $default=null)
+    {
+        return $this->getOption($name, $default);
     }
 
     /**

@@ -297,7 +297,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public static | <strong>getDefaultListOptions()</strong> : <em>array</em> |
 | public | <strong>getId()</strong> : <em>int</em> |
 | public | <strong>getMaxlength()</strong> : <em>int</em> |
-| public | <strong>getOption(</strong><em>string</em> <strong>$name</strong>, <em>mixed</em> <strong>$default=null</strong>)</strong> : <em>string/null</em> |
+| public | <strong>getOption(</strong><em>string</em> <strong>$name</strong>, <em>mixed</em> <strong>$default=null</strong>)</strong> : <em>string/null</em><br /><em>Get a list option (also has an aliased function named opt())</em> |
 | public | <strong>getOptions()</strong> : <em>array</em> |
 | public | <strong>getPublishedVersions()</strong> : <em>array</em> |
 | public | <strong>getScheduledVersions()</strong> : <em>array</em> |
@@ -320,6 +320,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>isSupportingSections()</strong> : <em>bool</em><br /><em>Whether or not admins can create "sections" in the list</em> |
 | public | <strong>lastModified()</strong> : <em>int</em><br /><em>Get the modification date (timestamp) when this version of the list was created</em> |
 | public | <strong>numArticles()</strong> : <em>int</em> |
+| public | <strong>opt(</strong><em>mixed</em> <strong>$name</strong>, <em>mixed</em> <strong>$default=null</strong>)</strong> : <em>string/null</em><br /><em>Alias for getOption($name, $default=null)</em> |
 | public | <strong>setArticles(</strong><em>array</em> <strong>$articles</strong>)</strong> : <em>void</em> |
 | public | <strong>setCreated(</strong><em>int</em> <strong>$created</strong>)</strong> : <em>void</em> |
 | public | <strong>setId(</strong><em>int</em> <strong>$id</strong>)</strong> : <em>void</em> |

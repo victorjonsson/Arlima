@@ -2,7 +2,7 @@
 
 
 /**
- * Utility class for the Arlima plugin. 
+ * Utility class for the Arlima plugin.
  *
  * @package Arlima
  * @since 3.1
@@ -519,7 +519,7 @@ class Arlima_WP_Plugin
     {
         if( is_404() )
             return;
-        
+
         // Make sure URL always ends with slash
         $path = explode('?', $_SERVER['REQUEST_URI']);
         if( substr($path[0], -1) != '/' ) {
@@ -819,9 +819,12 @@ class Arlima_WP_Plugin
         if( !is_admin() ) {
             $style_sheets = $this->getTemplateStylesheets();
             if( !empty($style_sheets) ) {
+                $tmpl_typo_css = basename(ARLIMA_PLUGIN_PATH) .'/css/template-typo.css'; // File only used in preview
                 foreach($style_sheets as $i => $css) {
-                    wp_register_style('arlima_template_css_'.$i, $css, array(), ARLIMA_FILE_VERSION);
-                    wp_enqueue_style('arlima_template_css_'.$i);
+                    if( strpos($css, $tmpl_typo_css) === false ) {
+                        wp_register_style('arlima_template_css_'.$i, $css, array(), ARLIMA_FILE_VERSION);
+                        wp_enqueue_style('arlima_template_css_'.$i);
+                    }
                 }
             }
         }
@@ -1002,10 +1005,10 @@ class Arlima_WP_Plugin
     {
         $ver_repo = new Arlima_ListVersionRepository();
         $list = Arlima_List::builder()
-                        ->id($list_id)
-                        ->version($version_id)
-                        ->includeFutureArticles()
-                        ->build();
+                    ->id($list_id)
+                    ->version($version_id)
+                    ->includeFutureArticles()
+                    ->build();
 
         if( $list->numArticles() > 0 ) {
             // No articles would mean that the version did not exist (todo: how should one detect that a requested version does not exist)

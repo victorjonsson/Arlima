@@ -230,19 +230,11 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
 
                 if( !_this.isRendered ) {
                     $document.one('previewUpdate', function() {
-                        if( _this.$iframeBody.find('img').length ) {
-                            setTimeout(function() {
-                                _this.$elem.show();
-                                _updateIframeHeight();
-                                _animateInPlace();
-                            }, 200);
-                        } else {
-                            setTimeout(function() {
-                                _this.$elem.show();
-                                _updateIframeHeight();
-                                _animateInPlace();
-                            }, 200);
-                        }
+                        setTimeout(function() {
+                            _this.$elem.show();
+                            _updateIframeHeight();
+                            _animateInPlace();
+                        }, 200);
                     });
                     _render();
                 } else {

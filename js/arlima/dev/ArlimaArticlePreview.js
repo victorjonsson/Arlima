@@ -1,6 +1,10 @@
 var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS) {
 
+    'use strict';
+
     var $document = $(document),
+        _isAnimating = false,
+        _animateIframeHeightChange = false,
         _this = {
 
         /**
@@ -66,25 +70,24 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
          */
         setArticle : function(article, templateContent, width, titleElem, belongsToImportedList) {
             ArlimaUtils.log('Adding article to preview for '+article.data.id);
-            var elemWidth,
-                leftMargin;
 
             this.article = article;
             this.width = width;
+
+            var sizeMetrics = _getSizeMetrics();
+
             if ( this.width instanceof Array) {
+                this.$elem.find('iframe').eq(0).width(width[0]); // first iframe width
                 this.iframesCount = this.width.length;
-                elemWidth = width[0]+20;  // 20 px for scrollbar
-                leftMargin = Math.max.apply(Math, width)+20; // 20 px for scrollbar
-                $('#arlima-preview-iframe').css('width',width[0]+'px'); // first iframe width
                 this.$elem.css({
                    maxHeight: '800px',
                    overflow: 'scroll'
                 });
             } else {
+                this.$elem.find('iframe').eq(0).width(width);
                 this.iframesCount = 1;
-                elemWidth = width;
-                leftMargin = elemWidth;
             }
+
 
             if( !article.canPreview() || belongsToImportedList ) {
                 if( this.isVisible() ) {
@@ -93,11 +96,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
             } else {
                 this.titleElem = titleElem || 'h2';
                 this.setTemplate(templateContent);
-
-                this.$elem.css({
-                    width : elemWidth+'px',
-                    marginLeft : '-'+(leftMargin+20)+'px' // adjust 20px for padding
-                });
+                _updatePreviewContainerSize(sizeMetrics);
             }
         },
 
@@ -109,11 +108,17 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
             this.lastHeightChange = null;
 
             if( this.isVisible() ) {
-                _render();
+                _animateIframeHeightChange = true;
+                this.$elem.find('iframe').animate({opacity: 0}, 'fast', function() {
+                    _render();
+                    _animateIframeHeightChange = false;
+                    _this.$elem.find('iframe').animate({opacity:1}, 'fast');
+                });
             } else {
                 this.isRendered = false;
             }
         },
+
 
         /**
          * Reload current preview setup
@@ -195,17 +200,53 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
          * @returns {Boolean}
          */
         isVisible : function() {
-            return this.$elem.is(':visible');
+            return this.$elem.is(':visible') && (!_isAnimating || _isAnimating=='in');
         },
 
         /**
          * Show preview
          */
         show : function() {
+            if( _isAnimating ) {
+                return;
+            }
+            _isAnimating = 'in';
+
             if( !this.article.opt('sectionDivider') ) {
-                this.$elem.show();
-                if( !this.isRendered ) {
-                    _render()
+                var sizeMetrics = _getSizeMetrics(),
+                    _animateInPlace = function() {
+                        _this.$elem.css({
+                            width : 0,
+                            marginLeft : '-20px'
+                        })
+                        .show()
+                        .animate({
+                            width : sizeMetrics.elemWidth,
+                            marginLeft: '-'+(sizeMetrics.leftMargin+20)+'px'
+                        }, 'normal', function() {
+                            _isAnimating = false;
+                        });
+                    };
+
+                if( !_this.isRendered ) {
+                    $document.one('previewUpdate', function() {
+                        if( _this.$iframeBody.find('img').length ) {
+                            setTimeout(function() {
+                                _this.$elem.show();
+                                _updateIframeHeight();
+                                _animateInPlace();
+                            }, 200);
+                        } else {
+                            setTimeout(function() {
+                                _this.$elem.show();
+                                _updateIframeHeight();
+                                _animateInPlace();
+                            }, 200);
+                        }
+                    });
+                    _render();
+                } else {
+                    _animateInPlace();
                 }
             }
         },
@@ -214,7 +255,34 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
          * Hide preview
          */
         hide : function() {
-            this.$elem.hide();
+
+            if( _isAnimating ) {
+                return;
+            }
+
+            _isAnimating = 'out';
+
+            // Capture default width of iframes
+            this.$elem.find('iframe').each(function() {
+                var $iframe = $(this),
+                    defaultWidth = $iframe.width();
+
+                $iframe
+                    .attr('data-default-width', defaultWidth)
+                    .width( defaultWidth );
+            });
+
+            this.$elem.animate({width:0, marginLeft:'-20px', opacity:0} , 'normal', function() {
+                _isAnimating = false;
+                _this.$elem.css({
+                    display : 'none',
+                    opacity:1
+                });
+                _updatePreviewContainerSize(_getSizeMetrics());
+                _this.$elem.find('iframe', function() {
+                    $(this).width($(this).attr('data-default-width'));
+                })
+            });
         },
 
         /**
@@ -301,8 +369,12 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
             var elementHeight = _this.$iframeBody.eq(el).children().eq(0).outerHeight(true);
             if( !elementHeight )
                 elementHeight = 400;
-
-            _this.$elem.find('iframe').eq(el).css('height', elementHeight+'px');
+    
+            if( _animateIframeHeightChange ) {
+                _this.$elem.find('iframe').eq(el).animate({'height': elementHeight+'px'}, 'fast');
+            } else {
+                _this.$elem.find('iframe').eq(el).css('height', elementHeight+'px');
+            }
         }
     },
 
@@ -342,7 +414,6 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
                 iframes.push(_this.$iframeBody[0]);
 
                 for (i=_this.$iframe.length; i<_this.width.length;i++) {
-                    //_this.$elem.append('<iframe name="arlima-preview-iframe" id="arlima-preview-iframe-'+i+'" style="overflow: hidden; width: '+_this.width[i]+'px; height:0" scrolling="no" border="0" frameborder="0"></iframe>');
                     _this.$elem.append('<div class="iframe-wrapper"><iframe name="arlima-preview-iframe" id="arlima-preview-iframe-'+i+'" style="width: '+_this.width[i]+'px;" scrolling="no" border="0" frameborder="0"></iframe></div>');
                     var anotherPreview = _this.$elem.find('#arlima-preview-iframe-'+i).contents();
 
@@ -597,6 +668,23 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
             return html;
         }
         return '';
+    },
+    _getSizeMetrics = function() {
+        var metrics = {};
+        if ( _this.width instanceof Array ) {
+            metrics.elemWidth = _this.width[0]+20;  // 20 px for scrollbar
+            metrics.leftMargin = Math.max.apply(Math, _this.width)+20; // 20 px for scrollbar
+        } else {
+            metrics.elemWidth = _this.width;
+            metrics.leftMargin = _this.width;
+        }
+        return metrics;
+    },
+    _updatePreviewContainerSize = function(sizeMetrics) {
+        _this.$elem.css({
+            width : sizeMetrics.elemWidth+'px',
+            marginLeft : '-'+(sizeMetrics.leftMargin+20)+'px' // adjust 20px for padding
+        });
     };
 
     return _this;

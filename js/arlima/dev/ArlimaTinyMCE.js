@@ -47,13 +47,16 @@ var ArlimaTinyMCE = (function($, window, ArlimaArticlePreview, ArlimaVersionMana
                     }
                     return true;
                 },
-                pullOutEditorContent = function() {
-                    editorContent = $.trim(ArlimaArticleForm.getEditorContent());
+                pullOutEditorContent = function(evt) {
+                    if( !evt.selection ) {
+                        editorContent = $.trim(_this.getEditorContent());
+                    }
                 },
                 onTinyMCEContentChange = function() {
-                    var newContent = $.trim(ArlimaArticleForm.getEditorContent());
+                    var newContent = $.trim(_this.getEditorContent());
                     if( newContent != editorContent ) {
-                        ArlimaArticleForm.change('input.text', ArlimaArticleForm.getEditorContent());
+                        ArlimaArticleForm.change('input.text', _this.getEditorContent(), true);
+                        editorContent = newContent;
                     }
                 },
                 tinyMCEEventInterval = setInterval(function() {

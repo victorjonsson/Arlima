@@ -283,7 +283,7 @@ var ArlimaBackend = (function($, ArlimaUtils, ArlimaJS) {
                         _this.backendVersion = version;
                     }
 
-                    if( $body)
+                    if( $body )
                         $body.removeClass('wait-loading');
 
                     if(!json || json == -1) {

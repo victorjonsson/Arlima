@@ -106,6 +106,11 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
                 list.reloadStep = 0;
                 list.reloadInterval = setTimeout(reloadManager, (listReloadTime-10) * 1000);
             }
+
+            list.$elem.addClass('pulse');
+            setTimeout(function() {
+                list.$elem.removeClass('pulse');
+            }, 750);
         },
 
         /**

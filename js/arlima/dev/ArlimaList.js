@@ -371,7 +371,7 @@ var ArlimaList = (function($, window, ArlimaJS, ArlimaBackend, ArlimaUtils) {
 
             if(this._isUnsaved) {
                 this.$elem.addClass('unsaved');
-                $title.prepend('<span class="dot">&nbsp;</span>');
+                $title.prepend('<span class="dot pulse">&nbsp;</span>');
                 this.$elem.find('.previous-versions .future.save').removeClass('disabled');
                 this.displayTitleMessage(false);
             }

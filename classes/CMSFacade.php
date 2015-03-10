@@ -2,7 +2,7 @@
 
 
 /**
- * Facade in front of underlying system (WordPress)
+ * Class used to load a singleton instance of the facade in front of underlying system
  *
  * @package Arlima
  * @since 3.0

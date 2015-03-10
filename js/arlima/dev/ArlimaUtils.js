@@ -8,6 +8,13 @@ var ArlimaUtils = (function($, window, undefined) {
          */
         serverTime : 0,
 
+       /**
+        * Set this variable manually to true using the console and all arlima logging
+        * will show a stack trace
+        * @var {Boolean}
+        */
+        showLogTrace : false,
+
         /**
          * @param {Number} time - Timestamp in milliseconds
          * @return {Boolean}
@@ -23,6 +30,7 @@ var ArlimaUtils = (function($, window, undefined) {
         hasMetaKeyPressed : function(evt) {
             return evt && (evt.ctrlKey || evt.metaKey);
         },
+
 
         /**
          * Do a console log
@@ -52,6 +60,9 @@ var ArlimaUtils = (function($, window, undefined) {
 
                 if('console' in window && typeof window.console[method] == 'function') {
                     window.console[method](input);
+                    if( this.showLogTrace ) {
+                      window.console.log( (new Error().stack).split('\n').slice(2).join('\n') );
+                    }
                 }
             }
         },

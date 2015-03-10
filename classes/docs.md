@@ -159,7 +159,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 <hr /> 
 ### Class: Arlima_CMSFacade
 
-> Facade in front of underlying system (WordPress)
+> Class used to load a singleton instance of the facade in front of underlying system
 
 | Visibility | Function |
 |:-----------|:---------|
@@ -248,7 +248,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 |:-----------|:---------|
 | public | <strong>__construct(</strong><em>array</em> <strong>$avail_for_export=array()</strong>)</strong> : <em>void</em> |
 | public | <strong>convertList(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>string</em> <strong>$format</strong>)</strong> : <em>string</em> |
-| public | <strong>export(</strong><em>string</em> <strong>$page_slug</strong>, <em>string</em> <strong>$format</strong>)</strong> : <em>void</em><br /><em>This function provides a small read-only RESTful API. It sends out appropriate response headers depending on the request being made. It support two response content types, RSS and JSON.</em> |
+| public | <strong>export(</strong><em>string</em> <strong>$page_slug</strong>, <em>string</em> <strong>$format</strong>)</strong> : <em>void</em><br /><em>This function will output the list related to given page in a JSON or RSS format. It sends out appropriate response headers depending on the request being made.</em> |
 | public | <strong>getListsAvailableForExport()</strong> : <em>array</em> |
 | public | <strong>isAvailableForExport(</strong><em>[\Arlima_List](#class-arlima_list)/int</em> <strong>$list</strong>)</strong> : <em>bool</em> |
 

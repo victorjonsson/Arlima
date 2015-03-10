@@ -52,8 +52,8 @@ class Arlima_ExportManager
     }
 
     /**
-     * This function provides a small read-only RESTful API. It sends out appropriate response headers
-     * depending on the request being made. It support two response content types, RSS and JSON.
+     * This function will output the list related to given page in a JSON or RSS format. It sends out appropriate
+     * response headers depending on the request being made.
      *
      * @param string $page_slug
      * @param string $format

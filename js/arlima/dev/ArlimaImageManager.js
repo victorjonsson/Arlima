@@ -241,7 +241,7 @@ var ArlimaImageManager = (function($, window, ArlimaArticleForm, ArlimaTemplateL
             if( _this.article.data.image && _this.article.data.image.url ) {
                 var img = _this.article.data.image; // shorten code pls...
 
-                ArlimaUtils.log('Setting up image form for '+_this.article.data.id);
+                window.ArlimaUtils.log('Setting up image form for '+_this.article.data.id);
 
                 // toggle visibility
                 _toggleImageDisplay(true);

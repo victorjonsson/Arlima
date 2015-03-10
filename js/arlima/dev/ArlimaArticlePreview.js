@@ -4,7 +4,6 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
 
     var $document = $(document),
         _isAnimating = false,
-        _animateIframeHeightChange = false,
         _this = {
 
         /**
@@ -108,10 +107,8 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
             this.lastHeightChange = null;
 
             if( this.isVisible() ) {
-                _animateIframeHeightChange = true;
                 this.$elem.find('iframe').animate({opacity: 0}, 'fast', function() {
-                    _render();
-                    _animateIframeHeightChange = false;
+                    _render(true);
                     _this.$elem.find('iframe').animate({opacity:1}, 'fast');
                 });
             } else {
@@ -354,15 +351,16 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
      * Look at the height of the preview an update its
      * iframe to the same height
      */
-    _updateIframeHeight = function() {
+    _updateIframeHeight = function(animate) {
         var el;
+      ArlimaUtils.log('Updating iframe height');
 
         for (el in _this.$iframeBody) {
             var elementHeight = _this.$iframeBody.eq(el).children().eq(0).outerHeight(true);
             if( !elementHeight )
                 elementHeight = 400;
     
-            if( _animateIframeHeightChange ) {
+            if( animate ) {
                 _this.$elem.find('iframe').eq(el).animate({'height': elementHeight+'px'}, 'fast');
             } else {
                 _this.$elem.find('iframe').eq(el).css('height', elementHeight+'px');
@@ -373,7 +371,7 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
     /**
      * Render the entire preview
      */
-    _render = function() {
+    _render = function(animateHeightChange) {
 
         ArlimaUtils.log('Rendering preview');
 
@@ -397,7 +395,16 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
                 $content.eq(0).addClass('main-article-preview');
             }
 
-            $content.find('img').bind('load', _updateIframeHeight);
+            var adjustIframeHeight = function() {
+                  _updateIframeHeight(animateHeightChange);
+                },
+                updateIframeHeightTimer = setTimeout(adjustIframeHeight, 250);
+
+            $content.find('img').bind('load', function() {
+              _updateIframeHeight(animateHeightChange);
+              clearTimeout(updateIframeHeightTimer);
+            });
+
             $content.appendTo(_this.$iframeBody);
 
             //create as many iframes as needed
@@ -445,7 +452,6 @@ var ArlimaArticlePreview = (function($, window, Mustache, ArlimaUtils, ArlimaJS)
             }
 
             $document.trigger('previewUpdate', 'all');
-            _updateIframeHeight();
 
         } catch(e) {
             ArlimaUtils.log(e);

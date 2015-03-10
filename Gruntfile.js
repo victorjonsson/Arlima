@@ -134,10 +134,11 @@ module.exports = function(grunt) {
     grunt.registerTask('validate-js', "Check that we're not doing anything wrong in our javascripts", function() {
         for(var x in config.filesToConcat ) {
             Object.keys(config.filesToConcat[x]).every(function(i) {
-                var file = __dirname +'/'+ config.filesToConcat[x][i],
-                    code = readFile(file);
-                if( code.indexOf('console.') > -1 ) {
-                    throw new Error('Javascript '+file+' invoked the console object, you must remove it to build the scripts!');
+                var fileName = config.filesToConcat[x][i],
+                    filePath = __dirname +'/'+ fileName,
+                    code = readFile(filePath);
+                if( fileName != 'js/arlima/dev/ArlimaUtils.js' && code.indexOf('console.') > -1 ) {
+                    throw new Error('Javascript '+fileName+' invoked the console object, you must remove it to build the scripts!');
                 }
                 return true;
             });

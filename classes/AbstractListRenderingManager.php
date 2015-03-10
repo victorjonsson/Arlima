@@ -129,6 +129,14 @@ abstract class Arlima_AbstractListRenderingManager
      */
     protected function renderArticle($article, $index)
     {
+        if( !is_object($article) ) {
+            $e = new Exception();
+            error_log('renderArticle not getting an article object. '.$_SERVER['REQUEST_URI']);
+            error_log($e->getTraceAsString());
+            error_log(print_r($article, true));
+            return array($index + 1, '');
+        }
+
         // File include
         if ( $article->opt('fileInclude') ) {
             // We're done, go on pls!

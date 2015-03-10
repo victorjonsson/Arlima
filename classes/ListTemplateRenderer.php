@@ -65,9 +65,9 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             }
         }
 
-        foreach ($this->getArticlesToRender() as $article_data) {
+        foreach ($this->getArticlesToRender() as $article) {
 
-            list($count, $content) = $this->renderArticle($article_data, $count);
+            list($count, $content) = $this->renderArticle($article, $count);
 
             if ( $echo_output ) {
                 echo $content;

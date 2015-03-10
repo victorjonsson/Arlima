@@ -179,7 +179,7 @@ class Arlima_ListBuilder {
             $list = $this->list_repo->load($this->id_or_slug);
         }
 
-        if( $list->exists() ) {
+        if( $list->exists() && !$list->isImported() ) {
             $this->version_repo->addVersionHistory($list);
             if ($this->load_preview) {
                 $this->version_repo->addPreviewArticles($list);

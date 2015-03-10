@@ -113,7 +113,8 @@ class Arlima_CMSLoop extends Arlima_ListTemplateRenderer
 
         $article = new Arlima_Article($article_data);
         $article = $this->cms->applyFilters('arlima_wp_loop_article', $article, $post_id); // Backwards compat
-        return $this->cms->applyFilters('arlima_cms_loop_article', $article, $post_id);
+        $article = $this->cms->applyFilters('arlima_cms_loop_article', $article, $post_id);
+        return is_array($article) ? new Arlima_Article($article) : $article;
     }
 
     /**

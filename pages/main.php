@@ -21,6 +21,7 @@ $cms = Arlima_CMSFacade::load();
                 <i class="fa fa-eye"></i>
                 <?php _e('Toggle article preview', 'arlima') ?>
             </a>
+            <?php do_action('arlima_admin_main_article_controls'); ?>
             <a href="#" class="save disabled" title="ctrl + s">
                 <i class="fa fa-save"></i>
                 <?php _e('Publish list', 'arlima') ?>
@@ -307,7 +308,7 @@ $cms = Arlima_CMSFacade::load();
             </div>
         </div>
 
-        <?php do_action('arlima/admin/main/panel/search'); ?>
+        <?php do_action('arlima_admin_main_panel_search'); ?>
 
         <div id="arlima-post-search" class="arlima-postbox">
             <div class="collapse-toggle open"><br /></div>
@@ -371,7 +372,7 @@ $cms = Arlima_CMSFacade::load();
             </div>
         </div>
 
-        <?php do_action('arlima/admin/main/panel/presets'); ?>
+        <?php do_action('arlima_admin_main_panel_presets'); ?>
 
         <div id="arlima-article-presets" class="arlima-postbox">
             <div class="collapse-toggle"><br /></div>
@@ -388,7 +389,7 @@ $cms = Arlima_CMSFacade::load();
             </div><!-- .inside -->
         </div><!-- #arlima-custom-templates -->
 
-        <?php do_action('arlima/admin/main/panel/includes'); ?>
+        <?php do_action('arlima_admin_main_panel_includes'); ?>
 
         <?php
         $file_includes = apply_filters('arlima_article_includes', array(__('Count Down','arlima') => dirname(__FILE__).'/count-down.php'));
@@ -442,7 +443,7 @@ $cms = Arlima_CMSFacade::load();
 
         </div>
 
-        <?php do_action('arlima/admin/main/panel/end'); ?>
+        <?php do_action('arlima_admin_main_panel_end'); ?>
 
         <!-- #arlima-article-functions -->
 

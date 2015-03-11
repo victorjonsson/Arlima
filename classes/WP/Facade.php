@@ -168,7 +168,8 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
      */
     function sanitizeText($txt, $allowed='')
     {
-        return strip_tags(strip_shortcodes($txt), $allowed);
+        $pattern = get_shortcode_regex();
+        return strip_tags(preg_replace_callback( "/$pattern/s", 'strip_shortcode_tag', $txt), $allowed);
     }
 
     /**
@@ -665,12 +666,15 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
 
     function havePostsInLoop()
     {
-        return have_posts();
+        if( have_posts() ) {
+            the_post();
+            return true;
+        }
+        return false;
     }
 
     function getPostIDInLoop()
     {
-        the_post();
         return isset($GLOBALS['post']) ? $GLOBALS['post']->ID : 0;
     }
 

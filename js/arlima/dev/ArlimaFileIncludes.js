@@ -5,6 +5,7 @@ var ArlimaFileIncludes= (function($, window, ArlimaUtils, ArlimaFormBuilder) {
         $elem : false,
 
         getFormFieldsDefinition : function(file) {
+            file = file.replace('//', '/'); // legacy fix
             return $.extend(true, {}, this.$elem.find('.file-include[data-file="'+file+'"]').get(0).arlimaFormFields);
         },
 

@@ -108,7 +108,8 @@ class Arlima_CMSLoop extends Arlima_ListTemplateRenderer
         $article = $this->cms->postToArlimaArticle($post_id, $this->default_article_props);
         $article_data = $article->toArray();
         $article_data['title'] = call_user_func($this->header_callback, $article_counter, $article, $post_id, $this->list);
-        $article_data['content'] = $this->cms->applyFilters('the_content', $this->cms->getContentOfPostInGlobalScope(), 'arlima-list');
+        $article_data['content'] = $this->cms->applyFilters('the_content', $this->cms->getExcerpt($post_id), 'arlima-list');
+        $article_data['content'] = $this->cms->sanitizeText($article_data['content'], '<strong><a><br><p><img/>');
         $article_data['image'] = $this->cms->getArlimaArticleImageFromPost($post_id);
 
         $article = new Arlima_Article($article_data);

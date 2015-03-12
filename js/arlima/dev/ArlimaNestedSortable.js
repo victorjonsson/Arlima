@@ -356,8 +356,9 @@ function arlimaNestedSortable(list) {
                 }
 
 
-                if( !window.arlimaMoveBetweenLists )
-                    _whenDropFinished(ui.item, false);
+                if( !window.arlimaMoveBetweenLists ) {
+                  _whenDropFinished(ui.item, isMovingCopy);
+                }
                 else {
 
                     // This may be redundant if we moved a copy to another list... but nevermind...

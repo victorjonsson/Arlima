@@ -201,6 +201,15 @@ class Arlima_WP_Plugin
             $list_repo = new Arlima_ListRepository();
             $lists = $list_repo->loadListSlugs();
 
+            if( $this->getSetting('limit_access_to_lists') ) {
+                $allowed_lists = get_user_meta( get_current_user_id(), 'arlima_allowed_lists', true);
+                if( $allowed_lists == -1 ) $lists = array();
+                if( is_array( $allowed_lists) ) {
+                    $lists = array_filter( $lists, function($list) use ($allowed_lists) {
+                        return in_array($list->id, $allowed_lists);
+                    });
+                }
+            }
 
             // Put current list first in navigation
             if( arlima_has_list() ) {
@@ -270,6 +279,79 @@ class Arlima_WP_Plugin
         add_action('save_post', array($this, 'savePageMetaBox'));
         add_action('add_meta_boxes', array($this, 'addAttachmentMetaBox'));
         add_filter('plugin_action_links_arlima-dev/arlima.php', array($this, 'settingsLinkOnPluginPage'));
+
+        if( current_user_can('manage_options') && $this->getSetting('limit_access_to_lists' ) ) {
+            add_action('show_user_profile', array( $this, 'printUserAllowedLists' ) );
+            add_action('edit_user_profile', array( $this, 'printUserAllowedLists' ) );
+            add_action('personal_options_update', array( $this, 'saveUserAllowedLists' ) );
+            add_action('edit_user_profile_update', array( $this, 'saveUserAllowedLists' ) );
+        }
+    }
+
+    /**
+     * Prints the html for editing allowed lists for a user
+     */
+    function printUserAllowedLists() 
+    {
+        global $user_id;
+        $allowed_lists = get_user_meta( $user_id, 'arlima_allowed_lists', true );
+        if( !$allowed_lists ) $allowed_lists = 1;
+        wp_nonce_field(__FILE__, 'arlima_nonce');
+        ?>
+        <div id="arlima-allowed-lists">
+            <h3>Tillgängliga Arlimalistor</h3>
+            <p>Här kan du ställa in vilka arlima-listor som ska vara tillgängliga för användaren</p>
+            <label><input type="radio" name="arlima_allowed_lists" value="1" <?php if($allowed_lists == 1 ) echo 'checked="checked"'; ?> /> Alla</label><br />
+            <label><input type="radio" name="arlima_allowed_lists" value="-1" <?php if($allowed_lists == -1 ) echo 'checked="checked"'; ?> /> Inga</label><br />
+            <label><input type="radio" name="arlima_allowed_lists" value="selection" <?php if( is_array( $allowed_lists ) ) echo 'checked="checked"'; ?> /> Urval: </label><br />
+            <div id="arlima-allowed-lists-selection" class="scroll-window" style="padding-left: 10px;max-height: 200px;margin-top:10px; border:1px solid #e2e2e2; overflow-y: auto; display:<?php echo is_array( $allowed_lists ) ? 'block' : 'none'; ?>">
+                <?php
+                $list_repository = new Arlima_ListRepository();
+                $lists = $list_repository->loadListSlugs();
+
+                foreach( $lists as $list ) { 
+                    $checked = '';
+                    if( is_array( $allowed_lists ) )
+                        $checked = in_array( $list->id, $allowed_lists ) ? 'checked="checked"' : '';
+                    ?>
+                    <p><label><input type="checkbox" name="arlima_allowed_lists_selection[]" value="<?php echo $list->id ?>" <?php echo $checked; ?> /> <?php echo $list->slug ?></label></p>
+                <?php }  ?>
+            </div>
+        </div>
+        <script>
+            jQuery(document).ready(function($) {
+                $('#arlima-allowed-lists input[type="radio"]').on('click', function(e){
+                    if($(this).val() == 'selection') {
+                        $('#arlima-allowed-lists-selection').slideDown('fast');
+                    }else{
+                        $('#arlima-allowed-lists-selection').slideUp('fast');
+                    }
+                });
+            });
+        </script>
+        <?php
+    }
+
+    /**
+     * Saves the allowed lists settings
+     */
+    function saveUserAllowedLists( $user_id ) 
+    {
+        if (!empty($_POST) && wp_verify_nonce(__FILE__, 'arlima_nonce')) {
+            return false;
+        }
+
+        if (!current_user_can('edit_user', $user_id)) {
+            return false;
+        }
+
+        $value = $_POST['arlima_allowed_lists'];
+        if( $value == 'selection' ) {
+            $value = (array)$_POST['arlima_allowed_lists_selection'];
+            if( sizeof( $value ) == 0 ) $value = -1;
+        }
+        update_user_meta( $user_id, 'arlima_allowed_lists', $value );
+
     }
 
     /**

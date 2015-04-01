@@ -462,8 +462,18 @@ $cms = Arlima_CMSFacade::load();
                     <select>
                         <option value=""><?php _e('Choose article list', 'arlima') ?></option>
                         <?php
-                        $available_lits = $list_repo->loadListSlugs();
-                        foreach($available_lits as $list_data): ?>
+                        $available_lists = $list_repo->loadListSlugs();
+                        if( $settings['limit_access_to_lists'] ) {
+                            $allowed_lists = get_user_meta( get_current_user_id(), 'arlima_allowed_lists', true);
+                            if( $allowed_lists == -1 ) $available_lists = array();
+                            if( is_array( $allowed_lists ) ) {
+                                $available_lists = array_filter( $available_lists, function($list) use ($allowed_lists) {
+                                    return in_array($list->id, $allowed_lists);
+                                });
+                            }
+                        }
+                        
+                        foreach($available_lists as $list_data): ?>
                             <option value="<?php echo $list_data->id; ?>"><?php echo $list_data->title; ?></option>
                         <?php endforeach;
                         $import_manager = new Arlima_ImportManager();
@@ -483,7 +493,7 @@ $cms = Arlima_CMSFacade::load();
                 <div class="list-search">
                     <input type="text" placeholder="<?php _e('Search', 'arlima') ?>..."/>
                     <ul>
-                        <?php foreach($available_lits as $list_data): ?>
+                        <?php foreach($available_lists as $list_data): ?>
                             <li class="list" style="display:none;" data-alid="<?php echo $list_data->id;?>">
                                 <?php echo $list_data->title; ?>
                             </li>

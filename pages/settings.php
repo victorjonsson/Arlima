@@ -216,6 +216,16 @@ if( isset($message) ): ?>
                             </label>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <?php _e('Restrict access to lists per user', 'arlima') ?>
+                        </td>
+                        <td>
+                            <label>
+                                <?php output_yesorno_select($arlima_plugin, 'limit_access_to_lists'); ?>
+                            </label>
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>

@@ -32,6 +32,14 @@ var ArlimaListContainer = (function($, window, ArlimaBackend, ArlimaListLoader, 
          * @param {Object} [pos]
          */
         add : function(list, pos) {
+
+            if(ArlimaJS.limitAccessToLists == 1) {
+                if( ArlimaJS.userAllowedLists == -1 ) return;
+                if( ArlimaJS.userAllowedLists instanceof Array ) {
+                    if( $.inArray( ""+list.data.id, ArlimaJS.userAllowedLists ) == -1 ) return;
+                }
+            }
+
             this.$elem.append(list.$elem);
             addedLists++;
             if( Number.MAX_VALUE == addedLists ) {

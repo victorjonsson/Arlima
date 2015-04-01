@@ -1,5 +1,6 @@
 
 /**
+ * @todo Break all this logic down into smaller function with suitable function names describing whats actually going on
  * @param {ArlimaList} list
  */
 function arlimaNestedSortable(list) {
@@ -8,7 +9,8 @@ function arlimaNestedSortable(list) {
         $articles = list.$elem.find('.articles'),
         globalMaxDepth = 2, currentDepth = 0, originalDepth, minDepth, maxDepth,
         prev, next, prevBottom, nextThreshold, helperHeight, transport, isMovingWithChildren,
-        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, canBeChild,
+        isMovingCopy, itemStartIndex, startedOfAsChild, $clone, canBecomeChild, defaultHelperBorderColor = null,
+        hasVisualizedImpossibleDropState = false,
 
     _updateCurrentDepth = function(ui, depth) {
         _updateDepthClass( ui.placeholder, depth, currentDepth );
@@ -66,15 +68,17 @@ function arlimaNestedSortable(list) {
         });
     },
     _childlistItems = function($item) {
-        var result = $();
+        var $result = $();
         $item.each(function(){
-            var t = $(this), depth = _itemDepth(t), next = t.next();
-            while( next.length && _itemDepth(next) > depth ) {
-                result = result.add( next );
-                next = next.next();
+            var $el = $(this),
+                depth = _itemDepth($el),
+                $next = $el.next();
+            while( $next.length && _itemDepth($next) > depth ) {
+                $result = $result.add( $next );
+                $next = $next.next();
             }
         });
-        return result;
+        return $result;
     },
     _getListId = function($item) {
         return $item.closest('.article-list').get(0).arlimaList.data.id;
@@ -82,7 +86,31 @@ function arlimaNestedSortable(list) {
     _updateArticleListId = function($item){
         $item.get(0).arlimaArticle.listID = _getListId($item);
     },
+    _canBeDropped = function(ui) {
 
+        // While article element is in mid-air the method isParent() will always return false which
+        // affects the return value of .canBeChild(). We therefor need to check isMovingWithChildren
+        // which is set before the article element is moved.
+
+        // The method isParent() searches through the DOM to decide whether or not the article is
+        // a parent of other articles. When the article is in mid-air it has moved to another place
+        // in the DOM-tree and thus affects the result of isParent(), it will always return false...
+
+        var article = ui.item[0].arlimaArticle || ui.item.context.arlimaArticle,
+            canDropArticle = !_nextIsChild(ui) || (article.canBeChild() && !isMovingWithChildren),
+            hasDraggedToOtherList = window.arlimaDragFromList && window.arlimaDragFromList != window.arlimaDragToList;
+
+        if( canDropArticle ) {
+            if( (ui.sender && ui.sender.hasClass('ui-draggable')) || ui.item.hasClass('ui-draggable') ) {
+                return true;
+            } else if( window.arlimaDragFromList.data.isImported ) {
+                return hasDraggedToOtherList;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    },
     /**
      * Reset some of the sortable variables. This is needed because we can add draggables
      * to the list that doesn't have the same start-callback
@@ -91,6 +119,14 @@ function arlimaNestedSortable(list) {
     _resetSortableVars = function() {
         startedOfAsChild = false;
         itemStartIndex = -1;
+        hasVisualizedImpossibleDropState = false;
+    },
+
+    /**
+     * Re-attach the children after a parent article is dropped
+     */
+    _putChildrenBackAfterDrop = function(ui) {
+        return transport.children().insertAfter(ui.item);
     },
 
     /**
@@ -100,6 +136,32 @@ function arlimaNestedSortable(list) {
     _reduceListToMaxSize = function() {
         if( list.size() > 50 ) {
             list.$elem.find('.article:last')[0].arlimaArticle.remove();
+        }
+    },
+    _visualizeDropStateOnHelper = function(ui, isDropPossible) {
+        if( !isDropPossible ) {
+
+            // Show in the ui that drop is not possible
+
+            if( defaultHelperBorderColor === null && ui.placeholder.css('border-color') != 'red') {
+                defaultHelperBorderColor = ui.placeholder.css('border-color');
+            }
+
+            ui.placeholder.css({
+                backgroundColor : 'pink',
+                borderColor : 'red',
+                opacity : 0.25
+            });
+
+            hasVisualizedImpossibleDropState = true;
+        }
+        else if( hasVisualizedImpossibleDropState ) {
+            ui.placeholder.css({
+                backgroundColor : '',
+                borderColor : defaultHelperBorderColor,
+                opacity : '1'
+            });
+            hasVisualizedImpossibleDropState = false;
         }
     },
 
@@ -163,6 +225,7 @@ function arlimaNestedSortable(list) {
             distance: 10,
             zIndex: 9999,
             over : function(e, ui) {
+                window.arlimaDragToList = list;
                 if( !ui.item.hasClass('ui-draggable') ) {
                     ui.item.data('sortableItem').scrollParent = ui.placeholder.parent();
                     ui.item.data('sortableItem').overflowOffset = ui.placeholder.parent().offset();
@@ -179,6 +242,8 @@ function arlimaNestedSortable(list) {
                 var height, width, parent, children, tempHolder, isFloating, $lastChild;
                 transport = ui.helper.children('.children-transport');
                 window.arlimaMoveBetweenLists = false;
+                window.arlimaDragFromList = list;
+                window.arlimaDragToList = list;
 
                 // Set depths. currentDepth must be set before children are located.
                 originalDepth = _itemDepth(ui.item);
@@ -196,7 +261,7 @@ function arlimaNestedSortable(list) {
 
                 transport.append( children );
                 isMovingWithChildren = children.length > 0;
-                canBeChild = !isMovingWithChildren && ( !('arlimaArticle' in ui.item[0]) ||  ui.item[0].arlimaArticle.canBeChild() );
+                canBecomeChild = !isMovingWithChildren && ( !('arlimaArticle' in ui.item[0]) ||  ui.item[0].arlimaArticle.canBeChild() );
                 window.arlimaDragArticleParent = false;
 
                 if( ArlimaUtils.hasMetaKeyPressed(e) || list.data.isImported ) {
@@ -209,10 +274,14 @@ function arlimaNestedSortable(list) {
                         .insertAfter(ui.item);
 
                     clonedArticle.setState('default');
-                    
+
+                    var containedFloatingChildrens = false,
+                        childCollection = children.get();
+
                     isFloating = false;
                     $lastChild = null;
-                    $(children.get()).each(function(index) {
+
+                    $(childCollection).each(function(index) {
                         
                         var childArticle = new ArlimaArticle($.extend(true, {}, this.arlimaArticle.data), list.data.id, false, !list.data.isImported);
 
@@ -224,6 +293,10 @@ function arlimaNestedSortable(list) {
                         }
                         isFloating = this.arlimaArticle.data.options.floating && !this.arlimaArticle.data.options.inlineWithChild;
 
+                        if( isFloating ) {
+                            containedFloatingChildrens = true;
+                        }
+
                         list.addArticle(childArticle, false);
 
                         if(!$lastChild) {
@@ -234,6 +307,11 @@ function arlimaNestedSortable(list) {
                             childArticle.$elem.insertAfter($lastChild);
                         }
                     });
+
+                    if( containedFloatingChildrens ) {
+                        _visualizeFloatedChildren();
+                    }
+
                 } else {
                     isMovingCopy = false;
                     if( ui.item.get(0).arlimaArticle.isChild() ) {
@@ -261,8 +339,14 @@ function arlimaNestedSortable(list) {
                 // Now that the element is complete, we can update...
                 _updateSharedVars(ui);
             },
+            beforeStop : function(e, ui) {
+                if ( _canBeDropped(ui) ) {
+                    window.cancelArlimaArticleDrop = false;
+                } else {
+                    window.cancelArlimaArticleDrop = true;
+                }
+            },
             stop: function(e, ui) {
-
                 var children,
                     isNowAChild,
                     depthChange = currentDepth - originalDepth,
@@ -272,16 +356,15 @@ function arlimaNestedSortable(list) {
                 if( ui.item.hasClass('ui-draggable') ) {
                     // this item is taken care of in the recieve event
                     return;
-                } else if( listContainerElem.arlimaList.data.id == list.data.id && list.data.isImported ) {
-                    // we have moved an article inside an imported list (todo: prevent sorting inside the imported list )
-                    e.preventDefault();
-                    $clone.remove();
-                    return false;
                 }
 
-                if ( ui.item[0].arlimaArticle.isDivider() && _nextIsChild(ui) ) {
+                if ( window.cancelArlimaArticleDrop ) {
                     $(this).sortable('cancel');
-                    return false;
+                    if( !isMovingCopy )
+                        _putChildrenBackAfterDrop(ui);
+                    if( $clone )
+                        $clone.remove();
+                    return;
                 }
 
                 if( list.data.isImported ) {
@@ -315,7 +398,7 @@ function arlimaNestedSortable(list) {
                 }
 
                 // Return child elements to the list
-                children = transport.children().insertAfter(ui.item);
+                children = _putChildrenBackAfterDrop(ui);
 
                 if(children.length > 0) {
                     children.each(function(){
@@ -335,26 +418,26 @@ function arlimaNestedSortable(list) {
                 list.updateParentProperties();
                 isNowAChild = ui.item[0].arlimaArticle.isChild();
 
-                if( listContainerElem && !listContainerElem.arlimaList.data.isImported && (itemIndex != itemStartIndex || isNowAChild != startedOfAsChild) ) {
+                if( !isMovingCopy && listContainerElem && !listContainerElem.arlimaList.data.isImported && (itemIndex != itemStartIndex || isNowAChild != startedOfAsChild) ) {
                     // this item does not come from the search
                     listContainerElem.arlimaList.toggleUnsavedState(true);
                 }
 
-                if( !list.data.isImported ) {
-                    if( !isMovingCopy && (!listContainerElem || listContainerElem.arlimaList.data.id != list.data.id)) {
-                        list.toggleUnsavedState(true);
-                    }
-
-                    if (originalDepth != currentDepth) {
-                        list.toggleUnsavedState(true);
-                    }
+                if( !list.data.isImported &&
+                    !isMovingCopy &&
+                    (
+                        !listContainerElem ||
+                        listContainerElem.arlimaList.data.id != list.data.id ||
+                        originalDepth != currentDepth
+                    )
+                ){
+                    list.toggleUnsavedState(true);
                 }
 
                 if( isMovingCopy ) {
                     $clone.css('opacity', 1);
                     window.ArlimaUtils.highlight($clone);
                 }
-
 
                 if( !window.arlimaMoveBetweenLists ) {
                   _whenDropFinished(ui.item, isMovingCopy);
@@ -375,7 +458,7 @@ function arlimaNestedSortable(list) {
                 var offset = ui.helper.offset(),
                     edge = offset.left,
                     pxdepth = edge - ui.placeholder.parent().offset().left,
-                    depth = _pxToDepth( pxdepth );
+                    depth = _pxToDepth( pxdepth);
 
                 if( isMovingWithChildren ) {
                     depth = 0; // Don't allow article to go deeper if it has children
@@ -390,18 +473,19 @@ function arlimaNestedSortable(list) {
 
                 // Check if divider is inside a group, if so add
                 // red background to helper object
-                if ( ui.item[0].arlimaArticle && ui.item[0].arlimaArticle.isDivider() ) {
-                    ui.placeholder.css('background-color', _nextIsChild(ui) ? 'red' : '');
+                if ( !_canBeDropped(ui) ) {
+                    _visualizeDropStateOnHelper(ui, false);
+                } else {
+                    _visualizeDropStateOnHelper(ui, true);
                 }
 
                 if (depth > 1 && (!prev.is('.list-item-depth-2, .list-item-depth-1'))) {
                     depth = 1;
                 }
 
-
                 ui.helper[0].className = ui.helper[0].className.replace(/ *helper-item-depth-. */, '') + ' helper-item-depth-' + depth
 
-                if( (prev.length && !prev[0].arlimaArticle.isChild() && !prev[0].arlimaArticle.canHaveChildren()) || !canBeChild ) {
+                if( (prev.length && !prev[0].arlimaArticle.isChild() && !prev[0].arlimaArticle.canHaveChildren()) || !canBecomeChild ) {
                     depth = 0; // We cant go deeper if parent article for some reason don't accept children
                 }
 
@@ -409,7 +493,7 @@ function arlimaNestedSortable(list) {
                 if ( depth > maxDepth ) depth = maxDepth;
                 else if ( depth < minDepth ) depth = minDepth;
 
-                if( depth != currentDepth && !isMovingWithChildren && canBeChild )
+                if( depth != currentDepth && !isMovingWithChildren && canBecomeChild )
                     _updateCurrentDepth(ui, depth);
 
                 // If we overlap the next element, manually shift downwards
@@ -420,6 +504,10 @@ function arlimaNestedSortable(list) {
                 }
             },
             receive: function(event, ui) {
+                if( window.cancelArlimaArticleDrop ) {
+                    return;
+                }
+
                 var $addedElement;
                 if( ui.sender.hasClass('ui-draggable') ) {
                     var article =  new ArlimaArticle($.extend(true, {}, ui.item.context.arlimaArticle.data), list.data.id, false, !list.data.isImported);
@@ -443,7 +531,6 @@ function arlimaNestedSortable(list) {
                 window.ArlimaListContainer.updateZIndexes();
                 window.ArlimaListContainer.focus(list);
             }
-
         }).each(function() {
             _visualizeFloatedChildren();
         }).bind('change', function() {

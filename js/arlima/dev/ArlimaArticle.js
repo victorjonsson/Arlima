@@ -348,6 +348,31 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
     };
 
     /**
+     * @return {Boolean}
+     */
+    ArlimaArticle.prototype.isParent = function() {
+        if( this.data.parent == '-1' ) {
+            var $next = this.$elem.next(),
+                parentIndex = $next.length && $next[0].arlimaArticle ? $next[0].arlimaArticle.data.parent : -1,
+                isGettingChildrenOfAChild = this.isChild() && !this.isWrappedChild();
+
+            if( parentIndex > -1 && parentIndex != this.data.parent ) {
+                while($next.length) {
+                    if ($next[0].arlimaArticle.data.parent == parentIndex && ($next[0].arlimaArticle.data.options.inlineWithChild === undefined || isGettingChildrenOfAChild) ) {
+                        return true;
+                    }
+                    if ($next[0].arlimaArticle.data.parent == -1) {
+                        break;
+                    }
+                    $next = $next.next();
+                }
+            }
+
+        }
+        return false;
+    };
+
+    /**
      * Returns the mustache template that should be used for this article
      * @return {String}
      */
@@ -425,7 +450,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      * @return {Boolean}
      */
     ArlimaArticle.prototype.canBeChild = function() {
-        return !this.isDivider();
+        return !this.isDivider() && !this.opt('fileInclude') && !this.isParent();
     };
 
 

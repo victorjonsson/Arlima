@@ -822,11 +822,13 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public static | <strong>loadStreamerColors()</strong> : <em>mixed</em><br /><em>Will output a set of option elements containing streamer background colors.</em> |
 | public | <strong>pageMetaBox()</strong> : <em>void</em> |
 | public | <strong>postMetaBox()</strong> : <em>void</em><br /><em>Content of meta box used to send a wordpress post immediately from post edit page in wp-admin to an arlima list</em> |
+| public | <strong>printUserAllowedLists()</strong> : <em>void</em><br /><em>Prints the html for editing allowed lists for a user</em> |
 | public static | <strong>publishScheduledList(</strong><em>int</em> <strong>$list_id</strong>, <em>int</em> <strong>$version_id</strong>)</strong> : <em>void</em><br /><em>Publishes a scheduled arlima list</em> |
 | public static | <strong>saveImageAsAttachment(</strong><em>string</em> <strong>$base64_img</strong>, <em>string</em> <strong>$file_name</strong>, <em>string</em> <strong>$connected_post=`''`</strong>)</strong> : <em>int The attachment ID</em><br /><em>Create a wordpress attachment out of a string with base64 encoded image binary</em> |
 | public static | <strong>saveImageFileAsAttachment(</strong><em>mixed</em> <strong>$img_file</strong>, <em>mixed</em> <strong>$file_name</strong>, <em>mixed</em> <strong>$connected_post</strong>)</strong> : <em>int</em> |
 | public | <strong>savePageMetaBox(</strong><em>mixed</em> <strong>$post_id</strong>)</strong> : <em>void</em> |
 | public | <strong>saveSettings(</strong><em>array</em> <strong>$setting</strong>)</strong> : <em>void</em> |
+| public | <strong>saveUserAllowedLists(</strong><em>mixed</em> <strong>$user_id</strong>)</strong> : <em>void</em><br /><em>Saves the allowed lists settings</em> |
 | public | <strong>settingsLinkOnPluginPage(</strong><em>array</em> <strong>$links</strong>)</strong> : <em>array</em><br /><em>Add a settings link to given links</em> |
 | public static | <strong>setupArlimaListRendering()</strong> : <em>void</em> |
 | public | <strong>setupWidgets()</strong> : <em>void</em><br /><em>Register our widgets and widget filters</em> |

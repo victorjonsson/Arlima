@@ -60,6 +60,11 @@ abstract class Arlima_AbstractListRenderingManager
             } else {
                 $articles = array();
                 foreach($this->list->getArticles() as $art) {
+                    if( is_array($art) ) {
+                        $art = new Arlima_Article($art);
+                        $e = new Exception('');
+                        error_log('Arlima article now array...'.PHP_EOL.$e->getTraceAsString());
+                    }
                     if( !$art->opt('sectionDivider') ) {
                         $articles[] = $art;
                         $this->getPostsFromArticle($post_ids, $art);

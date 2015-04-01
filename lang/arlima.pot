@@ -833,3 +833,7 @@ msgstr "Tillgänliga mallar"
 
 msgid "Notice that templates hidden by the filter <em>arlima_hidden_templates</em> can not be made available in the list manager."
 msgstr "Notera att man inte kan tillgängligöra mallar som döljts med filtret: <em>arlima_hidden_templates</em>."
+
+#: pages/settings.php:221
+msgid "Restrict access to lists per user"
+msgstr "Begränsa åtkomst till listor per användare"

@@ -195,6 +195,8 @@ abstract class Arlima_WP_AbstractAdminPage {
                 'isAdmin' => current_user_can('manage_options'),
                 'devMode' => ARLIMA_DEV_MODE,
                 'allowEditorsCreateSections' => $this->plugin->getSetting('editor_sections', true) ? true:false,
+                'limitAccessToLists' => $this->plugin->getSetting('limit_access_to_lists', true) ? true:false,
+                'userAllowedLists' => get_user_meta( get_current_user_id(), 'arlima_allowed_lists', true),
                 'sectionDivsSupportTemplate' => ARLIMA_SUPPORT_SECTION_DIV_TEMPLATES,
                 'previewQueryArg' => Arlima_List::QUERY_ARG_PREVIEW,
                 'sendJSErrorsToServerLog' => ARLIMA_SEND_JS_ERROR_TO_LOG,

@@ -172,7 +172,7 @@ class Arlima_ListTemplateRenderer extends Arlima_AbstractListRenderingManager
             if ( !$art->isPublished() ) {
                 $child_articles .= $this->getFutureArticleContent($art, $i, $post);
             }
-            elseif( $art->opt('fileInclude') ) {
+            elseif( $art->isFileInclude() ) {
                 $child_articles .= '<div class="arlima-file-include teaser '.$first_or_last_class.
                     ( $is_floating ? ' teaser-split':'').
                     '">'.$this->includeArticleFile($art, -1).'</div>';

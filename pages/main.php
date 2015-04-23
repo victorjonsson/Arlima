@@ -408,35 +408,76 @@ $cms = Arlima_CMSFacade::load();
                     </tr>
                     </thead>
                     <tbody>
-                        <?php foreach( $file_includes as $label => $file ):
-                            if( is_numeric($label) )
-                                $label = basename($file);
-                            if( $relative_path = $cms->resolveFilePath($file, true) )
-                                $file = $relative_path;
+                        <?php
 
-                            ?>
-                            <tr>
-                                <td colspan="2">
-                                    <div class="file-include" 
-                                        data-args='<?php
-                                        // Add prop name to key for faster lookups in js
-                                        $args = array();
-                                        foreach($arlima_file_include->getFileArgs($file) as $name => $data) {
-                                            if( is_numeric($name) ) {
-                                                $args[$data['property']] = $data;
-                                            } else {
-                                                $args[$name] = $data; // Backwards compat
-                                            }
-                                        }
-                                        echo json_encode($args);
-                                        ?>'
-                                        data-file="<?php echo $file; ?>"
-                                        data-label="<?php echo $label ?>">
-                                        <?php echo $label;  ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
+                        // Put includes in groups
+                        $include_groups = array('misc'=>array());
+                        foreach($file_includes as $pos_group_name => $pos_group) {
+                            if( is_array($pos_group) ) {
+                                $include_groups[$pos_group_name] = $pos_group;
+                            } else {
+                                $include_groups['misc'][$pos_group_name] = $pos_group;
+                            }
+                        }
+
+                        // Put includes without a group last
+                        $misc_copy = $include_groups['misc'];
+                        unset($include_groups['misc']);
+                        $include_groups['misc'] = $misc_copy;
+
+                        foreach( $include_groups as $group => $includes ) {
+                            if( $group != 'misc' ): ?>
+                                <tr>
+                                    <td colspan="2" class="include-group">
+                                        <table cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <td>
+                                                        <strong><?php echo $group ?></strong> (<?php echo count($includes) ?>)
+                                                    </td>
+                                                </tr>
+                                            </thead>
+                                            <tbody style="display: none">
+                            <?php endif;
+
+                            foreach( $includes as $label => $file ):
+                                if( is_numeric($label) )
+                                    $label = basename($file);
+                                if( $relative_path = $cms->resolveFilePath($file, true) )
+                                    $file = $relative_path;
+
+                                ?>
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="file-include"
+                                             data-args='<?php
+                                             // Add prop name to key for faster lookups in js
+                                             $args = array();
+                                             foreach($arlima_file_include->getFileArgs($file) as $name => $data) {
+                                                 if( is_numeric($name) ) {
+                                                     $args[$data['property']] = $data;
+                                                 } else {
+                                                     $args[$name] = $data; // Backwards compat
+                                                 }
+                                             }
+                                             echo json_encode($args);
+                                             ?>'
+                                             data-file="<?php echo $file; ?>"
+                                             data-label="<?php echo $label ?>">
+                                            <?php echo $label;  ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach;
+
+                            if( $group != 'misc' ): ?>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            <?php endif;
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div><!-- .inside -->
@@ -463,7 +504,7 @@ $cms = Arlima_CMSFacade::load();
                         <option value=""><?php _e('Choose article list', 'arlima') ?></option>
                         <?php
                         $available_lists = $list_repo->loadListSlugs();
-                        if( $settings['limit_access_to_lists'] ) {
+                        if( isset($settings['limit_access_to_lists']) && $settings['limit_access_to_lists'] == true ) {
                             $allowed_lists = get_user_meta( get_current_user_id(), 'arlima_allowed_lists', true);
                             if( $allowed_lists == -1 ) $available_lists = array();
                             if( is_array( $allowed_lists ) ) {

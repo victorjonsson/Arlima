@@ -118,7 +118,7 @@ var ArlimaFormBuilder = (function($, ArlimaJS) {
         },
 
         inputs : function() {
-            return this.$elem.find('.form-field input, .form-field select');
+            return this.$elem.find('.form-field input, .form-field select, .form-field textarea');
         },
 
         clear : function() {

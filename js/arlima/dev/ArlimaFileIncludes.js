@@ -80,6 +80,20 @@ var ArlimaFileIncludes= (function($, window, ArlimaUtils, ArlimaFormBuilder) {
                     }
                 });
             });
+
+            // Make include groups collapsible
+            $elem.find('.include-group thead td').click(function() {
+                var $groupToggler = $(this),
+                    $group = $groupToggler.closest('.include-group');
+
+                if( $group.hasClass('open') ) {
+                    $group.removeClass('open');
+                    $groupToggler.closest('table').find('tbody').hide();
+                } else {
+                    $group.addClass('open');
+                    $groupToggler.closest('table').find('tbody').show();
+                }
+            });
         }
 
     };

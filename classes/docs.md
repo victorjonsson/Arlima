@@ -112,8 +112,10 @@
 | public | <strong>hasStreamer()</strong> : <em>bool</em><br /><em>Whether or not this article has a streamer (streamers is made out of the options streamerType, streamerContent and streamerColor)</em> |
 | public | <strong>isChild()</strong> : <em>bool</em><br /><em>Whether or not this article is a child of another article</em> |
 | public | <strong>isEmpty()</strong> : <em>bool</em><br /><em>The article is considered "empty" if it's missing title, content, image and child articles</em> |
+| public | <strong>isFileInclude()</strong> : <em>bool</em><br /><em>Tells whether or not the purpose of this article is to execute (include) a php-file on the local file system</em> |
 | public | <strong>isPublished()</strong> : <em>bool</em><br /><em>Whether or not this article is published. If this function returns false it means that the article has aa publish date set to a future date.</em> |
 | public | <strong>isScheduled()</strong> : <em>bool</em><br /><em>Whether or not this article is scheduled to only be displayed at certain hours of the day and certain days of the week. (Notice! This has nothing to do with whether or not this article belongs to a scheduled list version)</em> |
+| public | <strong>isSectionDivider()</strong> : <em>bool</em><br /><em>Tells whether or not this articles only purpose is to point out where one section ends and another section begins</em> |
 | public | <strong>opt(</strong><em>string</em> <strong>$opt</strong>, <em>bool/mixed</em> <strong>$default=false</strong>)</strong> : <em>string</em><br /><em>Get an article option, will return the value of $default if the option does'nt exist</em> |
 | public | <strong>toArray()</strong> : <em>array</em><br /><em>Get all data representing the article as an array</em> |
 | protected | <strong>isInScheduledInterval(</strong><em>string</em> <strong>$schedule_interval</strong>)</strong> : <em>bool</em><br /><em>Will try to parse a schedule-interval-formatted string and determine if we're currently in the time interval</em> |

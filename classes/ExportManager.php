@@ -212,7 +212,7 @@ class Arlima_ExportManager
      */
     private function articleToRSSItem($article, $last_mod, $list)
     {
-        if( $article->isEmpty() || $article->opt('fileInclude') || $article->opt('sectionDivider') )
+        if( !$article->canBeRendered() )
             return '';
 
         $img = $this->getArticleImageAsXML($article);

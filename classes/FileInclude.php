@@ -72,6 +72,7 @@ class Arlima_FileInclude {
 
         $cache_name = false;
         $cache_ttl = Arlima_CMSFacade::load()->applyFilters('arlima_file_include_cache_ttl', 0, $file);
+        $file = Arlima_CMSFacade::load()->applyFilters('arlima_file_include_path', $file, $article);
 
         // Load content from cache
         if( $cache_ttl ) {

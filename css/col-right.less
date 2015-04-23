@@ -116,14 +116,27 @@
     }
   }
 
+  tbody td.include-group {
+    padding: 4px;
+    border:0;
+    opacity: 0.75;
+  }
+
+  tbody td.include-group.open {
+    opacity: 1;
+  }
+
   tbody td:first-child {
-    width: 320px;
-    cursor: move;
+    min-width: 320px;
 
       .edit-post-link {
         float: right;
         font-size: 13px;
       }
+  }
+
+  .ui-draggable {
+    cursor: move;
   }
 
   tbody tr {
@@ -136,6 +149,34 @@
     }
     th:last-child {
       text-align: right;
+    }
+  }
+
+  tbody table {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    border: #DDD solid 1px;
+
+    thead td {
+      border: 0;
+      background: url(../images/arrows.png) no-repeat 550px 10px #FFF;
+      cursor: pointer;
+    }
+
+    tbody td {
+      background: #FFF;
+      margin: 0;
+      border-top: #F2F2F2 solid 1px;
+      border-bottom: 0;
+    }
+  }
+
+  td.include-group.open table {
+    border-color: #CCC;
+
+    thead td {
+      background-position:550px -26px;
     }
   }
 
@@ -541,6 +582,8 @@
     width: auto;
     display: block;
     text-overflow: clip;
+    padding-bottom: 5px;
+    padding-top: 6px;
   }
 
   .form-field.inline {

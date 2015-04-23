@@ -64,8 +64,9 @@ abstract class Arlima_AbstractListRenderingManager
                         $art = new Arlima_Article($art);
                         $e = new Exception('');
                         error_log('Arlima article now array...'.PHP_EOL.$e->getTraceAsString());
+                        // @todo: Remove this before stable release
                     }
-                    if( !$art->opt('sectionDivider') ) {
+                    if( !$art->isSectionDivider() ) {
                         $articles[] = $art;
                         $this->getPostsFromArticle($post_ids, $art);
                     }
@@ -231,7 +232,7 @@ abstract class Arlima_AbstractListRenderingManager
 
         foreach($articles as $art) {
 
-            $is_section_divider = (bool)$art->opt('sectionDivider');
+            $is_section_divider = $art->isSectionDivider();
 
             if( !$begun && !$is_section_divider ) {
                 // The list does not start with a section

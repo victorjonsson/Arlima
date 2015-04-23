@@ -383,6 +383,26 @@ class Arlima_Article implements ArrayAccess, Countable {
     }
 
     /**
+     * Tells whether or not this articles only purpose is to point out where
+     * one section ends and another section begins
+     * @return bool
+     */
+    function isSectionDivider()
+    {
+        return (bool)$this->opt('sectionDivider');
+    }
+
+    /**
+     * Tells whether or not the purpose of this article is to execute (include) a php-file
+     * on the local file system
+     * @return bool
+     */
+    function isFileInclude()
+    {
+        return (bool)$this->opt('fileInclude');
+    }
+
+    /**
      * Get all data representing the article as an array
      * @return array
      */

@@ -54,12 +54,17 @@ class Arlima_ImportManager
 
     /**
      * Load a Arlima list or RSS feed from a remote website and convert to Arlima list object
-     * @param string $url
+     * @param $url
      * @return Arlima_List
+     * @throws Arlima_FailedListImportException
      */
     function loadList($url)
     {
-        return $this->serverResponseToArlimaList($this->sys->loadExternalURL($url), $url);
+        try {
+            return $this->serverResponseToArlimaList($this->sys->loadExternalURL($url), $url);
+        } catch(Exception $e) {
+            throw new Arlima_FailedListImportException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**

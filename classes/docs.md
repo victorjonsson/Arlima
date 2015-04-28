@@ -10,6 +10,7 @@
 - [Arlima_CMSInterface (interface)](#interface-arlima_cmsinterface)
 - [Arlima_CMSLoop](#class-arlima_cmsloop)
 - [Arlima_ExportManager](#class-arlima_exportmanager)
+- [Arlima_FailedListImportException](#class-arlima_failedlistimportexception)
 - [Arlima_FileInclude](#class-arlima_fileinclude)
 - [Arlima_ImportManager](#class-arlima_importmanager)
 - [Arlima_List](#class-arlima_list)
@@ -255,6 +256,16 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>isAvailableForExport(</strong><em>[\Arlima_List](#class-arlima_list)/int</em> <strong>$list</strong>)</strong> : <em>bool</em> |
 
 <hr /> 
+### Class: Arlima_FailedListImportException
+
+> Exception thrown when loading of an external list fails
+
+| Visibility | Function |
+|:-----------|:---------|
+
+*This class extends \Exception*
+
+<hr /> 
 ### Class: Arlima_FileInclude
 
 > Class that can include php files in article lists
@@ -278,7 +289,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public static | <strong>displayImportedList(</strong><em>string</em> <strong>$url</strong>, <em>string</em> <strong>$name</strong>)</strong> : <em>void</em><br /><em>Helper function that displays info and remove button for an imported list</em> |
 | public | <strong>getImportedLists()</strong> : <em>array</em> |
 | public | <strong>importList(</strong><em>string</em> <strong>$url</strong>, <em>bool</em> <strong>$refresh=true</strong>)</strong> : <em>array containing 'title' and 'url'</em><br /><em>This function is used to register an external list as an imported list, if you only want to fetch content from an external list use Arlima_ImportManager::loadList()</em> |
-| public | <strong>loadList(</strong><em>string</em> <strong>$url</strong>)</strong> : <em>[\Arlima_List](#class-arlima_list)</em><br /><em>Load a Arlima list or RSS feed from a remote website and convert to Arlima list object</em> |
+| public | <strong>loadList(</strong><em>mixed</em> <strong>$url</strong>)</strong> : <em>[\Arlima_List](#class-arlima_list)</em><br /><em>Load a Arlima list or RSS feed from a remote website and convert to Arlima list object</em> |
 | public | <strong>serverResponseToArlimaList(</strong><em>mixed</em> <strong>$response</strong>, <em>string</em> <strong>$url</strong>)</strong> : <em>[\Arlima_List](#class-arlima_list)</em> |
 
 <hr /> 

@@ -311,7 +311,7 @@ interface Arlima_CMSInterface
     /**
      * Get publish time for the post/page with given id
      * @param int $post_id
-     * @return mixed
+     * @return int
      */
     function getPostTimeStamp($post_id);
 

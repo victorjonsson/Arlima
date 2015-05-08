@@ -63,7 +63,9 @@ class Arlima_ImportManager
         try {
             return $this->serverResponseToArlimaList($this->sys->loadExternalURL($url), $url);
         } catch(Exception $e) {
-            throw new Arlima_FailedListImportException($e->getMessage(), $e->getCode(), $e);
+            $exc = new Arlima_FailedListImportException('Failed importing '.$url.', '. $e->getMessage(), $e->getCode(), $e);
+            $exc->setURL($url);
+            throw $exc;
         }
     }
 

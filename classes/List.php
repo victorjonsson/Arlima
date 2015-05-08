@@ -365,6 +365,21 @@ class Arlima_List
     }
 
     /**
+     * Get article object at given index
+     * @param $index
+     * @return Arlima_Article
+     * @throws OutOfBoundsException
+     */
+    public function getArticle($index)
+    {
+        if( !isset($this->articles[$index]) ) {
+            throw new OutOfBoundsException(sprintf('List with %s with version %d does not contain %d articles',
+                                    $this->getSlug(), (int)$this->getVersionAttribute('id'), (int)$index));
+        }
+        return current(array_slice($this->articles, $index, 1));
+    }
+
+    /**
      * Tells whether or not this list contains one or more articles connected
      * to the post with given id
      * @param int $post_id

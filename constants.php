@@ -16,7 +16,7 @@ defined('ARLIMA_COMPILE_LESS_IN_BROWSER')
     or define('ARLIMA_COMPILE_LESS_IN_BROWSER', ARLIMA_DEV_MODE);
 
 // Plugin version (only edit this via grunt!)
-define('ARLIMA_PLUGIN_VERSION', '3.1.beta.58');
+define('ARLIMA_PLUGIN_VERSION', '3.1.beta.59');
 define('ARLIMA_FILE_VERSION', ARLIMA_PLUGIN_VERSION .(ARLIMA_DEV_MODE ? '__'.time():''));
 
 // Which type of tag to use for images in Arlima RSS feeds
@@ -41,6 +41,13 @@ defined('ARLIMA_LIST_RELOAD_TIME')
 defined('ARLIMA_TIME_ADJUST')
     or define('ARLIMA_TIME_ADJUST', 0); // -3600 to put timestamp back one hour
 
+// The publish date of articles connected to wordpress posts sometimes
+// gets totally screwed up. Arlima converts the publish date of posts to unix timestamps
+// but which property to use out of 'post_date' and 'post_date_gmt' seems to differ on
+// different installations. For what reason is still unknown. Any how, if the publish date
+// of your arlima articles gets incorrect you can try to change the value of this
+// contant to 'post_date_gmt'
+define('ARLIMA_POST_DATE_PROP', 'post_date');
 
 // The facade class in front of underlying system
 define('ARLIMA_CMS_FACADE', 'Arlima_WP_Facade');

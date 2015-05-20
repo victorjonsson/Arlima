@@ -459,7 +459,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>updateArticlePublishDate(</strong><em>int</em> <strong>$time</strong>, <em>int</em> <strong>$post_id</strong>)</strong> : <em>void</em><br /><em>Updates publish date for all arlima articles related to given post and clears the cache of the lists where they appear</em> |
 | public | <strong>updateDatabaseTables(</strong><em>\float</em> <strong>$currently_installed_version</strong>)</strong> : <em>void</em> |
 | public | <strong>versionBelongsToList(</strong><em>[\Arlima_List](#class-arlima_list)</em> <strong>$list</strong>, <em>int</em> <strong>$version_id</strong>)</strong> : <em>bool</em> |
-| protected | <strong>toArray(</strong><em>array/[\Arlima_Article](#class-arlima_article)[]</em> <strong>$articles</strong>)</strong> : <em>mixed</em><br /><em>Convert from articles from objects to arrays and update possibly changed published date of articles</em> |
+| protected | <strong>toArrayWithUpdatedPublishDate(</strong><em>array/[\Arlima_Article](#class-arlima_article)[]</em> <strong>$articles</strong>)</strong> : <em>mixed</em><br /><em>Get an array containing all given articles, converted from objects to arrays. The publish date of each article will also be updated with the publish date of possibly connected post</em> |
 ###### Examples of Arlima_ListVersionRepository::updateArticle()
 ```php
 <?php

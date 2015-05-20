@@ -28,7 +28,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
      */
     public function create($list, $articles, $user_id, $preview=false)
     {
-        $articles = $this->toArray($articles);
+        $articles = $this->toArrayWithUpdatedPublishDate($articles);
 
         // Call action
         $this->cms->doAction('arlima_save_list', $list);
@@ -74,7 +74,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
      */
     public function createScheduledVersion($list, $articles, $user_id, $schedule_time)
     {
-        $articles = $this->toArray($articles);
+        $articles = $this->toArrayWithUpdatedPublishDate($articles);
         $version_id = $this->saveVersionData($list, $articles, $user_id, false, $schedule_time);
         $this->cache->delete('arlima_versions_'.$list->getId());
         $this->cms->scheduleEvent($schedule_time, 'arlima_publish_scheduled_list', array( $list->getId(), $version_id ));
@@ -93,7 +93,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         if( !$this->versionBelongsToList($list, $version_id) )
             throw new Exception('Given version_id does not belong to given list');
 
-        $articles = $this->toArray($articles);
+        $articles = $this->toArrayWithUpdatedPublishDate($articles);
 
         // Remove old articles
         $this->cms->runSQLQuery("DELETE FROM " . $this->dbTable('_article') . " WHERE ala_alv_id=".intval($version_id));
@@ -230,7 +230,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         }
 
         // Load articles from db if we shouldn't use cache or if cache is empty
-        if( !$do_use_cache || !($articles = $this->cache->get($this->last_cache_key.$list->getId()))) {
+        if( !$do_use_cache || !is_array($articles = $this->cache->get($this->last_cache_key.$list->getId()))) {
             list($articles, $num_future_posts) = $this->queryListArticles($list->getVersionAttribute('id'), $include_future_articles);
             if( $do_use_cache ) {
                 $ttl = $num_future_posts ? 60 : 0; // Can not be cached for ever if containing future posts
@@ -968,13 +968,14 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
     }
 
     /**
-     * Convert from articles from objects to arrays and update possibly changed
-     * published date of articles
+     * Get an array containing all given articles, converted from objects
+     * to arrays. The publish date of each article will also be updated
+     * with the publish date of possibly connected post
      *
      * @param array|Arlima_Article[] $articles
      * @return mixed
      */
-    protected function toArray($articles)
+    protected function toArrayWithUpdatedPublishDate($articles)
     {
         foreach ($articles as $i => $art) {
             if ($art instanceof Arlima_Article) {

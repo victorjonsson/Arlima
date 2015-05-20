@@ -104,6 +104,10 @@ class Arlima_ListRepository extends Arlima_AbstractRepositoryDB {
             throw new Exception('Invalid argument for list id/slug "'.$id_or_slug.'" ');
 
         $id = is_numeric($id_or_slug) ? $id_or_slug : $this->getListId($id_or_slug);
+        if( !$id ) {
+            // No list with given slug exists
+            return new Arlima_List(false);
+        }
 
         $list = $this->cache->get('arlima_list_'.$id);
 

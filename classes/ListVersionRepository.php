@@ -231,9 +231,9 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
 
         // Load articles from db if we shouldn't use cache or if cache is empty
         if( !$do_use_cache || !is_array($articles = $this->cache->get($this->last_cache_key.$list->getId()))) {
-            list($articles, $num_future_posts) = $this->queryListArticles($list->getVersionAttribute('id'), $include_future_articles);
+            list($articles, $num_future_articles) = $this->queryListArticles($list->getVersionAttribute('id'), $include_future_articles);
             if( $do_use_cache ) {
-                $ttl = $num_future_posts ? 60 : 0; // Can not be cached for ever if containing future posts
+                $ttl = $num_future_articles ? 60 : 0; // Can not be cached for ever if containing future posts
                 $this->cache->set($this->last_cache_key.$list->getId(), $articles, $ttl);
             }
         }
@@ -633,8 +633,8 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
         /** @var Arlima_Article[] $articles */
         $articles = array();
         $now = Arlima_Utils::timeStamp();
-        $num_future_posts = 0;
-        $removed_future_parents = array();
+        $num_future_articles = 0;
+        $removed_future_parent_articles = array();
 
         foreach($this->cms->runSQLQuery(sprintf($sql, $where) ) as $row) {
 
@@ -652,29 +652,35 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
 
             $row->children = array();
             $article_data = self::legacyFix($this->removePrefix($row, 'ala_'));
+            $parent_index = (int)$row->ala_parent;
 
             if( !$include_future_articles && !empty($article_data['published']) && $article_data['published'] > $now) {
-                // Future post, go one
-                $removed_future_parents[] = count($articles);
-                $num_future_posts++;
+                // Future post, go on
+                if( $parent_index == -1 )
+                    $removed_future_parent_articles[] = count($articles);
+
+                $num_future_articles++;
                 continue;
             }
 
-            if( $row->ala_parent == -1 ) {
+            if( $parent_index == -1 ) {
                 $articles[] = new Arlima_Article($article_data);
-            } elseif( !in_array((int)$row->ala_parent, $removed_future_parents) ) {
-                if( empty($articles[ $row->ala_parent ]) ) {
+            } else {
+
+                if( !$include_future_articles )
+                    $parent_index -= count($removed_future_parent_articles);
+
+                if( empty($articles[$parent_index]) ) {
                     $log = 'PHP Warning: found child that is referring to a parent article that does not exist, child '.
-                            $article_data['id'].' parent '.$row->ala_parent. ' URL: '.$_SERVER['REQUEST_URI'];
+                        $article_data['id'].' '.$article_data['title'].' parent '.$row->ala_parent. ' URL: '.$_SERVER['REQUEST_URI'];
                     error_log($log);
-                }
-                else {
-                    $articles[ $row->ala_parent ]->addChild( $article_data );
+                } else {
+                    $articles[ $parent_index ]->addChild( $article_data ); // only add the data array, not an article object
                 }
             }
         }
 
-        return array($articles, $num_future_posts);
+        return array($articles, $num_future_articles);
     }
 
     /**

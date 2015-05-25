@@ -14,17 +14,17 @@
     font-size: 15px;
 }
 
-    .tmpl-article.first-in-list,
-    .tmpl-article.has-streamer,
-    body.arlima-preview .tmpl-article {
-        border-top: 0;
-        margin-top: 0;
-    }
+.tmpl-article.first-in-list,
+.tmpl-article.has-streamer,
+body.arlima-preview .tmpl-article {
+    border-top: 0;
+    margin-top: 0;
+}
 
-    body.arlima-preview .tmpl-article {
-        padding-top: 0;
-        margin-bottom: 0;
-    }
+body.arlima-preview .tmpl-article {
+    padding-top: 0;
+    margin-bottom: 0;
+}
 
 .tmpl-article article {
     margin: 0;
@@ -369,7 +369,7 @@ current list in wp-admin
 
 
 /* * * * * * * * * * * * * * * * *
- When displaying futute posts in
+ When displaying future posts in
  list preview
 * * * * * * * * * * * * * * * * */
 .arlima.future-post {
@@ -379,42 +379,6 @@ current list in wp-admin
 }
 
 
-
-
-/* * * * * * * * * * * *
- - Fixes for theme 2012 2011
- This is only needed when using page-arlima.php that's no
- longer shipped with the plugin.
- @todo: Remove when moving to version 3.0
-* * * * * * * * * * * */
-
-.arlima-content #content {
-    margin: 0 34% 0 7.6%;
-    width: 58.4%;
-    position: static;
-}
-
-#primary.arlima-content {
-    margin:0 -26.4% 0 0;
-}
-
-#page.site .arlima-content #content {
-    margin:0;
-    width: 70%;
-    float: left;
-}
-
-#page.site #primary.arlima-content {
-    margin: 0;
-}
-
-@media screen and (max-width: 580px) {
-    #page.site .arlima-content #content {
-        margin:0;
-        width: auto;
-        float: none;
-    }
-}
 
 
 /* * * * * * * * * *
@@ -443,11 +407,26 @@ current list in wp-admin
         font-size: 20px !important;
     }
 
+    /* Make all childs display block */
     .teaser-children .tmpl-article.teaser-split,
     body.arlima-preview .teaser-children .tmpl-article.teaser-split
     {
         float: none !important;
         width: 100% !important;
+    }
+
+    /* Alla images full width */
+
+    .tmpl-article img.alignleft,
+    .tmpl-article img.alignright,
+    .tmpl-article img.half,
+    .tmpl-article img.third,
+    .tmpl-article img.fourth,
+    .tmpl-article img.fifth,
+    .tmpl-article img.sixth {
+        margin: 0 0 5px;
+        width: auto;
+        max-width: 100%;
     }
 }
 

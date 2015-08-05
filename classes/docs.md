@@ -98,6 +98,7 @@
 | public | <strong>getCreationTime()</strong> : <em>int</em><br /><em>Get an unix timestamp (in seconds) of when the article was created</em> |
 | public | <strong>getId()</strong> : <em>int</em> |
 | public | <strong>getImageAlignment()</strong> : <em>string</em><br /><em>Get aligment of possibly connected image</em> |
+| public | <strong>getImageFilePath()</strong> : <em>string</em><br /><em>Returns path to image file if known (Remember that the article object may refer to an article on a remote website)</em> |
 | public | <strong>getImageId()</strong> : <em>int/string</em><br /><em>Get id of possibly connected image. Will return empty string if no images is attached to the article</em> |
 | public | <strong>getImageSize()</strong> : <em>string</em><br /><em>Get size name of possibly connected image</em> |
 | public | <strong>getImageURL()</strong> : <em>string</em><br /><em>Get the URL of article image. Returns empty string if not image is connected to the article</em> |
@@ -746,6 +747,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>getVersions(</strong><em>mixed/array/null</em> <strong>$meta=null</strong>, <em>bool</em> <strong>$as_url=false</strong>)</strong> : <em>array</em><br /><em>Get paths to all generated arlima version</em> |
 | public static | <strong>registerFilters()</strong> : <em>void</em><br /><em>Removes all generated versions when attachments gets deleted</em> |
 | public static | <strong>removeVersions(</strong><em>mixed/int</em> <strong>$attach_id=null</strong>)</strong> : <em>void</em><br /><em>Removes all image versions created for given attachment</em> |
+| public static | <strong>uploadDirData(</strong><em>mixed/string</em> <strong>$key=null</strong>)</strong> : <em>array</em> |
 
 <hr /> 
 ### Class: Arlima_WP_Page_Edit
@@ -819,6 +821,7 @@ isInScheduledInterval('*:*'); // All days of the week and all hours of the day
 | public | <strong>adminMenu()</strong> : <em>void</em><br /><em>Creates the menu in wp-admin for this plugin</em> |
 | public | <strong>arlimaListShortCode(</strong><em>array</em> <strong>$attr</strong>)</strong> : <em>string</em><br /><em>Short code for arlima</em> |
 | public | <strong>attachmentMetaBox()</strong> : <em>void</em><br /><em>Outputs HTML content of arlima versions meta box</em> |
+| public static | <strong>bodyClassFilter(</strong><em>array</em> <strong>$classes</strong>)</strong> : <em>void</em> |
 | public static | <strong>classLoader(</strong><em>string</em> <strong>$class</strong>)</strong> : <em>void</em><br /><em>Class loader that either tries to load the class from arlima class directory or template engine directory</em> |
 | public | <strong>commonInitHook()</strong> : <em>void</em><br /><em>Init hook taking place in both wp-admin and theme</em> |
 | public static | <strong>deactivate()</strong> : <em>void</em><br /><em>Deactivation procedure for this plugin - Removes feed from wp_rewrite</em> |

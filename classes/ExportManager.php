@@ -321,33 +321,39 @@ class Arlima_ExportManager
     }
 
     /**
-     * @param $article
+     * @param Arlima_Article $article
      * @return string
      */
     private function getArticleImageAsXML($article)
     {
         $img = '';
-        if ($img_url = $article->getImageURL()) {
+        if ($default_img_url = $article->getImageURL()) {
 
-            $node_type = ARLIMA_RSS_IMG_TAG;
             $img_data = array(
                 'attachment' => $article->getImageId(),
                 'alignment' => $article->getImageAlignment(),
-                'size' => $article->getImageSize()
+                'size' => $article->getImageSize()  // refering to size dimension, not file size
             );
-            $img_url = $this->cms->applyFilters('arlima_rss_image', $img_url, $img_data);
+            $img_url = $this->cms->applyFilters('arlima_rss_image', $default_img_url, $img_data);
             $img_type = pathinfo($img_url, PATHINFO_EXTENSION);
             $img_type = 'image/' . current(explode('?', $img_type));
 
-            if ($node_type == 'media:content') {
-                $img = '<media:content url="' . $img_url . '" type="' . $img_type . '" />';
-                return $img;
-            } elseif ($node_type == 'image') {
-                $img = '<image>' . $img_url . '</image>';
-                return $img;
-            } else {
-                $img = '<enclosure url="' . $img_url . '" length="1" type="' . $img_type . '"  />';
-                return $img;
+            switch(ARLIMA_RSS_IMG_TAG) {
+                case 'media:content':
+                    $img = '<media:content url="' . $img_url . '" type="' . $img_type . '" />';
+                    break;
+                case 'image':
+                    $img = '<image>' . $img_url . '</image>';
+                    break;
+                default:
+                    $file_size = 0;
+                    if( $default_img_url == $img_url && ($file_path = $article->getImageFilePath()) ) {
+                        // We don't know how to get the filesize if we're not using default image
+                        // @todo: Change the arlima_rss_image filter to return an array with URL and filesize
+                        $file_size = filesize($file_path);
+                    }
+                    $img = '<enclosure url="' . $img_url . '" length="'.$file_size.'" type="' . $img_type . '"  />';
+                    break;
             }
         }
         return $img;

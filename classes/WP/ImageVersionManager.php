@@ -43,7 +43,7 @@ class Arlima_WP_ImageVersionManager
      * @param string $key
      * @return array
      */
-    private static function uploadDirData($key = null)
+    public static function uploadDirData($key = null)
     {
         if( self::$upload_dir_data === null) {
             self::$upload_dir_data = wp_upload_dir();

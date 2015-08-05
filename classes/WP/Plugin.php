@@ -100,11 +100,23 @@ class Arlima_WP_Plugin
         if ( is_page() ) {
             add_action('loop_start', 'Arlima_WP_Plugin::setupArlimaListRendering');
             add_action('loop_end', 'Arlima_WP_Plugin::tearDownArlimaListRendering');
+            add_filter('body_class', 'Arlima_WP_Plugin::bodyClassFilter');
         }
 
         if( is_user_logged_in() && arlima_is_preview() ) {
             wp_enqueue_script('jquery'); // The list manager uses the jQuery object on this page
         }
+    }
+
+    /**
+     * @param array $classes
+     */
+    static function bodyClassFilter($classes)
+    {
+        if( arlima_has_list() ) {
+            $classes[] = 'has-arlima-list';
+        }
+        return $classes;
     }
 
     /**

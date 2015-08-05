@@ -165,6 +165,20 @@ class Arlima_Article implements ArrayAccess, Countable {
     }
 
     /**
+     * Returns path to image file if known (Remember that the article object may refer to an article
+     * on a remote website)
+     * @return string
+     */
+    function getImageFilePath()
+    {
+        $path = '';
+        if( $this->has_img && !empty($this->data['image']['attachment']) ) {
+            list($width, $height, $path) = Arlima_CMSFacade::load()->getImageData($this->data['image']['attachment']);
+        }
+        return $path;
+    }
+
+    /**
      * Get size name of possibly connected image
      * @return string
      */
@@ -188,7 +202,7 @@ class Arlima_Article implements ArrayAccess, Countable {
      */
     function getImageId()
     {
-        return $this->getImageData('attachment'); // @todo rename 'attachment' to 'imageId'
+        return $this->getImageData('attachment'); // @todo rename 'attachment' to 'id'
     }
 
     /**

@@ -478,7 +478,7 @@ class Arlima_WP_Facade implements Arlima_CMSInterface
     {
         $meta = wp_get_attachment_metadata($img_id);
         if( $meta ) {
-            return array($meta['height'], $meta['width'], $meta['file']);
+            return array($meta['height'], $meta['width'], Arlima_WP_ImageVersionManager::uploadDirData('basedir').'/'.$meta['file']);
         } else {
             return array(0,0,'');
         }

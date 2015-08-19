@@ -450,7 +450,7 @@ var ArlimaArticle = (function($, window, ArlimaJS, ArlimaUtils) {
      * @return {Boolean}
      */
     ArlimaArticle.prototype.canBeChild = function() {
-        return !this.isDivider() && !this.opt('fileInclude') && !this.isParent();
+        return !this.isDivider() && !this.isParent();
     };
 
 

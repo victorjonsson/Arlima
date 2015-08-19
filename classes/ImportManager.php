@@ -375,31 +375,29 @@ class Arlima_ImportManager
     {
         $img_options = array();
 
-        // get image from node
         if (isset($item->image)) {
+            // get image from node
             $img_options = $this->generateArticleImageOptions((string)$item->image);
-            return $img_options;
-        } // get image from enclosure
+        }
         elseif (isset($item->enclosure) && $this->isEnclosureValidImage($item->enclosure)) {
+            // get image from enclosure
             $img_options = $this->generateArticleImageOptions((string)$item->enclosure->attributes()->url);
-            return $img_options;
-        } // Try to find an image in the description
+        }
         else {
+            // Try to find an image in the description
             preg_match('/<img[^>]+\>/i', (string)$item->description, $matches);
             if (isset($matches[0])) {
                 preg_match('/src="([^"]*)"/i', $matches[0], $src);
-                if (isset($src[1])) {
+                if ( isset($src[1]) ) {
                     $source = trim($src[1]);
                     $ext = strtolower(substr($source, -4));
                     if ($ext == '.jpg' || $ext == 'jpeg' || $ext == '.png' || $ext == '.gif') {
                         $img_options = $this->generateArticleImageOptions($source);
-                        return $img_options;
                     }
-                    return $img_options;
                 }
-                return $img_options;
             }
-            return $img_options;
         }
+
+        return $img_options;
     }
 }

@@ -24,7 +24,7 @@ class Arlima_ListVersionRepository extends Arlima_AbstractRepositoryDB {
      * @param array $articles
      * @param int $user_id
      * @param bool $preview
-     * @return mixed
+     * @return int
      */
     public function create($list, $articles, $user_id, $preview=false)
     {

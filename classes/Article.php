@@ -179,7 +179,8 @@ class Arlima_Article implements ArrayAccess, Countable {
     }
 
     /**
-     * Get size name of possibly connected image
+     * Get size name of possibly connected image (full, half, third, quarter, fifth, sixth)
+     * @todo Move name of image sizes to class constants
      * @return string
      */
     function getImageSize()
